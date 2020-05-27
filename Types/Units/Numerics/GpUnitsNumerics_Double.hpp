@@ -1,0 +1,14 @@
+#pragma once
+
+#include "../GpUnit.hpp"
+
+namespace GPlatform {
+
+class GpUnitType_NUMERIC_DOUBLE;
+
+using Double = GpUnit<double, GpUnitType_NUMERIC_DOUBLE, std::ratio<1, 1>, decltype("double"_template_str)>;
+
+constexpr Double	operator"" _double  (const unsigned long long aValue) {return Double::SMake(static_cast<long double>(aValue));}
+constexpr Double	operator"" _double  (const long double aValue) {return Double::SMake(aValue);}
+
+}//GPlatform
