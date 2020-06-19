@@ -139,7 +139,7 @@ public:
 		}
 	}
 
-	[[nodiscard]] size_t			Counter			(void) const noexcept;
+	[[nodiscard]] count_t			Counter			(void) const noexcept;
 	[[nodiscard]] bool				IsNULL			(void) const noexcept;
 	[[nodiscard]] bool				IsNotNULL		(void) const noexcept;
 
@@ -376,14 +376,14 @@ void	GpSharedPtrBase<T, RefPtrT, _IsWeak>::Set (this_type&& aSharedPtr) noexcept
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
-size_t	GpSharedPtrBase<T, RefPtrT, _IsWeak>::Counter (void) const noexcept
+count_t	GpSharedPtrBase<T, RefPtrT, _IsWeak>::Counter (void) const noexcept
 {
 	if (iRefCounter != nullptr)
 	{
 		return iRefCounter->Counter();
 	} else
 	{
-		return 0;
+		return 0_cnt;
 	}
 }
 
@@ -541,20 +541,6 @@ typename GpSharedPtrBase<T, RefPtrT, _IsWeak>::this_type&	GpSharedPtrBase<T, Ref
 	return *this;
 }
 
-/*
-template <typename T, typename RefPtrT, bool _IsWeak>
-void	GpSharedPtrBase<T, RefPtrT, _IsWeak>::SDeepCopyVec (const GpVector<this_type>&	aSrc,
-															GpVector<this_type>&		aDst)
-{
-	aDst.clear();
-	aDst.reserve(aSrc.size());
-
-	for (auto&& iter: aSrc)
-	{
-		aDst.emplace_back(iter.Clone());
-	}
-}*/
-
 template<typename T>
 using GpSP	= GpSharedPtrBase<T, GpReferenceCounter*, false>;
 
@@ -568,16 +554,5 @@ template<typename T>
 using GpCWP	= GpSharedPtrBase<T, const GpReferenceCounter*, true>;
 
 }//namespace GPlatform
-
-//********************** Hash *********************
-/*namespace std {
-	template <typename T, typename RefPtrT, bool _IsWeak> struct hash<GPlatform::GpSharedPtrBase<T, RefPtrT, _IsWeak>>
-	{
-		size_t operator()(const GPlatform::GpSharedPtrBase<T, RefPtrT, _IsWeak>& aSP) const noexcept
-		{
-			return std::hash<const GPlatform::GpReferenceCounter*>()(aSP._RefCounter());
-		}
-	};
-}//std*/
 
 #endif//#if defined(GP_USE_SHARED_POINTERS)

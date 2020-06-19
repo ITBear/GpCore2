@@ -10,3 +10,5 @@
 #include "GpUnitsNumerics_UInt64.hpp"
 #include "GpUnitsNumerics_Float.hpp"
 #include "GpUnitsNumerics_Double.hpp"
+#include "GpUnitsNumerics_USizeT.hpp"
+#include "GpUnitsNumerics_SSizeT.hpp"

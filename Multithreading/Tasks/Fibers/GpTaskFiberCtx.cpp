@@ -7,16 +7,12 @@
 #include "GpTaskFiberManager.hpp"
 #include "boost_context.hpp"
 
-#include <iostream>
-
 namespace GPlatform {
 
 static thread_local FiberArgsT sFiberArgsTLS;
 
 static FiberT _FiberFn (FiberT&& aOuterFiber)
 {
-	//std::cout << "[_FiberFn]: ... " << aOuterFiber.fctx_ << std::endl;
-
 	//IN
 	{
 		// Call actual fn
@@ -85,8 +81,6 @@ void	GpTaskFiberCtx::Init (void)
 										   PreallocatedT(sctx_sp, sctx_size, sctx),
 										   GpPooledStack(sctx),
 										   _FiberFn);
-
-	//std::cout << "[GpTaskFiberCtx::Init]... " << reinterpret_cast<FiberT*>(iFiberPtr)->fctx_ << std::endl;
 }
 
 void	GpTaskFiberCtx::Clear (void) noexcept
@@ -118,9 +112,7 @@ GpTask::Res	GpTaskFiberCtx::Enter (GpThreadStopToken	aStopToken,
 
 		FiberT& fiber = *reinterpret_cast<FiberT*>(iFiberPtr);
 
-		//std::cout << "[GpTaskFiberCtx::Enter] in... " << fiber.fctx_ << std::endl;
 		fiber = std::move(fiber).resume();
-		//std::cout << "[GpTaskFiberCtx::Enter] out..." << reinterpret_cast<FiberT*>(iFiberPtr)->fctx_ << std::endl;
 	}
 
 	//OUT
@@ -150,7 +142,6 @@ void	GpTaskFiberCtx::SYeld (const GpTask::Res aRes)
 		std::get<3>(fiberArgs)	= aRes;
 		std::get<4>(fiberArgs).reset();
 
-		//std::cout << "[GpTaskFiberCtx::SYeld]: yeld1... " << fiber.fctx_ << std::endl;
 		fiber = std::move(fiber).resume();
 	}
 
@@ -159,8 +150,6 @@ void	GpTaskFiberCtx::SYeld (const GpTask::Res aRes)
 		FiberArgsT& fiberArgs = sFiberArgsTLS;
 
 		std::get<0>(fiberArgs) = std::move(fiber);
-
-		//std::cout << "[GpTaskFiberCtx::SYeld]: yeld2... " << fiber.fctx_ << std::endl;
 	}
 }
 

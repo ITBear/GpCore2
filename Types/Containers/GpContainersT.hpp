@@ -7,6 +7,7 @@
 #include "../../GpCore_global.hpp"
 #include "../Numerics/GpNumericTypes.hpp"
 #include "../Pointers/GpSharedPtr.hpp"
+#include "../Units/Numerics/GpUnitsNumerics.hpp"
 
 #include <array>
 #include <vector>
@@ -96,19 +97,19 @@ public:
 	using MapStr		= GpDeclContainerMapT<GpMap, std::string, this_type>;
 	using MapSv			= GpDeclContainerMapT<GpMap, std::string_view, this_type>;
 	using MapUuid		= GpDeclContainerMapT<GpMap, GpUUID, this_type>;
-	using MapSi64		= GpDeclContainerMapT<GpMap, s_int_64, this_type>;
-	using MapUi64		= GpDeclContainerMapT<GpMap, u_int_64, this_type>;
-	using MapSizeT		= GpDeclContainerMapT<GpMap, size_t, this_type>;
-	using MapSSizeT		= GpDeclContainerMapT<GpMap, ssize_t, this_type>;
+	using MapSi64		= GpDeclContainerMapT<GpMap, SInt64, this_type>;
+	using MapUi64		= GpDeclContainerMapT<GpMap, UInt64, this_type>;
+	using MapSizeT		= GpDeclContainerMapT<GpMap, USizeT, this_type>;
+	using MapSSizeT		= GpDeclContainerMapT<GpMap, SSizeT, this_type>;
 	using MapCVoidPtr	= GpDeclContainerMapT<GpMap, const void*, this_type>;
 
 	using UMapStr		= GpDeclContainerMapT<GpMap, std::string, this_type>;
 	using UMapSv		= GpDeclContainerMapT<GpMap, std::string_view, this_type>;
 	using UMapUuid		= GpDeclContainerMapT<GpUMap, GpUUID, this_type>;
-	using UMapSi64		= GpDeclContainerMapT<GpUMap, s_int_64, this_type>;
-	using UMapUi64		= GpDeclContainerMapT<GpUMap, u_int_64, this_type>;
-	using UMapSizeT		= GpDeclContainerMapT<GpUMap, size_t, this_type>;
-	using UMapSSizeT	= GpDeclContainerMapT<GpUMap, ssize_t, this_type>;
+	using UMapSi64		= GpDeclContainerMapT<GpUMap, SInt64, this_type>;
+	using UMapUi64		= GpDeclContainerMapT<GpUMap, UInt64, this_type>;
+	using UMapSizeT		= GpDeclContainerMapT<GpUMap, USizeT, this_type>;
+	using UMapSSizeT	= GpDeclContainerMapT<GpUMap, SSizeT, this_type>;
 	using UMapCVoidPtr	= GpDeclContainerMapT<GpMap, const void*, this_type>;
 	using UMapCPtr		= GpDeclContainerMapT<GpMap, const this_type*, this_type>;
 

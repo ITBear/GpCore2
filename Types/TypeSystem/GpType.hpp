@@ -21,7 +21,9 @@ GP_ENUM(GPCORE_API, GpType,
 	FLOAT,
 	UUID,
 	STRING,
-	STRUCT
+	BLOB,
+	STRUCT,
+	STRUCT_SP
 );
 
 }//GPlatform

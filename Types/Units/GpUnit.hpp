@@ -2,7 +2,7 @@
 
 #include "../Strings/GpStringTemplateArg.hpp"
 #include "../Numerics/GpNumericOps.hpp"
-#include "../Classes/GpClassesDefines.hpp"
+#include "../Bits/GpBitCast.hpp"
 #include <chrono>
 #include <type_traits>
 
@@ -61,7 +61,7 @@ public:
 
 	[[nodiscard]] static std::string_view	SName (void) noexcept
 	{
-		return GpStringTemplateArgHolder<UNIT_NAME>::SToStringView();
+		return GpStringTemplateArgHolder<UNIT_NAME>::SAsStringView();
 	}
 
 	[[nodiscard]] const std::string_view	Name (void) const noexcept
@@ -99,23 +99,6 @@ public:
 	{
 		return this_type(NumOps::SMin<T>());
 	}
-
-	/*template<typename GP_UNIT>
-	constexpr GP_UNIT	As			(void) const noexcept
-	{
-		return GP_UNIT(*this);
-	}*/
-
-	/*template<typename VT>
-	constexpr VT	ValueAs	(void) const noexcept
-	{
-		return VT(Value());
-	}*/
-
-	/*constexpr T operator() (void) const noexcept
-	{
-		return iValue;
-	}*/
 
 	template<typename T_2,
 			 typename UNIT_TYPE_2,
@@ -355,12 +338,6 @@ public:
 		return *this;
 	}
 
-	//constexpr this_type&	operator=	(this_type&& aValue) noexcept = delete;
-	//{
-	//	iValue = aValue.Value();
-	//	return *this;
-	//}
-
 	template<typename T_2,
 			 typename UNIT_TYPE_2,
 			 typename SCALE_2,
@@ -434,19 +411,19 @@ public:
 			 typename SCALE_2,
 			 typename UNIT_NAME_2,
 			 typename = Convertible<T_2, UNIT_TYPE_2>>
-	constexpr this_type&	operator%=	(const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue)
+	constexpr this_type&	operator%= (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue)
 	{
 		iValue = NumOps::SMod<T>(iValue, SConvertFrom(aValue));
 		return *this;
 	}
 
-	constexpr this_type&	operator%=	(const this_type aValue)
+	constexpr this_type&	operator%= (const this_type aValue)
 	{
 		iValue = NumOps::SMod<T>(iValue, aValue.Value());
 		return *this;
 	}
 
-	constexpr const this_type operator-() noexcept
+	constexpr const this_type operator- (void) const noexcept
 	{
 		return this_type(NumOps::SNegative<T>(Value()));
 	}
@@ -456,7 +433,7 @@ public:
 			 typename SCALE_2,
 			 typename UNIT_NAME_2,
 			 typename = Convertible<T_2, UNIT_TYPE_2>>
-	constexpr friend const this_type operator+(const this_type aLeft, const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aRight)
+	constexpr friend const this_type operator+ (const this_type aLeft, const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aRight)
 	{
 		return this_type(NumOps::SAdd<T>(aLeft.Value(), SConvertFrom(aRight)));
 	}
@@ -561,8 +538,42 @@ public:
 		return this_type(NumOps::SConvert<T>(aValue));
 	}
 
+	template<typename T_2>
+	constexpr static this_type	SBitCast (const T_2 aValue)
+	{
+		return this_type(std::bit_cast<value_type>(aValue));
+	}
+
+
+	template<typename T_2,
+			 typename UNIT_TYPE_2,
+			 typename SCALE_2,
+			 typename UNIT_NAME_2>
+	constexpr static this_type	SBitCast (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue)
+	{
+		return this_type(std::bit_cast<value_type>(aValue.Value()));
+	}
+
 private:
 	T	iValue;
 };
 
 }//GPlatform
+
+namespace std {
+
+template<typename T,
+		 typename UNIT_TYPE,
+		 typename SCALE,
+		 typename UNIT_NAME> struct hash<::GPlatform::GpUnit<T, UNIT_TYPE, SCALE, UNIT_NAME>>
+{
+	using argument_type = ::GPlatform::GpUnit<T, UNIT_TYPE, SCALE, UNIT_NAME>;
+	using result_type	= size_t;
+
+	result_type operator()(argument_type const& aArg) const noexcept
+	{
+		return std::hash<typename argument_type::value_type>(aArg.Value());
+	}
+};
+
+}//std

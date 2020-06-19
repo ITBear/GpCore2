@@ -23,8 +23,9 @@ protected:
 										GpPipelineNode			(void) noexcept;
 
 public:
-	virtual								~GpPipelineNode			(void) noexcept = default;
+	virtual								~GpPipelineNode			(void) noexcept;
 
+	const GpPipeline*					Pipeline				(void) const noexcept {return iPipeline;}
 	GpPipeline*							Pipeline				(void) noexcept {return iPipeline;}
 	void								AssignToPipeline		(GpPipeline& aPipeline);
 	void								BreakConnections		(void);

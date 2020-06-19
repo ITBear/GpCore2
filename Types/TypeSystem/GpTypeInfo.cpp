@@ -6,22 +6,18 @@ namespace GPlatform {
 
 GpTypeInfo::GpTypeInfo (const GpTypeInfo& aTypeInfo):
 iUID(aTypeInfo.iUID),
-iInheritanceUID(aTypeInfo.iInheritanceUID),
+iBaseUID(aTypeInfo.iBaseUID),
 iName(aTypeInfo.iName),
 iType(aTypeInfo.iType),
-iContainer(aTypeInfo.iContainer),
-iContainerKeyType(aTypeInfo.iContainerKeyType),
 iProps(aTypeInfo.iProps)
 {
 }
 
 GpTypeInfo::GpTypeInfo (GpTypeInfo&& aTypeInfo) noexcept:
 iUID(std::move(aTypeInfo.iUID)),
-iInheritanceUID(std::move(aTypeInfo.iInheritanceUID)),
+iBaseUID(std::move(aTypeInfo.iBaseUID)),
 iName(std::move(aTypeInfo.iName)),
 iType(std::move(aTypeInfo.iType)),
-iContainer(std::move(aTypeInfo.iContainer)),
-iContainerKeyType(std::move(aTypeInfo.iContainerKeyType)),
 iProps(std::move(aTypeInfo.iProps))
 {
 }
@@ -33,11 +29,9 @@ GpTypeInfo::~GpTypeInfo (void) noexcept
 GpTypeInfo&	GpTypeInfo::operator= (const GpTypeInfo& aTypeInfo)
 {
 	iUID				= aTypeInfo.iUID;
-	iInheritanceUID		= aTypeInfo.iInheritanceUID;
+	iBaseUID			= aTypeInfo.iBaseUID;
 	iName				= aTypeInfo.iName;
 	iType				= aTypeInfo.iType;
-	iContainer			= aTypeInfo.iContainer;
-	iContainerKeyType	= aTypeInfo.iContainerKeyType;
 	iProps				= aTypeInfo.iProps;
 
 	return *this;
@@ -46,11 +40,9 @@ GpTypeInfo&	GpTypeInfo::operator= (const GpTypeInfo& aTypeInfo)
 GpTypeInfo&	GpTypeInfo::operator= (GpTypeInfo&& aTypeInfo) noexcept
 {
 	iUID				= std::move(aTypeInfo.iUID);
-	iInheritanceUID		= std::move(aTypeInfo.iInheritanceUID);
+	iBaseUID			= std::move(aTypeInfo.iBaseUID);
 	iName				= std::move(aTypeInfo.iName);
 	iType				= std::move(aTypeInfo.iType);
-	iContainer			= std::move(aTypeInfo.iContainer);
-	iContainerKeyType	= std::move(aTypeInfo.iContainerKeyType);
 	iProps				= std::move(aTypeInfo.iProps);
 
 	return *this;

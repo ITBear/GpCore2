@@ -26,11 +26,11 @@ public:
 	virtual						~GpMemoryStorage	(void) noexcept = default;
 
 	virtual void				Clear				(void) noexcept = 0;
-	virtual void				Allocate			(count_t aSize) = 0;
-	virtual void				Resize				(count_t aSize) = 0;
+	virtual void				Allocate			(size_byte_t aSize) = 0;
+	virtual void				Resize				(size_byte_t aSize) = 0;
 	virtual void				Set					(GpMemoryStorage&& aStorage) = 0;
 	virtual void				Set					(std::string_view aData) = 0;
-	virtual count_t				Size				(void) const noexcept = 0;
+	virtual size_byte_t			Size				(void) const noexcept = 0;
 	virtual bool				IsEmpty				(void) const noexcept = 0;
 
 	virtual ViewR::SP			ViewRead			(void) const = 0;

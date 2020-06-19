@@ -7,11 +7,13 @@
 namespace GPlatform {
 
 GpPipelineNodeSocket::GpPipelineNodeSocket (GpPipelineNode&		aNode,
-											const GpUUID		aTypeUID,
-											const DirectrionTE	aDirectrion) noexcept:
+											const GpUUID&		aTypeUID,
+											const DirectrionTE	aDirectrion,
+											std::string_view	aName):
 iNode(aNode),
 iTypeUID(aTypeUID),
-iDirectrion(aDirectrion)
+iDirectrion(aDirectrion),
+iName(aName)
 {
 }
 

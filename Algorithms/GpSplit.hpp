@@ -3,6 +3,7 @@
 #include "../Types/Units/GpUnits.hpp"
 #include "../Types/Strings/GpStringOpsGlob.hpp"
 #include "../Types/Strings/GpStringLiterals.hpp"
+#include "../Types/Pointers/GpRawPtrR.hpp"
 #include "../Memory/GpMemOps.hpp"
 #include "../Exceptions/GpExceptions.hpp"
 
@@ -19,78 +20,65 @@ template<typename Element,
 		 typename ContainerRes
 		 >
 [[nodiscard]]
-ContainerRes	Split (const Element* _R_	aElements,
-					   const count_t		aElementsCount,
-					   const Element* _R_	aDelim,
-					   const count_t		aDelimSize,
-					   const count_t		aReturnPartsCountLimit,	//(0 - no liits)
-					   const count_t		aDelimCountLimit,		//(0 - no liits)
-					   const SplitMode		aSplitMode
-					   )
+ContainerRes	Split (GpRawPtrR<const Element*>	aElements,
+					   GpRawPtrR<const Element*>	aDelim,
+					   const count_t				aReturnPartsCountLimit,	//(0 - no limits)
+					   const count_t				aDelimCountLimit,		//(0 - no limits)
+					   const SplitMode				aSplitMode)
 {
-	THROW_GPE_COND_CHECK_M(aElements != nullptr, "aElements is nullptr"_sv);
-	THROW_GPE_COND_CHECK_M(aDelim != nullptr, "aDelim is nullptr"_sv);
-	THROW_GPE_COND_CHECK_M(aDelimSize > 0_cnt, "aDelimSize is 0"_sv);
-
-	const Element* _R_	partBegin	= aElements;
-	size_t				partLength	= 0;
-	size_t				delimCount	= 0;
+	const Element*	partBegin	= aElements.Ptr();
+	count_t			partLength	= 0_cnt;
+	count_t			delimCount	= 0_cnt;
+	const count_t	delimLength	= aDelim.LengthLeft();
+	count_t			elementsLeft= aElements.CountLeft();
 
 	ContainerRes res;
 
-	const size_t	elementsCount	= aElementsCount.ValueAs<size_t>();
-	size_t			elementsLeft	= elementsCount;
-	const size_t	delimCountLimit	= aDelimCountLimit.ValueAs<size_t>();
-
-	for (size_t id = 0; id < elementsCount; )
+	while (elementsLeft > 0_cnt)
 	{
-		if (   (aDelimSize.Value() <= elementsLeft)
-			&& (std::memcmp(aElements, aDelim, aDelimSize.Value()) == 0))
+		if (aElements.IsEqualByArgLen(aDelim))
 		{
 			if (   (aSplitMode == SplitMode::COUNT_ZERO_LENGTH_PARTS)
-				|| (partLength > 0))
+				|| (partLength > 0_cnt))
 			{				
-				res.emplace_back(partBegin, partLength);
+				res.emplace_back(partBegin, partLength.ValueAs<size_t>());
 
 				if (   (aReturnPartsCountLimit > 0_cnt)
-					&& (res.size() >= aReturnPartsCountLimit.Value()))
+					&& (res.size() >= aReturnPartsCountLimit.ValueAs<size_t>()))
 				{
 					return res;
 				}
 			}
 
 			++delimCount;
-			if (   (delimCountLimit > 0)
-				&& (delimCount >= delimCountLimit))
+			if (   (aDelimCountLimit > 0_cnt)
+				&& (delimCount >= aDelimCountLimit))
 			{
 				return res;
 			}
 
-			aElements	+= aDelimSize.Value();
-			id			+= aDelimSize.Value();
-			partBegin	= aElements;
-			partLength	= 0;
+			aElements.OffsetAdd(delimLength);
+			elementsLeft-= delimLength;
+			partBegin	= aElements.Ptr();
+			partLength	= 0_cnt;
 		} else
 		{
-			++aElements;
-			++id;
+			aElements++;
+			elementsLeft-= 1_cnt;
 			++partLength;
 		}
 	}
 
-	if (aElementsCount > 0_cnt)
+	if (   (partLength > 0_cnt)
+		|| (aSplitMode == SplitMode::COUNT_ZERO_LENGTH_PARTS))
 	{
-		if (   (partLength > 0)
-			|| (aSplitMode == SplitMode::COUNT_ZERO_LENGTH_PARTS))
-		{
-				res.emplace_back(partBegin, partLength);
-		}
+		res.emplace_back(partBegin, partLength.ValueAs<size_t>());
 	}
 
 	return res;
 }
 
-template<typename Element,
+/*template<typename Element,
 		 typename ContainerRes
 		 >
 [[nodiscard]]
@@ -99,10 +87,9 @@ ContainerRes	Split (const Element* _R_	aElements,
 					   const Element		aDelim,
 					   const Element		aEscGroupBegin,
 					   const Element		aEscGroupEnd,
-					   const count_t		aReturnPartsCountLimit,	//(0 - no liits)
-					   const count_t		aDelimCountLimit,		//(0 - no liits)
-					   const SplitMode		aSplitMode
-					   )
+					   const count_t		aReturnPartsCountLimit,	//(0 - no limits)
+					   const count_t		aDelimCountLimit,		//(0 - no limits)
+					   const SplitMode		aSplitMode)
 {
 	const Element* _R_	partBegin	= aElements;
 	size_t				partLength	= 0;
@@ -169,7 +156,7 @@ ContainerRes	Split (const Element* _R_	aElements,
 	}
 
 	return res;
-}
+}*/
 
 }//Algo
 }//GPlatform

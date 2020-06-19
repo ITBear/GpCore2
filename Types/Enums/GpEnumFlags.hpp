@@ -1,8 +1,10 @@
 #pragma once
 
-#include "GpEnum.hpp"
+#include "../../Config/GpConfig.hpp"
 
-#if defined(GP_USE_ENUM)
+#if defined(GP_USE_ENUMS)
+/*
+#include "GpEnum.hpp"
 
 namespace GPlatform {
 
@@ -196,5 +198,5 @@ template<> struct hash<GPlatform::GpEnumFlags>
 };
 
 }//std
-
-#endif//#if defined(GP_USE_ENUM)
+*/
+#endif//#if defined(GP_USE_ENUMS)

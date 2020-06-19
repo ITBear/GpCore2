@@ -20,8 +20,8 @@ private:
 public:
 	static GpTaskFiberManager&	S					(void);
 
-	void						Init				(const count_t			aMaxStacksCount,
-													 const size_mebibyte_t	aStackSize);
+	void						Init				(const count_t		aMaxStacksCount,
+													 const size_byte_t	aStackSize);
 	GpTaskFiberStackPool&		StackPool			(void) noexcept {return iStackPool;}
 
 private:

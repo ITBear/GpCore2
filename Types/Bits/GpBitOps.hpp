@@ -5,8 +5,9 @@
 #include "../Numerics/GpNumericTypes.hpp"
 #include "../Containers/GpContainersT.hpp"
 #include "../../Exceptions/GpCeExceptions.hpp"
+#include "GpBitCast.hpp"
+
 #include <bitset>
-#include <cstring>
 
 #if defined(GP_CPU_USE_BMI2)
 #	include <immintrin.h>
@@ -34,7 +35,7 @@ private:
 public:
 	//------------------------------------ Network/Host byte order (N2H/H2N) --------------------------------
 	template<typename T> [[nodiscard]] static
-	T								BSwap (T aValue)
+	T								BSwap (const T aValue)
 	{
 		static_assert(std::is_integral<T>::value, "T must be integral");
 		static_assert((sizeof(T) == 1) ||
@@ -42,38 +43,30 @@ public:
 					  (sizeof(T) == 4) ||
 					  (sizeof(T) == 8), "sizeof(T) must be 2 or 4 or 8");
 
-		typename std::make_unsigned<T>::type unsignedValue;
-		std::memcpy(&unsignedValue, &aValue, sizeof(T));
+		typename std::make_unsigned<T>::type tmpVal;
+		tmpVal = std::bit_cast<decltype(tmpVal)>(aValue);
 
-		if constexpr(sizeof(T) == 2)		unsignedValue = BSWAP16(unsignedValue);
-		else if constexpr(sizeof(T) == 4)	unsignedValue = BSWAP32(unsignedValue);
-		else if constexpr(sizeof(T) == 8)	unsignedValue = BSWAP64(unsignedValue);
+		if constexpr(sizeof(T) == 2)		tmpVal = BSWAP16(tmpVal);
+		else if constexpr(sizeof(T) == 4)	tmpVal = BSWAP32(tmpVal);
+		else if constexpr(sizeof(T) == 8)	tmpVal = BSWAP64(tmpVal);
 
-		std::memcpy(&aValue, &unsignedValue, sizeof(T));
-
-		return aValue;
+		return std::bit_cast<T>(tmpVal);
 	}
 
-	[[nodiscard]] static double		BSwap (double aValue)
+	[[nodiscard]] static double		BSwap (const double aValue)
 	{
 		static_assert(sizeof(double) == sizeof(u_int_64), "sizeof(double) != sizeof(u_int_64)");
 
-		u_int_64 unsignedValue;
-		std::memcpy(&unsignedValue, &aValue, sizeof(double));
-		unsignedValue = BSWAP64(unsignedValue);
-		std::memcpy(&aValue, &unsignedValue, sizeof(double));
-		return aValue;
+		const u_int_64 tmpVal = std::bit_cast<u_int_64>(aValue);
+		return std::bit_cast<double>(BSWAP64(tmpVal));
 	}
 
 	[[nodiscard]] static float		BSwap (float aValue)
 	{
 		static_assert(sizeof(float) == sizeof(u_int_32), "sizeof(float) != sizeof(u_int_32)");
 
-		u_int_32 unsignedValue;
-		std::memcpy(&unsignedValue, &aValue, sizeof(float));
-		unsignedValue = BSWAP32(unsignedValue);
-		std::memcpy(&aValue, &unsignedValue, sizeof(float));
-		return aValue;
+		const u_int_32 tmpVal = std::bit_cast<u_int_32>(aValue);
+		return std::bit_cast<float>(BSWAP32(tmpVal));
 	}
 
 	template<typename T> [[nodiscard]] static
@@ -259,7 +252,7 @@ public:
 	}
 
 	template<typename T> [[nodiscard]] static constexpr
-	size_t							LeadingZeroCount	(T aValue) noexcept
+	count_t							LeadingZeroCount	(T aValue) noexcept
 	{
 		using UT = typename std::make_unsigned<T>::type;
 
@@ -267,28 +260,27 @@ public:
 		static_assert(sizeof(T) <= sizeof(unsigned long long), "Type size is too big");
 		static_assert(sizeof(T) == sizeof(UT), "Signed and unsigned types must be the same size");
 
-		UT v;
-		std::memcpy(&v, &aValue, sizeof(UT));
+		const UT v = std::bit_cast<UT>(aValue);
 
 		if (v == UT(0))
 		{
-			return sizeof(UT)*8;
+			return count_t::SMake(sizeof(UT) * 8);
 		}
 
 		if constexpr (std::is_same<UT, u_int_8>::value)
 		{
-			return size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_8))*8;
+			return count_t::SMake(size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_8))*8);
 		} else if constexpr (std::is_same<UT, u_int_16>::value)
 		{
 			if constexpr (sizeof(unsigned int) >= sizeof(u_int_16))
 			{
-				return size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_16))*8;
+				return count_t::SMake(size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_16))*8);
 			} else if constexpr (sizeof(unsigned long) >= sizeof(u_int_16))
 			{
-				return size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_16))*8;
+				return count_t::SMake(size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_16))*8);
 			} else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_16))
 			{
-				return size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_16))*8;
+				return count_t::SMake(size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_16))*8);
 			} else
 			{
 				GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -297,13 +289,13 @@ public:
 		{
 			if constexpr (sizeof(unsigned int) >= sizeof(u_int_32))
 			{
-				return size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_32))*8;
+				return count_t::SMake(size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_32))*8);
 			} else if constexpr (sizeof(unsigned long) >= sizeof(u_int_32))
 			{
-				return size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_32))*8;
+				return count_t::SMake(size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_32))*8);
 			} else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_32))
 			{
-				return size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_32))*8;
+				return count_t::SMake(size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_32))*8);
 			} else
 			{
 				GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -312,13 +304,13 @@ public:
 		{
 			if constexpr (sizeof(unsigned int) >= sizeof(u_int_64))
 			{
-				return size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_64))*8;
+				return count_t::SMake(size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_64))*8);
 			} else if constexpr (sizeof(unsigned long) >= sizeof(u_int_64))
 			{
-				return size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_64))*8;
+				return count_t::SMake(size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_64))*8);
 			} else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_64))
 			{
-				return size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_64))*8;
+				return count_t::SMake(size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_64))*8);
 			} else
 			{
 				GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -330,7 +322,7 @@ public:
 	}
 
 	template<typename T> [[nodiscard]] static constexpr
-	size_t							TrailingZeroCount	(T aValue) noexcept
+	count_t						TrailingZeroCount	(T aValue) noexcept
 	{
 		using UT = typename std::make_unsigned<T>::type;
 
@@ -338,28 +330,27 @@ public:
 		static_assert(sizeof(T) <= sizeof(unsigned long long), "Type size is too big");
 		static_assert(sizeof(T) == sizeof(UT), "Signed and unsigned types must be the same size");
 
-		UT v;
-		std::memcpy(&v, &aValue, sizeof(UT));
+		const UT v = std::bit_cast<UT>(aValue);
 
 		if (v == UT(0))
 		{
-			return sizeof(UT)*8;
+			return count_t::SMake(sizeof(UT)*8);
 		}
 
 		if constexpr (std::is_same<UT, u_int_8>::value)
 		{
-			return size_t(__builtin_ctz(static_cast<unsigned int>(v)));
+			return count_t::SMake(size_t(__builtin_ctz(static_cast<unsigned int>(v))));
 		} else if constexpr (std::is_same<UT, u_int_16>::value)
 		{
 			if constexpr (sizeof(unsigned int) >= sizeof(u_int_16))
 			{
-				return size_t(__builtin_ctz(static_cast<unsigned int>(v)));
+				return count_t::SMake(size_t(__builtin_ctz(static_cast<unsigned int>(v))));
 			} else if constexpr (sizeof(unsigned long) >= sizeof(u_int_16))
 			{
-				return size_t(__builtin_ctzl(static_cast<unsigned long>(v)));
+				return count_t::SMake(size_t(__builtin_ctzl(static_cast<unsigned long>(v))));
 			} else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_16))
 			{
-				return size_t(__builtin_ctzll(static_cast<unsigned long long>(v)));
+				return count_t::SMake(size_t(__builtin_ctzll(static_cast<unsigned long long>(v))));
 			} else
 			{
 				GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -368,13 +359,13 @@ public:
 		{
 			if constexpr (sizeof(unsigned int) >= sizeof(u_int_32))
 			{
-				return size_t(__builtin_ctz(static_cast<unsigned int>(v)));
+				return count_t::SMake(size_t(__builtin_ctz(static_cast<unsigned int>(v))));
 			} else if constexpr (sizeof(unsigned long) >= sizeof(u_int_32))
 			{
-				return size_t(__builtin_ctzl(static_cast<unsigned long>(v)));
+				return count_t::SMake(size_t(__builtin_ctzl(static_cast<unsigned long>(v))));
 			} else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_32))
 			{
-				return size_t(__builtin_ctzll(static_cast<unsigned long long>(v)));
+				return count_t::SMake(size_t(__builtin_ctzll(static_cast<unsigned long long>(v))));
 			} else
 			{
 				GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -383,13 +374,13 @@ public:
 		{
 			if constexpr (sizeof(unsigned int) >= sizeof(u_int_64))
 			{
-				return size_t(__builtin_ctz(static_cast<unsigned int>(v)));
+				return count_t::SMake(size_t(__builtin_ctz(static_cast<unsigned int>(v))));
 			} else if constexpr (sizeof(unsigned long) >= sizeof(u_int_64))
 			{
-				return size_t(__builtin_ctzl(static_cast<unsigned long>(v)));
+				return count_t::SMake(size_t(__builtin_ctzl(static_cast<unsigned long>(v))));
 			} else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_64))
 			{
-				return size_t(__builtin_ctzll(static_cast<unsigned long long>(v)));
+				return count_t::SMake(size_t(__builtin_ctzll(static_cast<unsigned long long>(v))));
 			} else
 			{
 				GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -401,7 +392,7 @@ public:
 	}
 
 	template<typename T> [[nodiscard]] static constexpr
-	size_t							PopCount	(T aValue) noexcept
+	count_t						PopCount	(T aValue) noexcept
 	{
 		using UT = typename std::make_unsigned<T>::type;
 
@@ -409,23 +400,22 @@ public:
 		static_assert(sizeof(T) <= sizeof(unsigned long long), "Type size is too big");
 		static_assert(sizeof(T) == sizeof(UT), "Signed and unsigned types must be the same size");
 
-		UT v;
-		std::memcpy(&v, &aValue, sizeof(UT));
+		const UT v = std::bit_cast<UT>(aValue);
 
 		if constexpr (std::is_same<UT, u_int_8>::value)
 		{
-			return size_t(__builtin_popcount(static_cast<unsigned int>(v)));
+			return count_t::SMake(size_t(__builtin_popcount(static_cast<unsigned int>(v))));
 		} else if constexpr (std::is_same<UT, u_int_16>::value)
 		{
 			if constexpr (sizeof(unsigned int) >= sizeof(u_int_16))
 			{
-				return size_t(__builtin_popcount(static_cast<unsigned int>(v)));
+				return count_t::SMake(size_t(__builtin_popcount(static_cast<unsigned int>(v))));
 			} else if constexpr (sizeof(unsigned long) >= sizeof(u_int_16))
 			{
-				return size_t(__builtin_popcountl(static_cast<unsigned long>(v)));
+				return count_t::SMake(size_t(__builtin_popcountl(static_cast<unsigned long>(v))));
 			} else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_16))
 			{
-				return size_t(__builtin_popcountll(static_cast<unsigned long long>(v)));
+				return count_t::SMake(size_t(__builtin_popcountll(static_cast<unsigned long long>(v))));
 			} else
 			{
 				GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -434,13 +424,13 @@ public:
 		{
 			if constexpr (sizeof(unsigned int) >= sizeof(u_int_32))
 			{
-				return size_t(__builtin_popcount(static_cast<unsigned int>(v)));
+				return count_t::SMake(size_t(__builtin_popcount(static_cast<unsigned int>(v))));
 			} else if constexpr (sizeof(unsigned long) >= sizeof(u_int_32))
 			{
-				return size_t(__builtin_popcountl(static_cast<unsigned long>(v)));
+				return count_t::SMake(size_t(__builtin_popcountl(static_cast<unsigned long>(v))));
 			} else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_32))
 			{
-				return size_t(__builtin_popcountll(static_cast<unsigned long long>(v)));
+				return count_t::SMake(size_t(__builtin_popcountll(static_cast<unsigned long long>(v))));
 			} else
 			{
 				GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -449,13 +439,13 @@ public:
 		{
 			if constexpr (sizeof(unsigned int) >= sizeof(u_int_64))
 			{
-				return size_t(__builtin_popcount(static_cast<unsigned int>(v)));
+				return count_t::SMake(size_t(__builtin_popcount(static_cast<unsigned int>(v))));
 			} else if constexpr (sizeof(unsigned long) >= sizeof(u_int_64))
 			{
-				return size_t(__builtin_popcountl(static_cast<unsigned long>(v)));
+				return count_t::SMake(size_t(__builtin_popcountl(static_cast<unsigned long>(v))));
 			} else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_64))
 			{
-				return size_t(__builtin_popcountll(static_cast<unsigned long long>(v)));
+				return count_t::SMake(size_t(__builtin_popcountll(static_cast<unsigned long long>(v))));
 			} else
 			{
 				GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -470,7 +460,7 @@ public:
 	 * Returns one plus the index of the least significant 1-bit of aValue, or if aValue is zero, returns zero.
 	 */
 	template<typename T> [[nodiscard]] static constexpr
-	size_t							LeastSignificantBit	(T aValue) noexcept
+	count_t						LeastSignificantBit	(T aValue) noexcept
 	{
 		using UT = typename std::make_unsigned<T>::type;
 
@@ -478,23 +468,22 @@ public:
 		static_assert(sizeof(T) <= sizeof(unsigned long long), "Type size is too big");
 		static_assert(sizeof(T) == sizeof(UT), "Signed and unsigned types must be the same size");
 
-		UT v;
-		std::memcpy(&v, &aValue, sizeof(UT));
+		const UT v = std::bit_cast<UT>(aValue);
 
 		if constexpr (std::is_same<UT, u_int_8>::value)
 		{
-			return size_t(__builtin_ffs(static_cast<unsigned int>(v)));
+			return count_t::SMake(size_t(__builtin_ffs(static_cast<unsigned int>(v))));
 		} else if constexpr (std::is_same<UT, u_int_16>::value)
 		{
 			if constexpr (sizeof(unsigned int) >= sizeof(u_int_16))
 			{
-				return size_t(__builtin_ffs(static_cast<unsigned int>(v)));
+				return count_t::SMake(size_t(__builtin_ffs(static_cast<unsigned int>(v))));
 			} else if constexpr (sizeof(unsigned long) >= sizeof(u_int_16))
 			{
-				return size_t(__builtin_ffsl(static_cast<unsigned long>(v)));
+				return count_t::SMake(size_t(__builtin_ffsl(static_cast<unsigned long>(v))));
 			} else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_16))
 			{
-				return size_t(__builtin_ffsll(static_cast<unsigned long long>(v)));
+				return count_t::SMake(size_t(__builtin_ffsll(static_cast<unsigned long long>(v))));
 			} else
 			{
 				GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -503,13 +492,13 @@ public:
 		{
 			if constexpr (sizeof(unsigned int) >= sizeof(u_int_32))
 			{
-				return size_t(__builtin_ffs(static_cast<unsigned int>(v)));
+				return count_t::SMake(size_t(__builtin_ffs(static_cast<unsigned int>(v))));
 			} else if constexpr (sizeof(unsigned long) >= sizeof(u_int_32))
 			{
-				return size_t(__builtin_ffsl(static_cast<unsigned long>(v)));
+				return count_t::SMake(size_t(__builtin_ffsl(static_cast<unsigned long>(v))));
 			} else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_32))
 			{
-				return size_t(__builtin_ffsll(static_cast<unsigned long long>(v)));
+				return count_t::SMake(size_t(__builtin_ffsll(static_cast<unsigned long long>(v))));
 			} else
 			{
 				GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -518,13 +507,13 @@ public:
 		{
 			if constexpr (sizeof(unsigned int) >= sizeof(u_int_64))
 			{
-				return size_t(__builtin_ffs(static_cast<unsigned int>(v)));
+				return count_t::SMake(size_t(__builtin_ffs(static_cast<unsigned int>(v))));
 			} else if constexpr (sizeof(unsigned long) >= sizeof(u_int_64))
 			{
-				return size_t(__builtin_ffsl(static_cast<unsigned long>(v)));
+				return count_t::SMake(size_t(__builtin_ffsl(static_cast<unsigned long>(v))));
 			} else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_64))
 			{
-				return size_t(__builtin_ffsll(static_cast<unsigned long long>(v)));
+				return count_t::SMake(size_t(__builtin_ffsll(static_cast<unsigned long long>(v))));
 			} else
 			{
 				GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -539,9 +528,9 @@ public:
 	 * Returns one plus the index of the most significant 1-bit of aValue, or if aValue is zero, returns zero.
 	 */
 	template<typename T> [[nodiscard]] static constexpr
-	size_t							MostSignificantBit	(T aValue) noexcept
+	count_t						MostSignificantBit	(T aValue) noexcept
 	{
-		return sizeof(T)*8 - LeadingZeroCount(aValue);
+		return count_t::SMake(sizeof(T)*8) - LeadingZeroCount(aValue);
 	}
 };
 

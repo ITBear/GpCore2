@@ -2,7 +2,11 @@
 
 #include "GpEnvironmentDetector.hpp"
 
-#define consteval constexpr
+#include <version>
+
+#if !defined(__cpp_consteval)
+#	define consteval constexpr
+#endif
 
 //************************ STRICT ALIASING *********************************
 #if defined(GP_COMPILER_ICC)

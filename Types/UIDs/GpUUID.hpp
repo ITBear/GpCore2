@@ -17,95 +17,199 @@ class GPCORE_API GpUUID
 public:
 	CLASS_DECLARE_DEFAULTS(GpUUID);
 
-	using RawT	= GpArray<std::byte, 16>;
+	using DataT	= GpArray<std::byte, 16>;
 
 public:
-									GpUUID			(void) noexcept {std::memset(iRawData.data(), 0, sizeof(RawT));}
-	constexpr						GpUUID			(const RawT& aRawData) noexcept:iRawData(aRawData) {}
-									GpUUID			(const GpUUID& aUUID) noexcept:iRawData(aUUID.iRawData) {}
-									GpUUID			(GpUUID&& aUUID) noexcept:iRawData(std::move(aUUID.iRawData)) {}
-									~GpUUID			(void) noexcept = default;
+	constexpr							GpUUID			(void) noexcept:iData(CE_Zero()) {}
+	constexpr							GpUUID			(const DataT& aData) noexcept:iData(aData) {}
+	constexpr							GpUUID			(const GpUUID& aUUID) noexcept:iData(aUUID.iData) {}
+	constexpr							GpUUID			(GpUUID&& aUUID) noexcept:iData(std::move(aUUID.iData)) {}
+										~GpUUID			(void) noexcept = default;
 
-	[[nodiscard]] RawT				RawData			(void) const noexcept {return iRawData;}
-	[[nodiscard]] const std::byte*	Data			(void) const noexcept {return iRawData.data();}
-	[[nodiscard]] std::string_view	DataAsSV		(void) const noexcept {return std::string_view(reinterpret_cast<const char*>(Data()), 16);}
-	[[nodiscard]] std::string		ToString		(void) const;
+	[[nodiscard]] const DataT&			Data			(void) const noexcept {return iData;}
+	[[nodiscard]] std::string_view		AsStringView	(void) const noexcept {return std::string_view(reinterpret_cast<const char*>(Data().data()), Data().size());}
 
-	void							FromString		(std::string_view aStr);
-	inline void						Set				(const GpUUID& aUUID) noexcept;
-	[[nodiscard]] bool				IsEqual			(const GpUUID& aUUID) const noexcept;
-	[[nodiscard]] bool				IsZero			(void) const noexcept;
-	[[nodiscard]] inline bool		IsNotZero		(void) const noexcept;
-	void							Zero			(void) noexcept;
+	[[nodiscard]] std::string			ToString		(void) const;
+	void								FromString		(std::string_view aStr);
 
-	inline GpUUID&					operator=		(const GpUUID& aUUID) noexcept;
-	inline GpUUID&					operator=		(GpUUID&& aUUID) noexcept;
-	inline bool						operator>		(const GpUUID& aUUID) const noexcept;
-	inline bool						operator<		(const GpUUID& aUUID) const noexcept;
-	inline bool						operator==		(const GpUUID& aUUID) const noexcept;
-	inline bool						operator!=		(const GpUUID& aUUID) const noexcept;
+	inline void							Set				(const GpUUID& aUUID) noexcept;
+	inline void							Set				(GpUUID&& aUUID) noexcept;
+	inline constexpr void				Set				(const DataT& aData) noexcept;
+	inline constexpr void				Set				(DataT&& aData) noexcept;
+	[[nodiscard]] inline bool			IsEqual			(const GpUUID& aUUID) const noexcept;
+	[[nodiscard]] inline constexpr bool	IsEqual			(const DataT& aData) const noexcept;
+	[[nodiscard]] inline constexpr bool	IsZero			(void) const noexcept;
+	[[nodiscard]] inline constexpr bool	IsNotZero		(void) const noexcept;
+	inline constexpr void				Zero			(void) noexcept;
 
-	void							SetRandom		(GpRandom& aRandom);
+	inline GpUUID&						operator=		(const GpUUID& aUUID) noexcept;
+	inline GpUUID&						operator=		(GpUUID&& aUUID) noexcept;
+	inline constexpr GpUUID&			operator=		(const DataT& aData) noexcept;
+	inline constexpr GpUUID&			operator=		(DataT&& aData) noexcept;
 
-	[[nodiscard]] static GpUUID		SGenRandom		(void);
-	[[nodiscard]] static GpUUID		SFromString		(std::string_view aStr);
+	inline bool							operator>		(const GpUUID& aUUID) const noexcept;
+	inline constexpr bool				operator>		(const DataT& aData) const noexcept;
+	inline bool							operator<		(const GpUUID& aUUID) const noexcept;
+	inline constexpr bool				operator<		(const DataT& aData) const noexcept;
+	inline bool							operator==		(const GpUUID& aUUID) const noexcept;
+	inline constexpr bool				operator==		(const DataT& aData) const noexcept;
+	inline bool							operator!=		(const GpUUID& aUUID) const noexcept;
+	inline constexpr bool				operator!=		(const DataT& aData) const noexcept;
 
-	[[nodiscard]] inline static constexpr RawT
-									CE_FromString	(std::string_view aStr);
+	void								FromRandom		(GpRandom& aRandom);
+
+	static GpUUID						SGenRandom		(void);
+	static GpUUID						SFromString		(std::string_view aStr);
+
+	[[nodiscard]] inline static constexpr DataT
+										CE_FromString	(std::string_view aStr);
+	[[nodiscard]] inline static constexpr DataT
+										CE_Zero			(void);
 
 private:
-	RawT							iRawData;
+	DataT								iData;
 };
 
 void	GpUUID::Set (const GpUUID& aUUID) noexcept
 {
-	std::memcpy(iRawData.data(), aUUID.iRawData.data(), sizeof(RawT));
+	MemOps::SCopy(iData, aUUID.iData);
 }
 
-bool	GpUUID::IsNotZero (void) const noexcept
+void	GpUUID::Set (GpUUID&& aUUID) noexcept
+{
+	MemOps::SConstructAndMove(iData, std::move(aUUID.iData));
+}
+
+constexpr void	GpUUID::Set (const DataT& aData) noexcept
+{
+	MemOps::SCopy(iData, aData);
+}
+
+constexpr void	GpUUID::Set (DataT&& aData) noexcept
+{
+	MemOps::SConstructAndMove(iData, std::move(aData));
+}
+
+bool	GpUUID::IsEqual (const GpUUID& aUUID) const noexcept
+{
+	return MemOps::SCompare(iData, aUUID.iData) == 0;
+}
+
+constexpr bool	GpUUID::IsEqual (const DataT& aData) const noexcept
+{
+	return MemOps::SCompare(iData, aData) == 0;
+}
+
+constexpr bool	GpUUID::IsZero (void) const noexcept
+{
+	return IsEqual(CE_Zero());
+}
+
+constexpr bool	GpUUID::IsNotZero (void) const noexcept
 {
 	return !IsZero();
 }
 
+constexpr void	GpUUID::Zero (void) noexcept
+{
+	MemOps::SCopy(iData, CE_Zero());
+}
+
 GpUUID&	GpUUID::operator= (const GpUUID& aUUID) noexcept
 {
-	Set(aUUID); return *this;
+	Set(aUUID);
+	return *this;
 }
 
 GpUUID&	GpUUID::operator= (GpUUID&& aUUID) noexcept
 {
-	Set(aUUID); return *this;
+	Set(aUUID);
+	return *this;
+}
+
+constexpr GpUUID&	GpUUID::operator= (const DataT& aData) noexcept
+{
+	Set(aData);
+	return *this;
+}
+
+constexpr GpUUID&	GpUUID::operator= (DataT&& aData) noexcept
+{
+	Set(std::move(aData));
+	return *this;
 }
 
 bool	GpUUID::operator> (const GpUUID& aUUID) const noexcept
 {
-	return std::memcmp(iRawData.data(), aUUID.iRawData.data(), sizeof(RawT)) > 0;
+	return MemOps::SCompare(iData, aUUID.iData) > 0;
+}
+
+constexpr bool	GpUUID::operator> (const DataT& aData) const noexcept
+{
+	return MemOps::SCompare(iData, aData) > 0;
 }
 
 bool	GpUUID::operator< (const GpUUID& aUUID) const noexcept
 {
-	return std::memcmp(iRawData.data(), aUUID.iRawData.data(), sizeof(RawT)) < 0;
+	return MemOps::SCompare(iData, aUUID.iData) < 0;
+}
+
+constexpr bool	GpUUID::operator< (const DataT& aData) const noexcept
+{
+	return MemOps::SCompare(iData, aData) < 0;
 }
 
 bool	GpUUID::operator== (const GpUUID& aUUID) const noexcept
 {
-	return std::memcmp(iRawData.data(), aUUID.iRawData.data(), sizeof(RawT)) == 0;
+	return MemOps::SCompare(iData, aUUID.iData) == 0;
+}
+
+constexpr bool	GpUUID::operator== (const DataT& aData) const noexcept
+{
+	return MemOps::SCompare(iData, aData) == 0;
 }
 
 bool	GpUUID::operator!= (const GpUUID& aUUID) const noexcept
 {
-	return std::memcmp(iRawData.data(), aUUID.iRawData.data(), sizeof(RawT)) != 0;
+	return MemOps::SCompare(iData, aUUID.iData) != 0;
 }
 
-constexpr GpUUID::RawT	GpUUID::CE_FromString (std::string_view aStr)
+constexpr bool	GpUUID::operator!= (const DataT& aData) const noexcept
+{
+	return MemOps::SCompare(iData, aData) != 0;
+}
+
+constexpr GpUUID::DataT	GpUUID::CE_FromString (std::string_view aStr)
 {
 	if (aStr.length() != 36)
 	{
-		GpThrowCe<std::out_of_range>("Length of UUID string must be 36");
+		THROW_GPE("Length of UUID string must be 36"_sv);
 	}
 
-	const char*	strPtr	= aStr.data();
-	RawT		uuid	= {};
+	DataT data = {};
+
+	const char* _R_	strPtr	= aStr.data();
+	std::byte* _R_	dataPtr	= data.data();
+
+	for (size_t id = 0; id < data.size(); ++id)
+	{
+		GpArray<char,2> str = {*strPtr++, *strPtr++};
+
+		*dataPtr++ = GpStringOps::SToByte(str);
+
+		if ((id == 3) ||
+			(id == 5) ||
+			(id == 7) ||
+			(id == 9))
+		{
+			++strPtr;
+		}
+	}
+
+	return data;
+
+	/*const char*	strPtr	= aStr.data();
+	DataT		uuid	= {};
 
 	for (size_t id = 0; id < 16; id++)
 	{
@@ -124,54 +228,60 @@ constexpr GpUUID::RawT	GpUUID::CE_FromString (std::string_view aStr)
 		uuid.data()[id] = std::byte(GpStringOps::SToByte(octetStr));
 	}
 
-	return uuid;
+	return uuid;*/
+}
+
+constexpr GpUUID::DataT	GpUUID::CE_Zero (void)
+{
+	return DataT {std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0),
+				  std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0)};
 }
 
 }//GPlatform
 
-//********************** Hash *********************
+//*******************************************
 namespace std {
 
-template<> struct hash<GPlatform::GpUUID>
+/*template<> struct hash<GPlatform::GpUUID>
 {
 	using argument_type = GPlatform::GpUUID;
 	using result_type	= size_t;
 
 	result_type operator()(argument_type const& aArg) const noexcept
 	{
-		if constexpr (sizeof(size_t) == sizeof(GPlatform::u_int_64))
+		if constexpr (sizeof(result_type) == sizeof(u_int_64))
 		{
-			const std::byte* _R_ data = aArg.Data();
-			size_t part_0;
-			size_t part_1;
+			const std::byte* data = aArg.Data();
+			result_type part_0;
+			result_type part_1;
 
-			std::memcpy(&part_0, data + 0*sizeof(size_t), sizeof(size_t));
-			std::memcpy(&part_1, data + 1*sizeof(size_t), sizeof(size_t));
+			std::memcpy(&part_0, data + 0*sizeof(result_type), sizeof(result_type));
+			std::memcpy(&part_1, data + 1*sizeof(result_type), sizeof(result_type));
 
-			return std::hash<size_t>()(part_0) ^
-				   std::hash<size_t>()(part_1);
-		} else
+			return std::hash<result_type>()(part_0) ^
+				   std::hash<result_type>()(part_1);
+		} else if constexpr (sizeof(result_type) == sizeof(u_int_32))
 		{
-			const std::byte* _R_ data = aArg.Data();
-			size_t part_0;
-			size_t part_1;
-			size_t part_2;
-			size_t part_3;
+			const std::byte* data = aArg.Data();
+			result_type part_0;
+			result_type part_1;
+			result_type part_2;
+			result_type part_3;
 
-			std::memcpy(&part_0, data + 0*sizeof(size_t), sizeof(size_t));
-			std::memcpy(&part_1, data + 1*sizeof(size_t), sizeof(size_t));
-			std::memcpy(&part_2, data + 2*sizeof(size_t), sizeof(size_t));
-			std::memcpy(&part_3, data + 3*sizeof(size_t), sizeof(size_t));
+			std::memcpy(&part_0, data + 0*sizeof(result_type), sizeof(result_type));
+			std::memcpy(&part_1, data + 1*sizeof(result_type), sizeof(result_type));
+			std::memcpy(&part_2, data + 2*sizeof(result_type), sizeof(result_type));
+			std::memcpy(&part_3, data + 3*sizeof(result_type), sizeof(result_type));
 
-			return std::hash<size_t>()(part_0) ^
-				   std::hash<size_t>()(part_1) ^
-				   std::hash<size_t>()(part_2) ^
-				   std::hash<size_t>()(part_3);
+			return std::hash<result_type>()(part_0) ^
+				   std::hash<result_type>()(part_1) ^
+				   std::hash<result_type>()(part_2) ^
+				   std::hash<result_type>()(part_3);
 		}
 	}
-};
+};*/
 
-template<> struct hash<std::pair<GPlatform::GpUUID, GPlatform::GpUUID>>
+/*template<> struct hash<std::pair<GPlatform::GpUUID, GPlatform::GpUUID>>
 {
 	using argument_type = std::pair<GPlatform::GpUUID, GPlatform::GpUUID>;
 	using result_type	= size_t;
@@ -181,9 +291,9 @@ template<> struct hash<std::pair<GPlatform::GpUUID, GPlatform::GpUUID>>
 		return hash<GPlatform::GpUUID>()(aArg.first) ^
 			   hash<GPlatform::GpUUID>()(aArg.second);
 	}
-};
+};*/
 
-template<> struct equal_to<GPlatform::GpUUID>
+/*template<> struct equal_to<GPlatform::GpUUID>
 {
 	using argument_type = GPlatform::GpUUID;
 
@@ -192,7 +302,7 @@ template<> struct equal_to<GPlatform::GpUUID>
 	{
 		return aA == aB;
 	}
-};
+};*/
 
 inline string to_string(const GPlatform::GpUUID& aUUID)
 {

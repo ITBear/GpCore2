@@ -8,6 +8,7 @@
 #include <atomic>
 
 #include "../Classes/GpClassesDefines.hpp"
+#include "../Units/Other/count_t.hpp"
 
 namespace GPlatform {
 
@@ -16,19 +17,19 @@ class GpReferenceCounter
 	CLASS_REMOVE_CTRS(GpReferenceCounter);
 
 protected:
-	inline			GpReferenceCounter	(const size_t aCounterValue, void* aValuePtr) noexcept;
+	inline			GpReferenceCounter	(const count_t aCounterValue, void* aValuePtr) noexcept;
 
 public:
 	virtual			~GpReferenceCounter	(void) noexcept = default;
 
 public:
-	inline size_t	Count				(void) const noexcept;
+	inline count_t	Count				(void) const noexcept;
 
 	template<bool IsWeak>
-	size_t			Accuire				(void) const noexcept;
+	count_t			Accuire				(void) const noexcept;
 
 	template<bool IsWeak>
-	size_t			Release				(void) noexcept;
+	count_t			Release				(void) noexcept;
 
 	template<typename T>
 	T&				Value				(void) noexcept;
@@ -50,33 +51,33 @@ private:
 	void*						iValuePtr	= nullptr;
 };
 
-GpReferenceCounter::GpReferenceCounter (const size_t aCounterValue, void* aValuePtr) noexcept:
-iCounter(aCounterValue),
+GpReferenceCounter::GpReferenceCounter (const count_t aCounterValue, void* aValuePtr) noexcept:
+iCounter(aCounterValue.ValueAs<size_t>()),
 iValuePtr(aValuePtr)
 {
 }
 
-size_t	GpReferenceCounter::Count (void) const noexcept
+count_t	GpReferenceCounter::Count (void) const noexcept
 {
 	const size_t cnt = iCounter.load(std::memory_order_acquire);
-	return cnt;
+	return count_t::SMake(cnt);
 }
 
 template<bool IsWeak>
-size_t	GpReferenceCounter::Accuire (void) const noexcept
+count_t	GpReferenceCounter::Accuire (void) const noexcept
 {
 	if constexpr(IsWeak)
 	{
 		return Count();
 	} else
 	{
-		const size_t cnt = iCounter.fetch_add(1, std::memory_order_relaxed) + 1;
-		return cnt;
+		const size_t cnt = iCounter.fetch_add(1, std::memory_order_relaxed);
+		return count_t::SMake(cnt) + 1_cnt;
 	}
 }
 
 template<bool IsWeak>
-size_t	GpReferenceCounter::Release (void) noexcept
+count_t	GpReferenceCounter::Release (void) noexcept
 {
 	if constexpr(IsWeak)
 	{
@@ -85,13 +86,15 @@ size_t	GpReferenceCounter::Release (void) noexcept
 	{
 		const size_t cnt = iCounter.fetch_sub(1, std::memory_order_relaxed);
 
-		if (cnt == 1)
+		if (cnt <= 1)
 		{
 			iValuePtr = nullptr;
 			Clear();
+			return 0_cnt;
+		} else
+		{
+			return count_t::SMake(cnt - 1);
 		}
-
-		return cnt - 1;
 	}
 }
 

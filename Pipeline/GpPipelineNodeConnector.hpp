@@ -20,7 +20,7 @@ public:
 	using SocketT = GpPipelineNodeSocket;
 
 public:
-									GpPipelineNodeConnector		(void) noexcept = delete;
+									GpPipelineNodeConnector		(void) noexcept = default;
 	inline							GpPipelineNodeConnector		(SocketT& aFrom, SocketT& aTo) noexcept;
 	inline							GpPipelineNodeConnector		(const GpPipelineNodeConnector& aConnector) noexcept;
 	inline							GpPipelineNodeConnector		(GpPipelineNodeConnector&& aConnector) noexcept;

@@ -3,7 +3,7 @@ QT			-= core gui widgets
 TEMPLATE	= lib
 VER_MAJ		= 2
 VER_MIN		= 0
-VER_PAT		= 0
+VER_PAT		= 1
 CONFIG		+= warn_on
 DEFINES		+= GPCORE_LIBRARY \
 			HAVE_NETINET_IN_H \
@@ -46,12 +46,9 @@ compiler_gcc{
 }
 
 QMAKE_CXXFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden
-QMAKE_CXXFLAGS	+= -ffunction-sections -fdata-sections
+QMAKE_CXXFLAGS	+= -ffunction-sections -fdata-sections -fexceptions
 #QMAKE_CXXFLAGS	+= -fno-rtti
 QMAKE_LFLAGS    += -Wl,--gc-sections
-
-QMAKE_CFLAGS	+= -fstrict-aliasing -Wall -Wextra -Wno-comment -Wdouble-promotion -Wswitch-default -Wswitch-enum -Wuninitialized -Wstrict-aliasing -Wfloat-equal -Wshadow -Wplacement-new -Wcast-align -Wconversion -Wlogical-op
-QMAKE_CFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden
 
 #------------------------ DEBUG or RELEASE ---------------------
 debug_build {
@@ -126,28 +123,24 @@ message([$$PACKET_NAME]: Build directory $$DESTDIR)
 message([$$PACKET_NAME]: -------------------------------------------------)
 
 #------------------------------ LIBS BEGIN ---------------------------------
-LIBS += -L$$DESTDIR \
-		-L$$DESTDIR/Plugins
+LIBS += -L$$DESTDIR
+
+os_windows{
+	BOOST_LIB_POSTFIX = -mgw82-mt-x64-1_72
+}
 
 os_linux
 {
-	LIBS += -L/usr/lib/gcc/x86_64-linux-gnu/9
+	#Only if GP_USE_MULTITHREADING_FIBERS set
+	LIBS += -lpthread
+	LIBS += -lboost_context
 }
-
-os_windows{
-	BOOST_LIB_POSTFIX		= -mgw82-mt-x64-1_72
-	GPLATFORM_VERSION_LIB	= 2
-}
-
-#Only if GP_USE_MULTITHREADING_FIBERS set
-LIBS += -lpthread
-LIBS += -lboost_context
 
 #------------------------------ LIBS END ---------------------------------
 
 INCLUDEPATH += \
-	../../Extras \
-	../../Extras/Boost/boost_1_72_0$$BOOST_POSTFIX
+	../Extras \
+	../Extras/Boost/boost_1_72_0$$BOOST_POSTFIX
 
 HEADERS += \
 	Algorithms/GpAlgorithms.hpp \
@@ -228,6 +221,7 @@ HEADERS += \
 	RandomGenerators/GpRandomDeviceWin.hpp \
 	RandomGenerators/GpRandomGenerators.hpp \
 	RandomGenerators/GpSRandom.hpp \
+	Types/Bits/GpBitCast.hpp \
 	Types/Bits/GpBitOps.hpp \
 	Types/Bits/GpBits.hpp \
 	Types/Bits/GpBitset.hpp \
@@ -241,6 +235,7 @@ HEADERS += \
 	Types/Containers/GpMemoryStorage.hpp \
 	Types/Containers/GpMemoryStorageViewR.hpp \
 	Types/Containers/GpMemoryStorageViewRW.hpp \
+	Types/Containers/GpRawPtrByte.hpp \
 	Types/Containers/GpTypeShell.hpp \
 	Types/DateTime/GpDateTime.hpp \
 	Types/DateTime/GpDateTimeOps.hpp \
@@ -252,9 +247,12 @@ HEADERS += \
 	Types/Numerics/GpNumericTypes.hpp \
 	Types/Numerics/GpNumerics.hpp \
 	Types/Pointers/GpPointers.hpp \
+	Types/Pointers/GpRawPtrR.hpp \
+	Types/Pointers/GpRawPtrRW.hpp \
 	Types/Pointers/GpReferenceCounter.hpp \
 	Types/Pointers/GpReferenceStorage.hpp \
 	Types/Pointers/GpSharedPtr.hpp \
+	Types/Strings/GpRawPtrChar.hpp \
 	Types/Strings/GpStringLiterals.hpp \
 	Types/Strings/GpStringOps.hpp \
 	Types/Strings/GpStringOpsGlob.hpp \
@@ -263,9 +261,9 @@ HEADERS += \
 	Types/TypeSystem/GpType.hpp \
 	Types/TypeSystem/GpTypeContainer.hpp \
 	Types/TypeSystem/GpTypeInfo.hpp \
+	Types/TypeSystem/GpTypeManager.hpp \
 	Types/TypeSystem/GpTypePropInfo.hpp \
 	Types/TypeSystem/GpTypeSystem.hpp \
-	Types/TypeSystem/GpTypesManager.hpp \
 	Types/UIDs/GpUIDs.hpp \
 	Types/UIDs/GpUUID.hpp \
 	Types/Units/GpUnit.hpp \
@@ -278,10 +276,12 @@ HEADERS += \
 	Types/Units/Numerics/GpUnitsNumerics_SInt32.hpp \
 	Types/Units/Numerics/GpUnitsNumerics_SInt64.hpp \
 	Types/Units/Numerics/GpUnitsNumerics_SInt8.hpp \
+	Types/Units/Numerics/GpUnitsNumerics_SSizeT.hpp \
 	Types/Units/Numerics/GpUnitsNumerics_UInt16.hpp \
 	Types/Units/Numerics/GpUnitsNumerics_UInt32.hpp \
 	Types/Units/Numerics/GpUnitsNumerics_UInt64.hpp \
 	Types/Units/Numerics/GpUnitsNumerics_UInt8.hpp \
+	Types/Units/Numerics/GpUnitsNumerics_USizeT.hpp \
 	Types/Units/Other/GpOtherUnits.hpp \
 	Types/Units/Other/count_t.hpp \
 	Types/Units/Other/monetary_t.hpp \
@@ -294,11 +294,18 @@ HEADERS += \
 	Types/Units/SI/GpUnitsSI_Time.hpp \
 	Types/Units/SI/GpUnitsSI_Weight.hpp \
 	Utils/GpUtils.hpp \
-	Utils/Streams/GpBitIStream.hpp \
-	Utils/Streams/GpBitOStream.hpp \
-	Utils/Streams/GpBitOStreamStorages.hpp \
-	Utils/Streams/GpByteOStream.hpp \
-	Utils/Streams/GpByteOStreamStorages.hpp \
+	Utils/Streams/GpBitReader.hpp \
+	Utils/Streams/GpBitReaderStorage.hpp \
+	Utils/Streams/GpBitWriter.hpp \
+	Utils/Streams/GpBitWriterStorage.hpp \
+	Utils/Streams/GpBitWriterStorageByteArray.hpp \
+	Utils/Streams/GpBitWriterStorageFixedSize.hpp \
+	Utils/Streams/GpByteReader.hpp \
+	Utils/Streams/GpByteReaderStorage.hpp \
+	Utils/Streams/GpByteWriter.hpp \
+	Utils/Streams/GpByteWriterStorage.hpp \
+	Utils/Streams/GpByteWriterStorageByteArray.hpp \
+	Utils/Streams/GpByteWriterStorageFixedSize.hpp \
 	Utils/Streams/GpStreams.hpp
 
 SOURCES += \
@@ -340,9 +347,18 @@ SOURCES += \
 	Types/TypeSystem/GpType.cpp \
 	Types/TypeSystem/GpTypeContainer.cpp \
 	Types/TypeSystem/GpTypeInfo.cpp \
+	Types/TypeSystem/GpTypeManager.cpp \
 	Types/TypeSystem/GpTypePropInfo.cpp \
-	Types/TypeSystem/GpTypesManager.cpp \
 	Types/UIDs/GpUUID.cpp \
-	Utils/Streams/GpBitIStream.cpp \
-	Utils/Streams/GpBitOStreamStorages.cpp \
-	Utils/Streams/GpByteOStreamStorages.cpp
+	Utils/Streams/GpBitReader.cpp \
+	Utils/Streams/GpBitReaderStorage.cpp \
+	Utils/Streams/GpBitWriter.cpp \
+	Utils/Streams/GpBitWriterStorage.cpp \
+	Utils/Streams/GpBitWriterStorageByteArray.cpp \
+	Utils/Streams/GpBitWriterStorageFixedSize.cpp \
+	Utils/Streams/GpByteReader.cpp \
+	Utils/Streams/GpByteReaderStorage.cpp \
+	Utils/Streams/GpByteWriter.cpp \
+	Utils/Streams/GpByteWriterStorage.cpp \
+	Utils/Streams/GpByteWriterStorageByteArray.cpp \
+	Utils/Streams/GpByteWriterStorageFixedSize.cpp
