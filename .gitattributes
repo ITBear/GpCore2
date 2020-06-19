@@ -1,0 +1,4 @@
+*.c filter=spabs
+*.h filter=spabs
+*.cpp filter=spabs
+*.hpp filter=spabs

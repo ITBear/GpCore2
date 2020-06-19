@@ -14,8 +14,9 @@
 **/.metadata/**
 **/RemoteSystemsTempFiles/**
 
-# Don't ignore .gitignore
+# Don't ignore .git*
 !.gitignore
+!.gitattributes
 
 # Don't ignore sources
 !*.c
