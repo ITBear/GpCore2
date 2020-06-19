@@ -9,8 +9,8 @@
 namespace GPlatform {
 
 GP_ENUM(GPCORE_API, GpPipelineNodeSocketDir,
-	IN,
-	OUT
+    IN,
+    OUT
 );
 
 }//GPlatform

@@ -9,19 +9,19 @@ namespace GPlatform {
 
 void	GpTask::MoveToReady (void)
 {
-	GpTaskSchedulerAccessor::SMoveToReady(iScheduler.value().get(), iThisWeakPtr);
+    GpTaskSchedulerAccessor::SMoveToReady(iScheduler.value().get(), iThisWeakPtr);
 }
 
 GpEventSubscriber::PushEvevtRes	GpTask::OnPushEvent (GpEvent::SP& /*aEvent*/) noexcept
 {
-	if (iScheduler.has_value())
-	{
-		MoveToReady();
-		return PushEvevtRes::ACCEPT;
-	} else
-	{
-		return PushEvevtRes::REJECT;
-	}
+    if (iScheduler.has_value())
+    {
+        MoveToReady();
+        return PushEvevtRes::ACCEPT;
+    } else
+    {
+        return PushEvevtRes::REJECT;
+    }
 }
 
 }//GPlatform

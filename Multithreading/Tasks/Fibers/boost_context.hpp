@@ -12,8 +12,8 @@ namespace GPlatform {
 class StackSizePolicyT
 {
 public:
-	static size_t default_size()	{return size_t(16)*size_t(1024);}
-	static size_t page_size()		{return size_t(sysconf(_SC_PAGESIZE));}
+    static size_t default_size()	{return size_t(16)*size_t(1024);}
+    static size_t page_size()		{return size_t(sysconf(_SC_PAGESIZE));}
 };
 
 
@@ -22,31 +22,31 @@ using FiberRunFnT					= std::function<void(GpThreadStopToken)>;
 using FiberT						= boost::context::fiber;
 using PreallocatedT					= boost::context::preallocated;
 using FiberArgsT					= GpTuple<std::optional<FiberT>,
-											  std::optional<FiberRunFnT>,
-											  std::optional<GpThreadStopToken>,
-											  GpTask::Res,
-											  std::optional<std::exception_ptr>>;
+                                              std::optional<FiberRunFnT>,
+                                              std::optional<GpThreadStopToken>,
+                                              GpTask::Res,
+                                              std::optional<std::exception_ptr>>;
 using BasicProtectedFixedSizeStackT	= boost::context::basic_protected_fixedsize_stack<StackSizePolicyT>;
 
 
 class GpPooledStack
 {
 public:
-							GpPooledStack	(StackContextT aStackContext) noexcept: iStackContext(aStackContext) {}
-							~GpPooledStack	(void) noexcept = default;
+                            GpPooledStack	(StackContextT aStackContext) noexcept: iStackContext(aStackContext) {}
+                            ~GpPooledStack	(void) noexcept = default;
 
-	StackContextT			allocate		(void)
-	{
-		return iStackContext;
-	}
+    StackContextT			allocate		(void)
+    {
+        return iStackContext;
+    }
 
-	void					deallocate		(StackContextT&)
-	{
-		//nop
-	}
+    void					deallocate		(StackContextT&)
+    {
+        //nop
+    }
 
 private:
-	StackContextT			iStackContext;
+    StackContextT			iStackContext;
 };
 
 }//namespace GPlatform

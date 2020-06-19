@@ -14,34 +14,34 @@ class GpPipeline;
 class GPCORE_API GpPipelineNode
 {
 public:
-	CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpPipelineNode);
-	CLASS_DECLARE_DEFAULTS(GpPipelineNode);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpPipelineNode);
+    CLASS_DECLARE_DEFAULTS(GpPipelineNode);
 
-	using SocketT = GpPipelineNodeSocket;
+    using SocketT = GpPipelineNodeSocket;
 
 protected:
-										GpPipelineNode			(void) noexcept;
+                                        GpPipelineNode			(void) noexcept;
 
 public:
-	virtual								~GpPipelineNode			(void) noexcept;
+    virtual								~GpPipelineNode			(void) noexcept;
 
-	const GpPipeline*					Pipeline				(void) const noexcept {return iPipeline;}
-	GpPipeline*							Pipeline				(void) noexcept {return iPipeline;}
-	void								AssignToPipeline		(GpPipeline& aPipeline);
-	void								BreakConnections		(void);
-	void								BreakInputConnections	(void);
-	void								BreakOutputConnections	(void);
+    const GpPipeline*					Pipeline				(void) const noexcept {return iPipeline;}
+    GpPipeline*							Pipeline				(void) noexcept {return iPipeline;}
+    void								AssignToPipeline		(GpPipeline& aPipeline);
+    void								BreakConnections		(void);
+    void								BreakInputConnections	(void);
+    void								BreakOutputConnections	(void);
 
-	virtual GpPipelineEvaluateCtx::SP	NewEvaluateCtx			(void) const = 0;
-
-private:
-	static void							_SBreakConnections		(SocketT::C::Vec::SP& aSockets);
+    virtual GpPipelineEvaluateCtx::SP	NewEvaluateCtx			(void) const = 0;
 
 private:
-	GpPipeline*							iPipeline = nullptr;
-	std::string							iName;
-	SocketT::C::Vec::SP					iInputSockets;
-	SocketT::C::Vec::SP					iOutputSockets;
+    static void							_SBreakConnections		(SocketT::C::Vec::SP& aSockets);
+
+private:
+    GpPipeline*							iPipeline = nullptr;
+    std::string							iName;
+    SocketT::C::Vec::SP					iInputSockets;
+    SocketT::C::Vec::SP					iOutputSockets;
 };
 
 }//GPlatform

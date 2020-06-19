@@ -6,113 +6,113 @@ namespace GPlatform {
 
 void	GpEnum::FromID (value_type aId)
 {
-	for (const auto& item: Names())
-	{
-		if (aId == std::get<1>(item))
-		{
-			_SetID(aId);
-			return;
-		}
-	}
+    for (const auto& item: Names())
+    {
+        if (aId == std::get<1>(item))
+        {
+            _SetID(aId);
+            return;
+        }
+    }
 
-	THROW_GPE("Unknown Enum ID "_sv + aId);
+    THROW_GPE("Unknown Enum ID "_sv + aId);
 }
 
 std::string_view	GpEnum::ToString (void) const noexcept
 {
-	return _SToString(Names(), ID());
+    return _SToString(Names(), ID());
 }
 
 void	GpEnum::FromString (std::string_view aName)
 {
-	_SetID(_SFromString(Names(), aName, TypeName()));
+    _SetID(_SFromString(Names(), aName, TypeName()));
 }
 
 std::string_view	GpEnum::_SToString (const NamesListT&	aNamesList,
-										const value_type	aId) noexcept
+                                        const value_type	aId) noexcept
 {
-	for (const auto&[name, id]: aNamesList)
-	{
-		if (id == aId)
-		{
-			return name;
-		}
-	}
+    for (const auto&[name, id]: aNamesList)
+    {
+        if (id == aId)
+        {
+            return name;
+        }
+    }
 
-	return std::string_view();
+    return std::string_view();
 }
 
 GpEnum::value_type	GpEnum::_SFromString (const NamesListT&	aNamesList,
-										  std::string_view	aName,
-										  std::string_view	aEnumTypeName)
+                                          std::string_view	aName,
+                                          std::string_view	aEnumTypeName)
 {
-	for (auto&& [name, id]: aNamesList)
-	{
-		if (aName == name)
-		{
-			return id;
-		}
-	}
+    for (auto&& [name, id]: aNamesList)
+    {
+        if (aName == name)
+        {
+            return id;
+        }
+    }
 
-	THROW_GPE("Failed to set enum ("_sv + aEnumTypeName + ") value from string '"_sv + aName + "'"_sv);
+    THROW_GPE("Failed to set enum ("_sv + aEnumTypeName + ") value from string '"_sv + aName + "'"_sv);
 }
 
 GpEnum::NamesListT	GpEnum::_SParseEnumElements (std::string_view aEnumName,
-												 std::string_view aEnumElementsStr)
+                                                 std::string_view aEnumElementsStr)
 {
-	GpVector<GpTuple<std::string_view, value_type>> res;
+    GpVector<GpTuple<std::string_view, value_type>> res;
 
-	_SParseEnumValues(res, aEnumName, aEnumElementsStr);
+    _SParseEnumValues(res, aEnumName, aEnumElementsStr);
 
-	return res;
+    return res;
 }
 
 void	GpEnum::_SParseEnumValues (NamesListT&		aNamesListOut,
-								   std::string_view	aEnumName,
-								   std::string_view	aEnumElementsStr)
+                                   std::string_view	aEnumName,
+                                   std::string_view	aEnumElementsStr)
 {
-	//Split by ','
-	const GpVector<std::string_view> elements = GpStringOps::SSplit(aEnumElementsStr,
-																	',',
-																	0_cnt,
-																	0_cnt,
-																	Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
+    //Split by ','
+    const GpVector<std::string_view> elements = GpStringOps::SSplit(aEnumElementsStr,
+                                                                    ',',
+                                                                    0_cnt,
+                                                                    0_cnt,
+                                                                    Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
 
-	//Split each element (may be 'VALUE' or 'VALUE = ID')
-	ssize_t lastId = -1;
+    //Split each element (may be 'VALUE' or 'VALUE = ID')
+    ssize_t lastId = -1;
 
-	aNamesListOut.reserve(elements.size());
+    aNamesListOut.reserve(elements.size());
 
-	for (const std::string_view& element: elements)
-	{
-		//Split by ' '
-		const GpVector<std::string_view> parts = GpStringOps::SSplit(element,
-																	 ' ',
-																	 0_cnt,
-																	 0_cnt,
-																	 Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
+    for (const std::string_view& element: elements)
+    {
+        //Split by ' '
+        const GpVector<std::string_view> parts = GpStringOps::SSplit(element,
+                                                                     ' ',
+                                                                     0_cnt,
+                                                                     0_cnt,
+                                                                     Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
 
-		std::string_view	name;
-		std::string_view	id_str;
-		value_type			id	= value_type(lastId + 1);
+        std::string_view	name;
+        std::string_view	id_str;
+        value_type			id	= value_type(lastId + 1);
 
-		if (parts.size() == 1)
-		{
-			name	= parts.at(0);
-		} else if (parts.size() == 3)
-		{
-			name	= parts.at(0);
-			id_str	= parts.at(2);
+        if (parts.size() == 1)
+        {
+            name	= parts.at(0);
+        } else if (parts.size() == 3)
+        {
+            name	= parts.at(0);
+            id_str	= parts.at(2);
 
-			id = GpStringOps::SToUI64(parts.at(2)).ValueAs<value_type>();
-		} else
-		{
-			THROW_GPE("Wrong enum '"_sv + aEnumName + "' element: "_sv + parts.at(0));
-		}
+            id = GpStringOps::SToUI64(parts.at(2)).ValueAs<value_type>();
+        } else
+        {
+            THROW_GPE("Wrong enum '"_sv + aEnumName + "' element: "_sv + parts.at(0));
+        }
 
-		lastId = ssize_t(id);
-		aNamesListOut.emplace_back(name, id);
-	}
+        lastId = ssize_t(id);
+        aNamesListOut.emplace_back(name, id);
+    }
 }
 
 }//GPlatform

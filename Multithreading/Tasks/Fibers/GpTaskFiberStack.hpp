@@ -16,21 +16,21 @@ namespace GPlatform {
 class GPCORE_API GpTaskFiberStack
 {
 public:
-	CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFiberStack);
-	CLASS_DECLARE_DEFAULTS(GpTaskFiberStack);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFiberStack);
+    CLASS_DECLARE_DEFAULTS(GpTaskFiberStack);
 
 public:
-						GpTaskFiberStack	(void) noexcept;
-						~GpTaskFiberStack	(void) noexcept;
+                        GpTaskFiberStack	(void) noexcept;
+                        ~GpTaskFiberStack	(void) noexcept;
 
-	void				Init				(const size_byte_t aSize);
-	void				Clear				(void) noexcept;
+    void				Init				(const size_byte_t aSize);
+    void				Clear				(void) noexcept;
 
-	void*				Context				(void) noexcept {return iStackContext;}
+    void*				Context				(void) noexcept {return iStackContext;}
 
 private:
-	void*				iStackAllocator = nullptr;
-	void*				iStackContext	= nullptr;
+    void*				iStackAllocator = nullptr;
+    void*				iStackContext	= nullptr;
 };
 
 }//namespace GPlatform

@@ -10,9 +10,9 @@
 namespace GPlatform {
 
 GP_ENUM(GPCORE_API, GpTaskFiberStage,
-	NOT_RUN,
-	RUN,
-	FINISHED
+    NOT_RUN,
+    RUN,
+    FINISHED
 );
 
 }//GPlatform

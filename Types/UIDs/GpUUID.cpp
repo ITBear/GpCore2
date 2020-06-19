@@ -8,100 +8,100 @@ namespace GPlatform {
 
 std::string	GpUUID::ToString (void) const
 {
-	//    8      4    4    4       12
-	//xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-	std::string str;
-	str.resize(36);
-	char* _R_ strPtr = str.data();
+    //    8      4    4    4       12
+    //xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    std::string str;
+    str.resize(36);
+    char* _R_ strPtr = str.data();
 
-	DataT data;
-	MemOps::SCopy(data, iData);
-	const std::byte* _R_ dataPtr = data.data();
+    DataT data;
+    MemOps::SCopy(data, iData);
+    const std::byte* _R_ dataPtr = data.data();
 
-	for (size_t id = 0; id < data.size(); ++id)
-	{
-		GpArray<char,2> h = GpStringOps::SFromByte(*dataPtr++);
-		*strPtr++ = h.at(0);
-		*strPtr++ = h.at(1);
+    for (size_t id = 0; id < data.size(); ++id)
+    {
+        GpArray<char,2> h = GpStringOps::SFromByte(*dataPtr++);
+        *strPtr++ = h.at(0);
+        *strPtr++ = h.at(1);
 
-		if ((id == 3) ||
-			(id == 5) ||
-			(id == 7) ||
-			(id == 9))
-		{
-			*strPtr++ = '-';
-		}
-	}
+        if ((id == 3) ||
+            (id == 5) ||
+            (id == 7) ||
+            (id == 9))
+        {
+            *strPtr++ = '-';
+        }
+    }
 
-	return str;
+    return str;
 }
 
 void	GpUUID::FromString (std::string_view aStr)
 {
-	if (aStr.length() != 36)
-	{
-		THROW_GPE("Length of UUID string must be 36"_sv);
-	}
+    if (aStr.length() != 36)
+    {
+        THROW_GPE("Length of UUID string must be 36"_sv);
+    }
 
-	DataT data;
+    DataT data;
 
-	const char* _R_	strPtr	= aStr.data();
-	std::byte* _R_	dataPtr	= data.data();
+    const char* _R_	strPtr	= aStr.data();
+    std::byte* _R_	dataPtr	= data.data();
 
-	for (size_t id = 0; id < data.size(); ++id)
-	{
-		GpArray<char,2> str = {*strPtr++, *strPtr++};
+    for (size_t id = 0; id < data.size(); ++id)
+    {
+        GpArray<char,2> str = {*strPtr++, *strPtr++};
 
-		*dataPtr++ = GpStringOps::SToByte(str);
+        *dataPtr++ = GpStringOps::SToByte(str);
 
-		if ((id == 3) ||
-			(id == 5) ||
-			(id == 7) ||
-			(id == 9))
-		{
-			++strPtr;
-		}
-	}
+        if ((id == 3) ||
+            (id == 5) ||
+            (id == 7) ||
+            (id == 9))
+        {
+            ++strPtr;
+        }
+    }
 
-	MemOps::SCopy(iData, data);
+    MemOps::SCopy(iData, data);
 }
 
 void	GpUUID::FromRandom (GpRandom& aRandom)
 {
-	const UInt64 part_0 = aRandom.UI64();
-	const UInt64 part_1 = aRandom.UI64();
+    const UInt64 part_0 = aRandom.UI64();
+    const UInt64 part_1 = aRandom.UI64();
 
-	std::byte*			dataPtr		= iData.data();
-	constexpr size_t	blockSize	= sizeof(u_int_64);
+    std::byte*			dataPtr		= iData.data();
+    constexpr size_t	blockSize	= sizeof(u_int_64);
 
 
-	std::memcpy(dataPtr, &part_0, blockSize); dataPtr += blockSize;
-	std::memcpy(dataPtr, &part_1, blockSize);
+    std::memcpy(dataPtr, &part_0, blockSize); dataPtr += blockSize;
+    std::memcpy(dataPtr, &part_1, blockSize);
 }
 
 GpUUID	GpUUID::SGenRandom (void)
 {
-	GpSRandom& rnd = GpSRandom::S();
+    GpSRandom& rnd = GpSRandom::S();
 
-	const UInt64 part_0 = rnd.UI64();
-	const UInt64 part_1 = rnd.UI64();
+    const UInt64 part_0 = rnd.UI64();
+    const UInt64 part_1 = rnd.UI64();
 
-	DataT data;
+    DataT data;
 
-	std::byte*			dataPtr		= data.data();
-	constexpr size_t	blockSize	= sizeof(u_int_64);
+    std::byte*			dataPtr		= data.data();
+    constexpr size_t	blockSize	= sizeof(u_int_64);
 
-	std::memcpy(dataPtr, &part_0, blockSize); dataPtr += blockSize;
-	std::memcpy(dataPtr, &part_1, blockSize);
+    std::memcpy(dataPtr, &part_0, blockSize); dataPtr += blockSize;
+    std::memcpy(dataPtr, &part_1, blockSize);
 
-	return GpUUID(data);
+    return GpUUID(data);
 }
 
 GpUUID	GpUUID::SFromString (std::string_view aStr)
 {
-	GpUUID uuid;
-	uuid.FromString(aStr);
-	return uuid;
+    GpUUID uuid;
+    uuid.FromString(aStr);
+    return uuid;
 }
 
 }//GPlatform

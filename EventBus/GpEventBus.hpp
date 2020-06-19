@@ -12,22 +12,22 @@ namespace GPlatform {
 class GPCORE_API GpEventBus
 {
 public:
-	CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpEventBus);
-	CLASS_DECLARE_DEFAULTS(GpEventBus);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpEventBus);
+    CLASS_DECLARE_DEFAULTS(GpEventBus);
 
 public:
-									GpEventBus	(void) noexcept;
-									~GpEventBus	(void) noexcept;
+                                    GpEventBus	(void) noexcept;
+                                    ~GpEventBus	(void) noexcept;
 
-	void							Clear		(void) noexcept;
+    void							Clear		(void) noexcept;
 
-	void							Subscribe	(GpEventSubscriber::SP aSubscriber);
-	void							Unsubscribe	(GpEventSubscriber::SP aSubscriber);
-	//void							Post		(GpEvent::SP aEvent);
+    void							Subscribe	(GpEventSubscriber::SP aSubscriber);
+    void							Unsubscribe	(GpEventSubscriber::SP aSubscriber);
+    //void							Post		(GpEvent::SP aEvent);
 
 private:
-	GpSpinlock						iLock;
-	GpEventSubscriber::C::Set::SP	iSubscribers;
+    GpSpinlock						iLock;
+    GpEventSubscriber::C::Set::SP	iSubscribers;
 };
 
 }//GPlatform

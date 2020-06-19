@@ -13,37 +13,37 @@ GpEventSubscriber::GpEventSubscriber (void) noexcept
 
 GpEventSubscriber::~GpEventSubscriber (void) noexcept
 {
-	std::scoped_lock lock(iEventsLock);
+    std::scoped_lock lock(iEventsLock);
 
-	while (!iEvents.empty())
-	{
-		iEvents.pop();
-	}
+    while (!iEvents.empty())
+    {
+        iEvents.pop();
+    }
 }
 
 void	GpEventSubscriber::PushEvent (GpEvent::SP aEvent)
 {
-	std::scoped_lock lock(iEventsLock);
+    std::scoped_lock lock(iEventsLock);
 
-	if (OnPushEvent(aEvent) == PushEvevtRes::ACCEPT)
-	{
-		iEvents.push(std::move(aEvent));
-	}
+    if (OnPushEvent(aEvent) == PushEvevtRes::ACCEPT)
+    {
+        iEvents.push(std::move(aEvent));
+    }
 }
 
 GpEvent::SP	GpEventSubscriber::PopNextEvent (void) noexcept
 {
-	std::scoped_lock lock(iEventsLock);
+    std::scoped_lock lock(iEventsLock);
 
-	if (iEvents.empty())
-	{
-		return GpEvent::SP::SNull();
-	}
+    if (iEvents.empty())
+    {
+        return GpEvent::SP::SNull();
+    }
 
-	GpEvent::SP event = iEvents.front();
-	iEvents.pop();
+    GpEvent::SP event = iEvents.front();
+    iEvents.pop();
 
-	return event;
+    return event;
 }
 
 }//GPlatform

@@ -20,32 +20,32 @@ iMsg(iWhat.data() + GpException_p1().length(), aException.iMsg.length())
 }
 
 GpException::GpException (std::string_view			aMsg,
-						  const SourceLocationT&	aLocation) noexcept
+                          const SourceLocationT&	aLocation) noexcept
 try
 {
-	std::string_view	fileName(aLocation.file_name());
-	std::string_view	functioneName(aLocation.function_name());
-	std::string			line(std::to_string(aLocation.line()));
+    std::string_view	fileName(aLocation.file_name());
+    std::string_view	functioneName(aLocation.function_name());
+    std::string			line(std::to_string(aLocation.line()));
 
-	fileName = fileName.substr(fileName.find_last_of('/') + 1);
-	fileName = fileName.substr(0, fileName.find_last_of('.'));
+    fileName = fileName.substr(fileName.find_last_of('/') + 1);
+    fileName = fileName.substr(0, fileName.find_last_of('.'));
 
-	constexpr size_t plen = GpException_p1().length()
-							+ 3*GpException_p2().length()
-							+ GpException_p3().length()
-							+ GpException_p4().length()
-							+ GpException_p5().length()
-							+ GpException_p6().length();
+    constexpr size_t plen = GpException_p1().length()
+                            + 3*GpException_p2().length()
+                            + GpException_p3().length()
+                            + GpException_p4().length()
+                            + GpException_p5().length()
+                            + GpException_p6().length();
 
-	iWhat.reserve(plen + aMsg.length() + functioneName.length() + fileName.length() + 6);
+    iWhat.reserve(plen + aMsg.length() + functioneName.length() + fileName.length() + 6);
 
-	iWhat.append(GpException_p1())
-		 .append(aMsg).append(GpException_p2())
-		 .append(GpException_p3()).append(functioneName).append(GpException_p2())
-		 .append(GpException_p4()).append(fileName).append(GpException_p2())
-		 .append(GpException_p5()).append(line).append(GpException_p6());
+    iWhat.append(GpException_p1())
+         .append(aMsg).append(GpException_p2())
+         .append(GpException_p3()).append(functioneName).append(GpException_p2())
+         .append(GpException_p4()).append(fileName).append(GpException_p2())
+         .append(GpException_p5()).append(line).append(GpException_p6());
 
-	iMsg = std::string_view(iWhat.data() + GpException_p1().length(), aMsg.size());
+    iMsg = std::string_view(iWhat.data() + GpException_p1().length(), aMsg.size());
 } catch(...)
 {
 }

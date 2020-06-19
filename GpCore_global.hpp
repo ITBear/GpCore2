@@ -15,13 +15,13 @@
 
 //*************************** EXPORT **************************************
 #if defined(GPCORE_LIBRARY)
-	#define GPCORE_API GP_DECL_EXPORT
+    #define GPCORE_API GP_DECL_EXPORT
 #else
-	#define GPCORE_API GP_DECL_IMPORT
+    #define GPCORE_API GP_DECL_IMPORT
 #endif
 
 namespace GPlatform {
-	//Just declare namespace
+    //Just declare namespace
 }
 
 namespace GP = ::GPlatform;

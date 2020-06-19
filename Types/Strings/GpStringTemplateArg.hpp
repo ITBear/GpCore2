@@ -16,11 +16,11 @@ template <typename> struct GpStringTemplateArgHolder;
 template <char... chars>
 struct GpStringTemplateArgHolder<GpStringTemplateArg<chars...>>
 {
-	static std::string_view SAsStringView (void) noexcept
-	{
-		static consteval char str[sizeof...(chars) + 1] = {chars..., '\0'};
-		return std::string_view(str, sizeof...(chars));
-	}
+    static std::string_view SAsStringView (void) noexcept
+    {
+        static consteval char str[sizeof...(chars) + 1] = {chars..., '\0'};
+        return std::string_view(str, sizeof...(chars));
+    }
 };
 
 }//GPlatform

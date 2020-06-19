@@ -15,19 +15,19 @@ GpTaskFiberStackPool::~GpTaskFiberStackPool (void) noexcept
 
 void	GpTaskFiberStackPool::PreInit (const count_t /*aCount*/)
 {
-	//NOP
+    //NOP
 }
 
 GpTaskFiberStackPool::value_type	GpTaskFiberStackPool::NewElement (void)
 {
-	auto s = GpTaskFiberStack::SP::SNew();
-	s.Vn().Init(iStackSize);
-	return s;
+    auto s = GpTaskFiberStack::SP::SNew();
+    s.Vn().Init(iStackSize);
+    return s;
 }
 
 void	GpTaskFiberStackPool::OnClear (void) noexcept
 {
-	//NOP
+    //NOP
 }
 
 }//GPlatform
