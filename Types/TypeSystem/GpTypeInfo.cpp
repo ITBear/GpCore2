@@ -26,24 +26,24 @@ GpTypeInfo::~GpTypeInfo (void) noexcept
 {
 }
 
-GpTypeInfo&	GpTypeInfo::operator= (const GpTypeInfo& aTypeInfo)
+GpTypeInfo& GpTypeInfo::operator= (const GpTypeInfo& aTypeInfo)
 {
-    iUID				= aTypeInfo.iUID;
-    iBaseUID			= aTypeInfo.iBaseUID;
-    iName				= aTypeInfo.iName;
-    iType				= aTypeInfo.iType;
-    iProps				= aTypeInfo.iProps;
+    iUID                = aTypeInfo.iUID;
+    iBaseUID            = aTypeInfo.iBaseUID;
+    iName               = aTypeInfo.iName;
+    iType               = aTypeInfo.iType;
+    iProps              = aTypeInfo.iProps;
 
     return *this;
 }
 
-GpTypeInfo&	GpTypeInfo::operator= (GpTypeInfo&& aTypeInfo) noexcept
+GpTypeInfo& GpTypeInfo::operator= (GpTypeInfo&& aTypeInfo) noexcept
 {
-    iUID				= std::move(aTypeInfo.iUID);
-    iBaseUID			= std::move(aTypeInfo.iBaseUID);
-    iName				= std::move(aTypeInfo.iName);
-    iType				= std::move(aTypeInfo.iType);
-    iProps				= std::move(aTypeInfo.iProps);
+    iUID                = std::move(aTypeInfo.iUID);
+    iBaseUID            = std::move(aTypeInfo.iBaseUID);
+    iName               = std::move(aTypeInfo.iName);
+    iType               = std::move(aTypeInfo.iType);
+    iProps              = std::move(aTypeInfo.iProps);
 
     return *this;
 }

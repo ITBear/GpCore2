@@ -20,17 +20,17 @@ template<typename Element,
          typename ContainerRes
          >
 [[nodiscard]]
-ContainerRes	Split (GpRawPtrR<const Element*>	aElements,
-                       GpRawPtrR<const Element*>	aDelim,
-                       const count_t				aReturnPartsCountLimit,	//(0 - no limits)
-                       const count_t				aDelimCountLimit,		//(0 - no limits)
-                       const SplitMode				aSplitMode)
+ContainerRes    Split (GpRawPtrR<const Element*>    aElements,
+                       GpRawPtrR<const Element*>    aDelim,
+                       const count_t                aReturnPartsCountLimit, //(0 - no limits)
+                       const count_t                aDelimCountLimit,       //(0 - no limits)
+                       const SplitMode              aSplitMode)
 {
-    const Element*	partBegin	= aElements.Ptr();
-    count_t			partLength	= 0_cnt;
-    count_t			delimCount	= 0_cnt;
-    const count_t	delimLength	= aDelim.LengthLeft();
-    count_t			elementsLeft= aElements.CountLeft();
+    const Element*  partBegin   = aElements.Ptr();
+    count_t         partLength  = 0_cnt;
+    count_t         delimCount  = 0_cnt;
+    const count_t   delimLength = aDelim.LengthLeft();
+    count_t         elementsLeft= aElements.CountLeft();
 
     ContainerRes res;
 
@@ -40,7 +40,7 @@ ContainerRes	Split (GpRawPtrR<const Element*>	aElements,
         {
             if (   (aSplitMode == SplitMode::COUNT_ZERO_LENGTH_PARTS)
                 || (partLength > 0_cnt))
-            {				
+            {               
                 res.emplace_back(partBegin, partLength.ValueAs<size_t>());
 
                 if (   (aReturnPartsCountLimit > 0_cnt)
@@ -59,8 +59,8 @@ ContainerRes	Split (GpRawPtrR<const Element*>	aElements,
 
             aElements.OffsetAdd(delimLength);
             elementsLeft-= delimLength;
-            partBegin	= aElements.Ptr();
-            partLength	= 0_cnt;
+            partBegin   = aElements.Ptr();
+            partLength  = 0_cnt;
         } else
         {
             aElements++;
@@ -82,25 +82,25 @@ ContainerRes	Split (GpRawPtrR<const Element*>	aElements,
          typename ContainerRes
          >
 [[nodiscard]]
-ContainerRes	Split (const Element* _R_	aElements,
-                       const count_t		aElementsCount,
-                       const Element		aDelim,
-                       const Element		aEscGroupBegin,
-                       const Element		aEscGroupEnd,
-                       const count_t		aReturnPartsCountLimit,	//(0 - no limits)
-                       const count_t		aDelimCountLimit,		//(0 - no limits)
-                       const SplitMode		aSplitMode)
+ContainerRes    Split (const Element* _R_   aElements,
+                       const count_t        aElementsCount,
+                       const Element        aDelim,
+                       const Element        aEscGroupBegin,
+                       const Element        aEscGroupEnd,
+                       const count_t        aReturnPartsCountLimit, //(0 - no limits)
+                       const count_t        aDelimCountLimit,       //(0 - no limits)
+                       const SplitMode      aSplitMode)
 {
-    const Element* _R_	partBegin	= aElements;
-    size_t				partLength	= 0;
-    size_t				delimCount	= 0;
+    const Element* _R_  partBegin   = aElements;
+    size_t              partLength  = 0;
+    size_t              delimCount  = 0;
 
     //Результат
     ContainerRes res;
 
-    bool			isInEscGroup	= false;
-    const size_t	elementsCount	= aElementsCount.ValueAs<size_t>();
-    const size_t	delimCountLimit	= aDelimCountLimit.ValueAs<size_t>();
+    bool            isInEscGroup    = false;
+    const size_t    elementsCount   = aElementsCount.ValueAs<size_t>();
+    const size_t    delimCountLimit = aDelimCountLimit.ValueAs<size_t>();
 
     for (size_t id = 0; id < elementsCount; ++id)
     {
@@ -138,8 +138,8 @@ ContainerRes	Split (const Element* _R_	aElements,
                 return res;
             }
 
-            partBegin	= aElements;
-            partLength	= 0;
+            partBegin   = aElements;
+            partLength  = 0;
         } else
         {
             ++partLength;

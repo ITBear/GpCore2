@@ -21,7 +21,7 @@ GpEventSubscriber::~GpEventSubscriber (void) noexcept
     }
 }
 
-void	GpEventSubscriber::PushEvent (GpEvent::SP aEvent)
+void    GpEventSubscriber::PushEvent (GpEvent::SP aEvent)
 {
     std::scoped_lock lock(iEventsLock);
 
@@ -31,7 +31,7 @@ void	GpEventSubscriber::PushEvent (GpEvent::SP aEvent)
     }
 }
 
-GpEvent::SP	GpEventSubscriber::PopNextEvent (void) noexcept
+GpEvent::SP GpEventSubscriber::PopNextEvent (void) noexcept
 {
     std::scoped_lock lock(iEventsLock);
 

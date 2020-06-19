@@ -21,18 +21,18 @@ class GPCORE_API GpNumericOps
 
 public:
     [[nodiscard]] static
-    size_t							SDecDigsCountUI64 (const u_int_64 aValue) noexcept;
+    size_t                          SDecDigsCountUI64 (const u_int_64 aValue) noexcept;
 
     [[nodiscard]] static
-    size_t							SDecDigsCountSI64 (const s_int_64 aValue) noexcept;
+    size_t                          SDecDigsCountSI64 (const s_int_64 aValue) noexcept;
 
     template<typename T>
-    [[nodiscard]] static size_t		SDecDigsCount (const T aValue) noexcept
+    [[nodiscard]] static size_t     SDecDigsCount (const T aValue) noexcept
     {
         static_assert(std::numeric_limits<T>::is_integer, "Value must be integer");
 
-        size_t	res		= 1;
-        T		value	= aValue;
+        size_t  res     = 1;
+        T       value   = aValue;
 
         if ((std::is_signed<T>::value) && (value < 0))
         {
@@ -246,7 +246,7 @@ public:
             return a / b;
         } else
         {
-            GpThrowCe<std::out_of_range>("Div by zero");			
+            GpThrowCe<std::out_of_range>("Div by zero");            
         }
 
         return 0;
@@ -285,9 +285,9 @@ public:
         if constexpr(std::is_integral<FROM>() && std::is_integral<TO>())
         {
             using unsigned_from = std::make_unsigned_t<FROM>;
-            using unsigned_to	= std::make_unsigned_t<TO>;
-            using signed_from	= std::make_signed_t<FROM>;
-            using signed_to		= std::make_signed_t<TO>;
+            using unsigned_to   = std::make_unsigned_t<TO>;
+            using signed_from   = std::make_signed_t<FROM>;
+            using signed_to     = std::make_signed_t<TO>;
 
             if constexpr(std::is_same<FROM, TO>())
             {
@@ -318,9 +318,9 @@ public:
         if constexpr(std::is_integral<FROM>() && std::is_integral<TO>())
         {
             using unsigned_from = std::make_unsigned_t<FROM>;
-            using unsigned_to	= std::make_unsigned_t<TO>;
-            using signed_from	= std::make_signed_t<FROM>;
-            using signed_to		= std::make_signed_t<TO>;
+            using unsigned_to   = std::make_unsigned_t<TO>;
+            using signed_from   = std::make_signed_t<FROM>;
+            using signed_to     = std::make_signed_t<TO>;
 
             if constexpr(std::is_same<FROM, TO>())
             {

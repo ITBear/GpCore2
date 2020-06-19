@@ -13,12 +13,12 @@ GpPipelineEvaluator::~GpPipelineEvaluator (void) noexcept
 {
 }
 
-void	GpPipelineEvaluator::FiberFn (GpThreadStopToken aStopToken)
+void    GpPipelineEvaluator::FiberFn (GpThreadStopToken aStopToken)
 {
-    const GpPipeline&			pipeline		= iPipeline.VC();
-    GpPipelineNode::C::Set::CSP	readyNodes		= pipeline.RootNodes();
-    GpPipelineNode::C::Set::CSP	evaluatingNodes;
-    GpPipelineNode::C::Set::CSP	nextNodes;
+    const GpPipeline&           pipeline        = iPipeline.VC();
+    GpPipelineNode::C::Set::CSP readyNodes      = pipeline.RootNodes();
+    GpPipelineNode::C::Set::CSP evaluatingNodes;
+    GpPipelineNode::C::Set::CSP nextNodes;
 
     while (!aStopToken.stop_requested())
     {
@@ -44,7 +44,7 @@ void	GpPipelineEvaluator::FiberFn (GpThreadStopToken aStopToken)
     //GpTaskFiberCtx::SYeld(GpTask::Res::DONE);
 }
 
-void	GpPipelineEvaluator::ProcessEvents (GpPipelineNode::C::Set::CSP& aReadyNodesOut)
+void    GpPipelineEvaluator::ProcessEvents (GpPipelineNode::C::Set::CSP& aReadyNodesOut)
 {
     GpEvent::SP event = PopNextEvent();
 

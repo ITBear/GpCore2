@@ -10,10 +10,10 @@ iScheduler(aScheduler)
 }
 
 GpTaskExecutorsPool::~GpTaskExecutorsPool (void) noexcept
-{	
+{   
 }
 
-void	GpTaskExecutorsPool::RequestStop (void) noexcept
+void    GpTaskExecutorsPool::RequestStop (void) noexcept
 {
     std::scoped_lock lock(iLock);
 
@@ -23,7 +23,7 @@ void	GpTaskExecutorsPool::RequestStop (void) noexcept
     }
 }
 
-void	GpTaskExecutorsPool::Join (void) noexcept
+void    GpTaskExecutorsPool::Join (void) noexcept
 {
     std::scoped_lock lock(iLock);
 
@@ -33,12 +33,12 @@ void	GpTaskExecutorsPool::Join (void) noexcept
     }
 }
 
-void	GpTaskExecutorsPool::WakeupAll (void) noexcept
+void    GpTaskExecutorsPool::WakeupAll (void) noexcept
 {
     iExecutorsCondVar.Vn().WakeupAll();
 }
 
-void	GpTaskExecutorsPool::PreInit (const count_t aCount)
+void    GpTaskExecutorsPool::PreInit (const count_t aCount)
 {
     iExecutors.reserve(aCount.ValueAs<size_t>());
     iThreads.reserve(aCount.ValueAs<size_t>());
@@ -46,7 +46,7 @@ void	GpTaskExecutorsPool::PreInit (const count_t aCount)
     // Create threads
     for (count_t id = 0_cnt; id < aCount; ++id)
     {
-        GpThread t;		
+        GpThread t;     
         iThreads.emplace_back(std::move(t));
     }
 
@@ -63,7 +63,7 @@ void	GpTaskExecutorsPool::PreInit (const count_t aCount)
     iExecutorsLeft = aCount;
 }
 
-GpTaskExecutorsPool::value_type	GpTaskExecutorsPool::NewElement (void)
+GpTaskExecutorsPool::value_type GpTaskExecutorsPool::NewElement (void)
 {
     THROW_GPE_COND_CHECK(iExecutorsLeft > 0_cnt);
 
@@ -72,7 +72,7 @@ GpTaskExecutorsPool::value_type	GpTaskExecutorsPool::NewElement (void)
     return iExecutors.at(id).Pn();
 }
 
-void	GpTaskExecutorsPool::OnClear (void) noexcept
+void    GpTaskExecutorsPool::OnClear (void) noexcept
 {
     for (GpThread& thread: iThreads)
     {

@@ -19,13 +19,13 @@ iMsg(iWhat.data() + GpException_p1().length(), aException.iMsg.length())
 {
 }
 
-GpException::GpException (std::string_view			aMsg,
-                          const SourceLocationT&	aLocation) noexcept
+GpException::GpException (std::string_view          aMsg,
+                          const SourceLocationT&    aLocation) noexcept
 try
 {
-    std::string_view	fileName(aLocation.file_name());
-    std::string_view	functioneName(aLocation.function_name());
-    std::string			line(std::to_string(aLocation.line()));
+    std::string_view    fileName(aLocation.file_name());
+    std::string_view    functioneName(aLocation.function_name());
+    std::string         line(std::to_string(aLocation.line()));
 
     fileName = fileName.substr(fileName.find_last_of('/') + 1);
     fileName = fileName.substr(0, fileName.find_last_of('.'));

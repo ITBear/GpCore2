@@ -17,13 +17,13 @@ public:
     CLASS_DECLARE_DEFAULTS(GpPipelineEvaluateCtx);
 
 protected:
-                        GpPipelineEvaluateCtx	(void) noexcept = default;
+                        GpPipelineEvaluateCtx   (void) noexcept = default;
 
 public:
-    virtual				~GpPipelineEvaluateCtx	(void) noexcept override = default;
+    virtual             ~GpPipelineEvaluateCtx  (void) noexcept override = default;
 
 protected:
-    virtual void		FiberFn					(GpThreadStopToken aStopToken) override final;
+    virtual void        FiberFn                 (GpThreadStopToken aStopToken) override final;
 };
 
 }//GPlatform

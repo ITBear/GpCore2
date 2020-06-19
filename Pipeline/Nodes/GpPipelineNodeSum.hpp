@@ -15,10 +15,10 @@ public:
     CLASS_DECLARE_DEFAULTS(GpPipelineNodeSum);
 
 public:
-                                        GpPipelineNodeSum	(void) noexcept = default;
-    virtual								~GpPipelineNodeSum	(void) noexcept override final = default;
+                                        GpPipelineNodeSum   (void) noexcept = default;
+    virtual                             ~GpPipelineNodeSum  (void) noexcept override final = default;
 
-    virtual GpPipelineEvaluateCtx::SP	NewEvaluateCtx		(void) const override final;
+    virtual GpPipelineEvaluateCtx::SP   NewEvaluateCtx      (void) const override final;
 };
 
 }//GPlatform

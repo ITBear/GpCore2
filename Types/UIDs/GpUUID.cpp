@@ -6,7 +6,7 @@
 
 namespace GPlatform {
 
-std::string	GpUUID::ToString (void) const
+std::string GpUUID::ToString (void) const
 {
     //    8      4    4    4       12
     //xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
@@ -36,7 +36,7 @@ std::string	GpUUID::ToString (void) const
     return str;
 }
 
-void	GpUUID::FromString (std::string_view aStr)
+void    GpUUID::FromString (std::string_view aStr)
 {
     if (aStr.length() != 36)
     {
@@ -45,8 +45,8 @@ void	GpUUID::FromString (std::string_view aStr)
 
     DataT data;
 
-    const char* _R_	strPtr	= aStr.data();
-    std::byte* _R_	dataPtr	= data.data();
+    const char* _R_ strPtr  = aStr.data();
+    std::byte* _R_  dataPtr = data.data();
 
     for (size_t id = 0; id < data.size(); ++id)
     {
@@ -66,20 +66,20 @@ void	GpUUID::FromString (std::string_view aStr)
     MemOps::SCopy(iData, data);
 }
 
-void	GpUUID::FromRandom (GpRandom& aRandom)
+void    GpUUID::FromRandom (GpRandom& aRandom)
 {
     const UInt64 part_0 = aRandom.UI64();
     const UInt64 part_1 = aRandom.UI64();
 
-    std::byte*			dataPtr		= iData.data();
-    constexpr size_t	blockSize	= sizeof(u_int_64);
+    std::byte*          dataPtr     = iData.data();
+    constexpr size_t    blockSize   = sizeof(u_int_64);
 
 
     std::memcpy(dataPtr, &part_0, blockSize); dataPtr += blockSize;
     std::memcpy(dataPtr, &part_1, blockSize);
 }
 
-GpUUID	GpUUID::SGenRandom (void)
+GpUUID  GpUUID::SGenRandom (void)
 {
     GpSRandom& rnd = GpSRandom::S();
 
@@ -88,8 +88,8 @@ GpUUID	GpUUID::SGenRandom (void)
 
     DataT data;
 
-    std::byte*			dataPtr		= data.data();
-    constexpr size_t	blockSize	= sizeof(u_int_64);
+    std::byte*          dataPtr     = data.data();
+    constexpr size_t    blockSize   = sizeof(u_int_64);
 
     std::memcpy(dataPtr, &part_0, blockSize); dataPtr += blockSize;
     std::memcpy(dataPtr, &part_1, blockSize);
@@ -97,7 +97,7 @@ GpUUID	GpUUID::SGenRandom (void)
     return GpUUID(data);
 }
 
-GpUUID	GpUUID::SFromString (std::string_view aStr)
+GpUUID  GpUUID::SFromString (std::string_view aStr)
 {
     GpUUID uuid;
     uuid.FromString(aStr);

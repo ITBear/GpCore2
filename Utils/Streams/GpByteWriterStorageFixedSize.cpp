@@ -6,7 +6,7 @@ GpByteWriterStorageFixedSize::~GpByteWriterStorageFixedSize (void) noexcept
 {
 }
 
-void	GpByteWriterStorageFixedSize::AllocateNext (const size_byte_t aSize)
+void    GpByteWriterStorageFixedSize::AllocateNext (const size_byte_t aSize)
 {
     if (Left() < aSize)
     {

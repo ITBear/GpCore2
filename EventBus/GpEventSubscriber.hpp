@@ -22,20 +22,20 @@ public:
     };
 
 protected:
-                            GpEventSubscriber	(void) noexcept;
+                            GpEventSubscriber   (void) noexcept;
 
 public:
-    virtual					~GpEventSubscriber	(void) noexcept;
+    virtual                 ~GpEventSubscriber  (void) noexcept;
 
-    void					PushEvent			(GpEvent::SP aEvent);
+    void                    PushEvent           (GpEvent::SP aEvent);
 
 protected:
-    GpEvent::SP				PopNextEvent		(void) noexcept;
-    virtual PushEvevtRes	OnPushEvent			(GpEvent::SP& aEvent) noexcept = 0;
+    GpEvent::SP             PopNextEvent        (void) noexcept;
+    virtual PushEvevtRes    OnPushEvent         (GpEvent::SP& aEvent) noexcept = 0;
 
 private:
-    GpSpinlock				iEventsLock;
-    GpEvent::C::Queue::SP	iEvents;
+    GpSpinlock              iEventsLock;
+    GpEvent::C::Queue::SP   iEvents;
 };
 
 }//GPlatform

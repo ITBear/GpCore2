@@ -16,15 +16,15 @@ GpTaskFiberStack::~GpTaskFiberStack (void) noexcept
     Clear();
 }
 
-void	GpTaskFiberStack::Init (const size_byte_t aSize)
+void    GpTaskFiberStack::Init (const size_byte_t aSize)
 {
     Clear();
 
     iStackAllocator = GpMemOps::SNew<BasicProtectedFixedSizeStackT>(aSize.ValueAs<size_t>());
-    iStackContext	= GpMemOps::SNew<StackContextT>(reinterpret_cast<BasicProtectedFixedSizeStackT*>(iStackAllocator)->allocate());
+    iStackContext   = GpMemOps::SNew<StackContextT>(reinterpret_cast<BasicProtectedFixedSizeStackT*>(iStackAllocator)->allocate());
 }
 
-void	GpTaskFiberStack::Clear (void) noexcept
+void    GpTaskFiberStack::Clear (void) noexcept
 {
     if (iStackAllocator != nullptr)
     {

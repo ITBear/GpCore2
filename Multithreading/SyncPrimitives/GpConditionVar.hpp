@@ -21,19 +21,19 @@ public:
 
     CLASS_TAG(THREAD_SAFE)
 
-                            GpConditionVar	(void) noexcept;
-                            ~GpConditionVar	(void) noexcept;
+                            GpConditionVar  (void) noexcept;
+                            ~GpConditionVar (void) noexcept;
 
-    void					WakeupAll		(void) noexcept;
-    void					WakeupOne		(void) noexcept;
-    void					WaitForWakeup	(void) noexcept;
-    void					WaitForWakeup	(const milliseconds_t aTimeout) noexcept;
+    void                    WakeupAll       (void) noexcept;
+    void                    WakeupOne       (void) noexcept;
+    void                    WaitForWakeup   (void) noexcept;
+    void                    WaitForWakeup   (const milliseconds_t aTimeout) noexcept;
 
 private:
-    mutable std::mutex		iWakeupMutex;
-    std::condition_variable	iWakeupCV;
-    count_t					iWaitCounter	= 0_cnt;
-    bool					iNeedToWakeUp	= false;
+    mutable std::mutex      iWakeupMutex;
+    std::condition_variable iWakeupCV;
+    count_t                 iWaitCounter    = 0_cnt;
+    bool                    iNeedToWakeUp   = false;
 };
 
 }//GPlatform

@@ -4,7 +4,7 @@
 
 namespace GPlatform {
 
-/*void	GpPipelineNodeSumEvCtx::DoCalc (void) const
+/*void  GpPipelineNodeSumEvCtx::DoCalc (void) const
 {
     // Read inputs
     GpVector<SInt_64> inputs;
@@ -15,7 +15,7 @@ namespace GPlatform {
     // Write outputs
 }
 
-SInt_64	GpPipelineNodeSumEvCtx::SSum (const GpVector<SInt_64>& aInputs)
+SInt_64 GpPipelineNodeSumEvCtx::SSum (const GpVector<SInt_64>& aInputs)
 {
     try
     {

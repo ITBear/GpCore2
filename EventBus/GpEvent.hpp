@@ -17,8 +17,8 @@ public:
     CLASS_DECLARE_DEFAULTS(GpEvent);
 
 public:
-                        GpEvent		(void) noexcept = default;
-    virtual				~GpEvent	(void) noexcept = default;
+                        GpEvent     (void) noexcept = default;
+    virtual             ~GpEvent    (void) noexcept = default;
 };
 
 }//GPlatform

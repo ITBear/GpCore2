@@ -30,30 +30,30 @@ public:
         DONE
     };
 
-    using StateT		= GpTaskState;
-    using StateTE		= StateT::EnumT;
-    using SchedulerRefT	= std::optional<std::reference_wrapper<GpTaskScheduler>>;
+    using StateT        = GpTaskState;
+    using StateTE       = StateT::EnumT;
+    using SchedulerRefT = std::optional<std::reference_wrapper<GpTaskScheduler>>;
 
 public:
-                            GpTask			(void) noexcept = default;
-    virtual					~GpTask			(void) noexcept override = default;
+                            GpTask          (void) noexcept = default;
+    virtual                 ~GpTask         (void) noexcept override = default;
 
-    void					MoveToReady		(void);
-    virtual Res				Do				(GpThreadStopToken aStopToken) noexcept = 0;
+    void                    MoveToReady     (void);
+    virtual Res             Do              (GpThreadStopToken aStopToken) noexcept = 0;
 
 protected:
-    virtual PushEvevtRes	OnPushEvent		(GpEvent::SP& aEvent) noexcept override final;
+    virtual PushEvevtRes    OnPushEvent     (GpEvent::SP& aEvent) noexcept override final;
 
 private:
-    StateTE					State			(void) const noexcept {return iState;}
-    void					UpdateState		(StateTE aNewState) noexcept {iState = aNewState;}
-    void					SetScheduler	(GpTaskScheduler& aScheduler) noexcept {iScheduler = aScheduler;}
-    void					SetWeakPtr		(WP&& aWeakPtr) noexcept {iThisWeakPtr = std::move(aWeakPtr);}
+    StateTE                 State           (void) const noexcept {return iState;}
+    void                    UpdateState     (StateTE aNewState) noexcept {iState = aNewState;}
+    void                    SetScheduler    (GpTaskScheduler& aScheduler) noexcept {iScheduler = aScheduler;}
+    void                    SetWeakPtr      (WP&& aWeakPtr) noexcept {iThisWeakPtr = std::move(aWeakPtr);}
 
 private:
-    StateTE					iState = StateTE::NOT_ASSIGNED_TO_SCHEDULER;
-    SchedulerRefT			iScheduler;
-    WP						iThisWeakPtr;
+    StateTE                 iState = StateTE::NOT_ASSIGNED_TO_SCHEDULER;
+    SchedulerRefT           iScheduler;
+    WP                      iThisWeakPtr;
 };
 
 }//GPlatform

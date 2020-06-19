@@ -6,7 +6,7 @@ GpByteWriterStorageByteArray::~GpByteWriterStorageByteArray (void) noexcept
 {
 }
 
-void	GpByteWriterStorageByteArray::AllocateNext (const size_byte_t aSize)
+void    GpByteWriterStorageByteArray::AllocateNext (const size_byte_t aSize)
 {
     const size_byte_t left = Left();
 
@@ -15,8 +15,8 @@ void	GpByteWriterStorageByteArray::AllocateNext (const size_byte_t aSize)
         return;
     }
 
-    const size_byte_t delta		= aSize - left;
-    const size_byte_t newSize	= size_byte_t::SMake(iOut.size()) + delta;
+    const size_byte_t delta     = aSize - left;
+    const size_byte_t newSize   = size_byte_t::SMake(iOut.size()) + delta;
 
     iOut.resize(newSize.Value());
 

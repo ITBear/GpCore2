@@ -2,77 +2,77 @@
 
 namespace GPlatform {
 
-void	GpByteWriter::UInt8 (const u_int_8 aValue)
+void    GpByteWriter::UInt8 (const u_int_8 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
 }
 
-void	GpByteWriter::SInt8 (const s_int_8 aValue)
+void    GpByteWriter::SInt8 (const s_int_8 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
 }
 
-void	GpByteWriter::UInt16 (const u_int_16 aValue)
+void    GpByteWriter::UInt16 (const u_int_16 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
 }
 
-void	GpByteWriter::SInt16 (const s_int_16 aValue)
+void    GpByteWriter::SInt16 (const s_int_16 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
 }
 
-void	GpByteWriter::UInt32 (const u_int_32 aValue)
+void    GpByteWriter::UInt32 (const u_int_32 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
 }
 
-void	GpByteWriter::SInt32 (const s_int_32 aValue)
+void    GpByteWriter::SInt32 (const s_int_32 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
 }
 
-void	GpByteWriter::UInt64 (const u_int_64 aValue)
+void    GpByteWriter::UInt64 (const u_int_64 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
 }
 
-void	GpByteWriter::SInt64 (const s_int_64 aValue)
+void    GpByteWriter::SInt64 (const s_int_64 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
 }
 
-void	GpByteWriter::BytesWithLen (std::string_view aValue)
+void    GpByteWriter::BytesWithLen (std::string_view aValue)
 {
     BytesWithLen(reinterpret_cast<const std::byte*>(aValue.data()),
                   size_byte_t::SMake(aValue.size()));
 }
 
-void	GpByteWriter::Bytes (std::string_view aValue)
+void    GpByteWriter::Bytes (std::string_view aValue)
 {
     Bytes(reinterpret_cast<const std::byte*>(aValue.data()),
           size_byte_t::SMake(aValue.size()));
 }
 
-void	GpByteWriter::BytesWithLen (const GpBytesArray& aValue)
+void    GpByteWriter::BytesWithLen (const GpBytesArray& aValue)
 {
     BytesWithLen(aValue.data(),
                  size_byte_t::SMake(aValue.size()));
 }
 
-void	GpByteWriter::Bytes (const GpBytesArray& aValue)
+void    GpByteWriter::Bytes (const GpBytesArray& aValue)
 {
     Bytes(aValue.data(),
           size_byte_t::SMake(aValue.size()));
 }
 
-void	GpByteWriter::BytesWithLen (const std::byte* aData, const size_byte_t aSize)
+void    GpByteWriter::BytesWithLen (const std::byte* aData, const size_byte_t aSize)
 {
     CompactSInt32(aSize.ValueAs<s_int_32>());
     Bytes(aData, aSize);
 }
 
-void	GpByteWriter::Bytes (const std::byte* aData,  const size_byte_t aSize)
+void    GpByteWriter::Bytes (const std::byte* aData,  const size_byte_t aSize)
 {
     if ((aData == nullptr) || (aSize == 0_byte))
     {
@@ -95,7 +95,7 @@ void	GpByteWriter::Bytes (const std::byte* aData,  const size_byte_t aSize)
     iStorage.SetLeftSub(aSize);
 }
 
-void	GpByteWriter::CompactSInt32 (const s_int_32 aValue)
+void    GpByteWriter::CompactSInt32 (const s_int_32 aValue)
 {
     THROW_GPE_COND_CHECK_M((aValue >= s_int_32(0)) && (aValue <= s_int_32(0x0FFFFFFF)), "aValue is out of range");
 

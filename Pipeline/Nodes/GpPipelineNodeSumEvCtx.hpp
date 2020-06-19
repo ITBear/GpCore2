@@ -15,8 +15,8 @@ public:
     CLASS_DECLARE_DEFAULTS(GpPipelineNodeSumEvCtx);
 
 public:
-                                        GpPipelineNodeSumEvCtx	(void) noexcept = default;
-    virtual								~GpPipelineNodeSumEvCtx	(void) noexcept override final = default;
+                                        GpPipelineNodeSumEvCtx  (void) noexcept = default;
+    virtual                             ~GpPipelineNodeSumEvCtx (void) noexcept override final = default;
 };
 
 }//GPlatform

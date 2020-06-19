@@ -12,25 +12,25 @@
 namespace GPlatform {
 
 class GPCORE_API GpTaskFiber: public GpTask
-{	
-public:	
+{   
+public: 
     CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFiber);
     CLASS_DECLARE_DEFAULTS(GpTaskFiber);
 
     using StageT = GpTaskFiberStage;
 
 public:
-                            GpTaskFiber			(void) noexcept;
-    virtual					~GpTaskFiber		(void) noexcept override;
+                            GpTaskFiber         (void) noexcept;
+    virtual                 ~GpTaskFiber        (void) noexcept override;
 
-    virtual Res				Do					(GpThreadStopToken aStopToken) noexcept override final;
+    virtual Res             Do                  (GpThreadStopToken aStopToken) noexcept override final;
 
 protected:
-    virtual void			FiberFn				(GpThreadStopToken aStopToken) = 0;
+    virtual void            FiberFn             (GpThreadStopToken aStopToken) = 0;
 
 private:
-    GpTaskFiberCtx::SP		iCtx;
-    StageT					iStage = StageT::NOT_RUN;
+    GpTaskFiberCtx::SP      iCtx;
+    StageT                  iStage = StageT::NOT_RUN;
 };
 
 }//GPlatform

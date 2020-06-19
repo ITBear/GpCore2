@@ -6,8 +6,8 @@
 
 namespace GPlatform {
 
-GpTaskExecutor::GpTaskExecutor (GpTaskScheduler&	aScheduler,
-                                GpConditionVar::SP	aCondVar) noexcept:
+GpTaskExecutor::GpTaskExecutor (GpTaskScheduler&    aScheduler,
+                                GpConditionVar::SP  aCondVar) noexcept:
 GpRunnable(std::move(aCondVar)),
 iScheduler(aScheduler)
 {
@@ -17,10 +17,10 @@ GpTaskExecutor::~GpTaskExecutor (void) noexcept
 {
 }
 
-void	GpTaskExecutor::Run (GpThreadStopToken aStopToken) noexcept
+void    GpTaskExecutor::Run (GpThreadStopToken aStopToken) noexcept
 {
-    GpTask::SP	currentTask;
-    GpTask::Res	currentTaskExecRes = GpTask::Res::DONE;
+    GpTask::SP  currentTask;
+    GpTask::Res currentTaskExecRes = GpTask::Res::DONE;
 
     while (!aStopToken.stop_requested())
     {

@@ -19,50 +19,50 @@ public:
     CLASS_DECLARE_DEFAULTS(GpEnum);
     CLASS_TAG(GpEnum)
 
-    using value_type	= size_t;
-    using NamesListT	= GpVector<GpTuple<std::string_view, value_type>>;
+    using value_type    = size_t;
+    using NamesListT    = GpVector<GpTuple<std::string_view, value_type>>;
 
 protected:
-                                GpEnum				(void) noexcept:iId(value_type()) {}
-                                GpEnum				(value_type aId) noexcept:iId(aId) {}
-                                GpEnum				(const GpEnum& aEnum) noexcept:iId(aEnum.iId) {}
+                                GpEnum              (void) noexcept:iId(value_type()) {}
+                                GpEnum              (value_type aId) noexcept:iId(aId) {}
+                                GpEnum              (const GpEnum& aEnum) noexcept:iId(aEnum.iId) {}
 
 public:
-    virtual						~GpEnum				(void) noexcept = default;
+    virtual                     ~GpEnum             (void) noexcept = default;
 
 protected:
-    void						_SetID				(value_type aId) noexcept {iId = aId;}
+    void                        _SetID              (value_type aId) noexcept {iId = aId;}
 
 public:
-    value_type					ID					(void) const noexcept {return iId;}
-    void						FromID				(value_type aId);
-    std::string_view			ToString			(void) const noexcept;
-    void						FromString			(std::string_view aName);
-    virtual const NamesListT&	Names				(void) const noexcept = 0;
-    virtual std::string_view	TypeName			(void) const noexcept = 0;
+    value_type                  ID                  (void) const noexcept {return iId;}
+    void                        FromID              (value_type aId);
+    std::string_view            ToString            (void) const noexcept;
+    void                        FromString          (std::string_view aName);
+    virtual const NamesListT&   Names               (void) const noexcept = 0;
+    virtual std::string_view    TypeName            (void) const noexcept = 0;
 
-    bool						operator<			(const GpEnum& aEnum) const noexcept {return iId < aEnum.iId;}
-    bool						operator>			(const GpEnum& aEnum) const noexcept {return iId > aEnum.iId;}
-    bool						operator<=			(const GpEnum& aEnum) const noexcept {return iId <= aEnum.iId;}
-    bool						operator>=			(const GpEnum& aEnum) const noexcept {return iId >= aEnum.iId;}
-    bool						operator==			(const GpEnum& aEnum) const noexcept {return iId == aEnum.iId;}
-    bool						operator!=			(const GpEnum& aEnum) const noexcept {return iId != aEnum.iId;}
+    bool                        operator<           (const GpEnum& aEnum) const noexcept {return iId < aEnum.iId;}
+    bool                        operator>           (const GpEnum& aEnum) const noexcept {return iId > aEnum.iId;}
+    bool                        operator<=          (const GpEnum& aEnum) const noexcept {return iId <= aEnum.iId;}
+    bool                        operator>=          (const GpEnum& aEnum) const noexcept {return iId >= aEnum.iId;}
+    bool                        operator==          (const GpEnum& aEnum) const noexcept {return iId == aEnum.iId;}
+    bool                        operator!=          (const GpEnum& aEnum) const noexcept {return iId != aEnum.iId;}
 
 protected:
-    static std::string_view		_SToString			(const NamesListT&	aNamesList,
-                                                     const value_type	aId) noexcept;
-    static value_type			_SFromString		(const NamesListT&	aNamesList,
-                                                     std::string_view	aName,
-                                                     std::string_view	aEnumTypeName);
-    static NamesListT			_SParseEnumElements (std::string_view aEnumName,
+    static std::string_view     _SToString          (const NamesListT&  aNamesList,
+                                                     const value_type   aId) noexcept;
+    static value_type           _SFromString        (const NamesListT&  aNamesList,
+                                                     std::string_view   aName,
+                                                     std::string_view   aEnumTypeName);
+    static NamesListT           _SParseEnumElements (std::string_view aEnumName,
                                                      std::string_view aEnumElementsStr);
 
 private:
-    static void					_SParseEnumValues	(NamesListT&		aNamesListOut,
-                                                     std::string_view	aEnumName,
-                                                     std::string_view	aEnumElementsStr);
+    static void                 _SParseEnumValues   (NamesListT&        aNamesListOut,
+                                                     std::string_view   aEnumName,
+                                                     std::string_view   aEnumElementsStr);
 private:
-    value_type					iId;
+    value_type                  iId;
 };
 
 #define GP_ENUM(PREFIX, TYPE_NAME, ...) \
@@ -124,27 +124,27 @@ public: \
 \
     static EnumT SFromString (std::string_view aName) noexcept;\
 \
-    virtual const NamesListT&	Names		(void) const noexcept override final;\
-    virtual std::string_view	TypeName	(void) const noexcept override final;\
+    virtual const NamesListT&   Names       (void) const noexcept override final;\
+    virtual std::string_view    TypeName    (void) const noexcept override final;\
 \
-    bool operator < (const TYPE_NAME& aTypeName) const noexcept		{return ID() < aTypeName.ID();}\
-    bool operator < (const TYPE_NAME::EnumT aValue) const noexcept	{return ID() < value_type(aValue);}\
-    bool operator > (const TYPE_NAME& aTypeName) const noexcept		{return ID() > aTypeName.ID();}\
-    bool operator > (const TYPE_NAME::EnumT aValue) const noexcept	{return ID() > value_type(aValue);}\
-    bool operator <=(const TYPE_NAME& aTypeName) const noexcept		{return ID() <= aTypeName.ID();}\
-    bool operator <=(const TYPE_NAME::EnumT aValue) const noexcept	{return ID() <= value_type(aValue);}\
-    bool operator >=(const TYPE_NAME& aTypeName) const noexcept		{return ID() >= aTypeName.ID();}\
-    bool operator >=(const TYPE_NAME::EnumT aValue) const noexcept	{return ID() >= value_type(aValue);}\
-    bool operator ==(const TYPE_NAME& aTypeName) const noexcept		{return ID() == aTypeName.ID();}\
-    bool operator ==(const TYPE_NAME::EnumT aValue) const noexcept	{return ID() == value_type(aValue);}\
-    bool operator !=(const TYPE_NAME& aTypeName) const noexcept		{return ID() != aTypeName.ID();}\
-    bool operator !=(const TYPE_NAME::EnumT aValue) const noexcept	{return ID() != value_type(aValue);}\
-    TYPE_NAME& operator = (const TYPE_NAME& aTypeName) noexcept		{_SetID(aTypeName.ID()); return *this;}\
-    TYPE_NAME& operator = (const TYPE_NAME::EnumT aValue) noexcept	{_SetID(value_type(aValue)); return *this;}\
+    bool operator < (const TYPE_NAME& aTypeName) const noexcept     {return ID() < aTypeName.ID();}\
+    bool operator < (const TYPE_NAME::EnumT aValue) const noexcept  {return ID() < value_type(aValue);}\
+    bool operator > (const TYPE_NAME& aTypeName) const noexcept     {return ID() > aTypeName.ID();}\
+    bool operator > (const TYPE_NAME::EnumT aValue) const noexcept  {return ID() > value_type(aValue);}\
+    bool operator <=(const TYPE_NAME& aTypeName) const noexcept     {return ID() <= aTypeName.ID();}\
+    bool operator <=(const TYPE_NAME::EnumT aValue) const noexcept  {return ID() <= value_type(aValue);}\
+    bool operator >=(const TYPE_NAME& aTypeName) const noexcept     {return ID() >= aTypeName.ID();}\
+    bool operator >=(const TYPE_NAME::EnumT aValue) const noexcept  {return ID() >= value_type(aValue);}\
+    bool operator ==(const TYPE_NAME& aTypeName) const noexcept     {return ID() == aTypeName.ID();}\
+    bool operator ==(const TYPE_NAME::EnumT aValue) const noexcept  {return ID() == value_type(aValue);}\
+    bool operator !=(const TYPE_NAME& aTypeName) const noexcept     {return ID() != aTypeName.ID();}\
+    bool operator !=(const TYPE_NAME::EnumT aValue) const noexcept  {return ID() != value_type(aValue);}\
+    TYPE_NAME& operator = (const TYPE_NAME& aTypeName) noexcept     {_SetID(aTypeName.ID()); return *this;}\
+    TYPE_NAME& operator = (const TYPE_NAME::EnumT aValue) noexcept  {_SetID(value_type(aValue)); return *this;}\
 \
 private: \
-    static const NamesListT&	SNames		(void) noexcept;\
-    static std::string_view		STypeName	(void) noexcept;\
+    static const NamesListT&    SNames      (void) noexcept;\
+    static std::string_view     STypeName   (void) noexcept;\
 }
 
 #define GP_ENUM_IMPL(TYPE_NAME, ...) \
@@ -155,18 +155,18 @@ const GpEnum::NamesListT& TYPE_NAME::SNames (void) noexcept \
     return sNamesList; \
 } \
  \
-std::string_view	TYPE_NAME::STypeName (void) noexcept \
+std::string_view    TYPE_NAME::STypeName (void) noexcept \
 { \
     static std::string sTypeName(#TYPE_NAME); \
     return sTypeName; \
 } \
 \
-std::string_view	TYPE_NAME::SToString (EnumT aEnumValue) noexcept\
+std::string_view    TYPE_NAME::SToString (EnumT aEnumValue) noexcept\
 {\
     return _SToString(SNames(), value_type(aEnumValue));\
 }\
 \
-TYPE_NAME::EnumT	TYPE_NAME::SFromString (std::string_view aName) noexcept\
+TYPE_NAME::EnumT    TYPE_NAME::SFromString (std::string_view aName) noexcept\
 {\
     return EnumT(_SFromString(SNames(), aName, #TYPE_NAME));\
 }\
@@ -176,7 +176,7 @@ const TYPE_NAME::NamesListT& TYPE_NAME::Names (void) const noexcept\
     return SNames();\
 }\
 \
-std::string_view	TYPE_NAME::TypeName (void) const noexcept\
+std::string_view    TYPE_NAME::TypeName (void) const noexcept\
 {\
     return STypeName();\
 }
@@ -189,7 +189,7 @@ namespace std {
 template<> struct hash<GPlatform::GpEnum>
 {
     using argument_type = GPlatform::GpEnum;
-    using result_type	= std::size_t;
+    using result_type   = std::size_t;
 
     result_type operator()(argument_type const& aArg) const noexcept
     {

@@ -13,7 +13,7 @@ class GpTaskSchedulerAccessor
     CLASS_REMOVE_CTRS(GpTaskSchedulerAccessor);
 
 public:
-    static void			SMoveToReady		(GpTaskScheduler& aScheduler, GpTask::SP aTask)
+    static void         SMoveToReady        (GpTaskScheduler& aScheduler, GpTask::SP aTask)
     {
         aScheduler.MoveToReady(aTask);
     }

@@ -24,37 +24,37 @@ class GpElementsCatalog
     CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpElementsCatalog);
 
 public:
-    using this_type			= GpElementsCatalog<KeyT, ValueT, ContainerT>;
-    using key_type			= KeyT;
-    using value_type		= ValueT;
-    using container_type	= ContainerT<KeyT, ValueT>;
+    using this_type         = GpElementsCatalog<KeyT, ValueT, ContainerT>;
+    using key_type          = KeyT;
+    using value_type        = ValueT;
+    using container_type    = ContainerT<KeyT, ValueT>;
 
     CLASS_TAG(THREAD_SAFE)
 
 public:
-                                    GpElementsCatalog	(void) noexcept = default;
-    virtual							~GpElementsCatalog	(void) noexcept;
+                                    GpElementsCatalog   (void) noexcept = default;
+    virtual                         ~GpElementsCatalog  (void) noexcept;
 
-    void							Clear				(void) noexcept;
+    void                            Clear               (void) noexcept;
 
-    void							Register			(const KeyT& aKey, const ValueT& aValue);
-    void							Register			(KeyT&& aKey, const ValueT& aValue);
-    void							Register			(const KeyT& aKey, ValueT&& aValue);
-    void							Register			(KeyT&& aKey, ValueT&& aValue);
+    void                            Register            (const KeyT& aKey, const ValueT& aValue);
+    void                            Register            (KeyT&& aKey, const ValueT& aValue);
+    void                            Register            (const KeyT& aKey, ValueT&& aValue);
+    void                            Register            (KeyT&& aKey, ValueT&& aValue);
 
-    ValueT							Unregister			(const KeyT& aKey);
+    ValueT                          Unregister          (const KeyT& aKey);
 
     std::optional<std::reference_wrapper<const ValueT>>
-                                    Find				(const KeyT& aKey) const noexcept;
+                                    Find                (const KeyT& aKey) const noexcept;
     std::optional<std::reference_wrapper<ValueT>>
-                                    Find				(const KeyT& aKey) noexcept;
+                                    Find                (const KeyT& aKey) noexcept;
 
 private:
-    count_t							_Count				(const KeyT& aKey) const noexcept;
+    count_t                         _Count              (const KeyT& aKey) const noexcept;
 
 private:
-    mutable GpRWLock				iLock;
-    container_type					iElements;
+    mutable GpRWLock                iLock;
+    container_type                  iElements;
 };
 
 template<typename KeyT,
@@ -68,7 +68,7 @@ GpElementsCatalog<KeyT, ValueT, ContainerT>::~GpElementsCatalog (void) noexcept
 template<typename KeyT,
          typename ValueT,
          template<typename...> class ContainerT>
-void	GpElementsCatalog<KeyT, ValueT, ContainerT>::Clear (void) noexcept
+void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Clear (void) noexcept
 {
     std::scoped_lock lock(iLock);
 
@@ -78,7 +78,7 @@ void	GpElementsCatalog<KeyT, ValueT, ContainerT>::Clear (void) noexcept
 template<typename KeyT,
          typename ValueT,
          template<typename...> class ContainerT>
-void	GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (const KeyT& aKey, const ValueT& aValue)
+void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (const KeyT& aKey, const ValueT& aValue)
 {
     std::scoped_lock lock(iLock);
 
@@ -90,7 +90,7 @@ void	GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (const KeyT& aKey, co
 template<typename KeyT,
          typename ValueT,
          template<typename...> class ContainerT>
-void	GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (KeyT&& aKey, const ValueT& aValue)
+void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (KeyT&& aKey, const ValueT& aValue)
 {
     std::scoped_lock lock(iLock);
 
@@ -102,7 +102,7 @@ void	GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (KeyT&& aKey, const V
 template<typename KeyT,
          typename ValueT,
          template<typename...> class ContainerT>
-void	GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (const KeyT& aKey, ValueT&& aValue)
+void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (const KeyT& aKey, ValueT&& aValue)
 {
     std::scoped_lock lock(iLock);
 
@@ -114,7 +114,7 @@ void	GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (const KeyT& aKey, Va
 template<typename KeyT,
          typename ValueT,
          template<typename...> class ContainerT>
-void	GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (KeyT&& aKey, ValueT&& aValue)
+void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (KeyT&& aKey, ValueT&& aValue)
 {
     std::scoped_lock lock(iLock);
 
@@ -126,7 +126,7 @@ void	GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (KeyT&& aKey, ValueT&
 template<typename KeyT,
          typename ValueT,
          template<typename...> class ContainerT>
-ValueT	GpElementsCatalog<KeyT, ValueT, ContainerT>::Unregister (const KeyT& aKey)
+ValueT  GpElementsCatalog<KeyT, ValueT, ContainerT>::Unregister (const KeyT& aKey)
 {
     std::scoped_lock lock(iLock);
 
@@ -146,7 +146,7 @@ ValueT	GpElementsCatalog<KeyT, ValueT, ContainerT>::Unregister (const KeyT& aKey
 template<typename KeyT,
          typename ValueT,
          template<typename...> class ContainerT>
-std::optional<std::reference_wrapper<const ValueT>>	GpElementsCatalog<KeyT, ValueT, ContainerT>::Find (const KeyT& aKey) const noexcept
+std::optional<std::reference_wrapper<const ValueT>> GpElementsCatalog<KeyT, ValueT, ContainerT>::Find (const KeyT& aKey) const noexcept
 {
     std::shared_lock lock(iLock);
 
@@ -164,7 +164,7 @@ std::optional<std::reference_wrapper<const ValueT>>	GpElementsCatalog<KeyT, Valu
 template<typename KeyT,
          typename ValueT,
          template<typename...> class ContainerT>
-std::optional<std::reference_wrapper<ValueT>>	GpElementsCatalog<KeyT, ValueT, ContainerT>::Find (const KeyT& aKey) noexcept
+std::optional<std::reference_wrapper<ValueT>>   GpElementsCatalog<KeyT, ValueT, ContainerT>::Find (const KeyT& aKey) noexcept
 {
     std::shared_lock lock(iLock);
 
@@ -182,7 +182,7 @@ std::optional<std::reference_wrapper<ValueT>>	GpElementsCatalog<KeyT, ValueT, Co
 template<typename KeyT,
          typename ValueT,
          template<typename...> class ContainerT>
-count_t	GpElementsCatalog<KeyT, ValueT, ContainerT>::_Count (const KeyT& aKey) const noexcept
+count_t GpElementsCatalog<KeyT, ValueT, ContainerT>::_Count (const KeyT& aKey) const noexcept
 {
     return count_t::SMake(iElements.count(aKey));
 }

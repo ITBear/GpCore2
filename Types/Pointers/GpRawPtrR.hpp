@@ -14,53 +14,53 @@ class GpRawPtrR
     static_assert (std::is_pointer_v<T>, "T must be pointer");
 
 public:
-    using this_type				= GpRawPtrR<T>;
-    using value_type			= std::remove_cvref_t<std::remove_pointer_t<T>>;
-    using pointer_type			= value_type*;
-    using pointer_type_const	= const value_type*;
+    using this_type             = GpRawPtrR<T>;
+    using value_type            = std::remove_cvref_t<std::remove_pointer_t<T>>;
+    using pointer_type          = value_type*;
+    using pointer_type_const    = const value_type*;
 
 public:
-                                    GpRawPtrR			(void) noexcept = delete;
-    constexpr						GpRawPtrR			(const this_type& aRawPtr) noexcept;
-    constexpr						GpRawPtrR			(this_type&& aRawPtr) noexcept;
-    constexpr						GpRawPtrR			(T aPtr, const count_t aCount);
-                                    ~GpRawPtrR			(void) noexcept = default;
+                                    GpRawPtrR           (void) noexcept = delete;
+    constexpr                       GpRawPtrR           (const this_type& aRawPtr) noexcept;
+    constexpr                       GpRawPtrR           (this_type&& aRawPtr) noexcept;
+    constexpr                       GpRawPtrR           (T aPtr, const count_t aCount);
+                                    ~GpRawPtrR          (void) noexcept = default;
 
-    constexpr count_t				CountTotal			(void) const noexcept {return iCount;}
-    constexpr count_t				CountLeft			(void) const noexcept {return iCount - iOffset;}
-    constexpr count_t				LengthTotal			(void) const noexcept {return iCount;}
-    constexpr count_t				LengthLeft			(void) const noexcept {return iCount - iOffset;}
-    constexpr size_byte_t			SizeTotal			(void) const {return size_byte_t::SMake((CountTotal() * count_t::SMake(sizeof(value_type))).Value());}
-    constexpr size_byte_t			SizeLeft			(void) const {return size_byte_t::SMake((CountLeft() * count_t::SMake(sizeof(value_type))).Value());}
+    constexpr count_t               CountTotal          (void) const noexcept {return iCount;}
+    constexpr count_t               CountLeft           (void) const noexcept {return iCount - iOffset;}
+    constexpr count_t               LengthTotal         (void) const noexcept {return iCount;}
+    constexpr count_t               LengthLeft          (void) const noexcept {return iCount - iOffset;}
+    constexpr size_byte_t           SizeTotal           (void) const {return size_byte_t::SMake((CountTotal() * count_t::SMake(sizeof(value_type))).Value());}
+    constexpr size_byte_t           SizeLeft            (void) const {return size_byte_t::SMake((CountLeft() * count_t::SMake(sizeof(value_type))).Value());}
 
-    constexpr void					OffsetAdd			(const count_t aOffset);
-    constexpr void					OffsetSub			(const count_t aOffset);
+    constexpr void                  OffsetAdd           (const count_t aOffset);
+    constexpr void                  OffsetSub           (const count_t aOffset);
 
-    constexpr pointer_type_const	Ptr					(void) const;
-    constexpr pointer_type_const	Ptr					(const count_t aOffset) const;
-    constexpr const value_type&		At					(const count_t aOffset) const;
-    constexpr const value_type&		operator*			(void) const;
-    constexpr const value_type&		operator[]			(const count_t aOffset) const;
+    constexpr pointer_type_const    Ptr                 (void) const;
+    constexpr pointer_type_const    Ptr                 (const count_t aOffset) const;
+    constexpr const value_type&     At                  (const count_t aOffset) const;
+    constexpr const value_type&     operator*           (void) const;
+    constexpr const value_type&     operator[]          (const count_t aOffset) const;
 
-    constexpr this_type&			operator++			(void);
-    constexpr this_type				operator++			(int);
+    constexpr this_type&            operator++          (void);
+    constexpr this_type             operator++          (int);
 
-    constexpr this_type&			operator--			(void);
-    constexpr this_type				operator--			(int);
+    constexpr this_type&            operator--          (void);
+    constexpr this_type             operator--          (int);
 
-    constexpr this_type&			operator+=			(const count_t aOffset);
-    constexpr this_type&			operator-=			(const count_t aOffset);
+    constexpr this_type&            operator+=          (const count_t aOffset);
+    constexpr this_type&            operator-=          (const count_t aOffset);
 
-    constexpr bool					IsEqualByMinLen		(const this_type& aRawPtr) const noexcept;
-    constexpr bool					IsEqualByThisLen	(const this_type& aRawPtr) const noexcept;
-    constexpr bool					IsEqualByArgLen		(const this_type& aRawPtr) const noexcept;
+    constexpr bool                  IsEqualByMinLen     (const this_type& aRawPtr) const noexcept;
+    constexpr bool                  IsEqualByThisLen    (const this_type& aRawPtr) const noexcept;
+    constexpr bool                  IsEqualByArgLen     (const this_type& aRawPtr) const noexcept;
 
-    constexpr std::string_view		AsStringView		(void) const noexcept {return std::string_view();}
+    constexpr std::string_view      AsStringView        (void) const noexcept {return std::string_view();}
 
 protected:
-    T				iPtr	= nullptr;
-    const count_t	iCount	= 0_cnt;
-    count_t			iOffset	= 0_cnt;
+    T               iPtr    = nullptr;
+    const count_t   iCount  = 0_cnt;
+    count_t         iOffset = 0_cnt;
 };
 
 template<typename T> constexpr
@@ -90,22 +90,22 @@ iOffset(0_cnt)
 }
 
 template<typename T> constexpr
-void	GpRawPtrR<T>::OffsetAdd (const count_t aOffset)
+void    GpRawPtrR<T>::OffsetAdd (const count_t aOffset)
 {
     const count_t countLeft = CountLeft();
     THROW_GPE_COND_CHECK_M(aOffset <= countLeft, "Out of range"_sv);
 
-    iOffset	+= aOffset;
-    iPtr	+= aOffset.ValueAs<size_t>();
+    iOffset += aOffset;
+    iPtr    += aOffset.ValueAs<size_t>();
 }
 
 template<typename T> constexpr
-void	GpRawPtrR<T>::OffsetSub (const count_t aOffset)
+void    GpRawPtrR<T>::OffsetSub (const count_t aOffset)
 {
     THROW_GPE_COND_CHECK_M(aOffset <= iOffset, "Out of range"_sv);
 
-    iOffset	-= aOffset;
-    iPtr	-= aOffset.ValueAs<size_t>();
+    iOffset -= aOffset;
+    iPtr    -= aOffset.ValueAs<size_t>();
 }
 
 template<typename T> constexpr
@@ -123,32 +123,32 @@ typename GpRawPtrR<T>::pointer_type_const  GpRawPtrR<T>::Ptr (const count_t aOff
 }
 
 template<typename T> constexpr
-const typename GpRawPtrR<T>::value_type&	GpRawPtrR<T>::At (const count_t aOffset) const
+const typename GpRawPtrR<T>::value_type&    GpRawPtrR<T>::At (const count_t aOffset) const
 {
     return *Ptr(aOffset);
 }
 
 template<typename T> constexpr
-const typename GpRawPtrR<T>::value_type&	GpRawPtrR<T>::operator* (void) const
+const typename GpRawPtrR<T>::value_type&    GpRawPtrR<T>::operator* (void) const
 {
     return *Ptr();
 }
 
 template<typename T> constexpr
-const typename GpRawPtrR<T>::value_type&	GpRawPtrR<T>::operator[] (const count_t aOffset) const
+const typename GpRawPtrR<T>::value_type&    GpRawPtrR<T>::operator[] (const count_t aOffset) const
 {
     return At(aOffset);
 }
 
 template<typename T> constexpr
-typename GpRawPtrR<T>::this_type&	GpRawPtrR<T>::operator++ (void)
+typename GpRawPtrR<T>::this_type&   GpRawPtrR<T>::operator++ (void)
 {
     OffsetAdd(1_cnt);
     return *this;
 }
 
 template<typename T> constexpr
-typename GpRawPtrR<T>::this_type	GpRawPtrR<T>::operator++ (int)
+typename GpRawPtrR<T>::this_type    GpRawPtrR<T>::operator++ (int)
 {
     this_type res(*this);
     OffsetAdd(1_cnt);
@@ -156,14 +156,14 @@ typename GpRawPtrR<T>::this_type	GpRawPtrR<T>::operator++ (int)
 }
 
 template<typename T> constexpr
-typename GpRawPtrR<T>::this_type&	GpRawPtrR<T>::operator-- (void)
+typename GpRawPtrR<T>::this_type&   GpRawPtrR<T>::operator-- (void)
 {
     OffsetSub(1_cnt);
     return *this;
 }
 
 template<typename T> constexpr
-typename GpRawPtrR<T>::this_type	GpRawPtrR<T>::operator-- (int)
+typename GpRawPtrR<T>::this_type    GpRawPtrR<T>::operator-- (int)
 {
     this_type res(*this);
     OffsetSub(1_cnt);
@@ -171,28 +171,28 @@ typename GpRawPtrR<T>::this_type	GpRawPtrR<T>::operator-- (int)
 }
 
 template<typename T> constexpr
-typename GpRawPtrR<T>::this_type&	GpRawPtrR<T>::operator+= (const count_t aOffset)
+typename GpRawPtrR<T>::this_type&   GpRawPtrR<T>::operator+= (const count_t aOffset)
 {
     OffsetAdd(aOffset);
     return *this;
 }
 
 template<typename T> constexpr
-typename GpRawPtrR<T>::this_type&	GpRawPtrR<T>::operator-= (const count_t aOffset)
+typename GpRawPtrR<T>::this_type&   GpRawPtrR<T>::operator-= (const count_t aOffset)
 {
     OffsetSub(aOffset);
     return *this;
 }
 
 template<typename T> constexpr
-bool	GpRawPtrR<T>::IsEqualByMinLen (const this_type& aRawPtr) const noexcept
+bool    GpRawPtrR<T>::IsEqualByMinLen (const this_type& aRawPtr) const noexcept
 {
     const count_t count = std::min(CountLeft(), aRawPtr.CountLeft());
     return MemOps::SCompare(Ptr(), aRawPtr.Ptr(), count) == 0;
 }
 
 template<typename T> constexpr
-bool	GpRawPtrR<T>::IsEqualByThisLen (const this_type& aRawPtr) const noexcept
+bool    GpRawPtrR<T>::IsEqualByThisLen (const this_type& aRawPtr) const noexcept
 {
     const count_t thisCount = CountLeft();
 
@@ -201,7 +201,7 @@ bool	GpRawPtrR<T>::IsEqualByThisLen (const this_type& aRawPtr) const noexcept
 }
 
 template<typename T> constexpr
-bool	GpRawPtrR<T>::IsEqualByArgLen (const this_type& aRawPtr) const noexcept
+bool    GpRawPtrR<T>::IsEqualByArgLen (const this_type& aRawPtr) const noexcept
 {
     const count_t argCount = aRawPtr.CountLeft();
 

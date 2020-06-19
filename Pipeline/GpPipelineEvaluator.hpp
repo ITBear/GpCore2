@@ -16,17 +16,17 @@ public:
     CLASS_DECLARE_DEFAULTS(GpPipelineEvaluator);
 
 public:
-                        GpPipelineEvaluator		(GpPipeline::CSP aPipeline) noexcept;
-                        ~GpPipelineEvaluator	(void) noexcept override final;
+                        GpPipelineEvaluator     (GpPipeline::CSP aPipeline) noexcept;
+                        ~GpPipelineEvaluator    (void) noexcept override final;
 
 protected:
-    virtual void		FiberFn					(GpThreadStopToken aStopToken) override final;
+    virtual void        FiberFn                 (GpThreadStopToken aStopToken) override final;
 
 private:
-    void				ProcessEvents			(GpPipelineNode::C::Set::CSP& aReadyNodesOut);
+    void                ProcessEvents           (GpPipelineNode::C::Set::CSP& aReadyNodesOut);
 
 private:
-    GpPipeline::CSP		iPipeline;
+    GpPipeline::CSP     iPipeline;
 };
 
 }//GPlatform

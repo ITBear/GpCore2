@@ -14,18 +14,18 @@ class GPCORE_API GpTaskFiberManager
     CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFiberManager);
 
 private:
-                                GpTaskFiberManager	(void) noexcept;
-                                ~GpTaskFiberManager	(void) noexcept;
+                                GpTaskFiberManager  (void) noexcept;
+                                ~GpTaskFiberManager (void) noexcept;
 
 public:
-    static GpTaskFiberManager&	S					(void);
+    static GpTaskFiberManager&  S                   (void);
 
-    void						Init				(const count_t		aMaxStacksCount,
-                                                     const size_byte_t	aStackSize);
-    GpTaskFiberStackPool&		StackPool			(void) noexcept {return iStackPool;}
+    void                        Init                (const count_t      aMaxStacksCount,
+                                                     const size_byte_t  aStackSize);
+    GpTaskFiberStackPool&       StackPool           (void) noexcept {return iStackPool;}
 
 private:
-    GpTaskFiberStackPool		iStackPool;
+    GpTaskFiberStackPool        iStackPool;
 };
 
 }//GPlatform

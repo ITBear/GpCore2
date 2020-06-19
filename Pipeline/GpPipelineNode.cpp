@@ -12,29 +12,29 @@ GpPipelineNode::~GpPipelineNode (void) noexcept
 {
 }
 
-void	GpPipelineNode::AssignToPipeline (GpPipeline& aPipeline)
+void    GpPipelineNode::AssignToPipeline (GpPipeline& aPipeline)
 {
     THROW_GPE_COND_CHECK_M(iPipeline == nullptr, "Node assigned to pipeline already"_sv);
     iPipeline = &aPipeline;
 }
 
-void	GpPipelineNode::BreakConnections (void)
+void    GpPipelineNode::BreakConnections (void)
 {
     BreakInputConnections();
     BreakOutputConnections();
 }
 
-void	GpPipelineNode::BreakInputConnections (void)
+void    GpPipelineNode::BreakInputConnections (void)
 {
     _SBreakConnections(iInputSockets);
 }
 
-void	GpPipelineNode::BreakOutputConnections (void)
+void    GpPipelineNode::BreakOutputConnections (void)
 {
     _SBreakConnections(iOutputSockets);
 }
 
-void	GpPipelineNode::_SBreakConnections (SocketT::C::Vec::SP& aSockets)
+void    GpPipelineNode::_SBreakConnections (SocketT::C::Vec::SP& aSockets)
 {
     for (SocketT::SP& socketSP: aSockets)
     {

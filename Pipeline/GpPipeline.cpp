@@ -13,7 +13,7 @@ GpPipeline::~GpPipeline (void) noexcept
     Clear();
 }
 
-void	GpPipeline::Clear (void) noexcept
+void    GpPipeline::Clear (void) noexcept
 {
     std::scoped_lock lock(iLock);
 
@@ -21,7 +21,7 @@ void	GpPipeline::Clear (void) noexcept
     iAllNodes.clear();
 }
 
-void	GpPipeline::AddNode (NodeT::SP aNode)
+void    GpPipeline::AddNode (NodeT::SP aNode)
 {
     std::scoped_lock lock(iLock);
 
@@ -33,7 +33,7 @@ void	GpPipeline::AddNode (NodeT::SP aNode)
     iAllNodes.emplace(aNode);
 }
 
-void	GpPipeline::RemoveNode (NodeT::SP aNode)
+void    GpPipeline::RemoveNode (NodeT::SP aNode)
 {
     std::scoped_lock lock(iLock);
 
@@ -47,16 +47,16 @@ void	GpPipeline::RemoveNode (NodeT::SP aNode)
     iRootNodes.erase(aNode);
 }
 
-GpPipeline::ConnectorT	GpPipeline::ConnectNodes (NodeT::SP aNodeFrom, SocketT& aFrom,
+GpPipeline::ConnectorT  GpPipeline::ConnectNodes (NodeT::SP aNodeFrom, SocketT& aFrom,
                                                   NodeT::SP aNodeTo,   SocketT& aTo)
-{	
-    SocketT&	socketFrom	= aFrom;
-    SocketT&	socketTo	= aTo;
-    NodeT&		nodeFrom	= socketFrom.Node();
-    NodeT&		nodeTo		= socketTo.Node();
+{   
+    SocketT&    socketFrom  = aFrom;
+    SocketT&    socketTo    = aTo;
+    NodeT&      nodeFrom    = socketFrom.Node();
+    NodeT&      nodeTo      = socketTo.Node();
 
     THROW_GPE_COND_CHECK_M(&nodeFrom == aNodeFrom.PCn(), "FROM Node != socket.Node"_sv);
-    THROW_GPE_COND_CHECK_M(&nodeTo	 == aNodeTo.PCn(), "FROM Node != socket.Node"_sv);
+    THROW_GPE_COND_CHECK_M(&nodeTo   == aNodeTo.PCn(), "FROM Node != socket.Node"_sv);
     THROW_GPE_COND_CHECK_M(nodeFrom.Pipeline() == this, "Node FROM not assigned to this pipeline"_sv);
     THROW_GPE_COND_CHECK_M(nodeTo.Pipeline() == this, "Node TO not assigned to this pipeline"_sv);
     THROW_GPE_COND_CHECK_M(socketFrom.Directrion() == GpPipelineNodeSocketDir::OUT, "Socket FROM must be OUT"_sv);
@@ -78,21 +78,21 @@ GpPipeline::ConnectorT	GpPipeline::ConnectNodes (NodeT::SP aNodeFrom, SocketT& a
     return connector;
 }
 
-void	GpPipeline::BreakConnections (NodeT::SP aNode)
+void    GpPipeline::BreakConnections (NodeT::SP aNode)
 {
     std::scoped_lock lock(iLock);
 
     _BreakConnections(aNode);
 }
 
-GpPipeline::NodeT::C::Set::CSP	GpPipeline::RootNodes (void) const
+GpPipeline::NodeT::C::Set::CSP  GpPipeline::RootNodes (void) const
 {
     std::shared_lock lock(iLock);
 
     return iRootNodes;
 }
 
-void	GpPipeline::_BreakConnections (NodeT::SP /*aNode*/)
+void    GpPipeline::_BreakConnections (NodeT::SP /*aNode*/)
 {
     THROW_NOT_IMPLEMENTED();
     /*auto iter = iNodes.find(aNode);

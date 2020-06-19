@@ -16,11 +16,11 @@ const GpArray<char, 201> GpStringOps::sDigits =
     "8081828384858687888990919293949596979899"
 };
 
-GpVector<std::string_view>	GpStringOps::SSplit (std::string_view		aSourceStr,
-                                                 const char				aDelim,
-                                                 const count_t			aReturnPartsCountLimit,
-                                                 const count_t			aDelimCountLimit,
-                                                 const Algo::SplitMode	aSplitMode)
+GpVector<std::string_view>  GpStringOps::SSplit (std::string_view       aSourceStr,
+                                                 const char             aDelim,
+                                                 const count_t          aReturnPartsCountLimit,
+                                                 const count_t          aDelimCountLimit,
+                                                 const Algo::SplitMode  aSplitMode)
 {
     auto a = GpRawPtrCharR(aSourceStr);
     auto b = GpRawPtrCharR(&aDelim, 1_cnt);
@@ -32,11 +32,11 @@ GpVector<std::string_view>	GpStringOps::SSplit (std::string_view		aSourceStr,
                                                          aSplitMode);
 }
 
-GpVector<std::string_view>	GpStringOps::SSplit (std::string_view		aSourceStr,
-                                                 std::string_view		aDelim,
-                                                 const count_t			aReturnPartsCountLimit,
-                                                 const count_t			aDelimCountLimit,
-                                                 const Algo::SplitMode	aSplitMode)
+GpVector<std::string_view>  GpStringOps::SSplit (std::string_view       aSourceStr,
+                                                 std::string_view       aDelim,
+                                                 const count_t          aReturnPartsCountLimit,
+                                                 const count_t          aDelimCountLimit,
+                                                 const Algo::SplitMode  aSplitMode)
 {
     return Algo::Split<char, GpVector<std::string_view>>(GpRawPtrCharR(aSourceStr),
                                                          GpRawPtrCharR(aDelim),
@@ -45,8 +45,8 @@ GpVector<std::string_view>	GpStringOps::SSplit (std::string_view		aSourceStr,
                                                          aSplitMode);
 }
 
-count_t	GpStringOps::SFromUI64 (const UInt64	aValue,
-                                GpRawPtrCharRW	aStrOut)
+count_t GpStringOps::SFromUI64 (const UInt64    aValue,
+                                GpRawPtrCharRW  aStrOut)
 {
     const count_t length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(aValue.ValueAs<u_int_64>()));
 
@@ -57,7 +57,7 @@ count_t	GpStringOps::SFromUI64 (const UInt64	aValue,
     return length;
 }
 
-std::string	GpStringOps::SFromUI64 (const UInt64 aValue)
+std::string GpStringOps::SFromUI64 (const UInt64 aValue)
 {
     const size_t length = GpNumericOps::SDecDigsCountUI64(aValue.ValueAs<u_int_64>());
     std::string s;
@@ -68,8 +68,8 @@ std::string	GpStringOps::SFromUI64 (const UInt64 aValue)
     return s;
 }
 
-count_t	GpStringOps::SFromSI64 (const SInt64	aValue,
-                                GpRawPtrCharRW	aStrOut)
+count_t GpStringOps::SFromSI64 (const SInt64    aValue,
+                                GpRawPtrCharRW  aStrOut)
 {
     count_t length = 0_cnt;
 
@@ -96,9 +96,9 @@ count_t	GpStringOps::SFromSI64 (const SInt64	aValue,
     return length;
 }
 
-std::string	GpStringOps::SFromSI64 (const SInt64 aValue)
+std::string GpStringOps::SFromSI64 (const SInt64 aValue)
 {
-    std::string	s;
+    std::string s;
     count_t length = 0_cnt;
 
     if (aValue >= 0_s_int_64)
@@ -124,8 +124,8 @@ std::string	GpStringOps::SFromSI64 (const SInt64 aValue)
     return s;
 }
 
-count_t	GpStringOps::SFromDouble (const double		aValue,
-                                  GpRawPtrCharRW	aStrOut)
+count_t GpStringOps::SFromDouble (const double      aValue,
+                                  GpRawPtrCharRW    aStrOut)
 {
     //TODO reimplement
     std::string s = std::to_string(aValue);
@@ -141,7 +141,7 @@ count_t	GpStringOps::SFromDouble (const double		aValue,
     return length;
 }
 
-std::string	GpStringOps::SFromDouble (const double aValue)
+std::string GpStringOps::SFromDouble (const double aValue)
 {
     //TODO reimplement
     std::string s = std::to_string(aValue);
@@ -149,10 +149,10 @@ std::string	GpStringOps::SFromDouble (const double aValue)
     return s;
 }
 
-UInt64	GpStringOps::SToUI64 (std::string_view aStr)
+UInt64  GpStringOps::SToUI64 (std::string_view aStr)
 {
-    GpRawPtrCharR	str(aStr);
-    UInt64			res	= 0_u_int_64;
+    GpRawPtrCharR   str(aStr);
+    UInt64          res = 0_u_int_64;
 
     while (str.LengthLeft() > 0_cnt)
     {
@@ -170,7 +170,7 @@ UInt64	GpStringOps::SToUI64 (std::string_view aStr)
     return res;
 }
 
-SInt64	GpStringOps::SToSI64 (std::string_view aStr)
+SInt64  GpStringOps::SToSI64 (std::string_view aStr)
 {
     GpRawPtrCharR str(aStr);
 
@@ -213,7 +213,7 @@ SInt64	GpStringOps::SToSI64 (std::string_view aStr)
     }
 }
 
-double		GpStringOps::SToDouble_fast (std::string_view aStr)
+double      GpStringOps::SToDouble_fast (std::string_view aStr)
 {
     //TODO: reimplement with http://www.netlib.org/fp/. Use dtoa.c
     //Supported format: [+-][UInt64][.[UInt64]]
@@ -228,13 +228,13 @@ double		GpStringOps::SToDouble_fast (std::string_view aStr)
         integerPart = aStr;
     } else
     {
-        integerPart		= parts.at(0);
-        fractionalPart	= parts.at(1);
+        integerPart     = parts.at(0);
+        fractionalPart  = parts.at(1);
     }
 
     //----------------- Parse integer and fractional parts -----------------
-    double res	= 0.0;
-    double sign	= 1.0;
+    double res  = 0.0;
+    double sign = 1.0;
 
     if (!integerPart.empty())
     {
@@ -263,7 +263,7 @@ double		GpStringOps::SToDouble_fast (std::string_view aStr)
     return res*sign;
 }
 
-std::variant<SInt64, double>	GpStringOps::SToNumeric (std::string_view aStr)
+std::variant<SInt64, double>    GpStringOps::SToNumeric (std::string_view aStr)
 {
     //[+-][UInt64][.[UInt64]] - DOUBLE
     //[+-]digits - INT
@@ -279,19 +279,19 @@ std::variant<SInt64, double>	GpStringOps::SToNumeric (std::string_view aStr)
     }
 }
 
-count_t	GpStringOps::SFromBytes (GpRawPtrByteR	aData,
-                                 GpRawPtrCharRW	aStrOut)
+count_t GpStringOps::SFromBytes (GpRawPtrByteR  aData,
+                                 GpRawPtrCharRW aStrOut)
 {
-    const count_t dataLength	= aData.LengthLeft();
-    const count_t strOutLength	= aStrOut.LengthLeft();
+    const count_t dataLength    = aData.LengthLeft();
+    const count_t strOutLength  = aStrOut.LengthLeft();
 
     THROW_GPE_COND_CHECK_M(strOutLength >= (dataLength * 2_cnt), "Out string size is too small"_sv);
 
     while (aData.LengthLeft() > 0_cnt)
     {
-        const size_t b	= size_t(*aData++);
-        const size_t lo	= (b & size_t(0x0F)) >> 0;
-        const size_t hi	= (b & size_t(0xF0)) >> 4;
+        const size_t b  = size_t(*aData++);
+        const size_t lo = (b & size_t(0x0F)) >> 0;
+        const size_t hi = (b & size_t(0xF0)) >> 4;
 
         *aStrOut++ = char((hi < size_t(10)) ? (size_t('0')+ hi) : (size_t('a') + (hi - size_t(10))));
         *aStrOut++ = char((lo < size_t(10)) ? (size_t('0')+ lo) : (size_t('a') + (lo - size_t(10))));
@@ -300,12 +300,12 @@ count_t	GpStringOps::SFromBytes (GpRawPtrByteR	aData,
     return dataLength * 2_cnt;
 }
 
-std::string	GpStringOps::SFromBytes (const GpBytesArray& aData)
+std::string GpStringOps::SFromBytes (const GpBytesArray& aData)
 {
     return SFromBytes(GpRawPtrByteR(aData));
 }
 
-std::string	GpStringOps::SFromBytes (GpRawPtrByteR aData)
+std::string GpStringOps::SFromBytes (GpRawPtrByteR aData)
 {
     const count_t charsCount = count_t::SMake(aData.SizeLeft().Value()) * 2_cnt;
 
@@ -322,13 +322,13 @@ std::string	GpStringOps::SFromBytes (GpRawPtrByteR aData)
     return res;
 }
 
-std::string	GpStringOps::SFromBytes (std::string_view aData)
+std::string GpStringOps::SFromBytes (std::string_view aData)
 {
     return SFromBytes(GpRawPtrByteR(aData));
 }
 
-size_byte_t	GpStringOps::SToBytes (std::string_view	aStr,
-                                   GpRawPtrByteRW	aDataOut)
+size_byte_t GpStringOps::SToBytes (std::string_view aStr,
+                                   GpRawPtrByteRW   aDataOut)
 {
     //String length
     const count_t strLength = count_t::SMake(aStr.length());
@@ -342,7 +342,7 @@ size_byte_t	GpStringOps::SToBytes (std::string_view	aStr,
 
     //Remove prefix
     std::string_view prefix = aStr.substr(0, 2);
-    std::string_view strHex	= aStr;
+    std::string_view strHex = aStr;
     if ((prefix == "0x"_sv) ||
         (prefix == "0X"_sv))
     {
@@ -357,15 +357,15 @@ size_byte_t	GpStringOps::SToBytes (std::string_view	aStr,
 
     while (strHexPtr.LengthLeft() > 0_cnt)
     {
-        GpArray<char,2>	s = {*strHexPtr++, *strHexPtr++};
+        GpArray<char,2> s = {*strHexPtr++, *strHexPtr++};
         *aDataOut++ = SToByte(s);
     }
 
     return size_byte_t::SMake(outSize.Value());
 }
 
-size_byte_t	GpStringOps::SToBytes (std::string_view	aStr,
-                                   GpBytesArray&	aDataOut)
+size_byte_t GpStringOps::SToBytes (std::string_view aStr,
+                                   GpBytesArray&    aDataOut)
 {
     //String length
     const count_t strLength = count_t::SMake(aStr.length());
@@ -379,7 +379,7 @@ size_byte_t	GpStringOps::SToBytes (std::string_view	aStr,
 
     //Remove prefix
     std::string_view prefix = aStr.substr(0, 2);
-    std::string_view strHex	= aStr;
+    std::string_view strHex = aStr;
     if ((prefix == "0x"_sv) ||
         (prefix == "0X"_sv))
     {
@@ -389,33 +389,33 @@ size_byte_t	GpStringOps::SToBytes (std::string_view	aStr,
     //
     GpRawPtrCharR strHexPtr(strHex);
 
-    const count_t oldSize	= count_t::SMake(aDataOut.size());
-    const count_t outSize	= strHexPtr.LengthLeft() / 2_cnt;
+    const count_t oldSize   = count_t::SMake(aDataOut.size());
+    const count_t outSize   = strHexPtr.LengthLeft() / 2_cnt;
     aDataOut.resize((oldSize + outSize).ValueAs<size_t>());
 
     GpRawPtrByteRW dataOut(aDataOut.data() + oldSize.ValueAs<size_t>(), size_byte_t::SMake(outSize.Value()));
 
     while (strHexPtr.LengthLeft() > 0_cnt)
     {
-        GpArray<char,2>	s = {*strHexPtr++, *strHexPtr++};
+        GpArray<char,2> s = {*strHexPtr++, *strHexPtr++};
         *dataOut++ = SToByte(s);
     }
 
     return size_byte_t::SMake(outSize.Value());
 }
 
-GpBytesArray	GpStringOps::SToBytes (std::string_view aStr)
+GpBytesArray    GpStringOps::SToBytes (std::string_view aStr)
 {
     GpBytesArray res;
     SToBytes(aStr, res);
     return res;
 }
 
-count_t		GpStringOps::SConv_UTF16_UTF8 (GpArray<std::byte, 4>&		aUTF8_valueOut,
-                                           const GpArray<std::byte, 2>	aUTF16_value)
+count_t     GpStringOps::SConv_UTF16_UTF8 (GpArray<std::byte, 4>&       aUTF8_valueOut,
+                                           const GpArray<std::byte, 2>  aUTF16_value)
 {
-    const u_int_16	utf16_val	= BitOps::N2H(std::bit_cast<u_int_16>(aUTF16_value));
-    std::byte*		utf8_val	= aUTF8_valueOut.data();
+    const u_int_16  utf16_val   = BitOps::N2H(std::bit_cast<u_int_16>(aUTF16_value));
+    std::byte*      utf8_val    = aUTF8_valueOut.data();
 
     //Convert to UTF8
     if (size_t(utf16_val) < size_t(0x00000080ULL))//0x00000000 — 0x0000007F
@@ -445,11 +445,11 @@ count_t		GpStringOps::SConv_UTF16_UTF8 (GpArray<std::byte, 4>&		aUTF8_valueOut,
     }
 }
 
-count_t		GpStringOps::SConv_UTF32_UTF8 (GpArray<std::byte, 4>&		aUTF8_valueOut,
-                                           const GpArray<std::byte, 4>	aUTF32_value)
+count_t     GpStringOps::SConv_UTF32_UTF8 (GpArray<std::byte, 4>&       aUTF8_valueOut,
+                                           const GpArray<std::byte, 4>  aUTF32_value)
 {
-    const u_int_32	utf32_val	= BitOps::N2H(std::bit_cast<u_int_32>(aUTF32_value));
-    std::byte*		utf8_val	= aUTF8_valueOut.data();
+    const u_int_32  utf32_val   = BitOps::N2H(std::bit_cast<u_int_32>(aUTF32_value));
+    std::byte*      utf8_val    = aUTF8_valueOut.data();
 
     //Convert to UTF8
     if (size_t(utf32_val) < size_t(0x00000080ULL))//0x00000000 — 0x0000007F
@@ -490,10 +490,10 @@ count_t		GpStringOps::SConv_UTF32_UTF8 (GpArray<std::byte, 4>&		aUTF8_valueOut,
     }
 }
 
-std::string&	GpStringOps::SReplace (std::string& aStr, const char aChar, const char aNewChar)
+std::string&    GpStringOps::SReplace (std::string& aStr, const char aChar, const char aNewChar)
 {
-    const size_t	len		= aStr.length();
-    char* _R_		data	= aStr.data();
+    const size_t    len     = aStr.length();
+    char* _R_       data    = aStr.data();
 
     for (size_t id = 0; id < len; ++id)
     {
@@ -509,11 +509,11 @@ std::string&	GpStringOps::SReplace (std::string& aStr, const char aChar, const c
     return aStr;
 }
 
-void	GpStringOps::_SFromUI64 (const UInt64	aValue,
-                                 GpRawPtrCharRW	aStrOut)
+void    GpStringOps::_SFromUI64 (const UInt64   aValue,
+                                 GpRawPtrCharRW aStrOut)
 {
-    u_int_64		value	= aValue.ValueAs<u_int_64>();
-    const char* _R_ digits	= sDigits.data();
+    u_int_64        value   = aValue.ValueAs<u_int_64>();
+    const char* _R_ digits  = sDigits.data();
 
     aStrOut += (aStrOut.LengthLeft() - 2_cnt);
 

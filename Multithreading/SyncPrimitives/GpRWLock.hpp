@@ -18,7 +18,7 @@ public:
     GpRWLock (void) noexcept :iReadersCount(0), iWritersCount(0)
     {}
 
-    void	lock_shared (void) noexcept
+    void    lock_shared (void) noexcept
     {
         while(1)
         {
@@ -45,12 +45,12 @@ public:
         }
     }
 
-    void	unlock_shared (void) noexcept
+    void    unlock_shared (void) noexcept
     {
         iReadersCount.fetch_sub(1, std::memory_order_release);
     }
 
-    void	lock (void) noexcept
+    void    lock (void) noexcept
     {
         //Try to lock for write
         while (iWritersCount.exchange(1) == 1)
@@ -65,14 +65,14 @@ public:
         }
     }
 
-    void	unlock (void) noexcept
+    void    unlock (void) noexcept
     {
         iWritersCount.store(0, std::memory_order_release);
     }
 
 private:
-    std::atomic<size_t>	iReadersCount;
-    std::atomic<size_t>	iWritersCount;
+    std::atomic<size_t> iReadersCount;
+    std::atomic<size_t> iWritersCount;
 };
 
 }//GPlatform

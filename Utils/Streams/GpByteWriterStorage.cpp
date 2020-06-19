@@ -6,7 +6,7 @@ GpByteWriterStorage::~GpByteWriterStorage (void) noexcept
 {
 }
 
-void	GpByteWriterStorage::AllocateNext (const size_byte_t aSize)
+void    GpByteWriterStorage::AllocateNext (const size_byte_t aSize)
 {
     if (iLeft < aSize)
     {

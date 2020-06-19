@@ -17,17 +17,17 @@ GpThread::GpThread (GpThread&& aThread) noexcept
 {
     std::scoped_lock lock(iMutex, aThread.iMutex);
 
-    iName		= std::move(aThread.iName);
-    iThread		= std::move(aThread.iThread);
-    iRunnable	= std::move(aThread.iRunnable);
+    iName       = std::move(aThread.iName);
+    iThread     = std::move(aThread.iThread);
+    iRunnable   = std::move(aThread.iRunnable);
 }
 
-GpThread::~GpThread	(void) noexcept
+GpThread::~GpThread (void) noexcept
 {
     RequestStop();
 }
 
-void	GpThread::Run (GpRunnable::SP aRunnable)
+void    GpThread::Run (GpRunnable::SP aRunnable)
 {
     {
         std::scoped_lock lock(iMutex);
@@ -42,16 +42,16 @@ void	GpThread::Run (GpRunnable::SP aRunnable)
         runnable.V().Run(aStopToken);
     });
 #else
-#	error Unimplemented
+#   error Unimplemented
 #endif
 }
 
-bool	GpThread::Joinable (void) const noexcept
+bool    GpThread::Joinable (void) const noexcept
 {
     return iThread.joinable();
 }
 
-void	GpThread::Join (void) noexcept
+void    GpThread::Join (void) noexcept
 {
     if (iThread.joinable())
     {
@@ -70,7 +70,7 @@ void	GpThread::Join (void) noexcept
     }
 }
 
-bool	GpThread::RequestStop (void) noexcept
+bool    GpThread::RequestStop (void) noexcept
 {
     const bool res = iThread.request_stop();
 

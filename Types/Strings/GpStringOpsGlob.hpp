@@ -41,8 +41,8 @@ inline std::string operator+ (std::string_view aLeft, const std::string& aRight)
 
 inline std::string operator+ (std::string_view aLeft, const char* aRight)
 {
-    std::string_view	right(aRight);
-    std::string			res;
+    std::string_view    right(aRight);
+    std::string         res;
     res.reserve(aLeft.length() + right.length());
     res.append(aLeft.data(), aLeft.length());
     res.append(right.data(), right.length());

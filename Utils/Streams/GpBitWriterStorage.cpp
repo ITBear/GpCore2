@@ -2,11 +2,11 @@
 
 namespace GPlatform {
 
-GpBitWriterStorage::~GpBitWriterStorage	(void) noexcept
+GpBitWriterStorage::~GpBitWriterStorage (void) noexcept
 {
 }
 
-void	GpBitWriterStorage::AllocateNext (const size_bit_t aSize)
+void    GpBitWriterStorage::AllocateNext (const size_bit_t aSize)
 {
     if (iLeft < aSize)
     {

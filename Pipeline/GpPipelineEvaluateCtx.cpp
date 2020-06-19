@@ -4,7 +4,7 @@
 
 namespace GPlatform {
 
-void	GpPipelineEvaluateCtx::FiberFn (GpThreadStopToken /*aStopToken*/)
+void    GpPipelineEvaluateCtx::FiberFn (GpThreadStopToken /*aStopToken*/)
 {
 
 }

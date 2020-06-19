@@ -6,8 +6,8 @@
 
 namespace GPlatform{
 
-void	GpExceptionsSink::SSink (const std::exception&	aException,
-                                 const SourceLocationT&	aLocation) noexcept
+void    GpExceptionsSink::SSink (const std::exception&  aException,
+                                 const SourceLocationT& aLocation) noexcept
 {
     std::cout << "[GpExceptionsSink::SSink]: std::exception"
               << ", what '" << aException.what() << "'"
@@ -17,7 +17,7 @@ void	GpExceptionsSink::SSink (const std::exception&	aException,
               << std::endl;
 }
 
-void	GpExceptionsSink::SSinkUnknown (const SourceLocationT& aLocation) noexcept
+void    GpExceptionsSink::SSinkUnknown (const SourceLocationT& aLocation) noexcept
 {
     std::cout << "[GpExceptionsSink::SSink]: unknown exception"
               << ", sinked in file '" << aLocation.file_name() << "'"

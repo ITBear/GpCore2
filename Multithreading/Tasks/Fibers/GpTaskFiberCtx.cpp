@@ -21,7 +21,7 @@ static FiberT _FiberFn (FiberT&& aOuterFiber)
             FiberArgsT& fiberArgs = sFiberArgsTLS;
 
             std::get<0>(fiberArgs) = std::move(aOuterFiber);
-            std::get<1>(fiberArgs).value()(std::get<2>(fiberArgs).value());			
+            std::get<1>(fiberArgs).value()(std::get<2>(fiberArgs).value());         
         } catch (boost::context::detail::forced_unwind&)
         {
             throw;
@@ -57,7 +57,7 @@ GpTaskFiberCtx::~GpTaskFiberCtx (void) noexcept
     Clear();
 }
 
-void	GpTaskFiberCtx::Init (void)
+void    GpTaskFiberCtx::Init (void)
 {
     Clear();
 
@@ -72,9 +72,9 @@ void	GpTaskFiberCtx::Init (void)
     }
 
     // Create fiber
-    StackContextT	sctx		= *reinterpret_cast<StackContextT*>(iStack.Vn().Context());
-    void*			sctx_sp		= static_cast<char*>(sctx.sp);
-    size_t			sctx_size	= sctx.size;
+    StackContextT   sctx        = *reinterpret_cast<StackContextT*>(iStack.Vn().Context());
+    void*           sctx_sp     = static_cast<char*>(sctx.sp);
+    size_t          sctx_size   = sctx.size;
 
     iFiberPtr = GpMemOps::SEmplace<FiberT>(iFiberStorage.data(),
                                            std::allocator_arg,
@@ -83,7 +83,7 @@ void	GpTaskFiberCtx::Init (void)
                                            _FiberFn);
 }
 
-void	GpTaskFiberCtx::Clear (void) noexcept
+void    GpTaskFiberCtx::Clear (void) noexcept
 {
     if (iFiberPtr != nullptr)
     {
@@ -99,8 +99,8 @@ void	GpTaskFiberCtx::Clear (void) noexcept
     }
 }
 
-GpTask::Res	GpTaskFiberCtx::Enter (GpThreadStopToken	aStopToken,
-                                   FiberRunFnT			aRunFn)
+GpTask::Res GpTaskFiberCtx::Enter (GpThreadStopToken    aStopToken,
+                                   FiberRunFnT          aRunFn)
 {
     //IN
     {
@@ -130,16 +130,16 @@ GpTask::Res	GpTaskFiberCtx::Enter (GpThreadStopToken	aStopToken,
     }
 }
 
-void	GpTaskFiberCtx::SYeld (const GpTask::Res aRes)
+void    GpTaskFiberCtx::SYeld (const GpTask::Res aRes)
 {
     FiberT fiber;
 
     //OUT
     {
-        FiberArgsT& fiberArgs	= sFiberArgsTLS;
-        fiber					= std::move(std::get<0>(fiberArgs).value());
+        FiberArgsT& fiberArgs   = sFiberArgsTLS;
+        fiber                   = std::move(std::get<0>(fiberArgs).value());
 
-        std::get<3>(fiberArgs)	= aRes;
+        std::get<3>(fiberArgs)  = aRes;
         std::get<4>(fiberArgs).reset();
 
         fiber = std::move(fiber).resume();

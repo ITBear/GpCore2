@@ -16,18 +16,18 @@ public:
     CLASS_DECLARE_DEFAULTS(GpEventBus);
 
 public:
-                                    GpEventBus	(void) noexcept;
-                                    ~GpEventBus	(void) noexcept;
+                                    GpEventBus  (void) noexcept;
+                                    ~GpEventBus (void) noexcept;
 
-    void							Clear		(void) noexcept;
+    void                            Clear       (void) noexcept;
 
-    void							Subscribe	(GpEventSubscriber::SP aSubscriber);
-    void							Unsubscribe	(GpEventSubscriber::SP aSubscriber);
-    //void							Post		(GpEvent::SP aEvent);
+    void                            Subscribe   (GpEventSubscriber::SP aSubscriber);
+    void                            Unsubscribe (GpEventSubscriber::SP aSubscriber);
+    //void                          Post        (GpEvent::SP aEvent);
 
 private:
-    GpSpinlock						iLock;
-    GpEventSubscriber::C::Set::SP	iSubscribers;
+    GpSpinlock                      iLock;
+    GpEventSubscriber::C::Set::SP   iSubscribers;
 };
 
 }//GPlatform

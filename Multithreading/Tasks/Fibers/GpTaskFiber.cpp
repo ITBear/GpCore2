@@ -17,7 +17,7 @@ GpTaskFiber::~GpTaskFiber (void) noexcept
 {
 }
 
-GpTask::Res	GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
+GpTask::Res GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
 {
     GpTaskFiber::Res taskRes = GpTaskFiber::Res::DONE;
 
@@ -62,7 +62,7 @@ GpTask::Res	GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
     return taskRes;
 }
 
-/*void	GpTaskFiber::FiberFn (GpThreadStopToken aStopToken)
+/*void  GpTaskFiber::FiberFn (GpThreadStopToken aStopToken)
 {
     size_t counter = 0;
 

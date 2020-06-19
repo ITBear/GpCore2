@@ -18,40 +18,40 @@ class GpElementsPool
     CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpElementsPool);
 
 public:
-    using this_type		= GpElementsPool<T>;
-    using value_type 	= T;
-    using QueueT		= GpQueue<value_type>;
+    using this_type     = GpElementsPool<T>;
+    using value_type    = T;
+    using QueueT        = GpQueue<value_type>;
 
     CLASS_TAG(THREAD_SAFE)
 
 public:
-                                GpElementsPool	(void) noexcept;
-    virtual						~GpElementsPool	(void) noexcept;
+                                GpElementsPool  (void) noexcept;
+    virtual                     ~GpElementsPool (void) noexcept;
 
-    void						Init			(const count_t aInitCount,
+    void                        Init            (const count_t aInitCount,
                                                  const count_t aMaxCount);
-    void						Clear			(void) noexcept;
+    void                        Clear           (void) noexcept;
 
-    std::optional<value_type>	Accuire			(void);
-    void						Release			(value_type aElement);
-
-protected:
-    virtual void				PreInit			(const count_t aCount);
-    virtual value_type			NewElement		(void);
-    virtual void				OnClear			(void) noexcept;
-
-private:
-    void						_Clear			(bool aIsDestructorCall) noexcept;
+    std::optional<value_type>   Accuire         (void);
+    void                        Release         (value_type aElement);
 
 protected:
-    mutable GpSpinlock			iLock;
+    virtual void                PreInit         (const count_t aCount);
+    virtual value_type          NewElement      (void);
+    virtual void                OnClear         (void) noexcept;
 
 private:
-    QueueT						iElements;
-    count_t						iInitCount		= 0_cnt;
-    count_t						iMaxCount		= 0_cnt;
-    count_t						iAccuiredCount	= 0_cnt;
-    bool						iIsInit			= false;
+    void                        _Clear          (bool aIsDestructorCall) noexcept;
+
+protected:
+    mutable GpSpinlock          iLock;
+
+private:
+    QueueT                      iElements;
+    count_t                     iInitCount      = 0_cnt;
+    count_t                     iMaxCount       = 0_cnt;
+    count_t                     iAccuiredCount  = 0_cnt;
+    bool                        iIsInit         = false;
 };
 
 template<typename T>
@@ -66,7 +66,7 @@ GpElementsPool<T>::~GpElementsPool (void) noexcept
 }
 
 template<typename T>
-void	GpElementsPool<T>::Init (const count_t aInitCount,
+void    GpElementsPool<T>::Init (const count_t aInitCount,
                                  const count_t aMaxCount)
 {
     THROW_GPE_COND_CHECK(aInitCount >= 0_cnt);
@@ -85,20 +85,20 @@ void	GpElementsPool<T>::Init (const count_t aInitCount,
         iElements.push(NewElement());
     }
 
-    iInitCount		= aInitCount;
-    iMaxCount		= aMaxCount;
-    iAccuiredCount	= 0_cnt;
-    iIsInit			= true;
+    iInitCount      = aInitCount;
+    iMaxCount       = aMaxCount;
+    iAccuiredCount  = 0_cnt;
+    iIsInit         = true;
 }
 
 template<typename T>
-void	GpElementsPool<T>::Clear (void) noexcept
+void    GpElementsPool<T>::Clear (void) noexcept
 {
     _Clear(false);
 }
 
 template<typename T>
-typename std::optional<typename GpElementsPool<T>::value_type>	GpElementsPool<T>::Accuire (void)
+typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T>::Accuire (void)
 {
     std::scoped_lock lock(iLock);
 
@@ -123,7 +123,7 @@ typename std::optional<typename GpElementsPool<T>::value_type>	GpElementsPool<T>
 }
 
 template<typename T>
-void	GpElementsPool<T>::Release (value_type aElement)
+void    GpElementsPool<T>::Release (value_type aElement)
 {
     std::scoped_lock lock(iLock);
 
@@ -134,25 +134,25 @@ void	GpElementsPool<T>::Release (value_type aElement)
 }
 
 template<typename T>
-void	GpElementsPool<T>::PreInit (const count_t /*aCount*/)
+void    GpElementsPool<T>::PreInit (const count_t /*aCount*/)
 {
     //NOP
 }
 
 template<typename T>
-typename GpElementsPool<T>::value_type	GpElementsPool<T>::NewElement (void)
+typename GpElementsPool<T>::value_type  GpElementsPool<T>::NewElement (void)
 {
     return T();
 }
 
 template<typename T>
-void	GpElementsPool<T>::OnClear (void) noexcept
+void    GpElementsPool<T>::OnClear (void) noexcept
 {
     //NOP
 }
 
 template<typename T>
-void	GpElementsPool<T>::_Clear (bool aIsDestructorCall) noexcept
+void    GpElementsPool<T>::_Clear (bool aIsDestructorCall) noexcept
 {
     std::scoped_lock lock(iLock);
 
@@ -166,10 +166,10 @@ void	GpElementsPool<T>::_Clear (bool aIsDestructorCall) noexcept
         iElements.pop();
     }
 
-    iInitCount		= 0_cnt;
-    iMaxCount		= 0_cnt;
-    iAccuiredCount	= 0_cnt;
-    iIsInit			= false;
+    iInitCount      = 0_cnt;
+    iMaxCount       = 0_cnt;
+    iAccuiredCount  = 0_cnt;
+    iIsInit         = false;
 }
 
 }//GPlatform

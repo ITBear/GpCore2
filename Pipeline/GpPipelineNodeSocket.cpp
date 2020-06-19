@@ -6,10 +6,10 @@
 
 namespace GPlatform {
 
-GpPipelineNodeSocket::GpPipelineNodeSocket (GpPipelineNode&		aNode,
-                                            const GpUUID&		aTypeUID,
-                                            const DirectrionTE	aDirectrion,
-                                            std::string_view	aName):
+GpPipelineNodeSocket::GpPipelineNodeSocket (GpPipelineNode&     aNode,
+                                            const GpUUID&       aTypeUID,
+                                            const DirectrionTE  aDirectrion,
+                                            std::string_view    aName):
 iNode(aNode),
 iTypeUID(aTypeUID),
 iDirectrion(aDirectrion),
@@ -21,7 +21,7 @@ GpPipelineNodeSocket::~GpPipelineNodeSocket (void) noexcept
 {
 }
 
-void	GpPipelineNodeSocket::BreakConnections (void)
+void    GpPipelineNodeSocket::BreakConnections (void)
 {
     if (iDirectrion == DirectrionTE::IN)
     {
@@ -42,12 +42,12 @@ void	GpPipelineNodeSocket::BreakConnections (void)
     iConnectors.clear();
 }
 
-void	GpPipelineNodeSocket::AddConnector (const ConnectorT& aConnector)
+void    GpPipelineNodeSocket::AddConnector (const ConnectorT& aConnector)
 {
     iConnectors.emplace_back(aConnector);
 }
 
-void	GpPipelineNodeSocket::_BreakConnection (const ConnectorT& aConnector)
+void    GpPipelineNodeSocket::_BreakConnection (const ConnectorT& aConnector)
 {
     for (auto iter = iConnectors.begin(); iter != iConnectors.end(); ++iter)
     {

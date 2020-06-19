@@ -31,25 +31,25 @@ GpTaskScheduler::~GpTaskScheduler (void) noexcept
     iExecutorsPool.Clear();
 }
 
-void	GpTaskScheduler::Start (const count_t aExecutorsCount)
+void    GpTaskScheduler::Start (const count_t aExecutorsCount)
 {
     THROW_GPE_COND_CHECK_M(aExecutorsCount >= 1_cnt, "Executors count must be >= 1"_sv);
 
     iExecutorsPool.Init(aExecutorsCount, aExecutorsCount);
 }
 
-void	GpTaskScheduler::RequestStop (void) noexcept
+void    GpTaskScheduler::RequestStop (void) noexcept
 {
     iExecutorsPool.RequestStop();
 }
 
-void	GpTaskScheduler::Join (void) noexcept
+void    GpTaskScheduler::Join (void) noexcept
 {
     iExecutorsPool.Join();
 }
 
-GpTask::SP	GpTaskScheduler::Reshedule (GpTask::SP			aLastTask,
-                                        const GpTask::Res	aLastTaskExecRes) noexcept
+GpTask::SP  GpTaskScheduler::Reshedule (GpTask::SP          aLastTask,
+                                        const GpTask::Res   aLastTaskExecRes) noexcept
 {
     // Process last task result
     if (aLastTaskExecRes == GpTask::Res::READY_TO_EXEC)
@@ -113,7 +113,7 @@ GpTask::SP	GpTaskScheduler::Reshedule (GpTask::SP			aLastTask,
     }
 }
 
-void	GpTaskScheduler::AddTaskToReady (GpTask::SP aTask)
+void    GpTaskScheduler::AddTaskToReady (GpTask::SP aTask)
 {
     {
         std::scoped_lock lock(iReadyLock);
@@ -133,7 +133,7 @@ void	GpTaskScheduler::AddTaskToReady (GpTask::SP aTask)
     iExecutorsPool.WakeupAll();
 }
 
-void	GpTaskScheduler::AddTaskToWaiting (GpTask::SP aTask)
+void    GpTaskScheduler::AddTaskToWaiting (GpTask::SP aTask)
 {
     std::scoped_lock lock(iWaitingLock);
 
@@ -149,7 +149,7 @@ void	GpTaskScheduler::AddTaskToWaiting (GpTask::SP aTask)
     iWaitingTasks.insert(std::move(aTask));
 }
 
-void	GpTaskScheduler::MoveToReady (GpTask::SP aTask)
+void    GpTaskScheduler::MoveToReady (GpTask::SP aTask)
 {
     GpTask& task = aTask.V();
 

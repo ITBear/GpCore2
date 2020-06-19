@@ -13,7 +13,7 @@ GpConditionVar::~GpConditionVar (void) noexcept
 {
 }
 
-void	GpConditionVar::WakeupAll (void) noexcept
+void    GpConditionVar::WakeupAll (void) noexcept
 {
     {
         std::scoped_lock lock(iWakeupMutex);
@@ -23,7 +23,7 @@ void	GpConditionVar::WakeupAll (void) noexcept
     iWakeupCV.notify_all();
 }
 
-void	GpConditionVar::WakeupOne (void) noexcept
+void    GpConditionVar::WakeupOne (void) noexcept
 {
     {
         std::scoped_lock lock(iWakeupMutex);
@@ -33,12 +33,12 @@ void	GpConditionVar::WakeupOne (void) noexcept
     iWakeupCV.notify_one();
 }
 
-void	GpConditionVar::WaitForWakeup (void) noexcept
+void    GpConditionVar::WaitForWakeup (void) noexcept
 {
     WaitForWakeup(0.0_si_s);
 }
 
-void	GpConditionVar::WaitForWakeup (const milliseconds_t aTimeout) noexcept
+void    GpConditionVar::WaitForWakeup (const milliseconds_t aTimeout) noexcept
 {
     std::unique_lock lock(iWakeupMutex);
 
