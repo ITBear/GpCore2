@@ -1,4 +1,4 @@
-*.c filter=spabs
-*.h filter=spabs
-*.cpp filter=spabs
-*.hpp filter=spabs
+*.c    text eol=crlf
+*.h    text eol=crlf
+*.cpp  text eol=crlf
+*.hpp  text eol=crlf
