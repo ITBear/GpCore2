@@ -16,7 +16,7 @@ public:
 							GpTaskFiberStackPool	(void) noexcept;
 	virtual					~GpTaskFiberStackPool	(void) noexcept override final;
 
-	void					SetStackSize			(const size_mebibyte_t aStackSize) noexcept {iStackSize = aStackSize;}
+	void					SetStackSize			(const size_byte_t aStackSize) noexcept {iStackSize = aStackSize;}
 
 protected:
 	virtual void			PreInit					(const count_t aCount) override final;
@@ -24,7 +24,7 @@ protected:
 	virtual void			OnClear					(void) noexcept override final;
 
 private:
-	size_mebibyte_t			iStackSize = 0_mebibyte;
+	size_byte_t				iStackSize = 0_byte;
 };
 
 }//GPlatform

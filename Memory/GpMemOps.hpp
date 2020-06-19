@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Config/GpConfig.hpp"
+#include "../Types/Units/Other/count_t.hpp"
 
 #if defined(GP_USE_MEMORY_MNG)
 
@@ -79,7 +80,7 @@ public:
 	template<typename		T,
 			 typename...	Ts>
 	static void	SConstruct (T*				aElements,
-							const size_t	aCount,
+							const count_t	aCount,
 							Ts&&...			aArgs)
 	{
 		if constexpr (std::is_scalar<T>::value)
@@ -92,8 +93,8 @@ public:
 	}
 
 	template<typename T>
-	static void	SDestruct (T* 			aElements,
-						   const size_t	aCount) noexcept
+	static void	SDestruct (T*				aElements,
+						   const count_t	aCount) noexcept
 	{
 		if constexpr (std::is_scalar<T>::value)
 		{
@@ -105,11 +106,26 @@ public:
 	}
 
 	template<typename T>
-	static void	SConstructAndMove (T* 			aElementsDst,
-								   T* 			aElementsSrc,
-								   const size_t	aCount)
+	static constexpr void	SConstructAndMove (T& aElementsDst,
+											   T&& aElementsSrc)
 	{
-		if constexpr (std::is_scalar<T>::value)
+		SConstructAndMove(&aElementsDst, &aElementsSrc, 1_cnt);
+	}
+
+	template<typename T>
+	static constexpr void	SConstructAndMove (T* aElementsDst,
+											   T* aElementsSrc)
+	{
+		SConstructAndMove(aElementsDst, aElementsSrc, 1_cnt);
+	}
+
+	template<typename T>
+	static constexpr void	SConstructAndMove (T*				aElementsDst,
+											   T*				aElementsSrc,
+											   const count_t	aCount)
+	{
+		if constexpr (   std::is_scalar<T>::value
+					  || (std::is_trivially_copyable_v<T> && std::is_trivial_v<T>))
 		{
 			SConstructAndMoveScalar(aElementsDst,
 									aElementsSrc,
@@ -123,16 +139,31 @@ public:
 	}
 
 	template<typename T>
-	static void	SCopy (T* 			aElementsDst,
-					   const T*		aElementsSrc,
-					   const size_t	aCount)
+	static constexpr void	SCopy (T&		aElementsDst,
+								   const T&	aElementsSrc)
 	{
-		if (aCount == 0)
+		SCopy(&aElementsDst, &aElementsSrc, 1_cnt);
+	}
+
+	template<typename T>
+	static constexpr void	SCopy (T*		aElementsDst,
+								   const T*	aElementsSrc)
+	{
+		SCopy(aElementsDst, aElementsSrc, 1_cnt);
+	}
+
+	template<typename T>
+	static constexpr void	SCopy (T*				aElementsDst,
+								   const T*			aElementsSrc,
+								   const count_t	aCount)
+	{
+		if (aCount == 0_cnt)
 		{
 			return;
 		}
 
-		if constexpr (std::is_scalar<T>::value)
+		if constexpr (   (std::is_scalar_v<T>)
+					  || (std::is_trivially_copyable_v<T> && std::is_trivial_v<T>))
 		{
 			SCopyScalar(aElementsDst,
 						aElementsSrc,
@@ -146,11 +177,27 @@ public:
 	}
 
 	template<typename T>
-	[[nodiscard]] static ssize_t	SCompare (const T* 		aElementsA,
-											  const T*		aElementsB,
-											  const size_t	aCount) noexcept
+	[[nodiscard]] static constexpr ssize_t	SCompare (const T& aElementsA,
+													  const T& aElementsB) noexcept
 	{
-		if constexpr (std::is_scalar<T>::value)
+		return SCompare(&aElementsA, &aElementsB, 1_cnt);
+	}
+
+	template<typename T>
+	[[nodiscard]] static constexpr ssize_t	SCompare (const T* aElementsA,
+													  const T* aElementsB) noexcept
+	{
+		return SCompare(aElementsA, aElementsB, 1_cnt);
+	}
+
+	template<typename T>
+	[[nodiscard]] static constexpr ssize_t	SCompare (const T*		aElementsA,
+													  const T*	 	aElementsB,
+													  const count_t	aCount) noexcept
+	{
+		if constexpr (   (std::is_scalar<T>::value)
+					  || (std::is_trivially_copyable_v<T> && std::is_trivial_v<T>))
+
 		{
 			return SCompareScalar(aElementsA,
 								  aElementsB,
@@ -163,59 +210,25 @@ public:
 		}
 	}
 
-	/*template<typename T>
-	static bool	CompareSafe				(const T* 		aElementsSafe,
-										 const size_t	aCountSafe,
-										 const T*		aElementsUnsafe,
-										 const size_t	aCountUnsafe) noexcept
-	{
-		static_assert((sizeof(T) == 1) && (alignof(T) == 1), "Wrong type");
-
-		const size_t		uSize			= aCountUnsafe;
-		const size_t		size			= aCountSafe;
-		const T* _R_		uElements		= aElementsUnsafe;
-		const T* _R_		elements		= aElementsSafe;
-		volatile size_t		eualsCount		= 0;
-		volatile size_t		notEualsCount	= 0;
-
-		for (size_t id = 0; id < uSize; ++id)
-		{
-			if (id < size)
-			{
-				if (*uElements++ == *elements++)
-				{
-					++eualsCount;
-				}
-			} else
-			{
-				if (*uElements++ == 0)
-				{
-					++notEualsCount;
-				}
-			}
-		}
-
-		return eualsCount == uSize;
-	}*/
-
 private:
 	template<typename T>
 	static void SConstructScalar (T*			aElements,
-								  const size_t	aCount)
+								  const count_t	aCount)
 	{
 		static_assert(std::is_trivial_v<T>, "T must be TriviallyCopyable");
-		std::memset(aElements, 0, aCount*sizeof(T));
+		const size_t s = (aCount * count_t::SMake(sizeof(T))).ValueAs<size_t>();
+		std::memset(aElements, 0, s);
 	}
 
 	template<typename		T,
 			 typename...	Ts>
 	static void SConstructNotScalar	(T* 			aElements,
-									 const size_t	aCount,
+									 const count_t	aCount,
 									 Ts&&...		aArgs)
 	{
 		T* e = aElements;
 
-		size_t constructedCnt = 0;
+		count_t constructedCnt = 0_cnt;
 		try
 		{
 			for ( ; constructedCnt < aCount; ++constructedCnt)
@@ -225,7 +238,7 @@ private:
 			}
 		} catch (...)
 		{
-			if (constructedCnt > 0)
+			if (constructedCnt > 0_cnt)
 			{
 				SDestruct(aElements, constructedCnt);
 			}
@@ -236,17 +249,18 @@ private:
 
 	template<typename T>
 	static void SDestructScalar (T* 			aElements,
-								 const size_t	aCount) noexcept
+								 const count_t	aCount) noexcept
 	{
 		static_assert(std::is_trivial_v<T>, "T must be TriviallyCopyable");
-		std::memset(aElements, 0, aCount*sizeof(T));
+		const size_t s = (aCount * count_t::SMake(sizeof(T))).ValueAs<size_t>();
+		std::memset(aElements, 0, s);
 	}
 
 	template<typename T>
 	static void SDestructNotScalar (T*				aElements,
-									const size_t	aCount) noexcept
+									const count_t	aCount) noexcept
 	{
-		for (size_t id = 0; id < aCount; ++id)
+		for (count_t id = 0_cnt; id < aCount; ++id)
 		{
 			aElements->~T();
 			aElements++;
@@ -254,29 +268,27 @@ private:
 	}
 
 	template<typename T>
-	static void SConstructAndMoveScalar (T* 			aElementsDst,
-										 T* 			aElementsSrc,
-										 const size_t	aCount)
+	static constexpr void SConstructAndMoveScalar (T*				aElementsDst,
+												   T*				aElementsSrc,
+												   const count_t	aCount)
 	{
 		static_assert(std::is_trivial_v<T>, "T must be TriviallyCopyable");
 
-		std::memcpy(aElementsDst,
-					aElementsSrc,
-					aCount * sizeof(T));
+		const size_t s = (aCount * count_t::SMake(sizeof(T))).ValueAs<size_t>();
 
-		std::memset(aElementsSrc, 0, aCount * sizeof(T));
+		std::memcpy(aElementsDst, aElementsSrc, s);
 	}
 
 	template<typename T>
-	static void SConstructAndMoveNotScalar (T*				aElementsDst,
+	static void SConstructAndMoveNotScalar (T*	 	 		aElementsDst,
 											T*				aElementsSrc,
-											const size_t	aCount)
+											const count_t	aCount)
 	{
 		T* dst = aElementsDst;
 		T* src = aElementsSrc;
 
 		//Move
-		size_t movedCnt = 0;
+		count_t movedCnt = 0_cnt;
 		try
 		{
 			for ( ; movedCnt < aCount; ++movedCnt)
@@ -287,7 +299,7 @@ private:
 			}
 		} catch (...)
 		{
-			if (movedCnt > 0)
+			if (movedCnt > 0_cnt)
 			{
 				SDestruct(aElementsDst, movedCnt);
 			}
@@ -297,25 +309,24 @@ private:
 	}
 
 	template<typename T>
-	static void	CopyScalar (T*				aElementsDst,
-							const T*		aElementsSrc,
-							const size_t	aCount)
+	static constexpr void	SCopyScalar (T* 	 		aElementsDst,
+										 const T*		aElementsSrc,
+										 const count_t	aCount)
 	{
-		std::memcpy(aElementsDst,
-					aElementsSrc,
-					aCount * sizeof(T));
+		const size_t s = (aCount * count_t::SMake(sizeof(T))).ValueAs<size_t>();
+		std::memcpy(aElementsDst, aElementsSrc, s);
 	}
 
 	template<typename T>
-	static void	CopyNotScalar (T* 			aElementsDst,
-							   const T*		aElementsSrc,
-							   const size_t	aCount)
+	static void	SCopyNotScalar (T*				aElementsDst,
+								const T*		aElementsSrc,
+								const count_t	aCount)
 	{
 		T*			dst = aElementsDst;
 		const T*	src = aElementsSrc;
 
 		//Copy
-		size_t copyCnt = 0;
+		count_t copyCnt = 0_cnt;
 		try
 		{
 			for ( ; copyCnt < aCount; ++copyCnt)
@@ -326,7 +337,7 @@ private:
 			}
 		} catch (...)
 		{
-			if (copyCnt > 0)
+			if (copyCnt > 0_cnt)
 			{
 				Destruct(aElementsDst, copyCnt);
 			}
@@ -336,29 +347,30 @@ private:
 	}
 
 	template<typename T>
-	[[nodiscard]] static ssize_t	SCompareScalar (const T* 	aElementsA,
-													const T*		aElementsB,
-													const size_t	aCount) noexcept
+	[[nodiscard]] static constexpr ssize_t	SCompareScalar (const T*		aElementsA,
+															const T*		aElementsB,
+															const count_t	aCount) noexcept
 	{
-		return std::memcmp(aElementsA, aElementsB, aCount * sizeof(T));
+		const size_t s = (aCount * count_t::SMake(sizeof(T))).ValueAs<size_t>();
+		return std::memcmp(aElementsA, aElementsB, s);
 	}
 
 	template<typename T>
-	[[nodiscard]]static ssize_t	SCompareNotScalar (const T* 	aElementsA,
-												   const T*		aElementsB,
-												   const size_t	aCount) noexcept
+	[[nodiscard]]static ssize_t	SCompareNotScalar (const T*			aElementsA,
+												   const T*			aElementsB,
+												   const count_t	aCount) noexcept
 	{
-		for (size_t id = 0; id < aCount; ++id)
+		for (count_t id = 0_cnt; id < aCount; ++id)
 		{
 			const T& a = *aElementsA++;
 			const T& b = *aElementsB++;
 
 			if (a > b)
 			{
-				return ssize_t(id + 1);
+				return (id + 1_cnt).ValueAs<ssize_t>();
 			} else if (a < b)
 			{
-				return -ssize_t(id + 1);
+				return -(id + 1_cnt).ValueAs<ssize_t>();
 			}
 		}
 

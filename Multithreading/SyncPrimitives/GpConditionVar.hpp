@@ -30,10 +30,9 @@ public:
 	void					WaitForWakeup	(const milliseconds_t aTimeout) noexcept;
 
 private:
-	//https://www.modernescpp.com/index.php/c-core-guidelines-be-aware-of-the-traps-of-condition-variables
 	mutable std::mutex		iWakeupMutex;
 	std::condition_variable	iWakeupCV;
-	size_t					iWaitCounter	= 0;
+	count_t					iWaitCounter	= 0_cnt;
 	bool					iNeedToWakeUp	= false;
 };
 

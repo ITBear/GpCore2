@@ -22,22 +22,22 @@ public:
 	void						SetSeedFromRD	(void);
 	void						SetSeed			(const random_mt19937::result_type aSeed);
 
-	[[nodiscard]] s_int_8		SI8				(const s_int_8	aMin = NumOps::SMin<s_int_8>(),
-												 const s_int_8	aMax = NumOps::SMax<s_int_8>());
-	[[nodiscard]] u_int_8		UI8				(const u_int_8	aMin = NumOps::SMin<u_int_8>(),
-												 const u_int_8	aMax = NumOps::SMax<u_int_8>());
-	[[nodiscard]] s_int_16		SI16			(const s_int_16	aMin = NumOps::SMin<s_int_16>(),
-												 const s_int_16	aMax = NumOps::SMax<s_int_16>());
-	[[nodiscard]] u_int_16		UI16			(const u_int_16	aMin = NumOps::SMin<u_int_16>(),
-												 const u_int_16	aMax = NumOps::SMax<u_int_16>());
-	[[nodiscard]] s_int_32		SI32			(const s_int_32	aMin = NumOps::SMin<s_int_32>(),
-												 const s_int_32	aMax = NumOps::SMax<s_int_32>());
-	[[nodiscard]] u_int_32		UI32			(const u_int_32	aMin = NumOps::SMin<u_int_32>(),
-												 const u_int_32	aMax = NumOps::SMax<u_int_32>());
-	[[nodiscard]] s_int_64		SI64			(const s_int_64	aMin = NumOps::SMin<s_int_64>(),
-												 const s_int_64	aMax = NumOps::SMax<s_int_64>());
-	[[nodiscard]] u_int_64		UI64			(const u_int_64	aMin = NumOps::SMin<u_int_64>(),
-												 const u_int_64	aMax = NumOps::SMax<u_int_64>());
+	[[nodiscard]] SInt8			SI8				(const SInt8	aMin = SInt8::SMake(NumOps::SMin<SInt8::value_type>()),
+												 const SInt8	aMax = SInt8::SMake(NumOps::SMax<SInt8::value_type>()));
+	[[nodiscard]] UInt8			UI8				(const UInt8	aMin = UInt8::SMake(NumOps::SMin<UInt8::value_type>()),
+												 const UInt8	aMax = UInt8::SMake(NumOps::SMax<UInt8::value_type>()));
+	[[nodiscard]] SInt16		SI16			(const SInt16	aMin = SInt16::SMake(NumOps::SMin<SInt16::value_type>()),
+												 const SInt16	aMax = SInt16::SMake(NumOps::SMax<SInt16::value_type>()));
+	[[nodiscard]] UInt16		UI16			(const UInt16	aMin = UInt16::SMake(NumOps::SMin<UInt16::value_type>()),
+												 const UInt16	aMax = UInt16::SMake(NumOps::SMax<UInt16::value_type>()));
+	[[nodiscard]] SInt32		SI32			(const SInt32	aMin = SInt32::SMake(NumOps::SMin<SInt32::value_type>()),
+												 const SInt32	aMax = SInt32::SMake(NumOps::SMax<SInt32::value_type>()));
+	[[nodiscard]] UInt32		UI32			(const UInt32	aMin = UInt32::SMake(NumOps::SMin<UInt32::value_type>()),
+												 const UInt32	aMax = UInt32::SMake(NumOps::SMax<UInt32::value_type>()));
+	[[nodiscard]] SInt64		SI64			(const SInt64	aMin = SInt64::SMake(NumOps::SMin<SInt64::value_type>()),
+												 const SInt64	aMax = SInt64::SMake(NumOps::SMax<SInt64::value_type>()));
+	[[nodiscard]] UInt64		UI64			(const UInt64	aMin = UInt64::SMake(NumOps::SMin<UInt64::value_type>()),
+												 const UInt64	aMax = UInt64::SMake(NumOps::SMax<UInt64::value_type>()));
 
 private:
 	GpRandom					iRandom;

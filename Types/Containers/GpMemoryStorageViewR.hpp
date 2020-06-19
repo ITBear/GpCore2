@@ -5,7 +5,7 @@
 #if defined(GP_USE_CONTAINERS)
 
 #include "../Containers/GpContainersT.hpp"
-#include "../Units/Other/count_t.hpp"
+#include "../Units/Other/size_byte_t.hpp"
 #include "../Classes/GpClassesDefines.hpp"
 
 namespace GPlatform {
@@ -22,9 +22,9 @@ public:
 	virtual						~GpMemoryStorageViewR	(void) noexcept = default;
 
 	virtual const std::byte*	Data					(void) const noexcept = 0;
-	virtual count_t				Size					(void) const noexcept = 0;
+	virtual size_byte_t			Size					(void) const noexcept = 0;
 	virtual std::string_view	AsStringView			(void) const noexcept = 0;
-	virtual std::string_view	AsStringView			(const count_t aOffset, const count_t aSize) const = 0;
+	virtual std::string_view	AsStringView			(const size_byte_t aOffset, const size_byte_t aSize) const = 0;
 	virtual bool				IsEmpty					(void) const noexcept = 0;
 };
 

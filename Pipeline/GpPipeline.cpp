@@ -18,30 +18,33 @@ void	GpPipeline::Clear (void) noexcept
 	std::scoped_lock lock(iLock);
 
 	iRootNodes.clear();
-	iNodes.clear();
+	iAllNodes.clear();
 }
 
 void	GpPipeline::AddNode (NodeT::SP aNode)
 {
 	std::scoped_lock lock(iLock);
 
-	NodeT& n = aNode.V();
-	n.AssignToPipeline(*this);
+	THROW_GPE_COND_CHECK_M(iAllNodes.count(aNode) == 0, "Node already added"_sv);
+
+	aNode.V().AssignToPipeline(*this);
 
 	iRootNodes.emplace(aNode);
-	iNodes.emplace(aNode);
+	iAllNodes.emplace(aNode);
 }
 
 void	GpPipeline::RemoveNode (NodeT::SP aNode)
 {
 	std::scoped_lock lock(iLock);
 
-	auto iter = iNodes.find(aNode);
-	THROW_GPE_COND_CHECK_M(iter != iNodes.end(), "Node not found"_sv);
+	auto iter = iAllNodes.find(aNode);
+	THROW_GPE_COND_CHECK_M(iter != iAllNodes.end(), "Node not found"_sv);
 
 	_BreakConnections(aNode);
 
-	iNodes.erase(iter);
+	// Remove from allNodes set
+	iAllNodes.erase(iter);
+	iRootNodes.erase(aNode);
 }
 
 GpPipeline::ConnectorT	GpPipeline::ConnectNodes (NodeT::SP aNodeFrom, SocketT& aFrom,
@@ -89,14 +92,15 @@ GpPipeline::NodeT::C::Set::CSP	GpPipeline::RootNodes (void) const
 	return iRootNodes;
 }
 
-void	GpPipeline::_BreakConnections (NodeT::SP aNode)
+void	GpPipeline::_BreakConnections (NodeT::SP /*aNode*/)
 {
-	auto iter = iNodes.find(aNode);
+	THROW_NOT_IMPLEMENTED();
+	/*auto iter = iNodes.find(aNode);
 
 	THROW_GPE_COND_CHECK_M(iter != iNodes.end(), "Node not found"_sv);
 
 	NodeT& n = aNode.V();
-	n.BreakConnections();
+	n.BreakConnections();*/
 }
 
 

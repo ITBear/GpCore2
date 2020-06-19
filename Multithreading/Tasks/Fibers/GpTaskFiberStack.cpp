@@ -16,7 +16,7 @@ GpTaskFiberStack::~GpTaskFiberStack (void) noexcept
 	Clear();
 }
 
-void	GpTaskFiberStack::Init (const size_mebibyte_t aSize)
+void	GpTaskFiberStack::Init (const size_byte_t aSize)
 {
 	Clear();
 

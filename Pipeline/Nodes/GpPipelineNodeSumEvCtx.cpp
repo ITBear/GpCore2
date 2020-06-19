@@ -7,26 +7,26 @@ namespace GPlatform {
 /*void	GpPipelineNodeSumEvCtx::DoCalc (void) const
 {
 	// Read inputs
-	GpVector<s_int_64> inputs;
+	GpVector<SInt_64> inputs;
 
 	// Do calc
-	const s_int_64 sum = SSum(inputs);
+	const SInt_64 sum = SSum(inputs);
 
 	// Write outputs
 }
 
-s_int_64	GpPipelineNodeSumEvCtx::SSum (const GpVector<s_int_64>& aInputs)
+SInt_64	GpPipelineNodeSumEvCtx::SSum (const GpVector<SInt_64>& aInputs)
 {
 	try
 	{
-		s_int_64 sum = 0;
-		for (const s_int_64 val: aInputs)
+		SInt_64 sum = 0;
+		for (const SInt_64 val: aInputs)
 		{
 			sum = NumOps::SAdd(sum, val);
 		}
 	} catch (...)
 	{
-		THROW_GPE("s_int_64 overflow"_sv);
+		THROW_GPE("SInt_64 overflow"_sv);
 	}
 }*/
 

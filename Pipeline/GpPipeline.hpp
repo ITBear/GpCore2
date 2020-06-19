@@ -37,7 +37,7 @@ private:
 private:
 	mutable GpRWLock			iLock;
 	NodeT::C::Set::CSP			iRootNodes;
-	NodeT::C::Set::SP			iNodes;
+	NodeT::C::Set::SP			iAllNodes;
 };
 
 }//GPlatform

@@ -21,7 +21,7 @@ public:
 
 	template<typename... Ts>
 							GpReferenceStorage	(Ts&&... aArgs):
-							GpReferenceCounter(1, &iValue),
+							GpReferenceCounter(1_cnt, &iValue),
 							iValue(std::forward<Ts>(aArgs)...)
 							{
 							}

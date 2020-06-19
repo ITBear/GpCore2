@@ -27,14 +27,6 @@ public:
 	std::string_view	Name		(void) const noexcept {return iName;}
 	void				Run			(GpRunnable::SP aRunnable);
 
-/*#if defined(GP_USE_MULTITHREADING_IMPL_JTHREAD)
-	template <typename Callable, typename... Args>
-	void				Run			(Callable&& aCallable, Args&&... aArgs)
-	{
-		iThread = std::jthread(aCallable, std::forward<Args>(aArgs)...);
-	}
-#endif//#if defined(GP_USE_MULTITHREADING_IMPL_JTHREAD)*/
-
 	bool				Joinable	(void) const noexcept;
 	void				Join		(void) noexcept;
 	bool				RequestStop	(void) noexcept;

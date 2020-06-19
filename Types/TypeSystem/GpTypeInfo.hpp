@@ -4,8 +4,6 @@
 
 #if defined(GP_USE_REFLECTION)
 
-#include "GpType.hpp"
-#include "GpTypeContainer.hpp"
 #include "GpTypePropInfo.hpp"
 
 namespace GPlatform {
@@ -17,8 +15,6 @@ public:
 
 	using TypeT			= GpType;
 	using TypeTE		= TypeT::EnumT;
-	using ContainerT	= GpTypeContainer;
-	using ContainerTE	= ContainerT::EnumT;
 	using PropT			= GpTypePropInfo;
 	using PropsT		= PropT::C::Vec;
 
@@ -32,20 +28,16 @@ public:
 	GpTypeInfo&			operator=			(GpTypeInfo&& aTypeInfo) noexcept;
 
 	const GpUUID&		UID					(void) const noexcept {return iUID;}
-	const GpUUID&		InheritanceUID		(void) const noexcept {return iInheritanceUID;}
+	const GpUUID&		BaseUID				(void) const noexcept {return iBaseUID;}
 	std::string_view	Name				(void) const noexcept {return iName;}
 	TypeTE				Type				(void) const noexcept {return iType;}
-	ContainerTE			Container			(void) const noexcept {return iContainer;}
-	TypeTE				ContainerKeyType	(void) const noexcept {return iContainerKeyType;}
 	const PropsT&		Props				(void) const noexcept {return iProps;}
 
 private:
 	GpUUID				iUID;
-	GpUUID				iInheritanceUID;
+	GpUUID				iBaseUID;
 	std::string			iName;
 	TypeTE				iType;
-	ContainerTE			iContainer;
-	TypeTE				iContainerKeyType;
 	PropsT				iProps;
 };
 

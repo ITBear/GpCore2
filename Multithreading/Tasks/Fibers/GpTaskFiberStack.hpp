@@ -9,7 +9,7 @@
 #include "../../../Types/Classes/GpClassesDefines.hpp"
 #include "../../../Types/Numerics/GpNumerics.hpp"
 #include "../../../Types/Containers/GpContainersT.hpp"
-#include "../../../Types/Units/Other/size_mebibyte_t.hpp"
+#include "../../../Types/Units/Other/size_byte_t.hpp"
 
 namespace GPlatform {
 
@@ -23,7 +23,7 @@ public:
 						GpTaskFiberStack	(void) noexcept;
 						~GpTaskFiberStack	(void) noexcept;
 
-	void				Init				(const size_mebibyte_t aSize);
+	void				Init				(const size_byte_t aSize);
 	void				Clear				(void) noexcept;
 
 	void*				Context				(void) noexcept {return iStackContext;}

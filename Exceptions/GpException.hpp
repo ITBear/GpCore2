@@ -63,8 +63,6 @@
 
 namespace GPlatform{
 
-
-
 class GPCORE_API GpException: public std::exception
 {
 private:

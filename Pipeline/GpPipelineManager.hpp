@@ -13,7 +13,7 @@ namespace GPlatform {
 class GpPipelineManager
 {
 public:
-	GpPipelineManager();
+		GpPipelineManager();
 		~GpPipelineManager();
 };
 

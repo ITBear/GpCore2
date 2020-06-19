@@ -24,15 +24,16 @@ public:
 
 public:
 								GpPipelineNodeSocket	(GpPipelineNode&	aNode,
-														 const GpUUID		aTypeUID,
-														 const DirectrionTE	aDirectrion) noexcept;
+														 const GpUUID&		aTypeUID,
+														 const DirectrionTE	aDirectrion,
+														 std::string_view	aName);
 								~GpPipelineNodeSocket	(void) noexcept;
 
 	const GpPipelineNode&		Node					(void) const noexcept {return iNode;}
 	GpPipelineNode&				Node					(void) noexcept {return iNode;}
 	const GpUUID&				TypeUID					(void) const noexcept {return iTypeUID;}
-	std::string_view			Name					(void) const noexcept {return iName;}
 	DirectrionTE				Directrion				(void) const noexcept {return iDirectrion;}
+	std::string_view			Name					(void) const noexcept {return iName;}
 
 	bool						IsEmpty					(void) const noexcept {return iConnectors.empty();}
 	void						BreakConnections		(void);
@@ -44,9 +45,9 @@ private:
 private:
 	GpPipelineNode&				iNode;
 	GpUUID						iTypeUID;
-	std::string					iName;
 	ConnectorT::C::Vec::Val		iConnectors;
 	const DirectrionTE			iDirectrion;
+	std::string					iName;
 };
 
 }//namespace GPlatform

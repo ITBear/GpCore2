@@ -66,7 +66,7 @@ void	GpConditionVar::WaitForWakeup (const milliseconds_t aTimeout) noexcept
 
 	iWaitCounter--;
 
-	if (iWaitCounter == 0)
+	if (iWaitCounter == 0_cnt)
 	{
 		iNeedToWakeUp = false;
 	}
