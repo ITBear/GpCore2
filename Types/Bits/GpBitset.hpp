@@ -369,7 +369,7 @@ template<typename MaskT,
          typename ValueT> constexpr
 auto GpBitset<MaskT, ValueT>::MakeValueFromList (const init_mask_type aMask) noexcept -> value_type_no_volatile
 {
-    size_t  bitset = size_t(0);
+    size_t bitset = size_t(0);
 
     for (MaskT bitId: aMask)
     {

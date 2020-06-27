@@ -21,8 +21,8 @@ void    GpBitWriter::Bits (const std::byte* aData,
     size_t          leftToWrite     = left.ValueAs<size_t>();
     const size_t    finalWriteBits  = (iStorage.Offset() + iStorage.Size()).template ValueAs<size_t>();
 
-    const u_int_8*  dataIn          = reinterpret_cast<const u_int_8*>(aData);
-    u_int_8*        dataOut         = reinterpret_cast<u_int_8*>(iStorage.Data());
+    const std::byte*    dataIn      = aData;
+    std::byte*          dataOut     = iStorage.Data();
 
     while (leftToRead > 0)
     {
@@ -44,7 +44,7 @@ void    GpBitWriter::Bits (const std::byte* aData,
         const size_t writeMask          = (size_t(1) << writeBitSH) - size_t(1);
         const size_t writeByte          = size_t(dataOut[writeByteID]);
 
-        dataOut[writeByteID]            = u_int_8((writeByte & writeMask) | (readByte << writeBitSH));
+        dataOut[writeByteID]            = std::byte((writeByte & writeMask) | (readByte << writeBitSH));
 
         leftToRead  -= partSize;
         leftToWrite -= partSize;

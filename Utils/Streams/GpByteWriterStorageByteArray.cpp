@@ -18,7 +18,7 @@ void    GpByteWriterStorageByteArray::AllocateNext (const size_byte_t aSize)
     const size_byte_t delta     = aSize - left;
     const size_byte_t newSize   = size_byte_t::SMake(iOut.size()) + delta;
 
-    iOut.resize(newSize.Value());
+    iOut.resize(newSize.ValueAs<size_t>());
 
     SetSize(newSize);
     SetLeft(left + delta);

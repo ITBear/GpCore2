@@ -29,10 +29,10 @@
         {
             source_location __loc;
 
-            __loc._M_file = __file;
-            __loc._M_func = __func;
-            __loc._M_line = __line;
-            __loc._M_col = __col;
+            __loc._M_file   = __file;
+            __loc._M_func   = __func;
+            __loc._M_line   = uint_least32_t(__line);
+            __loc._M_col    = uint_least32_t(__col);
 
             return __loc;
         }

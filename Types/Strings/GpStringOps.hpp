@@ -90,7 +90,7 @@ private:
                                                              GpRawPtrCharRW aStrOut);
 
 private:
-    static const GpArray<char, 201>         sDigits;
+    static const GpArray<char, 201>&        SDigits         (void) noexcept;
 };
 
 

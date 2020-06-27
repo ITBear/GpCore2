@@ -7,15 +7,6 @@
 
 namespace GPlatform {
 
-const GpArray<char, 201> GpStringOps::sDigits =
-{
-    "0001020304050607080910111213141516171819"
-    "2021222324252627282930313233343536373839"
-    "4041424344454647484950515253545556575859"
-    "6061626364656667686970717273747576777879"
-    "8081828384858687888990919293949596979899"
-};
-
 GpVector<std::string_view>  GpStringOps::SSplit (std::string_view       aSourceStr,
                                                  const char             aDelim,
                                                  const count_t          aReturnPartsCountLimit,
@@ -136,7 +127,7 @@ count_t GpStringOps::SFromDouble (const double      aValue,
 
     SReplace(s, ',', '.');
 
-    MemOps::SCopy(aStrOut.Ptr(), s.data(), length);
+    aStrOut.CopyFrom(s.data(), length);
 
     return length;
 }
@@ -393,7 +384,7 @@ size_byte_t GpStringOps::SToBytes (std::string_view aStr,
     const count_t outSize   = strHexPtr.LengthLeft() / 2_cnt;
     aDataOut.resize((oldSize + outSize).ValueAs<size_t>());
 
-    GpRawPtrByteRW dataOut(aDataOut.data() + oldSize.ValueAs<size_t>(), size_byte_t::SMake(outSize.Value()));
+    GpRawPtrByteRW dataOut(aDataOut.data() + oldSize.ValueAs<size_t>(), outSize.ValueAs<size_byte_t>());
 
     while (strHexPtr.LengthLeft() > 0_cnt)
     {
@@ -401,7 +392,7 @@ size_byte_t GpStringOps::SToBytes (std::string_view aStr,
         *dataOut++ = SToByte(s);
     }
 
-    return size_byte_t::SMake(outSize.Value());
+    return outSize.ValueAs<size_byte_t>();
 }
 
 GpBytesArray    GpStringOps::SToBytes (std::string_view aStr)
@@ -513,7 +504,7 @@ void    GpStringOps::_SFromUI64 (const UInt64   aValue,
                                  GpRawPtrCharRW aStrOut)
 {
     u_int_64        value   = aValue.ValueAs<u_int_64>();
-    const char* _R_ digits  = sDigits.data();
+    const char* _R_ digits  = SDigits().data();
 
     aStrOut += (aStrOut.LengthLeft() - 2_cnt);
 
@@ -522,7 +513,7 @@ void    GpStringOps::_SFromUI64 (const UInt64   aValue,
         const size_t i = size_t((value % u_int_64(100)) * 2);
         value /= 100;
 
-        MemOps::SCopy(aStrOut.Ptr(), digits + i, 2_cnt);
+        aStrOut.CopyFrom(digits + i, 2_cnt);
         aStrOut -= 2_cnt;
     }
 
@@ -533,8 +524,22 @@ void    GpStringOps::_SFromUI64 (const UInt64   aValue,
     } else
     {
         const size_t i = size_t(value) * 2;
-        MemOps::SCopy(aStrOut.Ptr(), digits + i, 2_cnt);
+        aStrOut.CopyFrom(digits + i, 2_cnt);
     }
+}
+
+const GpArray<char, 201>&   GpStringOps::SDigits (void) noexcept
+{
+    static const GpArray<char, 201> sDigits =
+    {
+        "0001020304050607080910111213141516171819"
+        "2021222324252627282930313233343536373839"
+        "4041424344454647484950515253545556575859"
+        "6061626364656667686970717273747576777879"
+        "8081828384858687888990919293949596979899"
+    };
+
+    return sDigits;
 }
 
 }//GPlatform

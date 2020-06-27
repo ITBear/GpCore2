@@ -61,10 +61,8 @@ public:
     static GpUUID                       SGenRandom      (void);
     static GpUUID                       SFromString     (std::string_view aStr);
 
-    [[nodiscard]] inline static constexpr DataT
-                                        CE_FromString   (std::string_view aStr);
-    [[nodiscard]] inline static constexpr DataT
-                                        CE_Zero         (void);
+    inline static constexpr DataT       CE_FromString   (std::string_view aStr);
+    inline static constexpr DataT       CE_Zero         (void);
 
 private:
     DataT                               iData;

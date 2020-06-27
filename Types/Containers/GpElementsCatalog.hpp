@@ -166,13 +166,11 @@ template<typename KeyT,
          template<typename...> class ContainerT>
 std::optional<std::reference_wrapper<ValueT>>   GpElementsCatalog<KeyT, ValueT, ContainerT>::Find (const KeyT& aKey) noexcept
 {
-    std::shared_lock lock(iLock);
+    auto res = std::as_const(*this).Find(aKey);
 
-    auto iter = iElements.find(aKey);
-
-    if (iter != iElements.end())
+    if (res.has_value())
     {
-        return std::ref(iter.second);
+        return const_cast<ValueT&>(res.value().get());
     } else
     {
         return std::nullopt;

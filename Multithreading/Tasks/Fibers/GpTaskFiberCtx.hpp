@@ -9,6 +9,7 @@
 #include "../../Threads/GpThreadStopToken.hpp"
 #include "../GpTask.hpp"
 #include <cstddef>
+#include <functional>
 
 namespace GPlatform {
 

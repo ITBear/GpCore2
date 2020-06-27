@@ -183,7 +183,7 @@ typename GpEnumFlagsST<E>::this_type&   GpEnumFlagsST<E>::operator= (const this_
 
 }//GPlatform
 
-//********************** Hash *********************
+// ********************** Hash *********************
 namespace std{
 
 template<> struct hash<GPlatform::GpEnumFlags>

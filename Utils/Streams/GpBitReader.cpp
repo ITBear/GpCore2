@@ -17,8 +17,8 @@ void    GpBitReader::Bits (std::byte*       aDataOut,
     size_t          leftToWrite     = aSize.ValueAs<size_t>();
     const size_t    finalWriteBits  = leftToWrite;
 
-    const u_int_8*  dataIn          = reinterpret_cast<const u_int_8*>(iStorage.Data());
-    u_int_8*        dataOut         = reinterpret_cast<u_int_8*>(aDataOut);
+    const std::byte*    dataIn      = iStorage.Data();
+    std::byte*          dataOut     = aDataOut;
 
     while (leftToWrite > 0)
     {
@@ -40,7 +40,7 @@ void    GpBitReader::Bits (std::byte*       aDataOut,
         const size_t writeMask          = (size_t(1) << writeBitSH) - size_t(1);
         const size_t writeByte          = size_t(dataOut[writeByteID]);
 
-        dataOut[writeByteID]            = u_int_8((writeByte & writeMask) | (readByte << writeBitSH));
+        dataOut[writeByteID]            = std::byte((writeByte & writeMask) | (readByte << writeBitSH));
 
         leftToRead  -= partSize;
         leftToWrite -= partSize;

@@ -11,33 +11,43 @@ namespace GPlatform {
 template<typename T>
 class GpRawPtrR
 {
-    static_assert (std::is_pointer_v<T>, "T must be pointer");
+    static_assert(std::is_pointer_v<T>, "T must be pointer");
+
 
 public:
-    using this_type             = GpRawPtrR<T>;
-    using value_type            = std::remove_cvref_t<std::remove_pointer_t<T>>;
-    using pointer_type          = value_type*;
-    using pointer_type_const    = const value_type*;
+    using this_type     = GpRawPtrR<T>;
+    using value_type    = std::remove_cvref_t<std::remove_pointer_t<T>>;
 
 public:
                                     GpRawPtrR           (void) noexcept = delete;
     constexpr                       GpRawPtrR           (const this_type& aRawPtr) noexcept;
     constexpr                       GpRawPtrR           (this_type&& aRawPtr) noexcept;
     constexpr                       GpRawPtrR           (T aPtr, const count_t aCount);
+    constexpr                       GpRawPtrR           (T aPtr, const size_byte_t aSize);
                                     ~GpRawPtrR          (void) noexcept = default;
 
     constexpr count_t               CountTotal          (void) const noexcept {return iCount;}
     constexpr count_t               CountLeft           (void) const noexcept {return iCount - iOffset;}
     constexpr count_t               LengthTotal         (void) const noexcept {return iCount;}
     constexpr count_t               LengthLeft          (void) const noexcept {return iCount - iOffset;}
-    constexpr size_byte_t           SizeTotal           (void) const {return size_byte_t::SMake((CountTotal() * count_t::SMake(sizeof(value_type))).Value());}
-    constexpr size_byte_t           SizeLeft            (void) const {return size_byte_t::SMake((CountLeft() * count_t::SMake(sizeof(value_type))).Value());}
+    constexpr size_byte_t           SizeTotal           (void) const {return (CountTotal() * count_t::SMake(sizeof(value_type))).template ValueAs<size_byte_t>();}
+    constexpr size_byte_t           SizeLeft            (void) const {return (CountLeft()  * count_t::SMake(sizeof(value_type))).template ValueAs<size_byte_t>();}
 
     constexpr void                  OffsetAdd           (const count_t aOffset);
     constexpr void                  OffsetSub           (const count_t aOffset);
 
-    constexpr pointer_type_const    Ptr                 (void) const;
-    constexpr pointer_type_const    Ptr                 (const count_t aOffset) const;
+    template<typename DerivedT>
+    constexpr DerivedT              Subrange            (const count_t aOffset, const count_t aCount) const;
+
+    constexpr const value_type*     Ptr                 (void) const;
+    constexpr const value_type*     Ptr                 (const count_t aOffset) const;
+
+    template<typename R>
+    constexpr R                     PtrAs               (void) const;
+
+    template<typename R>
+    constexpr R                     PtrAs               (const count_t aOffset) const;
+
     constexpr const value_type&     At                  (const count_t aOffset) const;
     constexpr const value_type&     operator*           (void) const;
     constexpr const value_type&     operator[]          (const count_t aOffset) const;
@@ -55,7 +65,7 @@ public:
     constexpr bool                  IsEqualByThisLen    (const this_type& aRawPtr) const noexcept;
     constexpr bool                  IsEqualByArgLen     (const this_type& aRawPtr) const noexcept;
 
-    constexpr std::string_view      AsStringView        (void) const noexcept {return std::string_view();}
+    constexpr std::string_view      AsStringView        (void) const;
 
 protected:
     T               iPtr    = nullptr;
@@ -90,6 +100,18 @@ iOffset(0_cnt)
 }
 
 template<typename T> constexpr
+GpRawPtrR<T>::GpRawPtrR (T aPtr, const size_byte_t aSize):
+iPtr(aPtr),
+iCount(aSize.ValueAs<count_t>()),
+iOffset(0_cnt)
+{
+    static_assert(sizeof(value_type) == 1);
+
+    THROW_GPE_COND_CHECK_M(iPtr != nullptr, "nullptr"_sv);
+    THROW_GPE_COND_CHECK_M(iCount >= 1_cnt, "Count is less than 1"_sv);
+}
+
+template<typename T> constexpr
 void    GpRawPtrR<T>::OffsetAdd (const count_t aOffset)
 {
     const count_t countLeft = CountLeft();
@@ -108,18 +130,49 @@ void    GpRawPtrR<T>::OffsetSub (const count_t aOffset)
     iPtr    -= aOffset.ValueAs<size_t>();
 }
 
+template<typename T>
+template<typename DerivedT> constexpr
+DerivedT    GpRawPtrR<T>::Subrange (const count_t aOffset, const count_t aCount) const
+{
+    const count_t countLeft = CountLeft();
+
+    THROW_GPE_COND_CHECK_M((aOffset + aCount) <= countLeft, "Out of range"_sv);
+
+    return DerivedT(iPtr + aOffset.ValueAs<size_t>(), aCount);
+}
+
 template<typename T> constexpr
-typename GpRawPtrR<T>::pointer_type_const  GpRawPtrR<T>::Ptr (void) const
+const typename GpRawPtrR<T>::value_type*  GpRawPtrR<T>::Ptr (void) const
 {
     return Ptr(0_cnt);
 }
 
 template<typename T> constexpr
-typename GpRawPtrR<T>::pointer_type_const  GpRawPtrR<T>::Ptr (const count_t aOffset) const
+const typename GpRawPtrR<T>::value_type*  GpRawPtrR<T>::Ptr (const count_t aOffset) const
 {
     const count_t countLeft = CountLeft();
     THROW_GPE_COND_CHECK_M(aOffset < countLeft, "Out of range"_sv);
     return iPtr + aOffset.ValueAs<size_t>();
+}
+
+template<typename T>
+template<typename R>
+constexpr
+R   GpRawPtrR<T>::PtrAs (void) const
+{
+    return PtrAs<R>(0_cnt);
+}
+
+template<typename T>
+template<typename R>
+constexpr
+R   GpRawPtrR<T>::PtrAs (const count_t aOffset) const
+{
+    using r_value_type = std::remove_cvref_t<std::remove_pointer_t<R>>;
+    static_assert(sizeof(value_type) == sizeof(r_value_type));
+    static_assert(alignof(value_type) == alignof(r_value_type));
+
+    return reinterpret_cast<R>(Ptr(aOffset));
 }
 
 template<typename T> constexpr
@@ -207,6 +260,15 @@ bool    GpRawPtrR<T>::IsEqualByArgLen (const this_type& aRawPtr) const noexcept
 
     return    (CountLeft() >= argCount)
            && (MemOps::SCompare(Ptr(), aRawPtr.Ptr(), argCount) == 0);
+}
+
+template<typename T> constexpr
+std::string_view    GpRawPtrR<T>::AsStringView (void) const
+{
+    static_assert(sizeof(value_type) == 1);
+
+    return std::string_view(PtrAs<const char*>(),
+                            LengthLeft().template ValueAs<size_t>());
 }
 
 }//GPlatform

@@ -32,6 +32,7 @@ public:
                                                 std::is_same_v<UNIT_TYPE, UNIT_TYPE_2>>::type;
 
     CLASS_TAG(GpUnit)
+    CLASS_TAG_DETECTOR(GpUnit)
 
 private:
     constexpr           GpUnit      (const T aValue) noexcept:
@@ -77,7 +78,13 @@ public:
     template<typename AsT>
     [[nodiscard]] constexpr AsT ValueAs (void) const noexcept
     {
-        return NumOps::SConvert<AsT, value_type>(iValue);
+        if constexpr (SHasTag_GpUnit<AsT>())
+        {
+            return AsT::SMake(Value());
+        } else
+        {
+            return NumOps::SConvert<AsT, value_type>(iValue);
+        }
     }
 
     [[nodiscard]] constexpr this_type Max (void) const noexcept
@@ -522,7 +529,7 @@ public:
             return d;
         } else if constexpr (std::is_integral<T>())
         {
-            using ratio_t = decltype(s::num);
+            using ratio_t = std::remove_cv_t<decltype(s::num)>;
 
             const ratio_t v = NumOps::SConvert<ratio_t>(aValue.Value());
             const ratio_t n = NumOps::SMul<ratio_t>(v, s::num);

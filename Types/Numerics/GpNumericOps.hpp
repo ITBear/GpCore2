@@ -277,7 +277,7 @@ public:
     }
 
     template<typename TO, typename FROM>
-    [[nodiscard]] static constexpr TO SConvertSafe (const FROM aValue) noexcept
+    [[nodiscard]] static constexpr TO SConvertSafe (const FROM aValueFrom) noexcept
     {
         static_assert(std::is_arithmetic<FROM>(), "FROM must be integral or floating point");
         static_assert(std::is_arithmetic<TO>(), "TO must be integral or floating point");
@@ -291,26 +291,38 @@ public:
 
             if constexpr(std::is_same<FROM, TO>())
             {
-                return TO(aValue);
+                return TO(aValueFrom);
             } else if constexpr ((unsigned_to(GpNumericOps::SMax<TO>()) >= unsigned_from(GpNumericOps::SMax<FROM>())) &&
                                  (signed_to(GpNumericOps::SMin<TO>()) <= signed_from(GpNumericOps::SMin<FROM>())))
             {
-                return TO(aValue);
+                return TO(aValueFrom);
             } else
             {
                 GP_TEMPLATE_THROW(TO, "FROM is out of range of TO");
             }
         } else if constexpr(std::is_floating_point<FROM>() && std::is_floating_point<TO>())
         {
-            return TO(aValue);
+            return TO(aValueFrom);
+        } else if constexpr(std::is_integral<FROM>() && std::is_floating_point<TO>())
+        {
+            return TO(aValueFrom);
+        } else if constexpr(std::is_floating_point<FROM>() && std::is_integral<TO>())
+        {
+            if ((aValueFrom > FROM(GpNumericOps::SMax<TO>())) ||
+                (aValueFrom < FROM(GpNumericOps::SMin<TO>())))
+            {
+                GpThrowCe<std::out_of_range>("GpNumericOps::SConvert out of range (B)");
+            }
+
+            return TO(aValueFrom);
         } else
         {
-            GP_TEMPLATE_THROW(TO, "FROM and TO must be both either integral or float");
+            GP_TEMPLATE_THROW(TO, "FROM and TO must be integral or float");
         }
     }
 
     template<typename TO, typename FROM>
-    [[nodiscard]] static constexpr TO SConvert (const FROM aValue)
+    [[nodiscard]] static constexpr TO SConvert (const FROM aValueFrom)
     {
         static_assert(std::is_arithmetic<FROM>(), "FROM must be integral or floating point");
         static_assert(std::is_arithmetic<TO>(), "TO must be integral or floating point");
@@ -324,23 +336,23 @@ public:
 
             if constexpr(std::is_same<FROM, TO>())
             {
-                return TO(aValue);
+                return TO(aValueFrom);
             } else if constexpr(unsigned_to(GpNumericOps::SMax<TO>()) >= unsigned_from(GpNumericOps::SMax<FROM>()))
             {
                 if constexpr(signed_to(GpNumericOps::SMin<TO>()) <= signed_from(GpNumericOps::SMin<FROM>()))
                 {
-                    return TO(aValue);
+                    return TO(aValueFrom);
                 } else
                 {
                     //FROM(Signed) -> TO(Unsigned)
                     //Check TO lower bound
 
-                    if (aValue < FROM(0))
+                    if (aValueFrom < FROM(0))
                     {
                         GpThrowCe<std::out_of_range>("GpNumericOps::SConvert out of range (A)");
                     }
 
-                    return TO(aValue);
+                    return TO(aValueFrom);
                 }
             } else
             {
@@ -348,30 +360,42 @@ public:
                 {
                     //Check TO upper bound
                     //Check TO lower bound
-                    if ((aValue > FROM(GpNumericOps::SMax<TO>())) ||
-                        (aValue < FROM(GpNumericOps::SMin<TO>())))
+                    if ((aValueFrom > FROM(GpNumericOps::SMax<TO>())) ||
+                        (aValueFrom < FROM(GpNumericOps::SMin<TO>())))
                     {
                         GpThrowCe<std::out_of_range>("GpNumericOps::SConvert out of range (B)");
                     }
 
-                    return TO(aValue);
+                    return TO(aValueFrom);
                 } else
                 {
                     //Check TO upper bound
-                    if (aValue > FROM(GpNumericOps::SMax<TO>()))
+                    if (aValueFrom > FROM(GpNumericOps::SMax<TO>()))
                     {
                         GpThrowCe<std::out_of_range>("GpNumericOps::SConvert out of range (C)");
                     }
 
-                    return TO(aValue);
+                    return TO(aValueFrom);
                 }
             }
         } else if constexpr(std::is_floating_point<FROM>() && std::is_floating_point<TO>())
         {
-            return TO(aValue);
+            return TO(aValueFrom);
+        } else if constexpr(std::is_integral<FROM>() && std::is_floating_point<TO>())
+        {
+            return TO(aValueFrom);
+        } else if constexpr(std::is_floating_point<FROM>() && std::is_integral<TO>())
+        {
+            if ((aValueFrom > FROM(GpNumericOps::SMax<TO>())) ||
+                (aValueFrom < FROM(GpNumericOps::SMin<TO>())))
+            {
+                GpThrowCe<std::out_of_range>("GpNumericOps::SConvert out of range (B)");
+            }
+
+            return TO(aValueFrom);
         } else
         {
-            GP_TEMPLATE_THROW(TO, "FROM and TO must be both either integral or float");
+            GP_TEMPLATE_THROW(TO, "FROM and TO must be integral or float");
         }
     }
 

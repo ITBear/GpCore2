@@ -13,6 +13,7 @@
 #   error Unknown value for STRICT ALIASING __restrict keyword
 #elif defined(GP_COMPILER_CLANG)
 #   define _R_ __restrict__
+#   define BUILTIN_OVERFLOW_CONSTEXPR
 #elif defined(GP_COMPILER_GCC)
 #   define _R_ __restrict
 #   define BUILTIN_OVERFLOW_CONSTEXPR

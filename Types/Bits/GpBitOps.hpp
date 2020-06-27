@@ -239,16 +239,16 @@ public:
         return (aValueA & aBitMask) == (aValueB & aBitMask);
     }
 
-    template<typename TValue, typename TShift> [[nodiscard]] static constexpr
-    TValue                          SHL                 (TValue aValue, TShift aShift) noexcept
+    template<typename TValue> [[nodiscard]] static constexpr
+    TValue                          SHL                 (const TValue aValue, const size_t aShift) noexcept
     {
-        return TValue(aValue << size_t(aShift));
+        return TValue(aValue << aShift);
     }
 
-    template<typename TValue, typename TShift> [[nodiscard]] static constexpr
-    TValue                          SHR                 (TValue aValue, TShift aShift) noexcept
+    template<typename TValue> [[nodiscard]] static constexpr
+    TValue                          SHR                 (const TValue aValue, const size_t aShift) noexcept
     {
-        return TValue(aValue >> size_t(aShift));
+        return TValue(aValue >> aShift);
     }
 
     template<typename T> [[nodiscard]] static constexpr

@@ -2,6 +2,7 @@
 
 #include "../Config/GpConfig.hpp"
 #include "../Types/Units/Other/count_t.hpp"
+#include "../Types/Units/Other/size_byte_t.hpp"
 
 #if defined(GP_USE_MEMORY_MNG)
 
@@ -150,6 +151,19 @@ public:
                                    const T* aElementsSrc)
     {
         SCopy(aElementsDst, aElementsSrc, 1_cnt);
+    }
+
+    template<typename T1, typename T2>
+    static constexpr void   SCopy (T1*                  aElementsDst,
+                                   const T2*            aElementsSrc,
+                                   const size_byte_t    aSize)
+    {
+        static_assert(   (std::is_same_v<T1, std::byte> || std::is_same_v<T1, char>)
+                      && (std::is_same_v<T2, std::byte> || std::is_same_v<T2, char>));
+
+        SCopy(reinterpret_cast<std::byte*>(aElementsDst),
+              reinterpret_cast<const std::byte*>(aElementsSrc),
+              aSize.ValueAs<count_t>());
     }
 
     template<typename T>

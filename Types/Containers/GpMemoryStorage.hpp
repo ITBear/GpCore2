@@ -16,8 +16,8 @@ public:
     CLASS_DECLARE_DEFAULTS(GpMemoryStorage);
 
 public:
-    using ViewR     = GpMemoryStorageViewR;
-    using ViewRW    = GpMemoryStorageViewRW;
+    using ViewRT    = GpMemoryStorageViewR;
+    using ViewRWT   = GpMemoryStorageViewRW;
 
 protected:
                                 GpMemoryStorage     (void) noexcept = default;
@@ -25,18 +25,22 @@ protected:
 public:
     virtual                     ~GpMemoryStorage    (void) noexcept = default;
 
-    virtual void                Clear               (void) noexcept = 0;
-    virtual void                Allocate            (size_byte_t aSize) = 0;
-    virtual void                Resize              (size_byte_t aSize) = 0;
-    virtual void                Set                 (GpMemoryStorage&& aStorage) = 0;
-    virtual void                Set                 (std::string_view aData) = 0;
+    virtual void                Clear               (void) = 0;
+    virtual void                Allocate            (const size_byte_t aSize) = 0;
+    virtual void                Resize              (const size_byte_t aSize) = 0;
     virtual size_byte_t         Size                (void) const noexcept = 0;
     virtual bool                IsEmpty             (void) const noexcept = 0;
+    virtual bool                IsViewing           (void) const noexcept = 0;
 
-    virtual ViewR::SP           ViewRead            (void) const = 0;
-    virtual ViewRW::SP          ViewReadWrite       (void) = 0;
+    virtual void                Set                 (GpMemoryStorage&& aStorage) = 0;
+    virtual void                Set                 (std::string_view aData) = 0;
+    virtual void                Set                 (GpRawPtrByteR aData) = 0;
+    virtual void                Set                 (GpRawPtrByteRW aData) = 0;
 
-    virtual GpMemoryStorage::SP New                 (void) const = 0;
+    virtual ViewRT::SP          VR                  (void) const = 0;
+    virtual ViewRWT::SP         VRW                 (void) = 0;
+
+    //virtual GpMemoryStorage::SP   New                 (void) const = 0;
 };
 
 }//GPlatform
