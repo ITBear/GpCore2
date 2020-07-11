@@ -13,7 +13,6 @@
 #include "../Units/Other/count_t.hpp"
 #include "../Units/Other/size_byte_t.hpp"
 #include "../../Algorithms/GpSplit.hpp"
-#include "GpRawPtrChar.hpp"
 
 #include <variant>
 

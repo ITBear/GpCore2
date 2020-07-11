@@ -28,8 +28,8 @@ public:
     using this_type     = GpUnit<T, UNIT_TYPE, SCALE, UNIT_NAME>;
 
     template<typename T_2, typename UNIT_TYPE_2>
-    using Convertible = typename std::enable_if<std::is_same_v<T, T_2> &&
-                                                std::is_same_v<UNIT_TYPE, UNIT_TYPE_2>>::type;
+    using Convertible   = std::enable_if_t<   std::is_same_v<T, T_2>
+                                           && std::is_same_v<UNIT_TYPE, UNIT_TYPE_2>, int>;
 
     CLASS_TAG(GpUnit)
     CLASS_TAG_DETECTOR(GpUnit)
@@ -55,7 +55,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     constexpr           GpUnit      (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2>& aValue):
                         iValue(SConvertFrom(aValue))
                         {}
@@ -78,7 +78,7 @@ public:
     template<typename AsT>
     [[nodiscard]] constexpr AsT ValueAs (void) const noexcept
     {
-        if constexpr (SHasTag_GpUnit<AsT>())
+        if constexpr (SHasTag_GpUnit<AsT>)
         {
             return AsT::SMake(Value());
         } else
@@ -111,7 +111,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     constexpr void Set (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue)
     {
         iValue = SConvertFrom(aValue);
@@ -126,7 +126,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     [[nodiscard]] constexpr bool    IsEqual (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue) const
     {
         return NumOps::SIsEqual<T>(iValue, SConvertFrom(aValue));
@@ -141,7 +141,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     [[nodiscard]] constexpr bool    IsNotEqual (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue) const
     {
         return NumOps::SIsNotEqual<T>(iValue, SConvertFrom(aValue));
@@ -156,7 +156,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     [[nodiscard]] constexpr bool    IsLess (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue) const
     {
         return NumOps::SIsLess<T>(iValue, SConvertFrom(aValue));
@@ -171,7 +171,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     [[nodiscard]] constexpr bool    IsLessOrEqual(const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue) const
     {
         return NumOps::SIsLessOrEqual(iValue, SConvertFrom(aValue));
@@ -186,7 +186,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     [[nodiscard]] constexpr bool    IsGrater (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue) const
     {
         return NumOps::SIsGreater(iValue, SConvertFrom(aValue));
@@ -201,7 +201,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     [[nodiscard]] constexpr bool    IsGraterOrEqual (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue) const
     {
         return NumOps::SIsGreaterOrEqual(iValue, SConvertFrom(aValue));
@@ -216,7 +216,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     [[nodiscard]] constexpr bool    operator== (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue) const noexcept
     {
         return IsEqual(aValue);
@@ -231,7 +231,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     [[nodiscard]] constexpr bool    operator!= (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue) const noexcept
     {
         return IsNotEqual(aValue);
@@ -246,7 +246,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     [[nodiscard]] constexpr bool    operator> (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue) const noexcept
     {
         return IsGrater(aValue);
@@ -261,7 +261,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     [[nodiscard]] constexpr bool    operator>= (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue) const noexcept
     {
         return IsGraterOrEqual(aValue);
@@ -276,7 +276,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     [[nodiscard]] constexpr bool    operator< (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue) const noexcept
     {
         return IsLess(aValue);
@@ -291,7 +291,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     [[nodiscard]] constexpr bool    operator<= (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue) const noexcept
     {
         return IsLessOrEqual(aValue);
@@ -332,7 +332,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     constexpr this_type&    operator=   (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue)
     {
         iValue = SConvertFrom(aValue);
@@ -349,7 +349,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     constexpr this_type&    operator+=  (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue)
     {
         iValue = NumOps::SAdd<T>(iValue, SConvertFrom(aValue));
@@ -366,7 +366,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     constexpr this_type&    operator-= (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue)
     {
         iValue = NumOps::SSub<T>(iValue, SConvertFrom(aValue));
@@ -383,7 +383,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     constexpr this_type&    operator*= (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue)
     {
         iValue = NumOps::SMul<T>(iValue, SConvertFrom(aValue));
@@ -400,7 +400,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     constexpr this_type&    operator/=  (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue)
     {
         iValue = NumOps::SDiv<T>(iValue, SConvertFrom(aValue));
@@ -417,7 +417,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     constexpr this_type&    operator%= (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue)
     {
         iValue = NumOps::SMod<T>(iValue, SConvertFrom(aValue));
@@ -439,7 +439,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     constexpr friend const this_type operator+ (const this_type aLeft, const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aRight)
     {
         return this_type(NumOps::SAdd<T>(aLeft.Value(), SConvertFrom(aRight)));
@@ -454,7 +454,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     constexpr friend const this_type operator-(const this_type aLeft, const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aRight)
     {
         return this_type(NumOps::SSub<T>(aLeft.Value(), SConvertFrom(aRight)));
@@ -469,7 +469,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     constexpr friend const this_type operator*(const this_type aLeft, const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aRight)
     {
         return this_type(NumOps::SMul<T>(aLeft.Value(), SConvertFrom(aRight)));
@@ -484,7 +484,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     constexpr friend const this_type operator/(const this_type aLeft, const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aRight)
     {
         return this_type(NumOps::SDiv<T>(aLeft.Value(), SConvertFrom(aRight)));
@@ -499,7 +499,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     constexpr friend const this_type operator%(const this_type aLeft, const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aRight)
     {
         return this_type(NumOps::SMod<T>(aLeft.Value(), SConvertFrom(aRight)));
@@ -515,7 +515,7 @@ public:
              typename UNIT_TYPE_2,
              typename SCALE_2,
              typename UNIT_NAME_2,
-             typename = Convertible<T_2, UNIT_TYPE_2>>
+             Convertible<T_2, UNIT_TYPE_2> = 0>
     constexpr static T  SConvertFrom (const GpUnit<T_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2> aValue)
     {
         using scale_ratio_2 = SCALE_2;

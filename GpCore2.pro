@@ -237,12 +237,10 @@ HEADERS += \
 	Types/Numerics/GpNumericTypes.hpp \
 	Types/Numerics/GpNumerics.hpp \
 	Types/Pointers/GpPointers.hpp \
-	Types/Pointers/GpRawPtrR.hpp \
-	Types/Pointers/GpRawPtrRW.hpp \
+	Types/Pointers/GpRawPtr.hpp \
 	Types/Pointers/GpReferenceCounter.hpp \
 	Types/Pointers/GpReferenceStorage.hpp \
 	Types/Pointers/GpSharedPtr.hpp \
-	Types/Strings/GpRawPtrChar.hpp \
 	Types/Strings/GpStringLiterals.hpp \
 	Types/Strings/GpStringOps.hpp \
 	Types/Strings/GpStringOpsGlob.hpp \
@@ -335,6 +333,7 @@ SOURCES += \
 	Types/DateTime/GpDateTimeOps.cpp \
 	Types/Enums/GpEnum.cpp \
 	Types/Numerics/GpNumericOps.cpp \
+	Types/Pointers/GpRawPtr.cpp \
 	Types/Strings/GpStringOps.cpp \
 	Types/TypeSystem/GpType.cpp \
 	Types/TypeSystem/GpTypeContainer.cpp \

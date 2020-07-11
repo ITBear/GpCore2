@@ -31,8 +31,8 @@ public:
     //      Derived -> const Base OK
     //const Derived ->       Base Error
     template<typename FROM, typename TO>
-    using IsConvertible = typename std::enable_if<IsBaseOf<TO, FROM>::value &&
-                                                  !(FROM::SIsConst() && !TO::SIsConst())
+    using IsConvertible = typename std::enable_if<   IsBaseOf<TO, FROM>::value
+                                                  && !(FROM::SIsConst() && !TO::SIsConst())
                                                  >::type;
 
 public:

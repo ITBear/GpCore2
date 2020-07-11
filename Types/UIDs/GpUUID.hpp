@@ -61,8 +61,8 @@ public:
     static GpUUID                       SGenRandom      (void);
     static GpUUID                       SFromString     (std::string_view aStr);
 
-    inline static constexpr DataT       CE_FromString   (std::string_view aStr);
-    inline static constexpr DataT       CE_Zero         (void);
+    inline static consteval DataT       CE_FromString   (std::string_view aStr);
+    inline static consteval DataT       CE_Zero         (void);
 
 private:
     DataT                               iData;
@@ -177,7 +177,7 @@ constexpr bool  GpUUID::operator!= (const DataT& aData) const noexcept
     return MemOps::SCompare(iData, aData) != 0;
 }
 
-constexpr GpUUID::DataT GpUUID::CE_FromString (std::string_view aStr)
+consteval GpUUID::DataT GpUUID::CE_FromString (std::string_view aStr)
 {
     if (aStr.length() != 36)
     {
@@ -229,7 +229,7 @@ constexpr GpUUID::DataT GpUUID::CE_FromString (std::string_view aStr)
     return uuid;*/
 }
 
-constexpr GpUUID::DataT GpUUID::CE_Zero (void)
+consteval GpUUID::DataT GpUUID::CE_Zero (void)
 {
     return DataT {std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0),
                   std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0)};

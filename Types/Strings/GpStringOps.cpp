@@ -41,7 +41,7 @@ count_t GpStringOps::SFromUI64 (const UInt64    aValue,
 {
     const count_t length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(aValue.ValueAs<u_int_64>()));
 
-    THROW_GPE_COND_CHECK_M(aStrOut.LengthLeft() >= length, "aStrOut size are too small"_sv);
+    THROW_GPE_COND_CHECK_M(aStrOut.CountLeft() >= length, "aStrOut size are too small"_sv);
 
     _SFromUI64(aValue, GpRawPtrCharRW(aStrOut.Ptr(), length));
 
@@ -69,7 +69,7 @@ count_t GpStringOps::SFromSI64 (const SInt64    aValue,
         const UInt64 v = UInt64::SBitCast(aValue);
         length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(v.ValueAs<u_int_64>()));
 
-        THROW_GPE_COND_CHECK_M(aStrOut.LengthLeft() >= length, "aStrOut size are too small"_sv);
+        THROW_GPE_COND_CHECK_M(aStrOut.CountLeft() >= length, "aStrOut size are too small"_sv);
 
         _SFromUI64(v, GpRawPtrCharRW(aStrOut.Ptr(), length));
     } else
@@ -77,7 +77,7 @@ count_t GpStringOps::SFromSI64 (const SInt64    aValue,
         const UInt64 v = UInt64::SBitCast(-aValue);
         length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(v.ValueAs<u_int_64>()));
 
-        THROW_GPE_COND_CHECK_M(aStrOut.LengthLeft() >= (length + 1_cnt), "StrOut size are too small"_sv);
+        THROW_GPE_COND_CHECK_M(aStrOut.CountLeft() >= (length + 1_cnt), "StrOut size are too small"_sv);
 
         *aStrOut++ = '-';
         _SFromUI64(v, GpRawPtrCharRW(aStrOut.Ptr(), length));
@@ -123,7 +123,7 @@ count_t GpStringOps::SFromDouble (const double      aValue,
 
     const count_t length = count_t::SMake(s.length());
 
-    THROW_GPE_COND_CHECK_M(aStrOut.LengthLeft() >= length, "aMaxOutLength value are too small"_sv);
+    THROW_GPE_COND_CHECK_M(aStrOut.CountLeft() >= length, "aMaxOutLength value are too small"_sv);
 
     SReplace(s, ',', '.');
 
@@ -145,7 +145,7 @@ UInt64  GpStringOps::SToUI64 (std::string_view aStr)
     GpRawPtrCharR   str(aStr);
     UInt64          res = 0_u_int_64;
 
-    while (str.LengthLeft() > 0_cnt)
+    while (str.CountLeft() > 0_cnt)
     {
         const char ch = *str++;
 
@@ -273,12 +273,12 @@ std::variant<SInt64, double>    GpStringOps::SToNumeric (std::string_view aStr)
 count_t GpStringOps::SFromBytes (GpRawPtrByteR  aData,
                                  GpRawPtrCharRW aStrOut)
 {
-    const count_t dataLength    = aData.LengthLeft();
-    const count_t strOutLength  = aStrOut.LengthLeft();
+    const count_t dataLength    = aData.CountLeft();
+    const count_t strOutLength  = aStrOut.CountLeft();
 
     THROW_GPE_COND_CHECK_M(strOutLength >= (dataLength * 2_cnt), "Out string size is too small"_sv);
 
-    while (aData.LengthLeft() > 0_cnt)
+    while (aData.CountLeft() > 0_cnt)
     {
         const size_t b  = size_t(*aData++);
         const size_t lo = (b & size_t(0x0F)) >> 0;
@@ -343,10 +343,10 @@ size_byte_t GpStringOps::SToBytes (std::string_view aStr,
     //
     GpRawPtrCharR strHexPtr(strHex);
 
-    const count_t outSize = strHexPtr.LengthLeft() / 2_cnt;
+    const count_t outSize = strHexPtr.CountLeft() / 2_cnt;
     THROW_GPE_COND_CHECK_M(aDataOut.CountLeft() >= outSize, "Out data size is too small"_sv);
 
-    while (strHexPtr.LengthLeft() > 0_cnt)
+    while (strHexPtr.CountLeft() > 0_cnt)
     {
         GpArray<char,2> s = {*strHexPtr++, *strHexPtr++};
         *aDataOut++ = SToByte(s);
@@ -381,12 +381,12 @@ size_byte_t GpStringOps::SToBytes (std::string_view aStr,
     GpRawPtrCharR strHexPtr(strHex);
 
     const count_t oldSize   = count_t::SMake(aDataOut.size());
-    const count_t outSize   = strHexPtr.LengthLeft() / 2_cnt;
+    const count_t outSize   = strHexPtr.CountLeft() / 2_cnt;
     aDataOut.resize((oldSize + outSize).ValueAs<size_t>());
 
-    GpRawPtrByteRW dataOut(aDataOut.data() + oldSize.ValueAs<size_t>(), outSize.ValueAs<size_byte_t>());
+    GpRawPtrByteRW dataOut(aDataOut.data() + oldSize.ValueAs<size_t>(), outSize);
 
-    while (strHexPtr.LengthLeft() > 0_cnt)
+    while (strHexPtr.CountLeft() > 0_cnt)
     {
         GpArray<char,2> s = {*strHexPtr++, *strHexPtr++};
         *dataOut++ = SToByte(s);
@@ -506,7 +506,7 @@ void    GpStringOps::_SFromUI64 (const UInt64   aValue,
     u_int_64        value   = aValue.ValueAs<u_int_64>();
     const char* _R_ digits  = SDigits().data();
 
-    aStrOut += (aStrOut.LengthLeft() - 2_cnt);
+    aStrOut += (aStrOut.CountLeft() - 2_cnt);
 
     while (value >= 100)
     {

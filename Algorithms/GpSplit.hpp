@@ -3,7 +3,7 @@
 #include "../Types/Units/GpUnits.hpp"
 #include "../Types/Strings/GpStringOpsGlob.hpp"
 #include "../Types/Strings/GpStringLiterals.hpp"
-#include "../Types/Pointers/GpRawPtrR.hpp"
+#include "../Types/Pointers/GpRawPtr.hpp"
 #include "../Memory/GpMemOps.hpp"
 #include "../Exceptions/GpExceptions.hpp"
 
@@ -30,7 +30,7 @@ ContainerRes    Split (RawPtrT          aElements,
     const Element*  partBegin   = aElements.Ptr();
     count_t         partLength  = 0_cnt;
     count_t         delimCount  = 0_cnt;
-    const count_t   delimLength = aDelim.LengthLeft();
+    const count_t   delimLength = aDelim.CountLeft();
     count_t         elementsLeft= aElements.CountLeft();
 
     ContainerRes res;
