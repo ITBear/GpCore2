@@ -15,6 +15,7 @@ OUT_BUILD_PATH  = ./../../../Bin_tmp/
 compiler_gcc{
 	QMAKE_CC		=	gcc-10
 	QMAKE_CXX		=	g++-10
+	QMAKE_LINK		=	g++-10
 }else:compiler_clang{
 	QMAKE_CXXFLAGS	+= -stdlib=libc++
 	QMAKE_LFLAGS    += -stdlib=libc++
@@ -221,9 +222,6 @@ HEADERS += \
 	Types/Containers/GpContainersT.hpp \
 	Types/Containers/GpElementsCatalog.hpp \
 	Types/Containers/GpElementsPool.hpp \
-	Types/Containers/GpMemoryStorage.hpp \
-	Types/Containers/GpMemoryStorageViewR.hpp \
-	Types/Containers/GpMemoryStorageViewRW.hpp \
 	Types/Containers/GpRawPtrByte.hpp \
 	Types/Containers/GpRawPtrNumerics.hpp \
 	Types/Containers/GpTypeShell.hpp \

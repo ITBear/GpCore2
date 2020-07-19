@@ -6,14 +6,11 @@ namespace GPlatform {
 
 class GPCORE_API GpBitWriterStorage
 {
-    CLASS_REMOVE_CTRS(GpBitWriterStorage);
+    CLASS_REMOVE_CTRS(GpBitWriterStorage)
 
 protected:
-    inline                  GpBitWriterStorage  (std::byte*         aData,
-                                                 const size_bit_t   aSize) noexcept;
-    inline                  GpBitWriterStorage  (std::byte*         aData,
-                                                 const size_bit_t   aSize,
-                                                 const size_bit_t   aOffset) noexcept;
+    inline                  GpBitWriterStorage  (GpRawPtrByteRW     aDataOut,
+                                                 const size_bit_t   aOffset = 0_bit) noexcept;
 
 public:
     virtual                 ~GpBitWriterStorage (void) noexcept;
@@ -39,17 +36,10 @@ private:
     size_bit_t              iLeft;
 };
 
-GpBitWriterStorage::GpBitWriterStorage (std::byte*          aData,
-                                        const size_bit_t    aSize) noexcept:
-GpBitWriterStorage(aData, aSize, 0_bit)
-{
-}
-
-GpBitWriterStorage::GpBitWriterStorage (std::byte*          aData,
-                                        const size_bit_t    aSize,
+GpBitWriterStorage::GpBitWriterStorage (GpRawPtrByteRW      aDataOut,
                                         const size_bit_t    aOffset) noexcept:
-iData(aData),
-iSize(aSize),
+iData(aDataOut.Ptr()),
+iSize(aDataOut.CountLeftV<size_byte_t>()),
 iOffset(aOffset),
 iLeft(iSize)
 {

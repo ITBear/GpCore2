@@ -14,8 +14,8 @@ class GpPipeline;
 class GPCORE_API GpPipelineNode
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpPipelineNode);
-    CLASS_DECLARE_DEFAULTS(GpPipelineNode);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpPipelineNode)
+    CLASS_DECLARE_DEFAULTS(GpPipelineNode)
 
     using SocketT = GpPipelineNodeSocket;
 

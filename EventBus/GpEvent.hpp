@@ -13,8 +13,8 @@ namespace GPlatform {
 class GPCORE_API GpEvent
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpEvent);
-    CLASS_DECLARE_DEFAULTS(GpEvent);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpEvent)
+    CLASS_DECLARE_DEFAULTS(GpEvent)
 
 public:
                         GpEvent     (void) noexcept = default;

@@ -30,7 +30,7 @@ namespace GPlatform {
 class GpBitOperations
 {
 private:
-    CLASS_REMOVE_CTRS(GpBitOperations);
+    CLASS_REMOVE_CTRS(GpBitOperations)
 
 public:
     //------------------------------------ Network/Host byte order (N2H/H2N) --------------------------------

@@ -42,28 +42,13 @@ s_int_64    GpByteReader::GpByteReader::SInt64 (void)
     return ReadPOD<s_int_64>();
 }
 
-std::string_view    GpByteReader::BytesWithLen (void)
+GpRawPtrByteR   GpByteReader::BytesWithLen (void)
 {
     //Length
     const size_byte_t size = size_byte_t::SMake(CompactSInt32());
 
     //Data
     return Bytes(size);
-}
-
-std::string_view    GpByteReader::Bytes (const size_byte_t aSize)
-{
-    const size_t size = aSize.ValueAs<size_t>();
-    const size_t left = iStorage.Left().ValueAs<size_t>();
-
-    THROW_GPE_COND_CHECK_M(left < size, "Out of range"_sv);
-
-    std::string_view res = std::string_view(reinterpret_cast<const char*>(iStorage.Data() + (iStorage.Size().ValueAs<size_t>() - left)),
-                                            size);
-
-    iStorage.SetLeftSub(aSize);
-
-    return res;
 }
 
 s_int_32    GpByteReader::CompactSInt32 (void)

@@ -14,8 +14,8 @@ namespace GPlatform {
 class GPCORE_API GpTaskFiber: public GpTask
 {   
 public: 
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFiber);
-    CLASS_DECLARE_DEFAULTS(GpTaskFiber);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFiber)
+    CLASS_DECLARE_DEFAULTS(GpTaskFiber)
 
     using StageT = GpTaskFiberStage;
 

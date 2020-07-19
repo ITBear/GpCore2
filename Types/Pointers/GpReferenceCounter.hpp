@@ -14,7 +14,7 @@ namespace GPlatform {
 
 class GpReferenceCounter
 {
-    CLASS_REMOVE_CTRS(GpReferenceCounter);
+    CLASS_REMOVE_CTRS(GpReferenceCounter)
 
 protected:
     inline          GpReferenceCounter  (const count_t aCounterValue, void* aValuePtr) noexcept;

@@ -15,7 +15,7 @@ class GpRandom;
 class GPCORE_API GpUUID
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpUUID);
+    CLASS_DECLARE_DEFAULTS(GpUUID)
 
     using DataT = GpArray<std::byte, 16>;
 

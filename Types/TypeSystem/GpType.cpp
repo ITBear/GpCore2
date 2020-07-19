@@ -4,7 +4,7 @@
 
 namespace GPlatform {
 
-GP_ENUM_IMPL(GpType);
+GP_ENUM_IMPL(GpType)
 
 }//GPlatform
 

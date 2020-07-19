@@ -16,7 +16,7 @@ namespace GPlatform {
 
 class GpMemOps
 {
-    CLASS_REMOVE_CTRS(GpMemOps);
+    CLASS_REMOVE_CTRS(GpMemOps)
 
 public:
     struct VoidDeleter

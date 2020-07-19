@@ -10,7 +10,7 @@ namespace GPlatform {
 
 class GpTaskAccessor
 {
-    CLASS_REMOVE_CTRS(GpTaskAccessor);
+    CLASS_REMOVE_CTRS(GpTaskAccessor)
 
 public:
     using StateT    = GpTaskState;

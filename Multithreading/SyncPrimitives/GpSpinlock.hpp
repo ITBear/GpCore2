@@ -12,7 +12,7 @@ namespace GPlatform{
 
 class GpSpinlock
 {
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpSpinlock);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpSpinlock)
 
 public:
             GpSpinlock  (void) noexcept :iState(false) {}

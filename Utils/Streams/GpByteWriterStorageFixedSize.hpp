@@ -6,19 +6,15 @@ namespace GPlatform {
 
 class GPCORE_API GpByteWriterStorageFixedSize final: public GpByteWriterStorage
 {
-    CLASS_REMOVE_CTRS(GpByteWriterStorageFixedSize);
+    CLASS_REMOVE_CTRS(GpByteWriterStorageFixedSize)
 
 public:
-    inline                  GpByteWriterStorageFixedSize    (std::byte*         aData,
-                                                             const size_byte_t  aSize) noexcept;
+    inline                  GpByteWriterStorageFixedSize    (GpRawPtrByteRW aDataOut) noexcept;
     virtual                 ~GpByteWriterStorageFixedSize   (void) noexcept override final;
-
-    virtual void            AllocateNext                    (const size_byte_t aSize) override final;
 };
 
-GpByteWriterStorageFixedSize::GpByteWriterStorageFixedSize (std::byte*          aData,
-                                                            const size_byte_t   aSize) noexcept:
-GpByteWriterStorage(aData, aSize)
+GpByteWriterStorageFixedSize::GpByteWriterStorageFixedSize (GpRawPtrByteRW aDataOut) noexcept:
+GpByteWriterStorage(aDataOut)
 {
 }
 

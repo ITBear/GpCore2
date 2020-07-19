@@ -42,57 +42,22 @@ void    GpByteWriter::SInt64 (const s_int_64 aValue)
     WritePOD<decltype(aValue)>(aValue);
 }
 
-void    GpByteWriter::BytesWithLen (std::string_view aValue)
+void    GpByteWriter::BytesWithLen (GpRawPtrByteR aData)
 {
-    BytesWithLen(reinterpret_cast<const std::byte*>(aValue.data()),
-                  size_byte_t::SMake(aValue.size()));
+    CompactSInt32(aData.CountLeftV<s_int_32>());
+    Bytes(aData);
 }
 
-void    GpByteWriter::Bytes (std::string_view aValue)
+void    GpByteWriter::Bytes (GpRawPtrByteR aData)
 {
-    Bytes(reinterpret_cast<const std::byte*>(aValue.data()),
-          size_byte_t::SMake(aValue.size()));
-}
+    const size_byte_t dataSize = aData.SizeLeft();
 
-void    GpByteWriter::BytesWithLen (const GpBytesArray& aValue)
-{
-    BytesWithLen(aValue.data(),
-                 size_byte_t::SMake(aValue.size()));
-}
-
-void    GpByteWriter::Bytes (const GpBytesArray& aValue)
-{
-    Bytes(aValue.data(),
-          size_byte_t::SMake(aValue.size()));
-}
-
-void    GpByteWriter::BytesWithLen (const std::byte* aData, const size_byte_t aSize)
-{
-    CompactSInt32(aSize.ValueAs<s_int_32>());
-    Bytes(aData, aSize);
-}
-
-void    GpByteWriter::Bytes (const std::byte* aData,  const size_byte_t aSize)
-{
-    if ((aData == nullptr) || (aSize == 0_byte))
+    if (iStorage.SizeLeft() < dataSize)
     {
-        return;
+        iStorage.AllocateNext(dataSize);
     }
 
-    //Data
-    size_bit_t left = iStorage.Left();
-
-    if (left < aSize)
-    {
-        iStorage.AllocateNext(aSize);
-        left = iStorage.Left();
-    }
-
-    std::memcpy(iStorage.Data() + (iStorage.Size() - left).ValueAs<size_t>(),
-                aData,
-                aSize.ValueAs<size_t>());
-
-    iStorage.SetLeftSub(aSize);
+    iStorage.WriteAndShift(aData);
 }
 
 void    GpByteWriter::CompactSInt32 (const s_int_32 aValue)

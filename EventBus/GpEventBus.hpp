@@ -12,8 +12,8 @@ namespace GPlatform {
 class GPCORE_API GpEventBus
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpEventBus);
-    CLASS_DECLARE_DEFAULTS(GpEventBus);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpEventBus)
+    CLASS_DECLARE_DEFAULTS(GpEventBus)
 
 public:
                                     GpEventBus  (void) noexcept;

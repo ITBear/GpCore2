@@ -8,21 +8,20 @@ GpByteWriterStorageByteArray::~GpByteWriterStorageByteArray (void) noexcept
 
 void    GpByteWriterStorageByteArray::AllocateNext (const size_byte_t aSize)
 {
-    const size_byte_t left = Left();
+    const count_t sizeToWrite   = aSize.ValueAs<count_t>();
+    const count_t left          = iDataOut.CountLeft();
 
-    if (left >= aSize)
+    if (left >= sizeToWrite)
     {
         return;
     }
 
-    const size_byte_t delta     = aSize - left;
-    const size_byte_t newSize   = size_byte_t::SMake(iOut.size()) + delta;
+    const count_t used          = iDataOut.Offset();
+    const count_t deltaToAdd    = sizeToWrite - left;
+    const count_t newSize       = count_t::SMake(iOut.size()) + deltaToAdd;
 
     iOut.resize(newSize.ValueAs<size_t>());
-
-    SetSize(newSize);
-    SetLeft(left + delta);
-    SetData(iOut.data() + (newSize - Left()).ValueAs<size_t>());
+    iDataOut.Set(iOut.data(), newSize, used);
 }
 
 }//namespace GPlatform

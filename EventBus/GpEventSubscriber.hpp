@@ -12,8 +12,8 @@ namespace GPlatform {
 class GPCORE_API GpEventSubscriber
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpEventSubscriber);
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpEventSubscriber);
+    CLASS_DECLARE_DEFAULTS(GpEventSubscriber)
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpEventSubscriber)
 
     enum class PushEvevtRes
     {

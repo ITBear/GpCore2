@@ -9,7 +9,7 @@ namespace GPlatform {
 
 class GPCORE_API GpRandomDeviceWin: public GpRandomDeviceIf
 {
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpRandomDeviceWin);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpRandomDeviceWin)
 
 public:
                                     GpRandomDeviceWin   (void) noexcept;

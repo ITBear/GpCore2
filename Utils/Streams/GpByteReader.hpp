@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCORE_API GpByteReader
 {
-    CLASS_REMOVE_CTRS(GpByteReader);
+    CLASS_REMOVE_CTRS(GpByteReader)
 
 public:
                             GpByteReader    (GpByteReaderStorage& aStorage) noexcept: iStorage(aStorage){}
@@ -20,8 +20,8 @@ public:
     s_int_32                SInt32          (void);
     u_int_64                UInt64          (void);
     s_int_64                SInt64          (void);
-    std::string_view        BytesWithLen    (void);
-    std::string_view        Bytes           (const size_byte_t aSize);
+    GpRawPtrByteR           BytesWithLen    (void);
+    GpRawPtrByteR           Bytes           (const size_byte_t aSize) {return iStorage.ReadAndShift(aSize);}
 
     s_int_32                CompactSInt32   (void);
 
@@ -29,10 +29,10 @@ private:
     template<typename T>
     T                       ReadPOD         (void)
     {
-        std::string_view data = Bytes(size_byte_t::SMake(sizeof(T)));
+        GpRawPtrByteR data = Bytes(size_byte_t::SMake(sizeof(T)));
 
         T val;
-        std::memcpy(&val, data.data(), data.size());
+        std::memcpy(&val, data.PtrBegin(), data.CountTotalV<size_t>());
         val = BitOps::H2N(val);
         return val;
     }

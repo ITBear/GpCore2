@@ -13,8 +13,8 @@ namespace GPlatform {
 class GPCORE_API GpPipelineEvaluateCtx: public GpTaskFiber
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpPipelineEvaluateCtx);
-    CLASS_DECLARE_DEFAULTS(GpPipelineEvaluateCtx);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpPipelineEvaluateCtx)
+    CLASS_DECLARE_DEFAULTS(GpPipelineEvaluateCtx)
 
 protected:
                         GpPipelineEvaluateCtx   (void) noexcept = default;

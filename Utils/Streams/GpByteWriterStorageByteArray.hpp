@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCORE_API GpByteWriterStorageByteArray final: public GpByteWriterStorage
 {
-    CLASS_REMOVE_CTRS(GpByteWriterStorageByteArray);
+    CLASS_REMOVE_CTRS(GpByteWriterStorageByteArray)
 
 public:
     inline                  GpByteWriterStorageByteArray    (GpBytesArray& aOut) noexcept;
@@ -19,7 +19,7 @@ private:
 };
 
 GpByteWriterStorageByteArray::GpByteWriterStorageByteArray (GpBytesArray& aOut) noexcept:
-GpByteWriterStorage(aOut.data(), size_byte_t::SMake(aOut.size())),
+GpByteWriterStorage(GpRawPtrByteRW(aOut)),
 iOut(aOut)
 {
 }

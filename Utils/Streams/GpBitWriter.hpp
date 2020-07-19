@@ -6,13 +6,13 @@ namespace GPlatform {
 
 class GPCORE_API GpBitWriter
 {
-    CLASS_REMOVE_CTRS(GpBitWriter);
+    CLASS_REMOVE_CTRS(GpBitWriter)
 
 public:
                             GpBitWriter     (GpBitWriterStorage& aStorage) noexcept: iStorage(aStorage) {}
                             ~GpBitWriter    (void) noexcept = default;
 
-    void                    Bits            (const std::byte*   aData,
+    void                    Bits            (GpRawPtrByteR      aData,
                                              const size_bit_t   aSize);
 
     void                    UInt8           (const u_int_8 aValue);
@@ -36,6 +36,9 @@ public:
     size_bit_t              LeftToWite      (void) const noexcept {return iStorage.Left();}
 
 private:
+    void                    _Bits           (const std::byte*   aData,
+                                             const size_bit_t   aSize);
+
     template<typename T>
     void                    WritePOD        (const T aValue, const size_bit_t aSize)
     {
@@ -45,7 +48,7 @@ private:
 #if defined(GP_ORDER_BIG_ENDIAN)
         val = BitOps::BSwap(val);
 #endif
-        Bits(reinterpret_cast<const std::byte*>(&val), aSize);
+        _Bits(reinterpret_cast<const std::byte*>(&val), aSize);
     }
 
 private:

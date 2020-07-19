@@ -4,7 +4,7 @@
 
 namespace GPlatform {
 
-GP_ENUM_IMPL(GpPipelineNodeSocketDir);
+GP_ENUM_IMPL(GpPipelineNodeSocketDir)
 
 }//GPlatform
 

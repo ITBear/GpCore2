@@ -16,8 +16,8 @@ namespace GPlatform {
 class GPCORE_API GpTaskFiberCtx
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFiberCtx);
-    CLASS_DECLARE_DEFAULTS(GpTaskFiberCtx);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFiberCtx)
+    CLASS_DECLARE_DEFAULTS(GpTaskFiberCtx)
 
     using FiberRunFnT   = std::function<void(GpThreadStopToken)>;
 

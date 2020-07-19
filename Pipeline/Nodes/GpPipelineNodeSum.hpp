@@ -11,8 +11,8 @@ namespace GPlatform {
 class GPCORE_API GpPipelineNodeSum: public GpPipelineNode
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpPipelineNodeSum);
-    CLASS_DECLARE_DEFAULTS(GpPipelineNodeSum);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpPipelineNodeSum)
+    CLASS_DECLARE_DEFAULTS(GpPipelineNodeSum)
 
 public:
                                         GpPipelineNodeSum   (void) noexcept = default;

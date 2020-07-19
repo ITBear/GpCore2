@@ -11,7 +11,7 @@ namespace GPlatform {
 class GPCORE_API GpTypeInfo
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpTypeInfo);
+    CLASS_DECLARE_DEFAULTS(GpTypeInfo)
 
     using TypeT         = GpType;
     using TypeTE        = TypeT::EnumT;

@@ -13,8 +13,8 @@ namespace GPlatform {
 class GPCORE_API GpTypeManager
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTypeManager);
-    CLASS_DECLARE_DEFAULTS(GpTypeManager);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTypeManager)
+    CLASS_DECLARE_DEFAULTS(GpTypeManager)
     CLASS_TAG(THREAD_SAFE)
 
     using ElementsT = GpElementsCatalog<GpUUID, GpTypeInfo, GpMap>;

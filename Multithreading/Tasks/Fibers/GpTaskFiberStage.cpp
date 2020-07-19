@@ -5,7 +5,7 @@
 
 namespace GPlatform {
 
-GP_ENUM_IMPL(GpTaskFiberStage);
+GP_ENUM_IMPL(GpTaskFiberStage)
 
 }//GPlatform
 

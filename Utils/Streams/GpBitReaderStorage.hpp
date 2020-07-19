@@ -6,18 +6,11 @@ namespace GPlatform {
 
 class GPCORE_API GpBitReaderStorage
 {
-    CLASS_REMOVE_CTRS(GpBitReaderStorage);
+    CLASS_REMOVE_CTRS(GpBitReaderStorage)
 
 public:
-    inline                  GpBitReaderStorage  (const std::byte*   aData,
-                                                 const size_bit_t   aSize,
-                                                 const size_bit_t   aOffset) noexcept;
-    inline                  GpBitReaderStorage  (std::string_view   aData) noexcept;
-    inline                  GpBitReaderStorage  (std::string_view   aData,
-                                                 const size_bit_t   aOffset) noexcept;
-    inline                  GpBitReaderStorage  (const GpBytesArray&    aData) noexcept;
-    inline                  GpBitReaderStorage  (const GpBytesArray&    aData,
-                                                 const size_bit_t       aOffset) noexcept;
+    inline                  GpBitReaderStorage  (GpRawPtrByteR      aData,
+                                                 const size_bit_t   aOffset = 0_bit) noexcept;
 
                             ~GpBitReaderStorage (void) noexcept {}
 
@@ -34,43 +27,12 @@ private:
     size_bit_t              iLeft;
 };
 
-GpBitReaderStorage::GpBitReaderStorage (const std::byte*    aData,
-                                        const size_bit_t    aSize,
+GpBitReaderStorage::GpBitReaderStorage (GpRawPtrByteR       aData,
                                         const size_bit_t    aOffset) noexcept:
-iData(aData),
-iSize(aSize),
+iData(aData.Ptr()),
+iSize(aData.CountLeftV<size_byte_t>()),
 iOffset(aOffset),
 iLeft(iSize)
-{
-}
-
-GpBitReaderStorage::GpBitReaderStorage (std::string_view aData) noexcept:
-GpBitReaderStorage(reinterpret_cast<const std::byte*>(aData.data()),
-                   size_byte_t::SMake(aData.size()),
-                   0_bit)
-{
-}
-
-GpBitReaderStorage::GpBitReaderStorage (std::string_view    aData,
-                                        const size_bit_t    aOffset) noexcept:
-GpBitReaderStorage(reinterpret_cast<const std::byte*>(aData.data()),
-                   size_byte_t::SMake(aData.size()),
-                   aOffset)
-{
-}
-
-GpBitReaderStorage::GpBitReaderStorage (const GpBytesArray& aData) noexcept:
-GpBitReaderStorage(aData.data(),
-                   size_byte_t::SMake(aData.size()),
-                   0_bit)
-{
-}
-
-GpBitReaderStorage::GpBitReaderStorage (const GpBytesArray& aData,
-                                        const size_bit_t    aOffset) noexcept:
-GpBitReaderStorage(aData.data(),
-                   size_byte_t::SMake(aData.size()),
-                   aOffset)
 {
 }
 

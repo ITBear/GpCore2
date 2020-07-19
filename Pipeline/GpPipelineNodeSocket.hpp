@@ -15,8 +15,8 @@ class GpPipelineNode;
 class GPCORE_API GpPipelineNodeSocket
 {
 public:
-    CLASS_REMOVE_CTRS(GpPipelineNodeSocket);
-    CLASS_DECLARE_DEFAULTS(GpPipelineNodeSocket);
+    CLASS_REMOVE_CTRS(GpPipelineNodeSocket)
+    CLASS_DECLARE_DEFAULTS(GpPipelineNodeSocket)
 
     using ConnectorT    = GpPipelineNodeConnector;
     using DirectrionT   = GpPipelineNodeSocketDir;

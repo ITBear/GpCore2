@@ -4,7 +4,7 @@
 
 namespace GPlatform {
 
-GP_ENUM_IMPL(GpTaskState);
+GP_ENUM_IMPL(GpTaskState)
 
 }//GPlatform
 

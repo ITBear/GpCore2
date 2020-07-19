@@ -15,8 +15,8 @@ namespace GPlatform {
 class GPCORE_API GpEnum
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT_COPY(GpEnum);
-    CLASS_DECLARE_DEFAULTS(GpEnum);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT_COPY(GpEnum)
+    CLASS_DECLARE_DEFAULTS(GpEnum)
     CLASS_TAG(GpEnum)
 
     using value_type    = size_t;
@@ -69,7 +69,7 @@ private:
 class PREFIX TYPE_NAME final: public GpEnum \
 { \
 public: \
-    CLASS_DECLARE_DEFAULTS(TYPE_NAME); \
+    CLASS_DECLARE_DEFAULTS(TYPE_NAME) \
 \
     enum EnumT: value_type \
     { \

@@ -8,7 +8,7 @@ namespace GPlatform {
 
 class GPCORE_API GpSRandom
 {
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpSRandom);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpSRandom)
 
 private:
                                 GpSRandom       (void) noexcept;

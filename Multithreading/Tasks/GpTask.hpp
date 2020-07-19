@@ -20,8 +20,8 @@ class GPCORE_API GpTask: public GpEventSubscriber
     friend class GpTaskAccessor;
 
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTask);
-    CLASS_DECLARE_DEFAULTS(GpTask);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTask)
+    CLASS_DECLARE_DEFAULTS(GpTask)
 
     enum class Res
     {

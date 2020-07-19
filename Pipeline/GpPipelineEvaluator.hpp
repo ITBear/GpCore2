@@ -12,8 +12,8 @@ namespace GPlatform {
 class GPCORE_API GpPipelineEvaluator: public GpTaskFiber
 {
 public:
-    CLASS_REMOVE_CTRS(GpPipelineEvaluator);
-    CLASS_DECLARE_DEFAULTS(GpPipelineEvaluator);
+    CLASS_REMOVE_CTRS(GpPipelineEvaluator)
+    CLASS_DECLARE_DEFAULTS(GpPipelineEvaluator)
 
 public:
                         GpPipelineEvaluator     (GpPipeline::CSP aPipeline) noexcept;

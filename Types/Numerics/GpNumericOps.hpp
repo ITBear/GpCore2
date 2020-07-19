@@ -14,7 +14,7 @@ namespace GPlatform{
 
 class GPCORE_API GpNumericOps
 {
-    CLASS_REMOVE_CTRS(GpNumericOps);
+    CLASS_REMOVE_CTRS(GpNumericOps)
 
     static_assert (sizeof(int) == sizeof (s_int_32), "sizeof(int) != sizeof (s_int_32)");
     static_assert (sizeof(long long int) == sizeof (s_int_64), "sizeof(long long int) == sizeof (s_int_64)");

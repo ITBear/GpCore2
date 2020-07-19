@@ -12,8 +12,8 @@ namespace GPlatform {
 class GPCORE_API GpRunnable
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpRunnable);
-    CLASS_DECLARE_DEFAULTS(GpRunnable);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpRunnable)
+    CLASS_DECLARE_DEFAULTS(GpRunnable)
 
 protected:
                             GpRunnable      (GpConditionVar::SP aCondVar) noexcept;

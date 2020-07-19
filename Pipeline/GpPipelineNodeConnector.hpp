@@ -15,7 +15,7 @@ class GpPipelineNodeSocket;
 class GPCORE_API GpPipelineNodeConnector
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpPipelineNodeConnector);
+    CLASS_DECLARE_DEFAULTS(GpPipelineNodeConnector)
 
     using SocketT = GpPipelineNodeSocket;
 

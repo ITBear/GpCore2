@@ -20,7 +20,7 @@ namespace GPlatform {
 
 class GPCORE_API GpStringOps
 {
-    CLASS_REMOVE_CTRS(GpStringOps);
+    CLASS_REMOVE_CTRS(GpStringOps)
 
 public:
     static GpVector<std::string_view>       SSplit          (std::string_view       aSourceStr,

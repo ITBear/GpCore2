@@ -15,7 +15,7 @@ public:
     using ImplT = std::jthread;
 #endif//#if defined(GP_USE_MULTITHREADING_IMPL_JTHREAD)
 
-    CLASS_DECLARE_DEFAULTS(GpThread);
+    CLASS_DECLARE_DEFAULTS(GpThread)
 
 public:
                         GpThread    (void) noexcept;

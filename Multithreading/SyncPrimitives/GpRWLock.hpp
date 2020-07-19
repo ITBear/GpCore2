@@ -12,7 +12,7 @@ namespace GPlatform{
 
 class GpRWLock
 {
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpRWLock);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpRWLock)
 
 public:
     GpRWLock (void) noexcept :iReadersCount(0), iWritersCount(0)

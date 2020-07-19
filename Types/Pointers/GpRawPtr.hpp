@@ -31,9 +31,9 @@ public:
     using this_type     = GpRawPtr<T>;   
     using value_type    = value_type_t<T>;
 
+    static constexpr size_byte_t value_size_v = size_byte_t::SMake(sizeof(value_type));
 
-
-    /*
+    /* CAST:
      * FROM type*       -> TO byte*
      * FROM type*       -> TO char*
      * FROM type*       -> TO unsigned char*
@@ -46,6 +46,21 @@ public:
      * FROM const type* -> TO const char*
      * FROM const type* -> TO const unsigned char*
      * FROM const type* -> TO const type*
+    */
+
+    /* REINTERPRET:
+     * FROM byte*                   -> TO type*
+     * FROM char*                   -> TO type*
+     * FROM unsigned char*          -> TO type*
+     * FROM byte*                   -> TO const type*
+     * FROM char*                   -> TO const type*
+     * FROM unsigned char*          -> TO const type*
+     * FROM type*                   -> TO type*
+     * FROM type*                   -> TO const type*
+     * FROM const byte*             -> TO const type*
+     * FROM const char*             -> TO const type*
+     * FROM const unsigned char*    -> TO const type*
+     * FROM const type*             -> TO const type*
     */
 
     template<typename P>
@@ -78,6 +93,20 @@ public:
                                                          );
 
     template<typename FROM, typename TO>
+    static consteval bool is_reinterpretable_ptr_v  =    is_ptr_v<FROM>
+                                                      && is_ptr_v<TO>
+                                                      && (   (   is_const_v<FROM>
+                                                              && is_const_v<TO>
+                                                              && is_same_const_v<TO, FROM>
+                                                             )
+                                                          || (  !is_const_v<FROM>
+                                                              && (   is_same_const_v<TO, FROM>
+                                                                  || is_same_v<TO, FROM>
+                                                                 )
+                                                             )
+                                                         );
+
+    template<typename FROM, typename TO>
     static consteval bool is_countable_ptr_v        =    is_ptr_v<FROM>
                                                       && is_ptr_v<TO>
                                                       && (   is_same_const_v<FROM, TO>
@@ -92,17 +121,13 @@ public:
 
     template<typename FROM, typename TO>
     static consteval bool is_convertable_raw_v      =    SHasTag_GpRawPtr<FROM>
+                                                      && SHasTag_GpRawPtr<TO>
                                                       && is_convertable_ptr_v<pointer_type_t<FROM>, pointer_type_t<TO>>;
 
-    /*template<class C>
-    using has_iterator_category_v                   = typename C::iterator::iterator_category;
-
-    template<typename C>
-    using iter_category_t                           = std::experimental::detected_or_t<void, has_iterator_category_v, C>;
-
-    template <typename C>
-    static constexpr bool is_ra_container_v         =    std::is_same_v<iter_category_t<C>, std::random_access_iterator_tag>
-                                                      || std::is_same_v<iter_category_t<C>, std::contiguous_iterator_tag>;*/
+    template<typename FROM, typename TO>
+    static consteval bool is_reinterpretable_raw_v  =    SHasTag_GpRawPtr<FROM>
+                                                      && SHasTag_GpRawPtr<TO>
+                                                      && is_reinterpretable_ptr_v<pointer_type_t<FROM>, pointer_type_t<TO>>;
 
     template<class C>
     using has_iterator_v                            = typename C::iterator;
@@ -128,7 +153,7 @@ public:
                                                                                                            iOffset(0_cnt)
     {
         THROW_GPE_COND_CHECK_M(iPtr != nullptr, "nullptr"_sv);
-        THROW_GPE_COND_CHECK_M(iCount >= 1_cnt, "Count is less than 1"_sv);
+        //THROW_GPE_COND_CHECK_M(iCount >= 1_cnt, "Count is less than 1"_sv);
     }
 
     constexpr                                   GpRawPtr        (pointer_type aPtr, const count_t aCount, const count_t aOffset): iPtr(aPtr),
@@ -136,7 +161,7 @@ public:
                                                                                                                                   iOffset(aOffset)
     {
         THROW_GPE_COND_CHECK_M(iPtr != nullptr, "nullptr"_sv);
-        THROW_GPE_COND_CHECK_M(iCount >= 1_cnt, "Count is less than 1"_sv);
+        //THROW_GPE_COND_CHECK_M(iCount >= 1_cnt, "Count is less than 1"_sv);
         THROW_GPE_COND_CHECK_M(iCount >= iOffset, "Count < Offset"_sv);
     }
 
@@ -184,7 +209,7 @@ public:
     constexpr void                              Set             (pointer_type aPtr, const count_t aCount)
     {
         THROW_GPE_COND_CHECK_M(aPtr != nullptr, "nullptr"_sv);
-        THROW_GPE_COND_CHECK_M(aCount >= 1_cnt, "Count is less than 1"_sv);
+        //THROW_GPE_COND_CHECK_M(aCount >= 1_cnt, "Count is less than 1"_sv);
 
         iPtr    = aPtr;
         iCount  = aCount;
@@ -194,7 +219,7 @@ public:
     constexpr void                              Set             (pointer_type aPtr, const count_t aCount, const count_t aOffset)
     {
         THROW_GPE_COND_CHECK_M(aPtr != nullptr, "nullptr"_sv);
-        THROW_GPE_COND_CHECK_M(aCount >= 1_cnt, "Count is less than 1"_sv);
+        //THROW_GPE_COND_CHECK_M(aCount >= 1_cnt, "Count is less than 1"_sv);
         THROW_GPE_COND_CHECK_M(aCount >= aOffset, "Count < Offset"_sv);
 
         iPtr    = aPtr;
@@ -246,15 +271,33 @@ public:
         return iCount;
     }
 
+    template<typename V>
+    constexpr V                                 CountTotalV     (void) const
+    {
+        return CountTotal().template ValueAs<V>();
+    }
+
     template<typename P, typename = std::enable_if_t<is_countable_ptr_v<pointer_type, P>, P>>
     constexpr count_t                           CountTotalAs    (void) const
     {
         return SCountAs<pointer_type, P>(CountTotal());
     }
 
+    template<typename P, typename V, typename = std::enable_if_t<is_countable_ptr_v<pointer_type, P>, P>>
+    constexpr V                                 CountTotalAsV   (void) const
+    {
+        return CountTotalAs<P>().template ValueAs<V>();
+    }
+
     constexpr count_t                           CountLeft       (void) const noexcept
     {
         return count_t::SMake(iCount.Value() - iOffset.Value());
+    }
+
+    template<typename V>
+    constexpr V                                 CountLeftV      (void) const
+    {
+        return CountLeft().template ValueAs<V>();
     }
 
     template<typename P, typename = std::enable_if_t<is_countable_ptr_v<pointer_type, P>, P>>
@@ -263,9 +306,21 @@ public:
         return SCountAs<pointer_type, P>(CountLeft());
     }
 
+    template<typename P, typename V, typename = std::enable_if_t<is_countable_ptr_v<pointer_type, P>, P>>
+    constexpr V                                 CountLeftAsV    (void) const
+    {
+        return CountLeftAs<P>().template ValueAs<V>();
+    }
+
     constexpr count_t                           Offset          (void) const noexcept
     {
         return iOffset;
+    }
+
+    template<typename V>
+    constexpr V                                 OffsetV         (void) const
+    {
+        return Offset().template ValueAs<V>();
     }
 
     template<typename P, typename = std::enable_if_t<is_countable_ptr_v<pointer_type, P>, P>>
@@ -274,14 +329,32 @@ public:
         return SCountAs<pointer_type, P>(Offset());
     }
 
+    template<typename P, typename V, typename = std::enable_if_t<is_countable_ptr_v<pointer_type, P>, P>>
+    constexpr V                                 OffsetAsV       (void) const
+    {
+        return OffsetAs<P>().template ValueAs<V>();
+    }
+
     constexpr size_byte_t                       SizeTotal       (void) const
     {
         return (CountTotal() * count_t::SMake(sizeof(value_type))).template ValueAs<size_byte_t>();
     }
 
+    template<typename V>
+    constexpr V                                 SizeTotalV      (void) const
+    {
+        return SizeTotal().template ValueAs<V>();
+    }
+
     constexpr size_byte_t                       SizeLeft        (void) const
     {
         return (CountLeft()  * count_t::SMake(sizeof(value_type))).template ValueAs<size_byte_t>();
+    }
+
+    template<typename V>
+    constexpr V                                 SizeLeftV       (void) const
+    {
+        return SizeLeft().template ValueAs<V>();
     }
 
     constexpr void                              OffsetAdd       (const count_t aOffset)
@@ -354,6 +427,28 @@ public:
         THROW_GPE_COND_CHECK_M((aOffset + aCount) <= countLeft, "Out of range"_sv);
         return R(_PtrAs<typename R::pointer_type>(aOffset),
                  SCountAs<pointer_type, typename R::pointer_type>(aCount));
+    }
+
+    template<typename R, typename = std::enable_if_t<is_convertable_raw_v<this_type, R>, R>>
+    constexpr R                                 As                  (void) const
+    {
+        return SubrangeAs<R>(0_cnt, CountLeft());
+    }
+
+    template<typename R, typename = std::enable_if_t<is_reinterpretable_raw_v<this_type, R>, R>>
+    constexpr R                                 ReinterpretAs       (void) const
+    {
+        const value_type*   ptr     = _Ptr();
+        const size_t        addr    = std::bit_cast<size_t>(ptr);
+
+        THROW_GPE_COND_CHECK_M((addr % alignof(typename R::value_type)) == 0, "Wrong memory align"_sv);
+
+        const size_t countLeft = CountLeft().template ValueAs<size_t>();
+
+        THROW_GPE_COND_CHECK_M((countLeft % sizeof(typename R::value_type)) == 0, "Wrong elements count"_sv);
+
+        return R(reinterpret_cast<typename R::pointer_type>(_Ptr()),
+                 countLeft / sizeof(typename R::value_type));
     }
 
     constexpr const value_type*                 Ptr                 (void) const
@@ -617,7 +712,7 @@ public:
     constexpr std::string_view      AsStringView        (void) const
     {
         return std::string_view(PtrAs<const char*>(),
-                                CountLeft().template ValueAs<size_t>());
+                                CountLeftV<size_t>());
     }
 
 protected:

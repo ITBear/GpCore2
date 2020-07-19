@@ -21,7 +21,7 @@ template<typename KeyT,
          template<typename...> class ContainerT>
 class GpElementsCatalog
 {
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpElementsCatalog);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpElementsCatalog)
 
 public:
     using this_type         = GpElementsCatalog<KeyT, ValueT, ContainerT>;
