@@ -22,8 +22,11 @@ public:
     s_int_64                SInt64          (void);
     GpRawPtrByteR           BytesWithLen    (void);
     GpRawPtrByteR           Bytes           (const size_byte_t aSize) {return iStorage.ReadAndShift(aSize);}
+    GpRawPtrByteR           TryBytes        (const size_byte_t aSize) {return iStorage.TryReadAndShift(aSize);}
 
     s_int_32                CompactSInt32   (void);
+
+    size_byte_t             SizeLeft        (void) const noexcept {return iStorage.SizeLeft();}
 
 private:
     template<typename T>

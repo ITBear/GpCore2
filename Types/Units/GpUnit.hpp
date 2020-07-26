@@ -507,7 +507,6 @@ public:
 
     constexpr friend const this_type operator%(const this_type aLeft, const this_type aRight) noexcept
     {
-
         return this_type(NumOps::SMod<T>(aLeft.Value(), aRight.Value()));
     }
 
