@@ -52,7 +52,6 @@
 !*.ASM
 !*.qml
 !*.qmlproject
-!Makefile
 
 #
 !*.jar
@@ -142,3 +141,7 @@
 !*.gbr
 
 moc_*.cpp
+
+# Ignore CMake files
+CMakeCache.txt
+/CMakeFiles/
