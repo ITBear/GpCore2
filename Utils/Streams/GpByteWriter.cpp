@@ -52,6 +52,11 @@ void    GpByteWriter::Bytes (GpRawPtrByteR aData)
 {
     const size_byte_t dataSize = aData.SizeLeft();
 
+    if (dataSize == 0_byte)
+    {
+        return;
+    }
+
     if (iStorage.SizeLeft() < dataSize)
     {
         iStorage.AllocateNext(dataSize);

@@ -681,6 +681,16 @@ public:
         return *this;
     }
 
+    constexpr bool                  operator==          (const this_type& aRawPtr) const noexcept
+    {
+        return IsEqual(aRawPtr);
+    }
+
+    constexpr bool                  operator!=          (const this_type& aRawPtr) const noexcept
+    {
+        return !IsEqual(aRawPtr);
+    }
+
     constexpr bool                  IsEqual             (const this_type& aRawPtr) const noexcept
     {
         return    (CountLeft() == aRawPtr.CountLeft())

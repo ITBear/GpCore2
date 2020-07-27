@@ -101,6 +101,7 @@ public:
     using MapUi64       = GpDeclContainerMapT<GpMap, UInt64, this_type>;
     using MapSizeT      = GpDeclContainerMapT<GpMap, USizeT, this_type>;
     using MapSSizeT     = GpDeclContainerMapT<GpMap, SSizeT, this_type>;
+    using MapCountT     = GpDeclContainerMapT<GpMap, count_t, this_type>;
     using MapCVoidPtr   = GpDeclContainerMapT<GpMap, const void*, this_type>;
 
     using UMapStr       = GpDeclContainerMapT<GpMap, std::string, this_type>;
@@ -110,6 +111,7 @@ public:
     using UMapUi64      = GpDeclContainerMapT<GpUMap, UInt64, this_type>;
     using UMapSizeT     = GpDeclContainerMapT<GpUMap, USizeT, this_type>;
     using UMapSSizeT    = GpDeclContainerMapT<GpUMap, SSizeT, this_type>;
+    using UMapCountT    = GpDeclContainerMapT<GpUMap, count_t, this_type>;
     using UMapCVoidPtr  = GpDeclContainerMapT<GpMap, const void*, this_type>;
     using UMapCPtr      = GpDeclContainerMapT<GpMap, const this_type*, this_type>;
 

@@ -13,6 +13,8 @@ public:
                             ~GpByteReaderStorage    (void) noexcept {}
 
     GpRawPtrByteR           ReadAndShift            (const size_byte_t aSize);
+    GpRawPtrByteR           TryReadAndShift         (const size_byte_t aSize);
+    size_byte_t             SizeLeft                (void) const noexcept {return iData.SizeLeft();}
 
 protected:
     GpRawPtrByteR           iData;
