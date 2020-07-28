@@ -1,5 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
-#include(FetchContent)
+cmake_minimum_required(VERSION 3.16)
 
 project(GpCore2
 	VERSION 0.1.0
@@ -9,48 +8,9 @@ project(GpCore2
 set(CMAKE_VERBOSE_MAKEFILE      ON)
 set(CMAKE_BUILD_PARALLEL_LEVEL	3)
 
-set(SOURCES
-	EventBus/GpEventBus.cpp
-	EventBus/GpEventSubscriber.cpp
-	Exceptions/GpException.cpp
-	Exceptions/GpExceptionsSink.cpp
-	Multithreading/SyncPrimitives/GpConditionVar.cpp
-	Multithreading/Tasks/Fibers/GpTaskFiber.cpp
-	Multithreading/Tasks/Fibers/GpTaskFiberCtx.cpp
-	Multithreading/Tasks/Fibers/GpTaskFiberManager.cpp
-	Multithreading/Tasks/Fibers/GpTaskFiberStack.cpp
-	Multithreading/Tasks/Fibers/GpTaskFiberStackPool.cpp
-	Multithreading/Tasks/Fibers/GpTaskFiberStage.cpp
-	Multithreading/Tasks/GpTask.cpp
-	Multithreading/Tasks/GpTaskExecutor.cpp
-	Multithreading/Tasks/GpTaskExecutorsPool.cpp
-	Multithreading/Tasks/GpTaskScheduler.cpp
-	Multithreading/Tasks/GpTaskState.cpp
-	Multithreading/Threads/GpRunnable.cpp
-	Multithreading/Threads/GpThread.cpp
-	Pipeline/GpPipeline.cpp
-	Pipeline/GpPipelineEvaluateCtx.cpp
-	Pipeline/GpPipelineEvaluator.cpp
-	Pipeline/GpPipelineManager.cpp
-	Pipeline/GpPipelineNode.cpp
-	Pipeline/GpPipelineNodeConnector.cpp
-	Pipeline/GpPipelineNodeSocket.cpp
-	Pipeline/GpPipelineNodeSocketDir.cpp
-	Pipeline/Nodes/GpPipelineNodeSum.cpp
-	Pipeline/Nodes/GpPipelineNodeSumEvCtx.cpp
-	RandomGenerators/GpRandom.cpp
-	RandomGenerators/GpRandomDeviceWin.cpp
-	RandomGenerators/GpSRandom.cpp
-	Types/DateTime/GpDateTimeOps.cpp
-	Types/Enums/GpEnum.cpp
-	Types/Numerics/GpNumericOps.cpp
-	Types/Strings/GpStringOps.cpp
-	Types/TypeSystem/GpType.cpp
-	Types/TypeSystem/GpTypeContainer.cpp
-	Types/TypeSystem/GpTypeInfo.cpp
-	Types/TypeSystem/GpTypePropInfo.cpp
-	Types/UIDs/GpUUID.cpp
-	)
+# Find all *.cpp and *.hpp files in project
+file (GLOB_RECURSE SOURCES *.cpp)
+file (GLOB_RECURSE INCLUDES *.hpp)
 
 option(BUILD_SHARED_LIBS "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" ON)
 if (BUILD_SHARED_LIBS)
@@ -198,20 +158,22 @@ set(LIBRARY_OUTPUT_PATH	${DESTDIR})
 
 #------------------------ LIBS ---------------------
 target_include_directories(${PROJECT_NAME}
-    PRIVATE "${TARGET_EXT_INCLUDE_DIR}"
-    PRIVATE "${BOOST_INCLUDE}"
+    PRIVATE
+        "${TARGET_EXT_INCLUDE_DIR}"
+        "${BOOST_INCLUDE}"
     )
 
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE pthread
-    PRIVATE $<$<CONFIG:Debug>:asan>
-    PRIVATE $<$<CONFIG:Debug>:ubsan>
+    PRIVATE
+        pthread
+        $<$<CONFIG:Debug>:asan>
+        $<$<CONFIG:Debug>:ubsan>
     )
 
 message(STATUS "[${PROJECT_NAME}]: Target name:              " ${PROJECT_NAME}${MODE_SUFFIX})
 message(STATUS "[${PROJECT_NAME}]: Target arch:              " ${CMAKE_SYSTEM_PROCESSOR})
 message(STATUS "[${PROJECT_NAME}]: Target OS:                " ${CMAKE_SYSTEM_NAME})
-message(STATUS "[${PROJECT_NAME}]: Build directory:          " ${DESTDIR})
+message(STATUS "[${PROJECT_NAME}]: Build directory:          " ${LIBRARY_OUTPUT_PATH})
 message(STATUS "[${PROJECT_NAME}]: C++ standart:             " ${CMAKE_CXX_STANDARD})
 message(STATUS "[${PROJECT_NAME}]: GCC C compiler version:   " ${CMAKE_C_COMPILER})
 message(STATUS "[${PROJECT_NAME}]: GCC C++ compiler version: " ${CMAKE_CXX_COMPILER})
@@ -220,23 +182,12 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY VERSION   ${PROJECT_VERSION})
 set_property(TARGET ${PROJECT_NAME} PROPERTY SOVERSION ${PROJECT_VERSION_MAJOR})
 set_property(TARGET ${PROJECT_NAME} PROPERTY INTERFACE_${PROJECT_NAME}_MAJOR_VERSION ${PROJECT_VERSION_MAJOR})
 
-#------------------------ POST BUILD ---------------------
-install(DIRECTORY		 "${CMAKE_SOURCE_DIR}"
-                DESTINATION      "${TARGET_EXT_INCLUDE_DIR}"
-		FILES_MATCHING
-			PATTERN "*.hpp"
-			PATTERN "*.h"
-			PATTERN "CMake*" EXCLUDE
-			PATTERN ".git"   EXCLUDE
-		)
-
-add_custom_command(TARGET ${PROJECT_NAME}
-	POST_BUILD
-                COMMAND ${EMCMAKE_COMMAND} ${CMAKE_COMMAND}
-                        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                        -DEMSCRIPTEN_ROOT_PATH="${EMSCRIPTEN_ROOT_PATH}"
-                        -DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}
-                        -DBOOST_INCLUDE="${BOOST_INCLUDE}"
-                        -DCMAKE_SYSTEM_PROCESSOR=${CMAKE_SYSTEM_PROCESSOR}
-                        .
-	)
+#------------------------ INSTALL ---------------------
+install(DIRECTORY        "${CMAKE_SOURCE_DIR}"
+        DESTINATION      "${TARGET_EXT_INCLUDE_DIR}"
+        FILES_MATCHING
+                PATTERN "*.hpp"
+                PATTERN "*.h"
+                PATTERN "CMake*" EXCLUDE
+                PATTERN ".git"   EXCLUDE
+        )
