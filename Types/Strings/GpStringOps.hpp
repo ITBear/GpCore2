@@ -23,14 +23,14 @@ class GPCORE_API GpStringOps
     CLASS_REMOVE_CTRS(GpStringOps)
 
 public:
-    static GpVector<std::string_view>       SSplit          (std::string_view       aSourceStr,
+    static GpVector<GpRawPtrCharR>          SSplit          (GpRawPtrCharR          aSourceStr,
                                                              const char             aDelim,
                                                              const count_t          aReturnPartsCountLimit,
                                                              const count_t          aDelimCountLimit,
                                                              const Algo::SplitMode  aSplitMode);
 
-    static GpVector<std::string_view>       SSplit          (std::string_view       aSourceStr,
-                                                             std::string_view       aDelim,
+    static GpVector<GpRawPtrCharR>          SSplit          (GpRawPtrCharR          aSourceStr,
+                                                             GpRawPtrCharR          aDelim,
                                                              const count_t          aReturnPartsCountLimit,
                                                              const count_t          aDelimCountLimit,
                                                              const Algo::SplitMode  aSplitMode);
@@ -48,27 +48,23 @@ public:
                                                              GpRawPtrCharRW     aStrOut);
     static std::string                      SFromDouble     (const double aValue);
 
-    static UInt64                           SToUI64         (std::string_view aStr);
-    static SInt64                           SToSI64         (std::string_view aStr);
-    static double                           SToDouble_fast  (std::string_view aStr);//Supported format: [+-][UInt64][.[UInt64]]
+    static UInt64                           SToUI64         (GpRawPtrCharR aStr);
+    static SInt64                           SToSI64         (GpRawPtrCharR aStr);
+    static double                           SToDouble_fast  (GpRawPtrCharR aStr);//Supported format: [+-][UInt64][.[UInt64]]
 
     //[+-][UInt64][.[UInt64]] - DOUBLE
     //[+-]digits - INT
-    static std::variant<SInt64, double>     SToNumeric      (std::string_view aStr);
+    static std::variant<SInt64, double>     SToNumeric      (GpRawPtrCharR aStr);
 
     //------------------------- Bytes from/to string --------------------------
     static count_t                          SFromBytes      (GpRawPtrByteR  aData,
                                                              GpRawPtrCharRW aStrOut);
-    static std::string                      SFromBytes      (const GpBytesArray&        aData);
-    static std::string                      SFromBytes      (GpRawPtrByteR      aData);
-    static std::string                      SFromBytes      (std::string_view   aData);
+    static std::string                      SFromBytes      (GpRawPtrByteR  aData);
     static inline GpArray<char,2>           SFromByte       (const std::byte    aData) noexcept;
 
-    static size_byte_t                      SToBytes        (std::string_view   aStr,
-                                                             GpRawPtrByteRW     aDataOut);
-    static size_byte_t                      SToBytes        (std::string_view   aStr,
-                                                             GpBytesArray&      aDataOut);
-    static GpBytesArray                     SToBytes        (std::string_view   aStr);
+    static size_byte_t                      SToBytes        (GpRawPtrCharR  aStr,
+                                                             GpRawPtrByteRW aDataOut);
+    static GpBytesArray                     SToBytes        (GpRawPtrCharR      aStr);
     static constexpr std::byte              SToByte         (GpArray<char,2>    aStr);
 
     //------------------------- Unicode --------------------------
@@ -82,7 +78,6 @@ public:
 
     //------------------------- Count -----------------------------
     static inline constexpr count_t         SCountChars     (std::string_view aStr, const char aChar) noexcept;
-    static inline constexpr count_t         SCountSubstr    (std::string_view aStr, std::string_view aSubStr) noexcept;
 
 private:
     static void                             _SFromUI64      (const UInt64   aValue,
@@ -135,29 +130,16 @@ constexpr std::byte GpStringOps::SToByte (GpArray<char,2> aStr)
 
 constexpr count_t   GpStringOps::SCountChars (std::string_view aStr, const char aChar) noexcept
 {   
-    size_t      count   = 0;
-    const char* data    = aStr.data();
-    for (size_t id = 0; id < aStr.size(); ++id)
+    size_t          count       = 0;
+    const char* _R_ data        = aStr.data();
+    const size_t    countLeft   = aStr.size();
+
+    for (size_t id = 0; id < countLeft; ++id)
     {
         if (*data++ == aChar)
         {
             count++;
         }
-    }
-
-    return count_t::SMake(count);
-}
-
-constexpr count_t   GpStringOps::SCountSubstr (std::string_view aStr, std::string_view aSubStr) noexcept
-{
-    const size_t                subStrLength    = aSubStr.length();
-    size_t                      count           = 0;
-    std::string_view::size_type startId         = 0;
-
-    while ((startId = aStr.find(aSubStr, startId)) != std::string_view::npos)
-    {
-        startId += subStrLength;
-        count++;
     }
 
     return count_t::SMake(count);

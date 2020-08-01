@@ -11,7 +11,7 @@ unix_ts_ms_t    GpDateTimeOps::SUnixTS_ms (void) noexcept
     const auto val = std::chrono::system_clock::now().time_since_epoch();
     const auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(val).count();
 
-    return unix_ts_s_t::SMake(cnt);
+    return unix_ts_ms_t::SMake(cnt);
 }
 
 unix_ts_s_t GpDateTimeOps::SUnixTS_s (void) noexcept

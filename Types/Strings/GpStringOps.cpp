@@ -7,33 +7,33 @@
 
 namespace GPlatform {
 
-GpVector<std::string_view>  GpStringOps::SSplit (std::string_view       aSourceStr,
-                                                 const char             aDelim,
-                                                 const count_t          aReturnPartsCountLimit,
-                                                 const count_t          aDelimCountLimit,
-                                                 const Algo::SplitMode  aSplitMode)
+GpVector<GpRawPtrCharR> GpStringOps::SSplit (GpRawPtrCharR          aSourceStr,
+                                             const char             aDelim,
+                                             const count_t          aReturnPartsCountLimit,
+                                             const count_t          aDelimCountLimit,
+                                             const Algo::SplitMode  aSplitMode)
 {
     auto a = GpRawPtrCharR(aSourceStr);
     auto b = GpRawPtrCharR(&aDelim, 1_cnt);
 
-    return Algo::Split<char, GpVector<std::string_view>>(a,
-                                                         b,
-                                                         aReturnPartsCountLimit,
-                                                         aDelimCountLimit,
-                                                         aSplitMode);
+    return Algo::Split<char, GpVector<GpRawPtrCharR>>(a,
+                                                      b,
+                                                      aReturnPartsCountLimit,
+                                                      aDelimCountLimit,
+                                                      aSplitMode);
 }
 
-GpVector<std::string_view>  GpStringOps::SSplit (std::string_view       aSourceStr,
-                                                 std::string_view       aDelim,
-                                                 const count_t          aReturnPartsCountLimit,
-                                                 const count_t          aDelimCountLimit,
-                                                 const Algo::SplitMode  aSplitMode)
+GpVector<GpRawPtrCharR> GpStringOps::SSplit (GpRawPtrCharR          aSourceStr,
+                                             GpRawPtrCharR          aDelim,
+                                             const count_t          aReturnPartsCountLimit,
+                                             const count_t          aDelimCountLimit,
+                                             const Algo::SplitMode  aSplitMode)
 {
-    return Algo::Split<char, GpVector<std::string_view>>(GpRawPtrCharR(aSourceStr),
-                                                         GpRawPtrCharR(aDelim),
-                                                         aReturnPartsCountLimit,
-                                                         aDelimCountLimit,
-                                                         aSplitMode);
+    return Algo::Split<char, GpVector<GpRawPtrCharR>>(GpRawPtrCharR(aSourceStr),
+                                                      GpRawPtrCharR(aDelim),
+                                                      aReturnPartsCountLimit,
+                                                      aDelimCountLimit,
+                                                      aSplitMode);
 }
 
 count_t GpStringOps::SFromUI64 (const UInt64    aValue,
@@ -54,7 +54,7 @@ std::string GpStringOps::SFromUI64 (const UInt64 aValue)
     std::string s;
     s.resize(length);
 
-    _SFromUI64(aValue, GpRawPtrCharRW(s));
+    _SFromUI64(aValue, s);
 
     return s;
 }
@@ -140,12 +140,13 @@ std::string GpStringOps::SFromDouble (const double aValue)
     return s;
 }
 
-UInt64  GpStringOps::SToUI64 (std::string_view aStr)
+UInt64  GpStringOps::SToUI64 (GpRawPtrCharR aStr)
 {
-    GpRawPtrCharR   str(aStr);
     UInt64          res = 0_u_int_64;
+    const char*     str = aStr.Ptr();
+    size_t          len = aStr.CountLeftV<size_t>();
 
-    while (str.CountLeft() > 0_cnt)
+    while (len-- > 0)
     {
         const char ch = *str++;
 
@@ -154,14 +155,14 @@ UInt64  GpStringOps::SToUI64 (std::string_view aStr)
             res = (res * UInt64::SMake(10)) + UInt64::SMake(u_int_64(ch) - u_int_64('0'));
         } else
         {
-            THROW_GPE("Value "_sv + aStr + " contains wrong character '"_sv + ch + "'"_sv);
+            THROW_GPE("Value "_sv + aStr.AsStringView() + " contains wrong character '"_sv + ch + "'"_sv);
         }
     }
 
     return res;
 }
 
-SInt64  GpStringOps::SToSI64 (std::string_view aStr)
+SInt64  GpStringOps::SToSI64 (GpRawPtrCharR aStr)
 {
     GpRawPtrCharR str(aStr);
 
@@ -178,13 +179,13 @@ SInt64  GpStringOps::SToSI64 (std::string_view aStr)
         sign = 1_s_int_64;
     }
 
-    const UInt64 valueWithoutSign = SToUI64(str.AsStringView());
+    const UInt64 valueWithoutSign = SToUI64(str);
 
     if (sign >= 0_s_int_64)
     {
         if (valueWithoutSign > UInt64::SMake(9223372036854775807ULL))
         {
-            THROW_GPE("Value "_sv + aStr + " is out of range SInt64"_sv);
+            THROW_GPE("Value "_sv + aStr.AsStringView() + " is out of range SInt64"_sv);
         } else
         {
             return SInt64::SBitCast(valueWithoutSign);
@@ -193,7 +194,7 @@ SInt64  GpStringOps::SToSI64 (std::string_view aStr)
     {
         if (valueWithoutSign > UInt64::SMake(9223372036854775808ULL))
         {
-            THROW_GPE("Value "_sv + aStr + " is out of range SInt64"_sv);
+            THROW_GPE("Value "_sv + aStr.AsStringView() + " is out of range SInt64"_sv);
         } else if (valueWithoutSign == UInt64::SMake(9223372036854775808ULL))
         {
             return SInt64::SBitCast(valueWithoutSign);//trick
@@ -204,15 +205,15 @@ SInt64  GpStringOps::SToSI64 (std::string_view aStr)
     }
 }
 
-double      GpStringOps::SToDouble_fast (std::string_view aStr)
+double      GpStringOps::SToDouble_fast (GpRawPtrCharR aStr)
 {
     //TODO: reimplement with http://www.netlib.org/fp/. Use dtoa.c
     //Supported format: [+-][UInt64][.[UInt64]]
 
     //----------------- Find decimal separator (radix character) -----------------
-    GpVector<std::string_view> parts = SSplit(aStr, '.', 2_cnt, 1_cnt, Algo::SplitMode::COUNT_ZERO_LENGTH_PARTS);
-    std::string_view integerPart;
-    std::string_view fractionalPart;
+    GpVector<GpRawPtrCharR> parts = SSplit(aStr, '.', 2_cnt, 1_cnt, Algo::SplitMode::COUNT_ZERO_LENGTH_PARTS);
+    GpRawPtrCharR integerPart;
+    GpRawPtrCharR fractionalPart;
 
     if (parts.size() == 1)
     {
@@ -227,39 +228,41 @@ double      GpStringOps::SToDouble_fast (std::string_view aStr)
     double res  = 0.0;
     double sign = 1.0;
 
-    if (!integerPart.empty())
+    if (!integerPart.IsEmpty())
     {
-        const char signChar = integerPart.at(0);
+        const char signChar = integerPart.At(0_cnt);
         if (signChar == '-')
         {
             sign = -1.0;
-            integerPart = std::string_view(integerPart.data() + 1, integerPart.size() - 1);
+            integerPart = integerPart.SubrangeBeginOffset(1_cnt);//GpRawPtrCharR(integerPart.data() + 1, integerPart.size() - 1);
         } else if (signChar == '+')
         {
             sign = 1.0;
-            integerPart = std::string_view(integerPart.data() + 1, integerPart.size() - 1);
+            integerPart = integerPart.SubrangeBeginOffset(1_cnt);//GpRawPtrCharR(integerPart.data() + 1, integerPart.size() - 1);
         }
 
-        const UInt64 v = (!integerPart.empty()) ? SToUI64(integerPart) : 0_u_int_64;
+        const UInt64 v = (!integerPart.IsEmpty()) ? SToUI64(integerPart) : 0_u_int_64;
         res = double(v.Value());
     }
 
     //Parse fractional part (to the right of the radix point)
-    if (!fractionalPart.empty())
+    if (!fractionalPart.IsEmpty())
     {
         const UInt64 v = SToUI64(fractionalPart);
-        res += double(v.Value())/pow(10.0, double(fractionalPart.size()));
+        res += double(v.Value())/pow(10.0, double(fractionalPart.CountLeftV<size_t>()));
     }
 
     return res*sign;
 }
 
-std::variant<SInt64, double>    GpStringOps::SToNumeric (std::string_view aStr)
+std::variant<SInt64, double>    GpStringOps::SToNumeric (GpRawPtrCharR aStr)
 {
     //[+-][UInt64][.[UInt64]] - DOUBLE
     //[+-]digits - INT
 
-    if (aStr.find_first_of('.') == std::string::npos)//int
+    std::string_view str = aStr.AsStringView();
+
+    if (str.find_first_of('.') == std::string::npos)//int
     {
         SInt64 val = SToSI64(aStr);
         return {val};
@@ -276,24 +279,28 @@ count_t GpStringOps::SFromBytes (GpRawPtrByteR  aData,
     const count_t dataLength    = aData.CountLeft();
     const count_t strOutLength  = aStrOut.CountLeft();
 
+    if (dataLength == 0_cnt)
+    {
+        return 0_cnt;
+    }
+
     THROW_GPE_COND_CHECK_M(strOutLength >= (dataLength * 2_cnt), "Out string size is too small"_sv);
 
-    while (aData.CountLeft() > 0_cnt)
+    size_t                  countLeft   = aData.CountLeftV<size_t>();
+    const std::byte* _R_    data        = aData.Ptr();
+    char* _R_               str         = aStrOut.Ptr();
+
+    while (countLeft-- > 0)
     {
-        const size_t b  = size_t(*aData++);
+        const size_t b  = size_t(*data++);
         const size_t lo = (b & size_t(0x0F)) >> 0;
         const size_t hi = (b & size_t(0xF0)) >> 4;
 
-        *aStrOut++ = char((hi < size_t(10)) ? (size_t('0')+ hi) : (size_t('a') + (hi - size_t(10))));
-        *aStrOut++ = char((lo < size_t(10)) ? (size_t('0')+ lo) : (size_t('a') + (lo - size_t(10))));
+        *str++ = char((hi < size_t(10)) ? (size_t('0')+ hi) : (size_t('a') + (hi - size_t(10))));
+        *str++ = char((lo < size_t(10)) ? (size_t('0')+ lo) : (size_t('a') + (lo - size_t(10))));
     }
 
     return dataLength * 2_cnt;
-}
-
-std::string GpStringOps::SFromBytes (const GpBytesArray& aData)
-{
-    return SFromBytes(GpRawPtrByteR(aData));
 }
 
 std::string GpStringOps::SFromBytes (GpRawPtrByteR aData)
@@ -303,9 +310,7 @@ std::string GpStringOps::SFromBytes (GpRawPtrByteR aData)
     std::string res;
     res.resize(charsCount.ValueAs<size_t>());
 
-    GpRawPtrCharRW resPtr(res);
-
-    if (SFromBytes(aData, resPtr) != charsCount)
+    if (SFromBytes(aData, res) != charsCount)
     {
         THROW_GPE("Failed to convert bytes to hex string"_sv);
     }
@@ -313,16 +318,11 @@ std::string GpStringOps::SFromBytes (GpRawPtrByteR aData)
     return res;
 }
 
-std::string GpStringOps::SFromBytes (std::string_view aData)
-{
-    return SFromBytes(GpRawPtrByteR(aData));
-}
-
-size_byte_t GpStringOps::SToBytes (std::string_view aStr,
+size_byte_t GpStringOps::SToBytes (GpRawPtrCharR    aStr,
                                    GpRawPtrByteRW   aDataOut)
 {
     //String length
-    const count_t strLength = count_t::SMake(aStr.length());
+    const count_t strLength = aStr.CountLeft();
 
     if (strLength == 0_cnt)
     {
@@ -332,12 +332,17 @@ size_byte_t GpStringOps::SToBytes (std::string_view aStr,
     THROW_GPE_COND_CHECK_M((strLength % 2_cnt) == 0_cnt, "String length must be even"_sv);
 
     //Remove prefix
-    std::string_view prefix = aStr.substr(0, 2);
-    std::string_view strHex = aStr;
+    GpRawPtrCharR prefix    = aStr.Subrange(0_cnt, 2_cnt);
+    GpRawPtrCharR strHex    = aStr;
     if ((prefix == "0x"_sv) ||
         (prefix == "0X"_sv))
     {
-        strHex = aStr.substr(2, aStr.size() - 2);
+        if (aStr.CountLeft() <= 2_cnt)
+        {
+            return 0_byte;
+        }
+
+        strHex = aStr.SubrangeBeginOffset(2_cnt);
     }
 
     //
@@ -346,59 +351,26 @@ size_byte_t GpStringOps::SToBytes (std::string_view aStr,
     const count_t outSize = strHexPtr.CountLeft() / 2_cnt;
     THROW_GPE_COND_CHECK_M(aDataOut.CountLeft() >= outSize, "Out data size is too small"_sv);
 
-    while (strHexPtr.CountLeft() > 0_cnt)
+    size_t          countLeft   = strHexPtr.CountLeftV<size_t>();
+    const char* _R_ str         = strHexPtr.Ptr();
+
+    while (countLeft > 0)
     {
-        GpArray<char,2> s = {*strHexPtr++, *strHexPtr++};
+        countLeft -= 2;
+        GpArray<char,2> s = {*str++, *str++};
         *aDataOut++ = SToByte(s);
     }
 
     return size_byte_t::SMake(outSize.Value());
 }
 
-size_byte_t GpStringOps::SToBytes (std::string_view aStr,
-                                   GpBytesArray&    aDataOut)
+GpBytesArray    GpStringOps::SToBytes (GpRawPtrCharR aStr)
 {
-    //String length
-    const count_t strLength = count_t::SMake(aStr.length());
+    const size_t size = aStr.CountLeftV<size_t>();
 
-    if (strLength == 0_cnt)
-    {
-        return 0_byte;
-    }
-
-    THROW_GPE_COND_CHECK_M((strLength % 2_cnt) == 0_cnt, "String length must be even"_sv);
-
-    //Remove prefix
-    std::string_view prefix = aStr.substr(0, 2);
-    std::string_view strHex = aStr;
-    if ((prefix == "0x"_sv) ||
-        (prefix == "0X"_sv))
-    {
-        strHex = aStr.substr(2, aStr.size() - 2);
-    }
-
-    //
-    GpRawPtrCharR strHexPtr(strHex);
-
-    const count_t oldSize   = count_t::SMake(aDataOut.size());
-    const count_t outSize   = strHexPtr.CountLeft() / 2_cnt;
-    aDataOut.resize((oldSize + outSize).ValueAs<size_t>());
-
-    GpRawPtrByteRW dataOut(aDataOut.data() + oldSize.ValueAs<size_t>(), outSize);
-
-    while (strHexPtr.CountLeft() > 0_cnt)
-    {
-        GpArray<char,2> s = {*strHexPtr++, *strHexPtr++};
-        *dataOut++ = SToByte(s);
-    }
-
-    return outSize.ValueAs<size_byte_t>();
-}
-
-GpBytesArray    GpStringOps::SToBytes (std::string_view aStr)
-{
     GpBytesArray res;
-    SToBytes(aStr, res);
+    res.resize(size/2);
+    res.resize(SToBytes(aStr, res).ValueAs<size_t>());
     return res;
 }
 

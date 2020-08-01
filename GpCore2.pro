@@ -28,7 +28,7 @@ compiler_gcc{
 }
 
 #c++20
-CONFIG			+=	c++20
+CONFIG			+=	c++2a
 QMAKE_CXXFLAGS	+=	-std=gnu++2a
 
 QMAKE_CXXFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden

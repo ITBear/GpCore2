@@ -44,8 +44,13 @@ void    GpByteWriter::SInt64 (const s_int_64 aValue)
 
 void    GpByteWriter::BytesWithLen (GpRawPtrByteR aData)
 {
-    CompactSInt32(aData.CountLeftV<s_int_32>());
-    Bytes(aData);
+    const s_int_32 size = aData.CountLeftV<s_int_32>();
+    CompactSInt32(size);
+
+    if (size > 0)
+    {
+        Bytes(aData);
+    }
 }
 
 void    GpByteWriter::Bytes (GpRawPtrByteR aData)

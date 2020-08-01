@@ -8,6 +8,7 @@
 
 #include <iterator>
 #include <concepts>
+#include <vector>
 
 namespace GPlatform {
 
@@ -139,7 +140,9 @@ public:
     static constexpr bool is_ra_container_v         = std::random_access_iterator<iter_t<C>>;
 
 public:
-                                                GpRawPtr        (void) noexcept = delete;
+    constexpr                                   GpRawPtr        (void) noexcept: iPtr(nullptr),
+                                                                                 iCount(0_cnt),
+                                                                                 iOffset(0_cnt){}
     constexpr                                   GpRawPtr        (const this_type& aRawPtr) noexcept: iPtr(aRawPtr.iPtr),
                                                                                                      iCount(aRawPtr.iCount),
                                                                                                      iOffset(aRawPtr.iOffset){}
@@ -152,7 +155,7 @@ public:
                                                                                                            iCount(aCount),
                                                                                                            iOffset(0_cnt)
     {
-        THROW_GPE_COND_CHECK_M(iPtr != nullptr, "nullptr"_sv);
+        THROW_GPE_COND_CHECK_M((iPtr != nullptr) || (iCount == 0_cnt), "nullptr"_sv);
         //THROW_GPE_COND_CHECK_M(iCount >= 1_cnt, "Count is less than 1"_sv);
     }
 
@@ -160,7 +163,7 @@ public:
                                                                                                                                   iCount(aCount),
                                                                                                                                   iOffset(aOffset)
     {
-        THROW_GPE_COND_CHECK_M(iPtr != nullptr, "nullptr"_sv);
+        THROW_GPE_COND_CHECK_M((iPtr != nullptr) || (iCount == 0_cnt), "nullptr"_sv);
         //THROW_GPE_COND_CHECK_M(iCount >= 1_cnt, "Count is less than 1"_sv);
         THROW_GPE_COND_CHECK_M(iCount >= iOffset, "Count < Offset"_sv);
     }
@@ -208,7 +211,7 @@ public:
 
     constexpr void                              Set             (pointer_type aPtr, const count_t aCount)
     {
-        THROW_GPE_COND_CHECK_M(aPtr != nullptr, "nullptr"_sv);
+        THROW_GPE_COND_CHECK_M((iPtr != nullptr) || (iCount == 0_cnt), "nullptr"_sv);
         //THROW_GPE_COND_CHECK_M(aCount >= 1_cnt, "Count is less than 1"_sv);
 
         iPtr    = aPtr;
@@ -218,11 +221,11 @@ public:
 
     constexpr void                              Set             (pointer_type aPtr, const count_t aCount, const count_t aOffset)
     {
-        THROW_GPE_COND_CHECK_M(aPtr != nullptr, "nullptr"_sv);
+        THROW_GPE_COND_CHECK_M((iPtr != nullptr) || (iCount == 0_cnt), "nullptr"_sv);
         //THROW_GPE_COND_CHECK_M(aCount >= 1_cnt, "Count is less than 1"_sv);
         THROW_GPE_COND_CHECK_M(aCount >= aOffset, "Count < Offset"_sv);
 
-        iPtr    = aPtr;
+        iPtr    = aPtr + aOffset.ValueAs<size_t>();
         iCount  = aCount;
         iOffset = aOffset;
     }
@@ -411,7 +414,7 @@ public:
     template<typename R, typename = std::enable_if_t<is_convertable_raw_v<R, GpRawPtr<const value_type*>>, R>>
     constexpr   void                            CopyFrom        (const R& aRawPtr)
     {
-        CopyFrom(aRawPtr.template _PtrBeginAs<const value_type*>(),
+        CopyFrom(aRawPtr.template _PtrAs<const value_type*>(),
                  aRawPtr.template CountLeftAs<const value_type*>());
     }
 
@@ -427,6 +430,17 @@ public:
         THROW_GPE_COND_CHECK_M((aOffset + aCount) <= countLeft, "Out of range"_sv);
         return R(_PtrAs<typename R::pointer_type>(aOffset),
                  SCountAs<pointer_type, typename R::pointer_type>(aCount));
+    }
+
+    constexpr this_type                         SubrangeBeginOffset (const count_t aOffset) const
+    {
+        return SubrangeAs<this_type>(aOffset, CountLeft() - aOffset);
+    }
+
+    template<typename R, typename = std::enable_if_t<is_convertable_raw_v<this_type, R>, R>>
+    constexpr R                                 SubrangeBeginOffsetAs (const count_t aOffset) const
+    {
+        return SubrangeAs<R>(aOffset, CountLeft() - aOffset);
     }
 
     template<typename R, typename = std::enable_if_t<is_convertable_raw_v<this_type, R>, R>>
@@ -719,10 +733,31 @@ public:
                && (MemOps::SCompare(Ptr(), aRawPtr.Ptr(), argCount) == 0);
     }
 
+    constexpr bool                  IsEmpty             (void) const noexcept
+    {
+        return (iPtr == nullptr) || (CountLeft() == 0_cnt);
+    }
+
     constexpr std::string_view      AsStringView        (void) const
     {
         return std::string_view(PtrAs<const char*>(),
                                 CountLeftV<size_t>());
+    }
+
+    std::vector<std::byte>          ToByteArray     (void) const
+    {
+        std::vector<std::byte> res;
+
+        const size_t size = CountLeftV<size_t>();
+        if (size > 0)
+        {
+            res.resize(CountLeftV<size_t>());
+
+            GpRawPtr<std::byte*> resPtr(res);
+            resPtr.CopyFrom(*this);
+        }
+
+        return res;
     }
 
 protected:
