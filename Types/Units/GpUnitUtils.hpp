@@ -7,7 +7,7 @@ namespace GPlatform {
 class GpUnitUtils
 {
 public:
-	CLASS_TAG_DETECTOR(GpUnit)
+    CLASS_TAG_DETECTOR(GpUnit)
 };
 
 }//GPlatform

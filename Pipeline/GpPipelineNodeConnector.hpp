@@ -15,31 +15,31 @@ class GpPipelineNodeSocket;
 class GPCORE_API GpPipelineNodeConnector
 {
 public:
-	CLASS_DECLARE_DEFAULTS(GpPipelineNodeConnector);
+    CLASS_DECLARE_DEFAULTS(GpPipelineNodeConnector)
 
-	using SocketT = GpPipelineNodeSocket;
+    using SocketT = GpPipelineNodeSocket;
 
 public:
-									GpPipelineNodeConnector		(void) noexcept = default;
-	inline							GpPipelineNodeConnector		(SocketT& aFrom, SocketT& aTo) noexcept;
-	inline							GpPipelineNodeConnector		(const GpPipelineNodeConnector& aConnector) noexcept;
-	inline							GpPipelineNodeConnector		(GpPipelineNodeConnector&& aConnector) noexcept;
-									~GpPipelineNodeConnector	(void) noexcept = default;
+                                    GpPipelineNodeConnector     (void) noexcept = default;
+    inline                          GpPipelineNodeConnector     (SocketT& aFrom, SocketT& aTo) noexcept;
+    inline                          GpPipelineNodeConnector     (const GpPipelineNodeConnector& aConnector) noexcept;
+    inline                          GpPipelineNodeConnector     (GpPipelineNodeConnector&& aConnector) noexcept;
+                                    ~GpPipelineNodeConnector    (void) noexcept = default;
 
-	inline GpPipelineNodeConnector&	operator=					(const GpPipelineNodeConnector& aConnector) noexcept;
-	inline GpPipelineNodeConnector&	operator=					(GpPipelineNodeConnector&& aConnector) noexcept;
+    inline GpPipelineNodeConnector& operator=                   (const GpPipelineNodeConnector& aConnector) noexcept;
+    inline GpPipelineNodeConnector& operator=                   (GpPipelineNodeConnector&& aConnector) noexcept;
 
-	const SocketT&					From						(void) const noexcept {return *iFrom;}
-	SocketT&						From						(void) noexcept {return *iFrom;}
+    const SocketT&                  From                        (void) const noexcept {return *iFrom;}
+    SocketT&                        From                        (void) noexcept {return *iFrom;}
 
-	const SocketT&					To							(void) const noexcept {return *iTo;}
-	SocketT&						To							(void) noexcept {return *iTo;}
+    const SocketT&                  To                          (void) const noexcept {return *iTo;}
+    SocketT&                        To                          (void) noexcept {return *iTo;}
 
-	inline bool						IsSame						(const GpPipelineNodeConnector& aConnector) const noexcept;
+    inline bool                     IsSame                      (const GpPipelineNodeConnector& aConnector) const noexcept;
 
 private:
-	SocketT*						iFrom	= nullptr;
-	SocketT*						iTo		= nullptr;
+    SocketT*                        iFrom   = nullptr;
+    SocketT*                        iTo     = nullptr;
 };
 
 GpPipelineNodeConnector::GpPipelineNodeConnector (SocketT& aFrom, SocketT& aTo) noexcept:
@@ -60,26 +60,26 @@ iTo(std::move(aConnector.iTo))
 {
 }
 
-GpPipelineNodeConnector&	GpPipelineNodeConnector::operator= (const GpPipelineNodeConnector& aConnector) noexcept
+GpPipelineNodeConnector&    GpPipelineNodeConnector::operator= (const GpPipelineNodeConnector& aConnector) noexcept
 {
-	iFrom	= aConnector.iFrom;
-	iTo		= aConnector.iTo;
+    iFrom   = aConnector.iFrom;
+    iTo     = aConnector.iTo;
 
-	return *this;
+    return *this;
 }
 
-GpPipelineNodeConnector&	GpPipelineNodeConnector::operator= (GpPipelineNodeConnector&& aConnector) noexcept
+GpPipelineNodeConnector&    GpPipelineNodeConnector::operator= (GpPipelineNodeConnector&& aConnector) noexcept
 {
-	iFrom	= std::move(aConnector.iFrom);
-	iTo		= std::move(aConnector.iTo);
+    iFrom   = std::move(aConnector.iFrom);
+    iTo     = std::move(aConnector.iTo);
 
-	return *this;
+    return *this;
 }
 
-bool	GpPipelineNodeConnector::IsSame (const GpPipelineNodeConnector& aConnector) const noexcept
+bool    GpPipelineNodeConnector::IsSame (const GpPipelineNodeConnector& aConnector) const noexcept
 {
-	return	   (iTo   == aConnector.iTo)
-			&& (iFrom == aConnector.iFrom);
+    return     (iTo   == aConnector.iTo)
+            && (iFrom == aConnector.iFrom);
 }
 
 }//namespace GPlatform

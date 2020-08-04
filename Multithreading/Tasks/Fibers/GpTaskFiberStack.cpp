@@ -13,36 +13,36 @@ GpTaskFiberStack::GpTaskFiberStack (void) noexcept
 
 GpTaskFiberStack::~GpTaskFiberStack (void) noexcept
 {
-	Clear();
+    Clear();
 }
 
-void	GpTaskFiberStack::Init (const size_byte_t aSize)
+void    GpTaskFiberStack::Init (const size_byte_t aSize)
 {
-	Clear();
+    Clear();
 
-	iStackAllocator = GpMemOps::SNew<BasicProtectedFixedSizeStackT>(aSize.ValueAs<size_t>());
-	iStackContext	= GpMemOps::SNew<StackContextT>(reinterpret_cast<BasicProtectedFixedSizeStackT*>(iStackAllocator)->allocate());
+    iStackAllocator = GpMemOps::SNew<BasicProtectedFixedSizeStackT>(aSize.ValueAs<size_t>());
+    iStackContext   = GpMemOps::SNew<StackContextT>(reinterpret_cast<BasicProtectedFixedSizeStackT*>(iStackAllocator)->allocate());
 }
 
-void	GpTaskFiberStack::Clear (void) noexcept
+void    GpTaskFiberStack::Clear (void) noexcept
 {
-	if (iStackAllocator != nullptr)
-	{
-		BasicProtectedFixedSizeStackT* allocator = reinterpret_cast<BasicProtectedFixedSizeStackT*>(iStackAllocator);
+    if (iStackAllocator != nullptr)
+    {
+        BasicProtectedFixedSizeStackT* allocator = reinterpret_cast<BasicProtectedFixedSizeStackT*>(iStackAllocator);
 
-		if (iStackContext != nullptr)
-		{
-			StackContextT* sctx = reinterpret_cast<StackContextT*>(iStackContext);
+        if (iStackContext != nullptr)
+        {
+            StackContextT* sctx = reinterpret_cast<StackContextT*>(iStackContext);
 
-			allocator->deallocate(*sctx);
+            allocator->deallocate(*sctx);
 
-			GpMemOps::SDelete(sctx);
-			iStackContext = nullptr;
-		}
+            GpMemOps::SDelete(sctx);
+            iStackContext = nullptr;
+        }
 
-		GpMemOps::SDelete(allocator);
-		iStackAllocator = nullptr;
-	}
+        GpMemOps::SDelete(allocator);
+        iStackAllocator = nullptr;
+    }
 }
 
 }//namespace GPlatform

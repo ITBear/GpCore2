@@ -13,48 +13,48 @@ GpPipelineEvaluator::~GpPipelineEvaluator (void) noexcept
 {
 }
 
-void	GpPipelineEvaluator::FiberFn (GpThreadStopToken aStopToken)
+void    GpPipelineEvaluator::FiberFn (GpThreadStopToken aStopToken)
 {
-	const GpPipeline&			pipeline		= iPipeline.VC();
-	GpPipelineNode::C::Set::CSP	readyNodes		= pipeline.RootNodes();
-	GpPipelineNode::C::Set::CSP	evaluatingNodes;
-	GpPipelineNode::C::Set::CSP	nextNodes;
+    const GpPipeline&           pipeline        = iPipeline.VC();
+    GpPipelineNode::C::Set::CSP readyNodes      = pipeline.RootNodes();
+    GpPipelineNode::C::Set::CSP evaluatingNodes;
+    GpPipelineNode::C::Set::CSP nextNodes;
 
-	while (!aStopToken.stop_requested())
-	{
-		ProcessEvents(readyNodes);
+    while (!aStopToken.stop_requested())
+    {
+        ProcessEvents(readyNodes);
 
-		if (readyNodes.size() > 0)
-		{
-			for (const GpPipelineNode::CSP& n: readyNodes)
-			{
-				GpPipelineEvaluateCtx::SP evaluateCtx = n.VCn().NewEvaluateCtx();
-				//GpTaskFiberCtx::S
-			}
+        if (readyNodes.size() > 0)
+        {
+            for (const GpPipelineNode::CSP& n: readyNodes)
+            {
+                GpPipelineEvaluateCtx::SP evaluateCtx = n.VCn().NewEvaluateCtx();
+                //GpTaskFiberCtx::S
+            }
 
-			readyNodes.clear();
-			GpTaskFiberCtx::SYeld(GpTask::Res::WAITING);
-		} else
-		{
-			//if (nextNodes.size() > )
+            readyNodes.clear();
+            GpTaskFiberCtx::SYeld(GpTask::Res::WAITING);
+        } else
+        {
+            //if (nextNodes.size() > )
 
-		}
-	}
+        }
+    }
 
-	//GpTaskFiberCtx::SYeld(GpTask::Res::DONE);
+    //GpTaskFiberCtx::SYeld(GpTask::Res::DONE);
 }
 
-void	GpPipelineEvaluator::ProcessEvents (GpPipelineNode::C::Set::CSP& aReadyNodesOut)
+void    GpPipelineEvaluator::ProcessEvents (GpPipelineNode::C::Set::CSP& aReadyNodesOut)
 {
-	GpEvent::SP event = PopNextEvent();
+    GpEvent::SP event = PopNextEvent();
 
-	while (event.IsNotNULL())
-	{
-		//?
-		aReadyNodesOut.emplace();
+    while (event.IsNotNULL())
+    {
+        //?
+        aReadyNodesOut.emplace();
 
-		event = PopNextEvent();
-	}
+        event = PopNextEvent();
+    }
 }
 
 }//GPlatform

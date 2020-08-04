@@ -12,16 +12,16 @@ namespace GPlatform {
 
 class GPCORE_API GpDateTimeOps
 {
-	CLASS_REMOVE_CTRS(GpDateTimeOps);
+    CLASS_REMOVE_CTRS(GpDateTimeOps);
 
 public:
-	[[nodiscard]] static unix_ts_ms_t		SUnixTS_ms		(void) noexcept;
-	[[nodiscard]] static unix_ts_s_t		SUnixTS_s		(void) noexcept;
+    [[nodiscard]] static unix_ts_ms_t       SUnixTS_ms      (void) noexcept;
+    [[nodiscard]] static unix_ts_s_t        SUnixTS_s       (void) noexcept;
 
-	[[nodiscard]] static milliseconds_t		SSteadyTS_ms	(void) noexcept;
-	[[nodiscard]] static seconds_t			SSteadyTS_s		(void) noexcept;
+    [[nodiscard]] static milliseconds_t     SSteadyTS_ms    (void) noexcept;
+    [[nodiscard]] static seconds_t          SSteadyTS_s     (void) noexcept;
 
-	[[nodiscard]] static microseconds_t		SHighResTS_us	(void) noexcept;
+    [[nodiscard]] static microseconds_t     SHighResTS_us   (void) noexcept;
 };
 
 }//GPlatform

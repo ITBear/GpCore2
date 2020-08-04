@@ -13,10 +13,9 @@ PACKET_NAME     = GpCore
 OUT_BUILD_PATH  = ./../../../Bin_tmp/
 
 compiler_gcc{
-	os_linux{
-		QMAKE_CC	= gcc-9
-		QMAKE_CXX	= g++-9
-	}
+	QMAKE_CC		=	gcc-10
+	QMAKE_CXX		=	g++-10
+	QMAKE_LINK		=	g++-10
 }else:compiler_clang{
 	QMAKE_CXXFLAGS	+= -stdlib=libc++
 	QMAKE_LFLAGS    += -stdlib=libc++
@@ -24,29 +23,20 @@ compiler_gcc{
 	#QMAKE_CXXFLAGS	+= -stdlib=libstdc++
 	#QMAKE_LFLAGS   += -stdlib=libstdc++
 }else:compiler_emscripten{
-
 }else{
 	error(Unknown compiler mode. Set CONFIG+=compiler_gcc OR CONFIG+=compiler_clang OR CONFIG+=compiler_emscripten)
 }
 
-#c++2a
-CONFIG					+=	c++2a
-QMAKE_CXXFLAGS_GNUCXX11 =	-std=gnu++2a
-QMAKE_CXXFLAGS_GNUCXX14 =	-std=gnu++2a
-QMAKE_CXXFLAGS_GNUCXX1Z =	-std=gnu++2a
-QMAKE_CXXFLAGS			+=	-std=gnu++2a
-
-compiler_gcc{
-	QMAKE_CXXFLAGS	+= -fstrict-aliasing -Wall -Wextra -Wno-comment -Wdouble-promotion -Wswitch-default -Wswitch-enum -Wuninitialized -Wstrict-aliasing -Wfloat-equal -Wshadow -Wplacement-new -Wcast-align -Wconversion -Wlogical-op
-	QMAKE_CXXFLAGS	+= -Wduplicated-cond -Wduplicated-branches -Wrestrict -Wnull-dereference -Wno-terminate
-	#QMAKE_CXXFLAGS	+= -fconcepts -fgnu-tm
-	QMAKE_CXXFLAGS  += -fstack-clash-protection
-}else:compiler_clang{
-}else:compiler_emscripten{
-}
+#c++20
+CONFIG			+=	c++20
+QMAKE_CXXFLAGS	+=	-std=gnu++20
 
 QMAKE_CXXFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden
-QMAKE_CXXFLAGS	+= -ffunction-sections -fdata-sections -fexceptions
+QMAKE_CXXFLAGS	+= -ffunction-sections -fdata-sections -fexceptions -fstrict-aliasing -fstack-clash-protection
+QMAKE_CXXFLAGS	+= -Wall -Wextra -Wdouble-promotion -Wswitch-default -Wswitch-enum -Wuninitialized
+QMAKE_CXXFLAGS	+= -Wstrict-aliasing -Wfloat-equal -Wshadow -Wplacement-new -Wcast-align -Wconversion -Wlogical-op
+QMAKE_CXXFLAGS	+= -Wduplicated-cond -Wduplicated-branches -Wrestrict -Wnull-dereference -Wno-terminate
+QMAKE_CXXFLAGS	+= -Wno-unknown-warning-option -Wno-unused-command-line-argument -Wno-comment
 #QMAKE_CXXFLAGS	+= -fno-rtti
 QMAKE_LFLAGS    += -Wl,--gc-sections
 
@@ -126,7 +116,7 @@ message([$$PACKET_NAME]: -------------------------------------------------)
 LIBS += -L$$DESTDIR
 
 os_windows{
-	BOOST_LIB_POSTFIX = -mgw82-mt-x64-1_72
+	BOOST_LIB_POSTFIX	= -mgw82-mt-x64-1_72
 }
 
 os_linux
@@ -167,7 +157,9 @@ HEADERS += \
 	Config/GpConfig_os_macosx.hpp \
 	Config/GpConfig_os_windows.hpp \
 	Config/GpEnvironmentDetector.hpp \
+	Constexpr/GpConstexprArray.hpp \
 	Constexpr/GpConstexprFalse.hpp \
+	Constexpr/GpConstexprIterator.hpp \
 	Constexpr/GpConstexprUtils.hpp \
 	EventBus/GpEvent.hpp \
 	EventBus/GpEventBus.hpp \
@@ -232,10 +224,8 @@ HEADERS += \
 	Types/Containers/GpContainersT.hpp \
 	Types/Containers/GpElementsCatalog.hpp \
 	Types/Containers/GpElementsPool.hpp \
-	Types/Containers/GpMemoryStorage.hpp \
-	Types/Containers/GpMemoryStorageViewR.hpp \
-	Types/Containers/GpMemoryStorageViewRW.hpp \
 	Types/Containers/GpRawPtrByte.hpp \
+	Types/Containers/GpRawPtrNumerics.hpp \
 	Types/Containers/GpTypeShell.hpp \
 	Types/DateTime/GpDateTime.hpp \
 	Types/DateTime/GpDateTimeOps.hpp \
@@ -247,12 +237,10 @@ HEADERS += \
 	Types/Numerics/GpNumericTypes.hpp \
 	Types/Numerics/GpNumerics.hpp \
 	Types/Pointers/GpPointers.hpp \
-	Types/Pointers/GpRawPtrR.hpp \
-	Types/Pointers/GpRawPtrRW.hpp \
+	Types/Pointers/GpRawPtr.hpp \
 	Types/Pointers/GpReferenceCounter.hpp \
 	Types/Pointers/GpReferenceStorage.hpp \
 	Types/Pointers/GpSharedPtr.hpp \
-	Types/Strings/GpRawPtrChar.hpp \
 	Types/Strings/GpStringLiterals.hpp \
 	Types/Strings/GpStringOps.hpp \
 	Types/Strings/GpStringOpsGlob.hpp \
@@ -294,6 +282,8 @@ HEADERS += \
 	Types/Units/SI/GpUnitsSI_Time.hpp \
 	Types/Units/SI/GpUnitsSI_Weight.hpp \
 	Utils/GpUtils.hpp \
+	Utils/RAII/GpRAIIonDestruct.hpp \
+	Utils/RAII/GpRAIIutils.hpp \
 	Utils/Streams/GpBitReader.hpp \
 	Utils/Streams/GpBitReaderStorage.hpp \
 	Utils/Streams/GpBitWriter.hpp \
@@ -343,6 +333,7 @@ SOURCES += \
 	Types/DateTime/GpDateTimeOps.cpp \
 	Types/Enums/GpEnum.cpp \
 	Types/Numerics/GpNumericOps.cpp \
+	Types/Pointers/GpRawPtr.cpp \
 	Types/Strings/GpStringOps.cpp \
 	Types/TypeSystem/GpType.cpp \
 	Types/TypeSystem/GpTypeContainer.cpp \

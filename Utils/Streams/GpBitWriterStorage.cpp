@@ -2,16 +2,13 @@
 
 namespace GPlatform {
 
-GpBitWriterStorage::~GpBitWriterStorage	(void) noexcept
+GpBitWriterStorage::~GpBitWriterStorage (void) noexcept
 {
 }
 
-void	GpBitWriterStorage::AllocateNext (const size_bit_t aSize)
+void    GpBitWriterStorage::AllocateNext (const size_bit_t aSize)
 {
-	if (iLeft < aSize)
-	{
-		THROW_GPE("Out of range"_sv);
-	}
+    THROW_GPE_COND_CHECK_M(iLeft >= aSize, "Out of range"_sv);
 }
 
 }//GPlatform

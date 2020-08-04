@@ -9,11 +9,11 @@
 namespace GPlatform {
 
 GP_ENUM(GPCORE_API, GpTypeContainer,
-	NO,
-	VECTOR,
-	LIST,
-	SET,
-	MAP
+    NO,
+    VECTOR,
+    LIST,
+    SET,
+    MAP
 );
 
 }//GPlatform

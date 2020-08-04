@@ -6,8 +6,8 @@
 
 namespace GPlatform {
 
-GpTaskExecutor::GpTaskExecutor (GpTaskScheduler&	aScheduler,
-								GpConditionVar::SP	aCondVar) noexcept:
+GpTaskExecutor::GpTaskExecutor (GpTaskScheduler&    aScheduler,
+                                GpConditionVar::SP  aCondVar) noexcept:
 GpRunnable(std::move(aCondVar)),
 iScheduler(aScheduler)
 {
@@ -17,24 +17,24 @@ GpTaskExecutor::~GpTaskExecutor (void) noexcept
 {
 }
 
-void	GpTaskExecutor::Run (GpThreadStopToken aStopToken) noexcept
+void    GpTaskExecutor::Run (GpThreadStopToken aStopToken) noexcept
 {
-	GpTask::SP	currentTask;
-	GpTask::Res	currentTaskExecRes = GpTask::Res::DONE;
+    GpTask::SP  currentTask;
+    GpTask::Res currentTaskExecRes = GpTask::Res::DONE;
 
-	while (!aStopToken.stop_requested())
-	{
-		currentTask = iScheduler.Reshedule(currentTask, currentTaskExecRes);
+    while (!aStopToken.stop_requested())
+    {
+        currentTask = iScheduler.Reshedule(currentTask, currentTaskExecRes);
 
-		if (currentTask.IsNotNULL())
-		{
-			currentTaskExecRes = currentTask.Vn().Do(aStopToken);
-		} else
-		{
-			WaitForWakeup(10.0_si_s);
-			currentTaskExecRes = GpTask::Res::DONE;
-		}
-	}
+        if (currentTask.IsNotNULL())
+        {
+            currentTaskExecRes = currentTask.Vn().Do(aStopToken);
+        } else
+        {
+            WaitForWakeup(10.0_si_s);
+            currentTaskExecRes = GpTask::Res::DONE;
+        }
+    }
 }
 
 }//GPlatform

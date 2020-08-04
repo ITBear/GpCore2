@@ -6,39 +6,42 @@ namespace GPlatform {
 
 class GPCORE_API GpByteReader
 {
-	CLASS_REMOVE_CTRS(GpByteReader);
+    CLASS_REMOVE_CTRS(GpByteReader)
 
 public:
-							GpByteReader	(GpByteReaderStorage& aStorage) noexcept: iStorage(aStorage){}
-							~GpByteReader	(void) noexcept = default;
+                            GpByteReader    (GpByteReaderStorage& aStorage) noexcept: iStorage(aStorage){}
+                            ~GpByteReader   (void) noexcept = default;
 
-	u_int_8					UInt8			(void);
-	s_int_8					SInt8			(void);
-	u_int_16				UInt16			(void);
-	s_int_16				SInt16			(void);
-	u_int_32				UInt32			(void);
-	s_int_32				SInt32			(void);
-	u_int_64				UInt64			(void);
-	s_int_64				SInt64			(void);
-	std::string_view		BytesWithLen	(void);
-	std::string_view		Bytes			(const size_byte_t aSize);
+    u_int_8                 UInt8           (void);
+    s_int_8                 SInt8           (void);
+    u_int_16                UInt16          (void);
+    s_int_16                SInt16          (void);
+    u_int_32                UInt32          (void);
+    s_int_32                SInt32          (void);
+    u_int_64                UInt64          (void);
+    s_int_64                SInt64          (void);
+    GpRawPtrByteR           BytesWithLen    (void);
+    GpRawPtrByteR           Bytes           (const size_byte_t aSize) {return iStorage.ReadAndShift(aSize);}
+    GpRawPtrByteR           TryBytes        (const size_byte_t aSize) {return iStorage.TryReadAndShift(aSize);}
 
-	s_int_32				CompactSInt32	(void);
+    s_int_32                CompactSInt32   (void);
 
-private:
-	template<typename T>
-	T						ReadPOD			(void)
-	{
-		std::string_view data = Bytes(size_byte_t::SMake(sizeof(T)));
-
-		T val;
-		std::memcpy(&val, data.data(), data.size());
-		val = BitOps::H2N(val);
-		return val;
-	}
+    size_byte_t             SizeLeft        (void) const noexcept {return iStorage.SizeLeft();}
 
 private:
-	GpByteReaderStorage&	iStorage;
+    template<typename T>
+    T                       ReadPOD         (void)
+    {
+        GpRawPtrByteR data = Bytes(size_byte_t::SMake(sizeof(T)));
+
+        T val;
+        std::memcpy(&val, data.PtrBegin(), data.CountTotalV<size_t>());
+        val = BitOps::H2N(val);
+        return val;
+    }
+
+private:
+    GpByteReaderStorage&    iStorage;
 };
 
 }//GPlatform

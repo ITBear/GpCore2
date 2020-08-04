@@ -13,30 +13,30 @@ namespace GPlatform {
 class GPCORE_API GpTaskExecutorsPool final: public GpElementsPool<GpTaskExecutor*>
 {
 public:
-	CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskExecutorsPool);
-	CLASS_DECLARE_DEFAULTS(GpTaskExecutorsPool);
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskExecutorsPool)
+    CLASS_DECLARE_DEFAULTS(GpTaskExecutorsPool)
 
-	using ExecutorT	= GpTaskExecutor;
+    using ExecutorT = GpTaskExecutor;
 
 public:
-								GpTaskExecutorsPool		(GpTaskScheduler& aScheduler) noexcept;
-	virtual						~GpTaskExecutorsPool	(void) noexcept override final;
+                                GpTaskExecutorsPool     (GpTaskScheduler& aScheduler) noexcept;
+    virtual                     ~GpTaskExecutorsPool    (void) noexcept override final;
 
-	void						RequestStop				(void) noexcept;
-	void						Join					(void) noexcept;
-	void						WakeupAll				(void) noexcept;
+    void                        RequestStop             (void) noexcept;
+    void                        Join                    (void) noexcept;
+    void                        WakeupAll               (void) noexcept;
 
 protected:
-	virtual void				PreInit					(const count_t aCount) override final;
-	virtual value_type			NewElement				(void) override final;
-	virtual void				OnClear					(void) noexcept override final;
+    virtual void                PreInit                 (const count_t aCount) override final;
+    virtual value_type          NewElement              (void) override final;
+    virtual void                OnClear                 (void) noexcept override final;
 
 private:
-	GpTaskScheduler&			iScheduler;
-	GpThread::C::Vec::Val		iThreads;
-	ExecutorT::C::Vec::SP		iExecutors;
-	count_t						iExecutorsLeft	= 0_cnt;
-	GpConditionVar::SP			iExecutorsCondVar;
+    GpTaskScheduler&            iScheduler;
+    GpThread::C::Vec::Val       iThreads;
+    ExecutorT::C::Vec::SP       iExecutors;
+    count_t                     iExecutorsLeft  = 0_cnt;
+    GpConditionVar::SP          iExecutorsCondVar;
 };
 
 }//GPlatform

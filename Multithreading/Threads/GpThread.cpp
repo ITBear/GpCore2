@@ -15,74 +15,74 @@ iName(aName)
 
 GpThread::GpThread (GpThread&& aThread) noexcept
 {
-	std::scoped_lock lock(iMutex, aThread.iMutex);
+    std::scoped_lock lock(iMutex, aThread.iMutex);
 
-	iName		= std::move(aThread.iName);
-	iThread		= std::move(aThread.iThread);
-	iRunnable	= std::move(aThread.iRunnable);
+    iName       = std::move(aThread.iName);
+    iThread     = std::move(aThread.iThread);
+    iRunnable   = std::move(aThread.iRunnable);
 }
 
-GpThread::~GpThread	(void) noexcept
+GpThread::~GpThread (void) noexcept
 {
-	RequestStop();
+    RequestStop();
 }
 
-void	GpThread::Run (GpRunnable::SP aRunnable)
+void    GpThread::Run (GpRunnable::SP aRunnable)
 {
-	{
-		std::scoped_lock lock(iMutex);
-		THROW_GPE_COND_CHECK_M(iRunnable.IsNULL(), "Already run"_sv);
-		iRunnable = aRunnable;
-	}
+    {
+        std::scoped_lock lock(iMutex);
+        THROW_GPE_COND_CHECK_M(iRunnable.IsNULL(), "Already run"_sv);
+        iRunnable = aRunnable;
+    }
 
 #if defined(GP_USE_MULTITHREADING_IMPL_JTHREAD)
-	iThread = std::jthread([aRunnable](GpThreadStopToken aStopToken) noexcept
-	{
-		GpRunnable::SP runnable = aRunnable;
-		runnable.V().Run(aStopToken);
-	});
+    iThread = std::jthread([aRunnable](GpThreadStopToken aStopToken) noexcept
+    {
+        GpRunnable::SP runnable = aRunnable;
+        runnable.V().Run(aStopToken);
+    });
 #else
-#	error Unimplemented
+#   error Unimplemented
 #endif
 }
 
-bool	GpThread::Joinable (void) const noexcept
+bool    GpThread::Joinable (void) const noexcept
 {
-	return iThread.joinable();
+    return iThread.joinable();
 }
 
-void	GpThread::Join (void) noexcept
+void    GpThread::Join (void) noexcept
 {
-	if (iThread.joinable())
-	{
-		try
-		{
-			if (iRunnable.IsNotNULL())
-			{
-				iRunnable.Vn().WakeupAll();
-			}
+    if (iThread.joinable())
+    {
+        try
+        {
+            if (iRunnable.IsNotNULL())
+            {
+                iRunnable.Vn().WakeupAll();
+            }
 
-			iThread.join();
-		} catch (const std::system_error&)
-		{
-			//thread was stoped between joinable() and join() calls
-		}
-	}
+            iThread.join();
+        } catch (const std::system_error&)
+        {
+            //thread was stoped between joinable() and join() calls
+        }
+    }
 }
 
-bool	GpThread::RequestStop (void) noexcept
+bool    GpThread::RequestStop (void) noexcept
 {
-	const bool res = iThread.request_stop();
+    const bool res = iThread.request_stop();
 
-	if (res)
-	{
-		if (iRunnable.IsNotNULL())
-		{
-			iRunnable.Vn().WakeupAll();
-		}
-	}
+    if (res)
+    {
+        if (iRunnable.IsNotNULL())
+        {
+            iRunnable.Vn().WakeupAll();
+        }
+    }
 
-	return res;
+    return res;
 }
 
 }//GPlatform
