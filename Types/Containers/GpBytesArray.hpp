@@ -5,8 +5,8 @@
 #if defined(GP_USE_CONTAINERS)
 
 #include "GpContainersT.hpp"
-#include <iterator>
-#include <concepts>
+#include "../../Constexpr/GpConstexprIterator.hpp"
+#include "../Pointers/GpRawPtr.hpp"
 
 namespace GPlatform {
 
@@ -17,17 +17,7 @@ class GpBytesArrayUtils
     CLASS_REMOVE_CTRS(GpBytesArrayUtils)
 
 public:
-    template<class C>
-    using has_iterator_v                        = typename C::iterator;
-
-    template<typename C>
-    using iter_t                                = std::experimental::detected_or_t<void, has_iterator_v, C>;
-
-    template <typename C>
-    static constexpr bool is_ra_container_v     = std::random_access_iterator<iter_t<C>>;
-
-public:
-    template<typename FROM, typename = std::enable_if_t<is_ra_container_v<FROM>, FROM>> constexpr
+    template<typename FROM, typename = std::enable_if_t<has_random_access_iter_v<FROM>, FROM>>
     static GpBytesArray         SMake   (const FROM& aContainer)
     {
         GpBytesArray res;
@@ -38,6 +28,15 @@ public:
                       reinterpret_cast<const std::byte*>(aContainer.data()),
                       count_t::SMake(size));
 
+        return res;
+    }
+
+    static GpBytesArray         SMake   (GpRawPtr<const std::byte*> aData)
+    {
+        GpBytesArray res;
+        res.resize(aData.CountLeftV<size_t>());
+        GpRawPtr<std::byte*> resPtr(res);
+        resPtr.CopyFrom(aData);
         return res;
     }
 };

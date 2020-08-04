@@ -103,7 +103,7 @@ void    GpEnum::_SParseEnumValues (NamesListT&      aNamesListOut,
         {
             name    = parts.at(0);
             id_str  = parts.at(2);
-            id      = GpStringOps::SToUI64(id_str).ValueAs<value_type>();
+            id      = NumOps::SConvert<value_type>(GpStringOps::SToUI64(id_str));
         } else
         {
             THROW_GPE("Wrong enum '"_sv + aEnumName + "' element: "_sv + parts.at(0).AsStringView());

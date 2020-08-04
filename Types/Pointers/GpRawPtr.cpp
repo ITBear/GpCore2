@@ -13,7 +13,7 @@ public:
 
 void Constructor()
 {
-    std::vector<A>  a;  a.resize(10);
+    /*std::vector<A>    a;  a.resize(10);
     std::string     s;  s.resize(10);
 
     {
@@ -63,12 +63,12 @@ void Constructor()
 
         GpRawPtr<const char*>   s6(_s);
         GpRawPtr<const char*>   s7(_a);
-    }
+    }*/
 }
 
 void    Set (void)
 {
-    const std::vector<A>    a;//    a.resize(10);
+    /*const std::vector<A>  a;//    a.resize(10);
     const std::string       s;//    s.resize(10);
 
     std::vector<A>  _a;//   a.resize(10);
@@ -99,12 +99,12 @@ void    Set (void)
     char_ptr_1.Set(char_ptr_1);
     char_ptr_1.Set(char_ptr_2);
     char_ptr_1.Set(char_ptr_1);
-    char_ptr_1.Set(char_ptr_2);
+    char_ptr_1.Set(char_ptr_2);*/
 }
 
 void    OperatorEQ (void)
 {
-    std::vector<A>  a;  a.resize(10);
+    /*std::vector<A>    a;  a.resize(10);
     std::string     s;  s.resize(10);
 
     GpRawPtr<const char*>   const_char_ptr_1(a);
@@ -119,12 +119,12 @@ void    OperatorEQ (void)
 
     char_ptr_1 = a;
     char_ptr_1 = s;
-    char_ptr_1 = char_ptr_2;
+    char_ptr_1 = char_ptr_2;*/
 }
 
 void    Offset (void)
 {
-    std::vector<A>  a;  a.resize(10);
+    /*std::vector<A>    a;  a.resize(10);
     std::string     s;  s.resize(10);
 
     GpRawPtr<const char*>   const_char_ptr_1(a);
@@ -136,12 +136,12 @@ void    Offset (void)
     const_char_ptr_1.OffsetSub(1_cnt);
     const_char_ptr_1.OffsetZero();
     const_char_ptr_1.OffsetAs<char*>();
-    //const_char_ptr_1.OffsetAs<A*>();
+    //const_char_ptr_1.OffsetAs<A*>();*/
 }
 
 void    Ptr (void)
 {
-    std::vector<A>  a;  a.resize(10);
+    /*std::vector<A>    a;  a.resize(10);
     std::string     s;  s.resize(10);
 
     GpRawPtr<const char*>   const_char_ptr_1(a);
@@ -159,12 +159,12 @@ void    Ptr (void)
     c = char_ptr_1.Ptr();
     c = char_ptr_1.Ptr(1_cnt);
     //c = const_char_ptr_1.Ptr();
-    //c = const_char_ptr_1.Ptr(1_cnt);
+    //c = const_char_ptr_1.Ptr(1_cnt);*/
 }
 
 void    CopyFrom (void)
 {
-    std::vector<A>  a;  a.resize(10);
+    /*std::vector<A>    a;  a.resize(10);
     std::string     s;  s.resize(10);
 
     GpRawPtr<const char*>   const_char_ptr_1(a);
@@ -177,12 +177,12 @@ void    CopyFrom (void)
     char_ptr_1.CopyFrom(const_char_ptr_1);
     char_ptr_1.CopyFrom(char_ptr_2);
     char_ptr_1.CopyFrom(a);
-    char_ptr_1.CopyFrom(s);
+    char_ptr_1.CopyFrom(s);*/
 }
 
 void    Subrange (void)
 {
-    std::vector<A>  a;  a.resize(10);
+    /*std::vector<A>    a;  a.resize(10);
     std::string     s;  s.resize(10);
 
     GpRawPtr<const char*>   const_char_ptr_1(a);
@@ -194,7 +194,7 @@ void    Subrange (void)
 
     char_ptr_1.Subrange(0_cnt, 1_cnt);
     char_ptr_1.SubrangeAs<GpRawPtr<char*>>(0_cnt, 1_cnt);
-    char_ptr_1.SubrangeAs<GpRawPtr<const char*>>(0_cnt, 1_cnt);
+    char_ptr_1.SubrangeAs<GpRawPtr<const char*>>(0_cnt, 1_cnt);*/
 }
 
 void    Test (void)

@@ -28,8 +28,8 @@ compiler_gcc{
 }
 
 #c++20
-CONFIG			+=	c++2a
-QMAKE_CXXFLAGS	+=	-std=gnu++2a
+CONFIG			+=	c++20
+QMAKE_CXXFLAGS	+=	-std=gnu++20
 
 QMAKE_CXXFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden
 QMAKE_CXXFLAGS	+= -ffunction-sections -fdata-sections -fexceptions -fstrict-aliasing -fstack-clash-protection
@@ -157,7 +157,9 @@ HEADERS += \
 	Config/GpConfig_os_macosx.hpp \
 	Config/GpConfig_os_windows.hpp \
 	Config/GpEnvironmentDetector.hpp \
+	Constexpr/GpConstexprArray.hpp \
 	Constexpr/GpConstexprFalse.hpp \
+	Constexpr/GpConstexprIterator.hpp \
 	Constexpr/GpConstexprUtils.hpp \
 	EventBus/GpEvent.hpp \
 	EventBus/GpEventBus.hpp \

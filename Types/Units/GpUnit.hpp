@@ -430,7 +430,7 @@ public:
         return *this;
     }
 
-    constexpr const this_type operator- (void) const noexcept
+    constexpr const this_type operator- (void) const
     {
         return this_type(NumOps::SNegative<T>(Value()));
     }
@@ -445,7 +445,7 @@ public:
         return this_type(NumOps::SAdd<T>(aLeft.Value(), SConvertFrom(aRight)));
     }
 
-    constexpr friend const this_type operator+(const this_type aLeft, const this_type aRight) noexcept
+    constexpr friend const this_type operator+(const this_type aLeft, const this_type aRight)
     {
         return this_type(NumOps::SAdd<T>(aLeft.Value(), aRight.Value()));
     }
@@ -460,7 +460,7 @@ public:
         return this_type(NumOps::SSub<T>(aLeft.Value(), SConvertFrom(aRight)));
     }
 
-    constexpr friend const this_type operator-(const this_type aLeft, const this_type aRight) noexcept
+    constexpr friend const this_type operator-(const this_type aLeft, const this_type aRight)
     {
         return this_type(NumOps::SSub<T>(aLeft.Value(), aRight.Value()));
     }
@@ -475,7 +475,7 @@ public:
         return this_type(NumOps::SMul<T>(aLeft.Value(), SConvertFrom(aRight)));
     }
 
-    constexpr friend const this_type operator*(const this_type aLeft, const this_type aRight) noexcept
+    constexpr friend const this_type operator*(const this_type aLeft, const this_type aRight)
     {
         return this_type(NumOps::SMul<T>(aLeft.Value(), aRight.Value()));
     }
@@ -490,7 +490,7 @@ public:
         return this_type(NumOps::SDiv<T>(aLeft.Value(), SConvertFrom(aRight)));
     }
 
-    constexpr friend const this_type operator/(const this_type aLeft, const this_type aRight) noexcept
+    constexpr friend const this_type operator/(const this_type aLeft, const this_type aRight)
     {
         return this_type(NumOps::SDiv<T>(aLeft.Value(), aRight.Value()));
     }
@@ -505,7 +505,7 @@ public:
         return this_type(NumOps::SMod<T>(aLeft.Value(), SConvertFrom(aRight)));
     }
 
-    constexpr friend const this_type operator%(const this_type aLeft, const this_type aRight) noexcept
+    constexpr friend const this_type operator%(const this_type aLeft, const this_type aRight)
     {
         return this_type(NumOps::SMod<T>(aLeft.Value(), aRight.Value()));
     }
@@ -549,7 +549,6 @@ public:
     {
         return this_type(std::bit_cast<value_type>(aValue));
     }
-
 
     template<typename T_2,
              typename UNIT_TYPE_2,

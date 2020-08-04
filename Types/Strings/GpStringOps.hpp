@@ -36,25 +36,25 @@ public:
                                                              const Algo::SplitMode  aSplitMode);
 
     //------------------------- Numeric from/to string --------------------------
-    static count_t                          SFromUI64       (const UInt64       aValue,
+    static count_t                          SFromUI64       (const u_int_64     aValue,
                                                              GpRawPtrCharRW     aStrOut);
-    static std::string                      SFromUI64       (const UInt64       aValue);
+    static std::string                      SFromUI64       (const u_int_64     aValue);
 
-    static count_t                          SFromSI64       (const SInt64       aValue,
+    static count_t                          SFromSI64       (const s_int_64     aValue,
                                                              GpRawPtrCharRW     aStrOut);
-    static std::string                      SFromSI64       (const SInt64       aValue);
+    static std::string                      SFromSI64       (const s_int_64     aValue);
 
     static count_t                          SFromDouble     (const double       aValue,
                                                              GpRawPtrCharRW     aStrOut);
     static std::string                      SFromDouble     (const double aValue);
 
-    static UInt64                           SToUI64         (GpRawPtrCharR aStr);
-    static SInt64                           SToSI64         (GpRawPtrCharR aStr);
+    static u_int_64                         SToUI64         (GpRawPtrCharR aStr);
+    static s_int_64                         SToSI64         (GpRawPtrCharR aStr);
     static double                           SToDouble_fast  (GpRawPtrCharR aStr);//Supported format: [+-][UInt64][.[UInt64]]
 
     //[+-][UInt64][.[UInt64]] - DOUBLE
     //[+-]digits - INT
-    static std::variant<SInt64, double>     SToNumeric      (GpRawPtrCharR aStr);
+    static std::variant<s_int_64, double>   SToNumeric      (GpRawPtrCharR aStr);
 
     //------------------------- Bytes from/to string --------------------------
     static count_t                          SFromBytes      (GpRawPtrByteR  aData,
@@ -80,7 +80,7 @@ public:
     static inline constexpr count_t         SCountChars     (std::string_view aStr, const char aChar) noexcept;
 
 private:
-    static void                             _SFromUI64      (const UInt64   aValue,
+    static void                             _SFromUI64      (const u_int_64 aValue,
                                                              GpRawPtrCharRW aStrOut);
 
 private:

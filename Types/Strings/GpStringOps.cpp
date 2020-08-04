@@ -36,10 +36,10 @@ GpVector<GpRawPtrCharR> GpStringOps::SSplit (GpRawPtrCharR          aSourceStr,
                                                       aSplitMode);
 }
 
-count_t GpStringOps::SFromUI64 (const UInt64    aValue,
+count_t GpStringOps::SFromUI64 (const u_int_64  aValue,
                                 GpRawPtrCharRW  aStrOut)
 {
-    const count_t length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(aValue.ValueAs<u_int_64>()));
+    const count_t length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(aValue));
 
     THROW_GPE_COND_CHECK_M(aStrOut.CountLeft() >= length, "aStrOut size are too small"_sv);
 
@@ -48,9 +48,9 @@ count_t GpStringOps::SFromUI64 (const UInt64    aValue,
     return length;
 }
 
-std::string GpStringOps::SFromUI64 (const UInt64 aValue)
+std::string GpStringOps::SFromUI64 (const u_int_64 aValue)
 {
-    const size_t length = GpNumericOps::SDecDigsCountUI64(aValue.ValueAs<u_int_64>());
+    const size_t length = GpNumericOps::SDecDigsCountUI64(aValue);
     std::string s;
     s.resize(length);
 
@@ -59,23 +59,23 @@ std::string GpStringOps::SFromUI64 (const UInt64 aValue)
     return s;
 }
 
-count_t GpStringOps::SFromSI64 (const SInt64    aValue,
+count_t GpStringOps::SFromSI64 (const s_int_64  aValue,
                                 GpRawPtrCharRW  aStrOut)
 {
     count_t length = 0_cnt;
 
-    if (aValue >= 0_s_int_64)
+    if (aValue >= 0)
     {
-        const UInt64 v = UInt64::SBitCast(aValue);
-        length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(v.ValueAs<u_int_64>()));
+        const u_int_64 v = std::bit_cast<u_int_64>(aValue);
+        length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(v));
 
         THROW_GPE_COND_CHECK_M(aStrOut.CountLeft() >= length, "aStrOut size are too small"_sv);
 
         _SFromUI64(v, GpRawPtrCharRW(aStrOut.Ptr(), length));
     } else
     {
-        const UInt64 v = UInt64::SBitCast(-aValue);
-        length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(v.ValueAs<u_int_64>()));
+        const u_int_64 v =std::bit_cast<u_int_64>(-aValue);
+        length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(v));
 
         THROW_GPE_COND_CHECK_M(aStrOut.CountLeft() >= (length + 1_cnt), "StrOut size are too small"_sv);
 
@@ -87,29 +87,26 @@ count_t GpStringOps::SFromSI64 (const SInt64    aValue,
     return length;
 }
 
-std::string GpStringOps::SFromSI64 (const SInt64 aValue)
+std::string GpStringOps::SFromSI64 (const s_int_64 aValue)
 {
     std::string s;
-    count_t length = 0_cnt;
+    size_t      length = 0;
 
-    if (aValue >= 0_s_int_64)
+    if (aValue >= 0)
     {
-        const UInt64 v = UInt64::SBitCast(aValue);
-        length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(v.ValueAs<u_int_64>()));
+        const u_int_64 v = std::bit_cast<u_int_64>(aValue);
+        length = GpNumericOps::SDecDigsCountUI64(v);
+        s.resize(length);
 
-        s.resize(length.ValueAs<size_t>());
-
-        _SFromUI64(v, GpRawPtrCharRW(s.data(), length));
+        _SFromUI64(v, GpRawPtrCharRW(s));
     } else
     {
-        const UInt64 v = UInt64::SBitCast(-aValue);
-        length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(v.ValueAs<u_int_64>()));
-
-        s.resize((length + 1_cnt).ValueAs<size_t>());
+        const u_int_64 v = std::bit_cast<u_int_64>(-aValue);
+        length = GpNumericOps::SDecDigsCountUI64(v);
+        s.resize(length + 1);
 
         *s.data() = '-';
         _SFromUI64(v, GpRawPtrCharRW(s.data() + 1, length));
-        length++;
     }
 
     return s;
@@ -140,7 +137,7 @@ std::string GpStringOps::SFromDouble (const double aValue)
     return s;
 }
 
-UInt64  GpStringOps::SToUI64 (GpRawPtrCharR aStr)
+u_int_64    GpStringOps::SToUI64 (GpRawPtrCharR aStr)
 {
     UInt64          res = 0_u_int_64;
     const char*     str = aStr.Ptr();
@@ -159,48 +156,48 @@ UInt64  GpStringOps::SToUI64 (GpRawPtrCharR aStr)
         }
     }
 
-    return res;
+    return res.ValueAs<u_int_64>();
 }
 
-SInt64  GpStringOps::SToSI64 (GpRawPtrCharR aStr)
+s_int_64    GpStringOps::SToSI64 (GpRawPtrCharR aStr)
 {
     GpRawPtrCharR str(aStr);
 
     const char signChar = *str;
-    SInt64 sign = 1_s_int_64;
+    s_int_64 sign = 1;
 
     if (signChar == '-')
     {
         ++str;
-        sign = -1_s_int_64;
+        sign = -1;
     } else if (signChar == '+')
     {
         ++str;
-        sign = 1_s_int_64;
+        sign = 1;
     }
 
-    const UInt64 valueWithoutSign = SToUI64(str);
+    const u_int_64 valueWithoutSign = SToUI64(str);
 
-    if (sign >= 0_s_int_64)
+    if (sign >= 0)
     {
-        if (valueWithoutSign > UInt64::SMake(9223372036854775807ULL))
+        if (valueWithoutSign > 9223372036854775807ULL)
         {
             THROW_GPE("Value "_sv + aStr.AsStringView() + " is out of range SInt64"_sv);
         } else
         {
-            return SInt64::SBitCast(valueWithoutSign);
+            return SInt64::SBitCast(valueWithoutSign).ValueAs<s_int_64>();
         }
     } else
     {
-        if (valueWithoutSign > UInt64::SMake(9223372036854775808ULL))
+        if (valueWithoutSign > 9223372036854775808ULL)
         {
             THROW_GPE("Value "_sv + aStr.AsStringView() + " is out of range SInt64"_sv);
-        } else if (valueWithoutSign == UInt64::SMake(9223372036854775808ULL))
+        } else if (valueWithoutSign == 9223372036854775808ULL)
         {
-            return SInt64::SBitCast(valueWithoutSign);//trick
+            return std::bit_cast<s_int_64>(valueWithoutSign);//trick
         } else
         {
-            return SInt64::SBitCast(valueWithoutSign) * sign;
+            return std::bit_cast<s_int_64>(valueWithoutSign) * sign;
         }
     }
 }
@@ -241,21 +238,21 @@ double      GpStringOps::SToDouble_fast (GpRawPtrCharR aStr)
             integerPart = integerPart.SubrangeBeginOffset(1_cnt);//GpRawPtrCharR(integerPart.data() + 1, integerPart.size() - 1);
         }
 
-        const UInt64 v = (!integerPart.IsEmpty()) ? SToUI64(integerPart) : 0_u_int_64;
-        res = double(v.Value());
+        const u_int_64 v = (!integerPart.IsEmpty()) ? SToUI64(integerPart) : 0;
+        res = double(v);
     }
 
     //Parse fractional part (to the right of the radix point)
     if (!fractionalPart.IsEmpty())
     {
-        const UInt64 v = SToUI64(fractionalPart);
-        res += double(v.Value())/pow(10.0, double(fractionalPart.CountLeftV<size_t>()));
+        const u_int_64 v = SToUI64(fractionalPart);
+        res += double(v)/pow(10.0, double(fractionalPart.CountLeftV<size_t>()));
     }
 
-    return res*sign;
+    return res * sign;
 }
 
-std::variant<SInt64, double>    GpStringOps::SToNumeric (GpRawPtrCharR aStr)
+std::variant<s_int_64, double>  GpStringOps::SToNumeric (GpRawPtrCharR aStr)
 {
     //[+-][UInt64][.[UInt64]] - DOUBLE
     //[+-]digits - INT
@@ -264,11 +261,11 @@ std::variant<SInt64, double>    GpStringOps::SToNumeric (GpRawPtrCharR aStr)
 
     if (str.find_first_of('.') == std::string::npos)//int
     {
-        SInt64 val = SToSI64(aStr);
+        const s_int_64 val = SToSI64(aStr);
         return {val};
     } else //double
     {
-        double val = SToDouble_fast(aStr);
+        const double val = SToDouble_fast(aStr);
         return {val};
     }
 }
@@ -472,31 +469,43 @@ std::string&    GpStringOps::SReplace (std::string& aStr, const char aChar, cons
     return aStr;
 }
 
-void    GpStringOps::_SFromUI64 (const UInt64   aValue,
+void    GpStringOps::_SFromUI64 (const u_int_64 aValue,
                                  GpRawPtrCharRW aStrOut)
 {
-    u_int_64        value   = aValue.ValueAs<u_int_64>();
+    u_int_64        value   = aValue;
     const char* _R_ digits  = SDigits().data();
+    char* _R_       str     = aStrOut.Ptr();
 
-    aStrOut += (aStrOut.CountLeft() - 2_cnt);
+    if (value < 10)
+    {
+        *str = char(size_t('0') + size_t(value));
+        return;
+    }
+
+    {
+        const count_t countLeft = aStrOut.CountLeft();
+        const count_t offset    = countLeft - 2_cnt;
+        str += offset.ValueAs<size_t>();
+    }
 
     while (value >= 100)
     {
         const size_t i = size_t((value % u_int_64(100)) * 2);
         value /= 100;
 
-        aStrOut.CopyFrom(digits + i, 2_cnt);
-        aStrOut -= 2_cnt;
+        MemOps::SCopy(str, digits + i, 2_cnt);
+        str -= 2;
     }
 
     // Handle last 1-2 digits
     if (value < 10)
     {
-        *aStrOut = char(size_t('0') + size_t(value));
+        str++;
+        *str = char(size_t('0') + size_t(value));
     } else
     {
         const size_t i = size_t(value) * 2;
-        aStrOut.CopyFrom(digits + i, 2_cnt);
+        MemOps::SCopy(str, digits + i, 2_cnt);
     }
 }
 

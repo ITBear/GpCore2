@@ -5,9 +5,9 @@
 #include "../Strings/GpStringLiterals.hpp"
 #include "../../Memory/GpMemOps.hpp"
 #include "../../Exceptions/GpException.hpp"
+#include "../../Constexpr/GpConstexprIterator.hpp"
 
 #include <iterator>
-#include <concepts>
 #include <vector>
 
 namespace GPlatform {
@@ -130,15 +130,6 @@ public:
                                                       && SHasTag_GpRawPtr<TO>
                                                       && is_reinterpretable_ptr_v<pointer_type_t<FROM>, pointer_type_t<TO>>;
 
-    template<class C>
-    using has_iterator_v                            = typename C::iterator;
-
-    template<typename C>
-    using iter_t                                    = std::experimental::detected_or_t<void, has_iterator_v, C>;
-
-    template <typename C>
-    static constexpr bool is_ra_container_v         = std::random_access_iterator<iter_t<C>>;
-
 public:
     constexpr                                   GpRawPtr        (void) noexcept: iPtr(nullptr),
                                                                                  iCount(0_cnt),
@@ -181,13 +172,13 @@ public:
                                                                                              aRawPtr.template CountTotalAs<const value_type*>(),
                                                                                              aRawPtr.template OffsetAs<const value_type*>()){}
 
-    template<typename C, std::enable_if_t<    is_ra_container_v<C>
+    template<typename C, std::enable_if_t<    has_random_access_iter_v<C>
                                           && !is_const_v<T>
                                           &&  is_convertable_ptr_v<typename C::value_type*, pointer_type>, int> = 0>
                                                 GpRawPtr        (C& aContainer): GpRawPtr(SPtrAs<typename C::value_type*, pointer_type>(aContainer.data()),
                                                                                           SCountAs<typename C::value_type*, pointer_type>(count_t::SMake(aContainer.size()))){}
 
-    template<typename C, std::enable_if_t<   is_ra_container_v<C>
+    template<typename C, std::enable_if_t<   has_random_access_iter_v<C>
                                           && is_const_v<T>
                                           && is_convertable_ptr_v<const typename C::value_type*, pointer_type>, int> = 0>
                                                 GpRawPtr        (const C& aContainer): GpRawPtr(SPtrAs<const typename C::value_type*, pointer_type>(aContainer.data()),
@@ -475,13 +466,13 @@ public:
         return _Ptr(aOffset);
     }
 
-    template <typename _D = void, typename = std::enable_if_t<!is_const_v<T>, _D>>
+    //template <typename _D = void, typename = std::enable_if_t<!is_const_v<T>, _D>>
     constexpr value_type*                       Ptr                 (void)
     {
         return const_cast<value_type*>(std::as_const(*this).Ptr());
     }
 
-    template <typename _D = void, typename = std::enable_if_t<!is_const_v<T>, _D>>
+    //template <typename _D = void, typename = std::enable_if_t<!is_const_v<T>, _D>>
     constexpr value_type*                       Ptr                 (const count_t aOffset)
     {
         return const_cast<value_type*>(std::as_const(*this).Ptr(aOffset));
@@ -634,27 +625,27 @@ public:
 
     constexpr value_type&           At                  (const count_t aOffset)
     {
-        return *const_cast<value_type*>(std::as_const(*this).template Ptr(aOffset));
+        return *const_cast<value_type*>(std::as_const(*this)./*template*/ Ptr(aOffset));
     }
 
     constexpr const value_type&     operator[]          (const count_t aOffset) const
     {
-        return *Ptr(aOffset);
+        return At(aOffset);
     }
 
     constexpr value_type&           operator[]          (const count_t aOffset)
     {
-        return *const_cast<value_type*>(std::as_const(*this).template Ptr(aOffset));
+        return At(aOffset);
     }
 
     constexpr const value_type&     operator*           (void) const
     {
-        return *Ptr();
+        return At(0_cnt);
     }
 
     constexpr value_type&           operator*           (void)
     {
-        return *const_cast<value_type*>(std::as_const(*this).template Ptr());
+        return At(0_cnt);
     }
 
     constexpr this_type&            operator++          (void)
