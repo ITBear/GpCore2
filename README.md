@@ -5,7 +5,7 @@ C++ common utilities and types library
 
 ## Environment for compiling
 
-- cmake 3.16 (For Ubuntu 18.04 nedeed [installing the latest CMake](https://graspingtech.com/upgrade-cmake/))
+- cmake 3.16 (for Ubuntu 18.04 nedeed [installing the latest CMake](https://graspingtech.com/upgrade-cmake/))
 - standard for the C++ - 20
 - gcc-10, g++-10
 
@@ -23,7 +23,9 @@ sudo apt install cmake gcc-10 g++-10 build-essential libtool libboost-dev
 ## Linux
 
 ```sh
+cmake . -DBoost_INCLUDE_DIR=/path/to/include/boost
 cmake --build . --target all -j4
+make install
 ```
 
 ## Wasm32
@@ -33,7 +35,7 @@ cmake --build . --target all -j4
 - [jthread](https://github.com/josuttis/jthread.git) - clone to **_build/inc_**
 
 ```sh
-emcmake cmake . -DBUILD_WASM32=ON 
+emcmake cmake . -DBUILD_WASM32=ON -DBoost_INCLUDE_DIR=/path/to/include/boost
 emmake make -j4
 make install
 ```
