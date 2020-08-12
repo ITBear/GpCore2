@@ -11,7 +11,7 @@ C++ common utilities and types library
 
 ```sh
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test #for gcc-10 g++-10
-sudo apt install cmake gcc-10 g++-10 build-essential libtool libboost-dev
+sudo apt install cmake gcc-10 g++-10 build-essential libtool
 ```
 
 ## Compile workspace
@@ -26,7 +26,8 @@ git clone -b dev https://github.com/ITBear/GpCore2.git
 ## Linux
 
 ```sh
-cmake --build . --target all -j4
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCESSOR=x86_64 -DBOOST_INCLUDE=/usr/include/boost/ -DBUILD_SHARED_LIBS=ON -DBoost_INCLUDE_DIR=/path/to/boost/
+make
 make install
 ```
 
