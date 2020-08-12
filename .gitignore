@@ -145,3 +145,4 @@ moc_*.cpp
 # Ignore CMake files
 CMakeCache.txt
 /CMakeFiles/
+install_manifest.txt
