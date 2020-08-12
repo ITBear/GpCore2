@@ -76,7 +76,7 @@ string(JOIN "," LINK_FLAGS
 
 #------------------------ OS ---------------------
 if(${CMAKE_SYSTEM_NAME} MATCHES Emscripten)
-    set(EMSCRIPTEN_ROOT $ENV{EMSDK}/upstream/emscripten)
+    set(EMSCRIPTEN_ROOT             $ENV{EMSDK}/upstream/emscripten)
     set(CMAKE_TOOLCHAIN_FILE        ${EMSCRIPTEN_ROOT}/cmake/Modules/Platform/Emscripten.cmake)
     set(CMAKE_CXX_COMPILER          em++)
     set(CMAKE_C_COMPILER            emcc)
@@ -143,19 +143,17 @@ if (NOT EXISTS "${TARGET_EXT_INCLUDE_DIR}")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES Emscripten)
-    set(DESTDIR "${TARGET_LIB_DIR}")
+    set(LIBRARY_OUTPUT_PATH "${TARGET_LIB_DIR}")
 else()
     set(SP _)
-    set(DESTDIR "${TARGET_LIB_DIR}/${CMAKE_BUILD_TYPE}${SP}${CMAKE_SYSTEM_NAME}${SP}${CMAKE_SYSTEM_PROCESSOR}")
+    set(LIBRARY_OUTPUT_PATH "${TARGET_LIB_DIR}/${CMAKE_BUILD_TYPE}${SP}${CMAKE_SYSTEM_NAME}${SP}${CMAKE_SYSTEM_PROCESSOR}")
 endif()
-
-set(LIBRARY_OUTPUT_PATH	${DESTDIR})
 
 #------------------------ LIBS ---------------------
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         "${TARGET_EXT_INCLUDE_DIR}"
-        "${BOOST_INCLUDE}"
+        "${Boost_INCLUDE_DIR}"
         $<$<BOOL:BUILD_WASM32>:${TARGET_EXT_INCLUDE_DIR}/jthread>
     )
 
