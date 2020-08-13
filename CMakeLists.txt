@@ -2,15 +2,11 @@ cmake_minimum_required(VERSION 3.16)
 
 project(GpCore2
 	VERSION 0.1.0
-	DESCRIPTION "C++ common utilities and types library"
-	LANGUAGES CXX)
+        DESCRIPTION "C++ common utilities and types library"
+        LANGUAGES CXX)
 
 set(CMAKE_VERBOSE_MAKEFILE      ON)
 set(CMAKE_BUILD_PARALLEL_LEVEL	3)
-
-# Find all *.cpp and *.hpp files in project
-file (GLOB_RECURSE SOURCES *.cpp)
-file (GLOB_RECURSE INCLUDES *.hpp)
 
 option(BUILD_SHARED_LIBS "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" ON)
 option(BUILD_WASM32 "Build static wasm libraries" OFF)
@@ -22,21 +18,9 @@ if (BUILD_WASM32)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-if (BUILD_SHARED_LIBS)
-    add_library(${PROJECT_NAME} SHARED ${SOURCES})
-else()
-    add_library(${PROJECT_NAME} STATIC ${SOURCES})
-endif()
-
-target_compile_definitions(${PROJECT_NAME}
-	PRIVATE
-            GPCORE_LIBRARY
-            HAVE_NETINET_IN_H
-            _GLIBCXX_USE_NANOSLEEP
-	)
-
 string(JOIN " " COMPILE_FLAGS
         -std=gnu++20
+        -O3
 
         -fvisibility=hidden
         -fvisibility-inlines-hidden
@@ -104,6 +88,23 @@ else()
     message(FATAL_ERROR "Unknown OS. Set -DCMAKE_SYSTEM_NAME= ... one of values: Linux, Android, Macx, Windows, Browser")
 endif()
 
+# Find all *.cpp and *.hpp files in project
+file (GLOB_RECURSE SOURCES *.cpp)
+file (GLOB_RECURSE INCLUDES *.hpp)
+
+if (BUILD_SHARED_LIBS)
+    add_library(${PROJECT_NAME} SHARED ${SOURCES})
+else()
+    add_library(${PROJECT_NAME} STATIC ${SOURCES})
+endif()
+
+target_compile_definitions(${PROJECT_NAME}
+        PRIVATE
+            GPCORE_LIBRARY
+            HAVE_NETINET_IN_H
+            _GLIBCXX_USE_NANOSLEEP
+        )
+
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${COMPILE_FLAGS})
 set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS ${LINK_FLAGS})
 
@@ -142,19 +143,15 @@ if (NOT EXISTS "${TARGET_EXT_INCLUDE_DIR}")
     file(MAKE_DIRECTORY "${TARGET_EXT_INCLUDE_DIR}")
 endif()
 
-if (${CMAKE_SYSTEM_NAME} MATCHES Emscripten)
-    set(LIBRARY_OUTPUT_PATH "${TARGET_LIB_DIR}")
-else()
-    set(SP _)
-    set(LIBRARY_OUTPUT_PATH "${TARGET_LIB_DIR}/${CMAKE_BUILD_TYPE}${SP}${CMAKE_SYSTEM_NAME}${SP}${CMAKE_SYSTEM_PROCESSOR}")
-endif()
+set(SP _)
+set(LIBRARY_OUTPUT_PATH "${TARGET_LIB_DIR}/${CMAKE_BUILD_TYPE}${SP}${CMAKE_SYSTEM_NAME}${SP}${CMAKE_SYSTEM_PROCESSOR}")
 
 #------------------------ LIBS ---------------------
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         "${TARGET_EXT_INCLUDE_DIR}"
         "${Boost_INCLUDE_DIR}"
-        $<$<BOOL:BUILD_WASM32>:${TARGET_EXT_INCLUDE_DIR}/jthread>
+        $<$<BOOL:${BUILD_WASM32}>:${TARGET_EXT_INCLUDE_DIR}/jthread>
     )
 
 target_link_libraries(${PROJECT_NAME}
@@ -162,7 +159,7 @@ target_link_libraries(${PROJECT_NAME}
         pthread
     )
 
-message(STATUS "[${PROJECT_NAME}]: Target name:              " ${PROJECT_NAME}${MODE_SUFFIX})
+message(STATUS "[${PROJECT_NAME}]: Target name:              " ${PROJECT_NAME})
 message(STATUS "[${PROJECT_NAME}]: Target arch:              " ${CMAKE_SYSTEM_PROCESSOR})
 message(STATUS "[${PROJECT_NAME}]: Target OS:                " ${CMAKE_SYSTEM_NAME})
 message(STATUS "[${PROJECT_NAME}]: Build directory:          " ${LIBRARY_OUTPUT_PATH})
