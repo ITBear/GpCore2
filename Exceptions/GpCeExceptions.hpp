@@ -2,6 +2,7 @@
 
 #include "../Constexpr/GpConstexprFalse.hpp"
 #include <stdexcept>
+#include <type_traits>
 
 namespace GPlatform {
 

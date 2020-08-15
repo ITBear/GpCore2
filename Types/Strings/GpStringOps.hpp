@@ -67,6 +67,8 @@ public:
     static GpBytesArray                     SToBytes        (GpRawPtrCharR      aStr);
     static constexpr std::byte              SToByte         (GpArray<char,2>    aStr);
 
+    static std::string                      SFromBits       (GpRawPtrByteR  aData);
+
     //------------------------- Unicode --------------------------
     static count_t                          SConv_UTF16_UTF8(GpArray<std::byte, 4>&         aUTF8_valueOut,
                                                              const GpArray<std::byte, 2>    aUTF16_value);//return bytes count of aUTF8Out

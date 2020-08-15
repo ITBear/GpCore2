@@ -183,12 +183,12 @@ public:
 
     //-------------------------------------------------------------------------------------------
     template<typename T> [[nodiscard]] static constexpr
-    T                               SetByMask           (const T aValue,
-                                                         const T aValueToSet,
-                                                         const T aBitMask,
-                                                         const T aOffset) noexcept
+    T                               SetByMask           (const T aValueDst,
+                                                         const T aValueSrc,
+                                                         const T aMask
+                                                         ) noexcept
     {
-        return T((aValue & ~(aBitMask << aOffset)) | ((aValueToSet & aBitMask) << aOffset));
+        return T((aValueDst & ~(aMask)) | (aValueSrc & (aMask)));
     }
 
     template<typename T> [[nodiscard]] static constexpr

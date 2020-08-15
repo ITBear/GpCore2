@@ -50,7 +50,7 @@ debug_build {
 		QMAKE_CXXFLAGS	+= -fsanitize=address -fsanitize=undefined -fno-sanitize=vptr
 		LIBS += -lasan
 		LIBS += -lubsan
-		BOOST_POSTFIX = _asan
+		#BOOST_POSTFIX = _asan
 	}
 } else:release_build {
 	message([$$PACKET_NAME]: ***************** Build mode RELEASE *****************)

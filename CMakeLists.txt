@@ -18,6 +18,19 @@ if (BUILD_WASM32)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
+if (BUILD_SHARED_LIBS)
+    add_library(${PROJECT_NAME} SHARED ${SOURCES})
+else()
+    add_library(${PROJECT_NAME} STATIC ${SOURCES})
+endif()
+
+target_compile_definitions(${PROJECT_NAME}
+	PRIVATE
+            GPCORE_LIBRARY
+            HAVE_NETINET_IN_H
+            _GLIBCXX_USE_NANOSLEEP
+	)
+
 string(JOIN " " COMPILE_FLAGS
         -std=gnu++20
         -O3
@@ -84,18 +97,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES Linux)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES Android)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES Macx)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES Windows)
-else()
-    message(FATAL_ERROR "Unknown OS. Set -DCMAKE_SYSTEM_NAME= ... one of values: Linux, Android, Macx, Windows, Browser")
-endif()
 
-# Find all *.cpp and *.hpp files in project
-file (GLOB_RECURSE SOURCES *.cpp)
-file (GLOB_RECURSE INCLUDES *.hpp)
-
-if (BUILD_SHARED_LIBS)
-    add_library(${PROJECT_NAME} SHARED ${SOURCES})
-else()
-    add_library(${PROJECT_NAME} STATIC ${SOURCES})
 endif()
 
 target_compile_definitions(${PROJECT_NAME}
@@ -143,8 +145,7 @@ if (NOT EXISTS "${TARGET_EXT_INCLUDE_DIR}")
     file(MAKE_DIRECTORY "${TARGET_EXT_INCLUDE_DIR}")
 endif()
 
-set(SP _)
-set(LIBRARY_OUTPUT_PATH "${TARGET_LIB_DIR}/${CMAKE_BUILD_TYPE}${SP}${CMAKE_SYSTEM_NAME}${SP}${CMAKE_SYSTEM_PROCESSOR}")
+
 
 #------------------------ LIBS ---------------------
 target_include_directories(${PROJECT_NAME}
@@ -152,6 +153,7 @@ target_include_directories(${PROJECT_NAME}
         "${TARGET_EXT_INCLUDE_DIR}"
         "${Boost_INCLUDE_DIR}"
         $<$<BOOL:${BUILD_WASM32}>:${TARGET_EXT_INCLUDE_DIR}/jthread>
+
     )
 
 target_link_libraries(${PROJECT_NAME}
