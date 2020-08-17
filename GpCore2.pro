@@ -9,7 +9,7 @@ DEFINES		+= GPCORE_LIBRARY \
 			HAVE_NETINET_IN_H \
 			_GLIBCXX_USE_NANOSLEEP
 
-PACKET_NAME     = GpCore
+PACKET_NAME     = GpCore2
 OUT_BUILD_PATH  = ./../../../Bin_tmp/
 
 compiler_gcc{
@@ -50,7 +50,7 @@ debug_build {
 		QMAKE_CXXFLAGS	+= -fsanitize=address -fsanitize=undefined -fno-sanitize=vptr
 		LIBS += -lasan
 		LIBS += -lubsan
-		BOOST_POSTFIX = _asan
+		#BOOST_POSTFIX = _asan
 	}
 } else:release_build {
 	message([$$PACKET_NAME]: ***************** Build mode RELEASE *****************)

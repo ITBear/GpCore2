@@ -371,6 +371,33 @@ GpBytesArray    GpStringOps::SToBytes (GpRawPtrCharR aStr)
     return res;
 }
 
+std::string GpStringOps::SFromBits (GpRawPtrByteR aData)
+{
+    std::string res;
+
+    const size_t    bytesCount  = aData.SizeLeftV<size_t>();
+    const size_t    bitsCount   = (aData.SizeLeftV<size_bit_t>() * 8_bit).ValueAs<size_t>();
+    const u_int_8*  data        = aData.PtrAs<const u_int_8*>();
+
+    res.resize(bitsCount + bytesCount + 1);
+    char* str = res.data();
+
+    *str++ = '|';
+    for (size_t byteId = 0; byteId < bytesCount; byteId++)
+    {
+        const u_int_8 b = *data++;
+
+        for (size_t bitId = 0; bitId < 8; bitId++)
+        {
+            *str++ = (b & (1 << (7 - (bitId % 8)))) ? '1' : '0';
+        }
+
+        *str++ = '|';
+    }
+
+    return res;
+}
+
 count_t     GpStringOps::SConv_UTF16_UTF8 (GpArray<std::byte, 4>&       aUTF8_valueOut,
                                            const GpArray<std::byte, 2>  aUTF16_value)
 {

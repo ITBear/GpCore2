@@ -31,6 +31,7 @@ public:
 
 protected:
     GpEvent::SP             PopNextEvent        (void) noexcept;
+    void                    ClearEventsQueue    (void) noexcept;
     virtual PushEvevtRes    OnPushEvent         (GpEvent::SP& aEvent) noexcept = 0;
 
 private:

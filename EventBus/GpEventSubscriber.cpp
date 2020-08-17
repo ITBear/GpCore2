@@ -46,6 +46,16 @@ GpEvent::SP GpEventSubscriber::PopNextEvent (void) noexcept
     return event;
 }
 
+void    GpEventSubscriber::ClearEventsQueue (void) noexcept
+{
+    std::scoped_lock lock(iEventsLock);
+
+    while (!iEvents.empty())
+    {
+        iEvents.pop();
+    }
+}
+
 }//GPlatform
 
 #endif//#if defined (GP_USE_EVENT_BUS)

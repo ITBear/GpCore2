@@ -4,136 +4,224 @@
 namespace GPlatform {
 
 void    GpBitReader::Bits (GpRawPtrByteRW   aDataOut,
-                           const size_bit_t aSize)
+                           const size_bit_t aSize,
+                           const size_bit_t aOffset)
 {
-    THROW_GPE_COND_CHECK_M(aDataOut.CountLeftV<size_byte_t>() >= aSize, "Out of range"_sv);
-    _Bits(aDataOut.Ptr(), aSize);
+    _Bits(aDataOut.Ptr(), aSize, aOffset);
 }
 
 u_int_8 GpBitReader::UInt8 (void)
 {
-    return ReadPOD<u_int_8>(size_byte_t::SMake(sizeof(u_int_8)));
+    return ReadPOD<u_int_8>(size_byte_t::SMake(sizeof(u_int_8)), 0_bit);
 }
 
-u_int_8 GpBitReader::UInt8 (const size_bit_t aSize)
+u_int_8 GpBitReader::UInt8 (const size_bit_t aSize,
+                            const size_bit_t aOffset)
 {
-    return ReadPOD<u_int_8>(aSize);
+    return ReadPOD<u_int_8>(aSize, aOffset);
 }
 
 s_int_8 GpBitReader::SInt8 (void)
 {
-    return ReadPOD<s_int_8>(size_byte_t::SMake(sizeof(s_int_8)));
+    return ReadPOD<s_int_8>(size_byte_t::SMake(sizeof(s_int_8)), 0_bit);
 }
 
-s_int_8 GpBitReader::SInt8 (const size_bit_t aSize)
+s_int_8 GpBitReader::SInt8 (const size_bit_t aSize,
+                            const size_bit_t aOffset)
 {
-    return ReadPOD<s_int_8>(aSize);
+    return ReadPOD<s_int_8>(aSize, aOffset);
 }
 
 u_int_16    GpBitReader::UInt16 (void)
 {
-    return ReadPOD<u_int_16>(size_byte_t::SMake(sizeof(u_int_16)));
+    return ReadPOD<u_int_16>(size_byte_t::SMake(sizeof(u_int_16)), 0_bit);
 }
 
-u_int_16    GpBitReader::UInt16 (const size_bit_t aSize)
+u_int_16    GpBitReader::UInt16 (const size_bit_t aSize,
+                                 const size_bit_t aOffset)
 {
-    return ReadPOD<u_int_16>(aSize);
+    return ReadPOD<u_int_16>(aSize, aOffset);
 }
 
 s_int_16    GpBitReader::SInt16 (void)
 {
-    return ReadPOD<s_int_16>(size_byte_t::SMake(sizeof(s_int_16)));
+    return ReadPOD<s_int_16>(size_byte_t::SMake(sizeof(s_int_16)), 0_bit);
 }
 
-s_int_16    GpBitReader::SInt16 (const size_bit_t aSize)
+s_int_16    GpBitReader::SInt16 (const size_bit_t aSize,
+                                 const size_bit_t aOffset)
 {
-    return ReadPOD<s_int_16>(aSize);
+    return ReadPOD<s_int_16>(aSize, aOffset);
 }
 
 u_int_32    GpBitReader::UInt32 (void)
 {
-    return ReadPOD<u_int_32>(size_byte_t::SMake(sizeof(u_int_32)));
+    return ReadPOD<u_int_32>(size_byte_t::SMake(sizeof(u_int_32)), 0_bit);
 }
 
-u_int_32    GpBitReader::UInt32 (const size_bit_t aSize)
+u_int_32    GpBitReader::UInt32 (const size_bit_t aSize,
+                                 const size_bit_t aOffset)
 {
-    return ReadPOD<u_int_32>(aSize);
+    return ReadPOD<u_int_32>(aSize, aOffset);
 }
 
 s_int_32    GpBitReader::SInt32 (void)
 {
-    return ReadPOD<s_int_32>(size_byte_t::SMake(sizeof(s_int_32)));
+    return ReadPOD<s_int_32>(size_byte_t::SMake(sizeof(s_int_32)), 0_bit);
 }
 
-s_int_32    GpBitReader::SInt32 (const size_bit_t aSize)
+s_int_32    GpBitReader::SInt32 (const size_bit_t aSize,
+                                 const size_bit_t aOffset)
 {
-    return ReadPOD<s_int_32>(aSize);
+    return ReadPOD<s_int_32>(aSize, aOffset);
 }
 
 u_int_64    GpBitReader::UInt64 (void)
 {
-    return ReadPOD<u_int_64>(size_byte_t::SMake(sizeof(u_int_64)));
+    return ReadPOD<u_int_64>(size_byte_t::SMake(sizeof(u_int_64)), 0_bit);
 }
 
-u_int_64    GpBitReader::UInt64 (const size_bit_t aSize)
+u_int_64    GpBitReader::UInt64 (const size_bit_t aSize,
+                                 const size_bit_t aOffset)
 {
-    return ReadPOD<u_int_64>(aSize);
+    return ReadPOD<u_int_64>(aSize, aOffset);
 }
 
 s_int_64    GpBitReader::SInt64 (void)
 {
-    return ReadPOD<s_int_64>(size_byte_t::SMake(sizeof(s_int_64)));
+    return ReadPOD<s_int_64>(size_byte_t::SMake(sizeof(s_int_64)), 0_bit);
 }
 
-s_int_64    GpBitReader::SInt64 (const size_bit_t aSize)
+s_int_64    GpBitReader::SInt64 (const size_bit_t aSize,
+                                 const size_bit_t aOffset)
 {
-    return ReadPOD<s_int_64>(aSize);
+    return ReadPOD<s_int_64>(aSize, aOffset);
 }
 
 void    GpBitReader::_Bits (std::byte*          aDataOut,
-                            const size_bit_t    aSize)
+                            const size_bit_t    aSize,
+                            const size_bit_t    aOffset)
 {
-    const size_bit_t left = iStorage.Left();
-
+    //Check range
     THROW_GPE_COND_CHECK_M(   (aSize > 0_bit)
-                           && (left >= aSize), "Out of range"_sv);
+                           && (iStorage.Left() >= aSize), "Out of range"_sv);
 
-    size_t          leftToRead      = left.ValueAs<size_t>();
-    const size_t    finalReadBits   = (iStorage.Offset() + iStorage.Size()).ValueAs<size_t>();
+    //Copy
+    std::byte*          dstPtr      = aDataOut;
+    const size_bit_t    dstOffset   = aOffset;
+    const std::byte*    srcPtr      = iStorage.Data();
+    const size_bit_t    srcOffset   = iStorage.Size() - iStorage.Left();
 
-    size_t          leftToWrite     = aSize.ValueAs<size_t>();
-    const size_t    finalWriteBits  = leftToWrite;
+    /*BitOps::Copy(dstPtr, dstOffset,
+                 srcPtr, srcOffset,
+                 aSize);*/
 
-    const std::byte*    dataIn      = iStorage.Data();
-    std::byte*          dataOut     = aDataOut;
+    Copy(dstPtr, dstOffset,
+         srcPtr, srcOffset,
+         aSize);
 
-    while (leftToWrite > 0)
+    //Shift
+    iStorage.SetLeftSub(aSize);
+}
+
+void    GpBitReader::Copy (std::byte*       aDst,
+                           const size_bit_t aDstOffset,
+                           const std::byte* aSrc,
+                           const size_bit_t aSrcOffset,
+                           const size_bit_t aSize)
+{
+    const size_t size = aSize.ValueAs<size_t>();
+
+    //Pointer to actual bytes
+    aDst += aDstOffset.ValueAs<size_t>() / 8;
+    const size_t dstOffset = aDstOffset.ValueAs<size_t>() % 8;
+
+    aSrc += aSrcOffset.ValueAs<size_t>() / 8;
+    const size_t srcOffset = aSrcOffset.ValueAs<size_t>() % 8;
+
+    //Bytes intersection with ...offset[size...]
+    size_t dstBytesIntersectCnt = NumOps::SAdd(size, dstOffset);
+    size_t srcBytesIntersectCnt = NumOps::SAdd(size, srcOffset);
+
+    if ((dstBytesIntersectCnt % 8) > 0)
     {
-        const size_t readStartBitId     = finalReadBits - leftToRead;
-        const size_t readByteID         = readStartBitId >> size_t(3);          // div 8
-        const size_t readBitSH          = readStartBitId & size_t(0b00000111);  // mod 8
-        const size_t canReadBits        = 8 - readBitSH;
-
-        const size_t writeStartBitId    = finalWriteBits - leftToWrite;
-        const size_t writeByteID        = writeStartBitId >> size_t(3);         // div 8
-        const size_t writeBitSH         = writeStartBitId & size_t(0b00000111); // mod 8
-        const size_t canWriteBits       = 8 - writeBitSH;
-
-        const size_t partSize           = std::min(std::min(canReadBits, canWriteBits), leftToWrite);
-
-        const size_t readMask           = (size_t(1) << partSize) - size_t(1);
-        const size_t readByte           = (size_t(dataIn[readByteID]) >> readBitSH) & readMask;
-
-        const size_t writeMask          = (size_t(1) << writeBitSH) - size_t(1);
-        const size_t writeByte          = size_t(dataOut[writeByteID]);
-
-        dataOut[writeByteID]            = std::byte((writeByte & writeMask) | (readByte << writeBitSH));
-
-        leftToRead  -= partSize;
-        leftToWrite -= partSize;
+        dstBytesIntersectCnt = (dstBytesIntersectCnt / 8) + 1;
+    } else
+    {
+        dstBytesIntersectCnt = (dstBytesIntersectCnt / 8);
     }
 
-    iStorage.SetLeftSub(aSize);
+    if ((srcBytesIntersectCnt % 8) > 0)
+    {
+        srcBytesIntersectCnt = (srcBytesIntersectCnt / 8) + 1;
+    } else
+    {
+        srcBytesIntersectCnt = (srcBytesIntersectCnt / 8);
+    }
+
+    //Check tmp buffers size
+    using TmpBufferT = u_int_64;
+    THROW_GPE_COND_CHECK_M(   (dstBytesIntersectCnt <= (sizeof(TmpBufferT)-1))
+                           && (srcBytesIntersectCnt <= (sizeof(TmpBufferT)-1)),
+                              "tmp buffer size is out of range"_sv);
+
+    //Copy to tmp buffers
+    TmpBufferT tmpDst = 0;
+    TmpBufferT tmpSrc = 0;
+
+    std::memcpy(reinterpret_cast<std::byte*>(&tmpDst),
+                aDst,
+                dstBytesIntersectCnt);
+
+    std::memcpy(reinterpret_cast<std::byte*>(&tmpSrc),
+                aSrc,
+                srcBytesIntersectCnt);
+
+    //std::cout << "tmpDst: " << GpStringOps::SFromBits({&tmpDst, 1_cnt}) << std::endl;
+    //std::cout << "tmpSrc: " << GpStringOps::SFromBits({&tmpSrc, 1_cnt}) << std::endl;
+
+    //Shift src tmp buffer
+    const size_t srcShiftTail = (sizeof(TmpBufferT) * 8) - (srcOffset + size);
+    const size_t dstShiftTail = (sizeof(TmpBufferT) * 8) - (dstOffset + size);
+    u_int_64 mask = ((u_int_64(1) << size) - u_int_64(1)) << srcShiftTail;
+
+    //std::cout << "mask:   " << GpStringOps::SFromBits({&mask, 1_cnt}) << std::endl;
+
+    tmpDst = BitOps::N2H(tmpDst);
+    tmpSrc = BitOps::N2H(tmpSrc);
+    //mask = BitOps::N2H(mask);
+    if (srcShiftTail >= dstShiftTail)
+    {
+        const size_t offset = (srcShiftTail - dstShiftTail);
+        tmpSrc >>= offset;
+        mask   >>= offset;
+
+        //std::cout << "SH..." << offset << std::endl;
+    } else
+    {
+        const size_t offset = (dstShiftTail - srcShiftTail);
+        tmpSrc <<= offset;
+        mask   <<= offset;
+
+        //std::cout << "SH..." << offset << std::endl;
+    }
+
+    tmpDst  = BitOps::N2H(tmpDst);
+    tmpSrc  = BitOps::N2H(tmpSrc);
+    mask    = BitOps::N2H(mask);
+
+    //std::cout << "tmpDst: " << GpStringOps::SFromBits({&tmpDst, 1_cnt}) << std::endl;
+    //std::cout << "tmpSrc: " << GpStringOps::SFromBits({&tmpSrc, 1_cnt}) << std::endl;
+    //std::cout << "mask:   " << GpStringOps::SFromBits({&mask, 1_cnt}) << std::endl;
+
+    tmpDst = BitOps::SetByMask(tmpDst, tmpSrc, mask);
+
+    //std::cout << "tmpDst: " << GpStringOps::SFromBits({&tmpDst, 1_cnt}) << std::endl;
+
+    //Copy from dst tmp buffer
+    std::memcpy(aDst,
+                reinterpret_cast<std::byte*>(&tmpDst),
+                dstBytesIntersectCnt);
 }
 
 }//GPlatform
