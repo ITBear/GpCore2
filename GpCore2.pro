@@ -9,7 +9,7 @@ DEFINES		+= GPCORE_LIBRARY \
 			HAVE_NETINET_IN_H \
 			_GLIBCXX_USE_NANOSLEEP
 
-PACKET_NAME     = GpCore
+PACKET_NAME     = GpCore2
 OUT_BUILD_PATH  = ./../../../Bin_tmp/
 
 compiler_gcc{

@@ -28,6 +28,8 @@ public:
                                 GpElementsPool  (void) noexcept;
     virtual                     ~GpElementsPool (void) noexcept;
 
+    count_t                     MaxCount        (void) const noexcept {return iMaxCount;}
+
     void                        Init            (const count_t aInitCount,
                                                  const count_t aMaxCount);
     void                        Clear           (void) noexcept;
