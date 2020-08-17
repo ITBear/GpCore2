@@ -1,18 +1,17 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(GpCore2
-	VERSION 0.1.0
-	DESCRIPTION "C++ common utilities and types library"
-	LANGUAGES CXX)
+        VERSION 0.1.0
+        DESCRIPTION "C++ common utilities and types library"
+        LANGUAGES CXX )
 
 set(CMAKE_VERBOSE_MAKEFILE      ON)
-set(CMAKE_BUILD_PARALLEL_LEVEL	3)
+set(CMAKE_BUILD_PARALLEL_LEVEL  3)
 
 # Find all *.cpp and *.hpp files in project
 file (GLOB_RECURSE SOURCES *.cpp)
 file (GLOB_RECURSE INCLUDES *.hpp)
 
-option(BUILD_SHARED_LIBS "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" ON)
 option(BUILD_WASM32 "Build static wasm libraries" OFF)
 
 if (BUILD_WASM32)
@@ -22,57 +21,51 @@ if (BUILD_WASM32)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-if (BUILD_SHARED_LIBS)
-    add_library(${PROJECT_NAME} SHARED ${SOURCES})
-else()
-    add_library(${PROJECT_NAME} STATIC ${SOURCES})
-endif()
+add_library(${PROJECT_NAME} ${SOURCES} ${INCLUDES})
 
 target_compile_definitions(${PROJECT_NAME}
-	PRIVATE
-            GPCORE_LIBRARY
-            HAVE_NETINET_IN_H
-            _GLIBCXX_USE_NANOSLEEP
-	)
+    PRIVATE
+        GPCORE_LIBRARY
+        HAVE_NETINET_IN_H
+        _GLIBCXX_USE_NANOSLEEP )
 
 string(JOIN " " COMPILE_FLAGS
-        -std=gnu++20
+    -std=gnu++20
+    -O3
 
-        -fvisibility=hidden
-        -fvisibility-inlines-hidden
-        -ffunction-sections
-        -fdata-sections
-        -fexceptions
-        -fstrict-aliasing
-        -fstack-clash-protection
+    -fvisibility=hidden
+    -fvisibility-inlines-hidden
+    -ffunction-sections
+    -fdata-sections
+    -fexceptions
+    -fstrict-aliasing
+    -fstack-clash-protection
 
-        -Wall
-        -Wextra
-        -Wdouble-promotion
-        -Wswitch-default
-        -Wswitch-enum
-        -Wuninitialized
-        -Wstrict-aliasing
-        -Wfloat-equal
-        -Wshadow
-        -Wplacement-new
-        -Wcast-align
-        -Wconversion
-        -Wlogical-op
-        -Wduplicated-cond
-        -Wduplicated-branches
-        -Wrestrict
-        -Wnull-dereference
-        -Wno-terminate
-        -Wno-unknown-warning-option
-        -Wno-unused-command-line-argument
-        -Wno-comment
-        )
+    -Wall
+    -Wextra
+    -Wdouble-promotion
+    -Wswitch-default
+    -Wswitch-enum
+    -Wuninitialized
+    -Wstrict-aliasing
+    -Wfloat-equal
+    -Wshadow
+    -Wplacement-new
+    -Wcast-align
+    -Wconversion
+    -Wlogical-op
+    -Wduplicated-cond
+    -Wduplicated-branches
+    -Wrestrict
+    -Wnull-dereference
+    -Wno-terminate
+    -Wno-unknown-warning-option
+    -Wno-unused-command-line-argument
+    -Wno-comment )
 
 string(JOIN "," LINK_FLAGS
-        -Wl
-        --gc-sections
-        )
+    -Wl
+    --gc-sections )
 
 #------------------------ OS ---------------------
 if(${CMAKE_SYSTEM_NAME} MATCHES Emscripten)
@@ -90,8 +83,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES Emscripten)
 
     string(JOIN " " COMPILE_FLAGS
             ${COMPILE_FLAGS}
-            -s ALLOW_MEMORY_GROWTH=1
-          )
+            -s ALLOW_MEMORY_GROWTH=1 )
 elseif(${CMAKE_SYSTEM_NAME} MATCHES Linux)
     set(CMAKE_CXX_COMPILER          g++-10)
     set(CMAKE_C_COMPILER            gcc-10)
@@ -104,20 +96,21 @@ else()
     message(FATAL_ERROR "Unknown OS. Set -DCMAKE_SYSTEM_NAME= ... one of values: Linux, Android, Macx, Windows, Browser")
 endif()
 
-set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${COMPILE_FLAGS})
-set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS ${LINK_FLAGS})
+
+set_target_properties(${PROJECT_NAME} 
+    PROPERTIES 
+        COMPILE_FLAGS ${COMPILE_FLAGS}
+        LINK_FLAGS ${LINK_FLAGS} )
 
 #------------------------ ARC ---------------------
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES x86_64)
     target_compile_options(${PROJECT_NAME} PRIVATE
         -mtune=generic
-        -march=x86-64
-        )
+        -march=x86-64 )
 elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES x86)
     target_compile_options(${PROJECT_NAME} PRIVATE
         -mtune=generic
-        -march=i686
-        )
+        -march=i686 )
 elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES wasm32)
 elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES arm_v6)
 elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES arm64_v8a)
@@ -126,46 +119,29 @@ else()
 endif()
 
 #------------------------ RELEASE ---------------------
+message(STATUS "[${PROJECT_NAME}]: ***************** Build mode ${MODE_BUILD} *****************")
 set(CMAKE_BUILD_TYPE Release)
 string(TOUPPER ${CMAKE_BUILD_TYPE} MODE_BUILD)
-message(STATUS "[${PROJECT_NAME}]: ***************** Build mode ${MODE_BUILD} *****************")
 target_compile_definitions(${PROJECT_NAME} PRIVATE ${MODE_BUILD}_BUILD)
-set(Boost_USE_RELEASE_LIBS ON)
-
-#------------------------ FILES LOCATIONS ---------------------
-set(CMAKE_INSTALL_PREFIX	"${CMAKE_SOURCE_DIR}/../.." CACHE PATH "..." FORCE)
-set(TARGET_LIB_DIR              "${CMAKE_INSTALL_PREFIX}/lib")
-set(TARGET_EXT_INCLUDE_DIR	"${CMAKE_INSTALL_PREFIX}/inc")
-set(TARGET_TMP_DIR              "${CMAKE_INSTALL_PREFIX}/tmp")
-
-if (NOT EXISTS "${TARGET_EXT_INCLUDE_DIR}")
-    file(MAKE_DIRECTORY "${TARGET_EXT_INCLUDE_DIR}")
-endif()
-
-if (${CMAKE_SYSTEM_NAME} MATCHES Emscripten)
-    set(LIBRARY_OUTPUT_PATH "${TARGET_LIB_DIR}")
-else()
-    set(SP _)
-    set(LIBRARY_OUTPUT_PATH "${TARGET_LIB_DIR}/${CMAKE_BUILD_TYPE}${SP}${CMAKE_SYSTEM_NAME}${SP}${CMAKE_SYSTEM_PROCESSOR}")
-endif()
 
 #------------------------ LIBS ---------------------
 target_include_directories(${PROJECT_NAME}
     PRIVATE
-        "${TARGET_EXT_INCLUDE_DIR}"
-        "${Boost_INCLUDE_DIR}"
-        $<$<BOOL:BUILD_WASM32>:${TARGET_EXT_INCLUDE_DIR}/jthread>
-    )
+        ${Boost_INCLUDES}
+        $<$<BOOL:${BUILD_WASM32}>:${JTHREAD}> )
+
+target_link_directories(${PROJECT_NAME}
+    PRIVATE
+        ${Boost_LIBS} )
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         pthread
-    )
+        boost_context )
 
-message(STATUS "[${PROJECT_NAME}]: Target name:              " ${PROJECT_NAME}${MODE_SUFFIX})
+message(STATUS "[${PROJECT_NAME}]: Target name:              " ${PROJECT_NAME})
 message(STATUS "[${PROJECT_NAME}]: Target arch:              " ${CMAKE_SYSTEM_PROCESSOR})
 message(STATUS "[${PROJECT_NAME}]: Target OS:                " ${CMAKE_SYSTEM_NAME})
-message(STATUS "[${PROJECT_NAME}]: Build directory:          " ${LIBRARY_OUTPUT_PATH})
 message(STATUS "[${PROJECT_NAME}]: C++ standart:             " ${CMAKE_CXX_STANDARD})
 message(STATUS "[${PROJECT_NAME}]: GCC C compiler version:   " ${CMAKE_C_COMPILER})
 message(STATUS "[${PROJECT_NAME}]: GCC C++ compiler version: " ${CMAKE_CXX_COMPILER})
@@ -174,12 +150,18 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY VERSION   ${PROJECT_VERSION})
 set_property(TARGET ${PROJECT_NAME} PROPERTY SOVERSION ${PROJECT_VERSION_MAJOR})
 set_property(TARGET ${PROJECT_NAME} PROPERTY INTERFACE_${PROJECT_NAME}_MAJOR_VERSION ${PROJECT_VERSION_MAJOR})
 
-#------------------------ INSTALL ---------------------
-install(DIRECTORY        "${CMAKE_SOURCE_DIR}"
-        DESTINATION      "${TARGET_EXT_INCLUDE_DIR}"
+set(DISTDIR "${CMAKE_BUILD_TYPE}_${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}")
+
+install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin/${DISTDIR}
+        LIBRARY DESTINATION lib/${DISTDIR}
+        ARCHIVE DESTINATION lib/${DISTDIR} )
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}
+        DESTINATION include
         FILES_MATCHING
-                PATTERN "*.hpp"
-                PATTERN "*.h"
-                PATTERN "CMake*" EXCLUDE
-                PATTERN ".git"   EXCLUDE
-        )
+            PATTERN "*.hpp"
+            PATTERN "*.h"
+            PATTERN "CMake*" EXCLUDE
+            PATTERN ".git"   EXCLUDE )
+
