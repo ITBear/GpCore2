@@ -20,6 +20,9 @@ public:
     using this_type     = GpSharedPtrBase<T, RefPtrT, _IsWeak>;
     using value_type    = T;
 
+    CLASS_TAG(GpSharedPtr)
+    CLASS_TAG_DETECTOR(GpSharedPtr)
+
     static constexpr bool SIsWeak   (void) noexcept {return _IsWeak;}
     static constexpr bool SIsConst  (void) noexcept {return std::is_const_v<RefPtrT>;}
 
@@ -32,6 +35,15 @@ public:
     //const Derived ->       Base Error
     template<typename FROM, typename TO>
     using IsConvertible = typename std::enable_if<   IsBaseOf<TO, FROM>::value
+                                                  && !(FROM::SIsConst() && !TO::SIsConst())
+                                                 >::type;
+
+    //      Base ->       Derived OK
+    //const Base -> const Derived OK
+    //      Base -> const Derived OK
+    //const Base ->       Derived Error
+    template<typename FROM, typename TO>
+    using IsCastable    = typename std::enable_if<   IsBaseOf<FROM, TO>::value
                                                   && !(FROM::SIsConst() && !TO::SIsConst())
                                                  >::type;
 
@@ -72,7 +84,7 @@ public:
     {
         if (iRefCounter)
         {
-            iRefCounter->template Accuire<_IsWeak>();
+            iRefCounter->template Acquire<_IsWeak>();
         }
     }
 
@@ -96,7 +108,7 @@ public:
 
         if (refCounter)
         {
-            refCounter->template Accuire<_IsWeak>();
+            refCounter->template Acquire<_IsWeak>();
         }
 
         return this_type(refCounter);
@@ -118,7 +130,7 @@ public:
 
             if (iRefCounter)
             {
-                iRefCounter->template Accuire<_IsWeak>();
+                iRefCounter->template Acquire<_IsWeak>();
             }
         }
     }
@@ -139,7 +151,7 @@ public:
         }
     }
 
-    [[nodiscard]] count_t           Counter         (void) const noexcept;
+    [[nodiscard]] count_t           Count           (void) const noexcept;
     [[nodiscard]] bool              IsNULL          (void) const noexcept;
     [[nodiscard]] bool              IsNotNULL       (void) const noexcept;
 
@@ -176,107 +188,21 @@ public:
         return *this;
     }
 
-    //----------------- user-defined conversion -------------------------
-    /*template<typename TSP, typename = ConvertibleTo<TSP>>
-    explicit operator TSP () const noexcept
-    {
-        RefPtrT r = _RefCounter();
-        r->Accuire();
-        return TSP(r);
-    }
-
-    template<typename TSP, typename = ConvertibleTo<TSP>>
-    explicit operator TSP& () noexcept
-    {
-        return reinterpret_cast<TSP&>(*this);
-    }
-
-    template<typename TSP, typename = ConvertibleTo<TSP>>
-    explicit operator const TSP& () const noexcept
-    {
-        return reinterpret_cast<const TSP&>(*this);
-    }
-
-    template<typename TSP, typename = ConvertibleTo<TSP>>
-    explicit operator TSP&& () noexcept
-    {
-        return std::move(reinterpret_cast<TSP&&>(*this));
-    }*/
-
-    /*template<typename TSP, typename = ConvertibleFromOrTo<TSP>>
-    TSP&            CastToR             (void) noexcept
-    {
-        return reinterpret_cast<TSP&>(*this);
-    }
-
-    template<typename TSP, typename = ConvertibleFromOrTo<TSP>>
-    const TSP&      CastToRC            (void) const noexcept
-    {
-        return reinterpret_cast<const TSP&>(*this);
-    }
-
-    template<typename TSP, typename = ConvertibleFromOrTo<TSP>>
-    TSP&&           CastToM             (void) noexcept
-    {
-        return std::move(reinterpret_cast<TSP&&>(*this));
-    }*/
-
-    /*template<typename TSP, typename = SafeConvertibleTo<TSP>>
-    explicit operator TSP& () const noexcept
-    {
-        return Cast<TSP&>();
-    }*/
-
-    //*******************************************************************
-    /*template<typename TSP, typename = IsConvertible<TSP, this_type>>
-    TSP             Cast                (void) const noexcept
-    {
-        return std::forward<TSP>(reinterpret_cast<TSP>(const_cast<this_type&>(*this)));
-    }
-
     template<typename TSP, typename = IsConvertible<TSP, this_type>>
-    TSP             Cast                (void) noexcept
+    TSP                             As              (void) noexcept
     {
-        return std::forward<TSP>(reinterpret_cast<TSP>(*this));
+        return TSP::_SConstructFromRefCounter(iRefCounter);
     }
 
-    template<typename TSP, typename = IsConvertible<this_type, TSP>>
-    TSP             RCast               (void) const noexcept
+    template<typename TSP, typename = IsCastable<TSP, this_type>>
+    TSP                             CastAs          (void) noexcept
     {
-        return std::forward<TSP>(reinterpret_cast<TSP>(const_cast<this_type&>(*this)));
+        return TSP::_SConstructFromRefCounter(iRefCounter);
     }
 
-    template<typename TSP, typename = IsConvertible<this_type, TSP>>
-    TSP             RCast               (void) noexcept
-    {
-        return std::forward<TSP>(reinterpret_cast<TSP>(*this));
-    }*/
-
-    //***********************************************************
-
-    /*template<typename TSP, typename = ConvertibleFromOrTo<TSP>>
-    TSP             CastTo              (void) noexcept
-    {
-        return std::forward<TSP>(reinterpret_cast<TSP>(*this));
-    }*/
-/*
-    //---------------------------------------------------------------------
-    static void     SDeepCopyVec        (const GpVector<this_type>& aSrc,
-                                         GpVector<this_type>&       aDst);
-    template<typename KeyT>
-    static void     SDeepCopyMap        (const GpMap<KeyT, this_type>&  aSrc,
-                                         GpMap<KeyT, this_type>&        aDst)
-    {
-        aDst.clear();
-
-        for (auto&& iter: aSrc)
-        {
-            aDst.emplace(iter.first, iter.second.Clone());
-        }
-    }*/
-
-    RefPtrT             _RefCounter         (void) const noexcept {return iRefCounter;}
-    RefPtrT             _MoveRefCounter     (void) noexcept {RefPtrT r = iRefCounter; iRefCounter = nullptr; return r;}
+    RefPtrT             _RefCounter                 (void) const noexcept {return iRefCounter;}
+    RefPtrT             _MoveRefCounter             (void) noexcept {RefPtrT r = iRefCounter; iRefCounter = nullptr; return r;}
+    static this_type    _SConstructFromRefCounter   (RefPtrT aRefCounter) {return this_type(aRefCounter);}
 
 private:
     RefPtrT             iRefCounter = nullptr;
@@ -299,7 +225,7 @@ iRefCounter(aSharedPtr._RefCounter())
 {
     if (iRefCounter)
     {
-        iRefCounter->template Accuire<_IsWeak>();
+        iRefCounter->template Acquire<_IsWeak>();
     }
 }
 
@@ -356,7 +282,7 @@ void    GpSharedPtrBase<T, RefPtrT, _IsWeak>::Set (const this_type& aSharedPtr) 
 
         if (iRefCounter)
         {
-            iRefCounter->template Accuire<_IsWeak>();
+            iRefCounter->template Acquire<_IsWeak>();
         }
     }
 }
@@ -376,11 +302,11 @@ void    GpSharedPtrBase<T, RefPtrT, _IsWeak>::Set (this_type&& aSharedPtr) noexc
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
-count_t GpSharedPtrBase<T, RefPtrT, _IsWeak>::Counter (void) const noexcept
+count_t GpSharedPtrBase<T, RefPtrT, _IsWeak>::Count (void) const noexcept
 {
     if (iRefCounter != nullptr)
     {
-        return iRefCounter->Counter();
+        return iRefCounter->Count();
     } else
     {
         return 0_cnt;
@@ -406,7 +332,7 @@ T&  GpSharedPtrBase<T, RefPtrT, _IsWeak>::V (void)
     {
         if constexpr(_IsWeak)
         {
-            if (iRefCounter->Counter() == 0)
+            if (iRefCounter->Count() == 0_cnt)
             {
                 THROW_GPE("Weak shared pointer counter is 0"_sv);
             }
@@ -432,7 +358,7 @@ T*  GpSharedPtrBase<T, RefPtrT, _IsWeak>::P (void)
     {
         if constexpr(_IsWeak)
         {
-            if (iRefCounter->Counter() == 0)
+            if (iRefCounter->Count() == 0_cnt)
             {
                 THROW_GPE("Weak shared pointer counter is 0"_sv);
             }
@@ -458,7 +384,7 @@ const T&    GpSharedPtrBase<T, RefPtrT, _IsWeak>::VC (void) const
     {
         if constexpr(_IsWeak)
         {
-            if (iRefCounter->Counter() == 0)
+            if (iRefCounter->Count() == 0_cnt)
             {
                 THROW_GPE("Weak shared pointer counter is 0"_sv);
             }
@@ -484,7 +410,7 @@ const T*    GpSharedPtrBase<T, RefPtrT, _IsWeak>::PC (void) const
     {
         if constexpr(_IsWeak)
         {
-            if (iRefCounter->Counter() == 0)
+            if (iRefCounter->Count() == 0_cnt)
             {
                 THROW_GPE("Weak shared pointer counter is 0"_sv);
             }
@@ -552,6 +478,12 @@ using GpWP  = GpSharedPtrBase<T, GpReferenceCounter*, true>;
 
 template<typename T>
 using GpCWP = GpSharedPtrBase<T, const GpReferenceCounter*, true>;
+
+template<typename T, typename... Ts>
+[[nodiscard]] typename T::SP    MakeSP (Ts&&... aArgs)
+{
+    return T::SP::SNew(std::forward<Ts>(aArgs)...);
+}
 
 }//namespace GPlatform
 

@@ -40,9 +40,11 @@ public:
 
     void                    MoveToReady     (void);
     virtual Res             Do              (GpThreadStopToken aStopToken) noexcept = 0;
+    virtual void            Terminate       (void) noexcept;
 
 protected:
     virtual PushEvevtRes    OnPushEvent     (GpEvent::SP& aEvent) noexcept override final;
+    GpTask::WP              GetWeakPtr      (void) const noexcept {return iThisWeakPtr;}
 
 private:
     StateTE                 State           (void) const noexcept {return iState;}

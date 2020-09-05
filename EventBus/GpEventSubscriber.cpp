@@ -1,5 +1,4 @@
 #include "GpEventSubscriber.hpp"
-#include <mutex>
 
 #if defined (GP_USE_EVENT_BUS)
 

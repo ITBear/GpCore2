@@ -2,7 +2,7 @@
 
 #include "../../Config/GpConfig.hpp"
 
-#if defined(GP_USE_REFLECTION)
+#if defined(GP_USE_TYPE_SYSTEM)
 
 #include "../UIDs/GpUUID.hpp"
 #include "../Classes/GpClassesDefines.hpp"
@@ -23,15 +23,24 @@ public:
     using ContainerTE   = ContainerT::EnumT;
 
 public:
-                            GpTypePropInfo      (void) noexcept = default;
-    inline                  GpTypePropInfo      (const GpTypePropInfo& aPropInfo);
-    inline                  GpTypePropInfo      (GpTypePropInfo&& aPropInfo) noexcept;
-                            ~GpTypePropInfo     (void) noexcept = default;
+                            GpTypePropInfo      (void) noexcept;
+                            GpTypePropInfo      (const TypeTE           aType,
+                                                 const GpUUID           aStructTypeUID,
+                                                 const ContainerTE      aContainer,
+                                                 const TypeTE           aContainerKeyType,
+                                                 std::string&&          aName,
+                                                 const size_t           aAlign,
+                                                 const size_t           aSize,
+                                                 const std::ptrdiff_t   aOffset) noexcept;
+                            GpTypePropInfo      (const GpTypePropInfo& aPropInfo);
+                            GpTypePropInfo      (GpTypePropInfo&& aPropInfo) noexcept;
+                            ~GpTypePropInfo     (void) noexcept;
 
-    inline GpTypePropInfo&  operator=           (const GpTypePropInfo& aPropInfo);
-    inline GpTypePropInfo&  operator=           (GpTypePropInfo&& aPropInfo) noexcept;
+    GpTypePropInfo&         operator=           (const GpTypePropInfo& aPropInfo);
+    GpTypePropInfo&         operator=           (GpTypePropInfo&& aPropInfo) noexcept;
 
-    const GpUUID&           TypeUID             (void) const noexcept {return iTypeUID;}
+    TypeTE                  Type                (void) const noexcept {return iType;}
+    const GpUUID&           StructTypeUID       (void) const noexcept {return iStructTypeUID;}
     ContainerTE             Container           (void) const noexcept {return iContainer;}
     TypeTE                  ContainerKeyType    (void) const noexcept {return iContainerKeyType;}
     std::string_view        Name                (void) const noexcept {return iName;}
@@ -40,7 +49,8 @@ public:
     std::ptrdiff_t          Offset              (void) const noexcept {return iOffset;}
 
 private:
-    GpUUID                  iTypeUID;
+    TypeTE                  iType;
+    GpUUID                  iStructTypeUID;
     ContainerTE             iContainer;
     TypeTE                  iContainerKeyType;
     std::string             iName;
@@ -49,54 +59,6 @@ private:
     std::ptrdiff_t          iOffset     = 0;
 };
 
-GpTypePropInfo::GpTypePropInfo (const GpTypePropInfo& aPropInfo):
-iTypeUID(aPropInfo.iTypeUID),
-iContainer(aPropInfo.iContainer),
-iContainerKeyType(aPropInfo.iContainerKeyType),
-iName(aPropInfo.iName),
-iAlign(aPropInfo.iAlign),
-iSize(aPropInfo.iSize),
-iOffset(aPropInfo.iOffset)
-{
-}
-
-GpTypePropInfo::GpTypePropInfo (GpTypePropInfo&& aPropInfo) noexcept:
-iTypeUID(std::move(aPropInfo.iTypeUID)),
-iContainer(std::move(aPropInfo.iContainer)),
-iContainerKeyType(std::move(aPropInfo.iContainerKeyType)),
-iName(std::move(aPropInfo.iName)),
-iAlign(std::move(aPropInfo.iAlign)),
-iSize(std::move(aPropInfo.iSize)),
-iOffset(std::move(aPropInfo.iOffset))
-{
-}
-
-GpTypePropInfo& GpTypePropInfo::operator= (const GpTypePropInfo& aPropInfo)
-{
-    iTypeUID            = aPropInfo.iTypeUID;
-    iContainer          = aPropInfo.iContainer;
-    iContainerKeyType   = aPropInfo.iContainerKeyType;
-    iName               = aPropInfo.iName;
-    iAlign              = aPropInfo.iAlign;
-    iSize               = aPropInfo.iSize;
-    iOffset             = aPropInfo.iOffset;
-
-    return *this;
-}
-
-GpTypePropInfo& GpTypePropInfo::operator= (GpTypePropInfo&& aPropInfo) noexcept
-{
-    iTypeUID            = std::move(aPropInfo.iTypeUID);
-    iContainer          = std::move(aPropInfo.iContainer);
-    iContainerKeyType   = std::move(aPropInfo.iContainerKeyType);
-    iName               = std::move(aPropInfo.iName);
-    iAlign              = std::move(aPropInfo.iAlign);
-    iSize               = std::move(aPropInfo.iSize);
-    iOffset             = std::move(aPropInfo.iOffset);
-
-    return *this;
-}
-
 }//GPlatform
 
-#endif//GP_USE_REFLECTION
+#endif//GP_USE_TYPE_SYSTEM

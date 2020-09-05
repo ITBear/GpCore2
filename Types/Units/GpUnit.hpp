@@ -76,9 +76,9 @@ public:
     }
 
     template<typename AsT>
-    [[nodiscard]] constexpr AsT ValueAs (void) const noexcept
+    [[nodiscard]] constexpr AsT ValueAs (void) const
     {
-        if constexpr (SHasTag_GpUnit<AsT>)
+        if constexpr (SHasTag_GpUnit<AsT>())
         {
             return AsT::SMake(Value());
         } else

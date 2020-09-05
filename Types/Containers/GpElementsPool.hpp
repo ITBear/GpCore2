@@ -34,7 +34,7 @@ public:
                                                  const count_t aMaxCount);
     void                        Clear           (void) noexcept;
 
-    std::optional<value_type>   Accuire         (void);
+    std::optional<value_type>   Acquire         (void);
     void                        Release         (value_type aElement);
 
 protected:
@@ -52,7 +52,7 @@ private:
     QueueT                      iElements;
     count_t                     iInitCount      = 0_cnt;
     count_t                     iMaxCount       = 0_cnt;
-    count_t                     iAccuiredCount  = 0_cnt;
+    count_t                     iAcquiredCount  = 0_cnt;
     bool                        iIsInit         = false;
 };
 
@@ -89,7 +89,7 @@ void    GpElementsPool<T>::Init (const count_t aInitCount,
 
     iInitCount      = aInitCount;
     iMaxCount       = aMaxCount;
-    iAccuiredCount  = 0_cnt;
+    iAcquiredCount  = 0_cnt;
     iIsInit         = true;
 }
 
@@ -100,16 +100,16 @@ void    GpElementsPool<T>::Clear (void) noexcept
 }
 
 template<typename T>
-typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T>::Accuire (void)
+typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T>::Acquire (void)
 {
     std::scoped_lock lock(iLock);
 
     if (iElements.size() == 0)
     {
-        if (iAccuiredCount < iMaxCount)
+        if (iAcquiredCount < iMaxCount)
         {
             value_type e = NewElement();
-            iAccuiredCount++;
+            iAcquiredCount++;
             return e;
         } else
         {
@@ -119,7 +119,7 @@ typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T
 
     value_type e = iElements.front();
     iElements.pop();
-    iAccuiredCount++;
+    iAcquiredCount++;
 
     return e;
 }
@@ -129,10 +129,10 @@ void    GpElementsPool<T>::Release (value_type aElement)
 {
     std::scoped_lock lock(iLock);
 
-    THROW_GPE_COND_CHECK_M(iAccuiredCount > 0_cnt, "Release without accuire"_sv);
+    THROW_GPE_COND_CHECK_M(iAcquiredCount > 0_cnt, "Release without acquire"_sv);
 
     iElements.push(aElement);
-    iAccuiredCount--;
+    iAcquiredCount--;
 }
 
 template<typename T>
@@ -170,7 +170,7 @@ void    GpElementsPool<T>::_Clear (bool aIsDestructorCall) noexcept
 
     iInitCount      = 0_cnt;
     iMaxCount       = 0_cnt;
-    iAccuiredCount  = 0_cnt;
+    iAcquiredCount  = 0_cnt;
     iIsInit         = false;
 }
 

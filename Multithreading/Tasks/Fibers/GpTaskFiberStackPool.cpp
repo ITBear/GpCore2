@@ -20,7 +20,7 @@ void    GpTaskFiberStackPool::PreInit (const count_t /*aCount*/)
 
 GpTaskFiberStackPool::value_type    GpTaskFiberStackPool::NewElement (void)
 {
-    auto s = GpTaskFiberStack::SP::SNew();
+    auto s = MakeSP<GpTaskFiberStack>();
     s.Vn().Init(iStackSize);
     return s;
 }

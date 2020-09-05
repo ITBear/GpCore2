@@ -97,8 +97,8 @@ GpArray<char,2> GpStringOps::SFromByte (const std::byte aData) noexcept
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
 
-    return {hexToChar.data()[(size_t(aData) & size_t(0x0F)) >> 0],
-            hexToChar.data()[(size_t(aData) & size_t(0xF0)) >> 4]};
+    return {hexToChar.data()[(size_t(aData) & size_t(0xF0)) >> 4],
+            hexToChar.data()[(size_t(aData) & size_t(0x0F)) >> 0]};
 }
 
 constexpr std::byte GpStringOps::SToByte (GpArray<char,2> aStr)

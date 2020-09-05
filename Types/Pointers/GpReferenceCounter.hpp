@@ -26,7 +26,7 @@ public:
     inline count_t  Count               (void) const noexcept;
 
     template<bool IsWeak>
-    count_t         Accuire             (void) const noexcept;
+    count_t         Acquire             (void) const noexcept;
 
     template<bool IsWeak>
     count_t         Release             (void) noexcept;
@@ -64,14 +64,14 @@ count_t GpReferenceCounter::Count (void) const noexcept
 }
 
 template<bool IsWeak>
-count_t GpReferenceCounter::Accuire (void) const noexcept
+count_t GpReferenceCounter::Acquire (void) const noexcept
 {
     if constexpr(IsWeak)
     {
         return Count();
     } else
     {
-        const size_t cnt = iCounter.fetch_add(1, std::memory_order_relaxed);
+        const size_t cnt = iCounter.fetch_add(1, std::memory_order_release);
         return count_t::SMake(cnt) + 1_cnt;
     }
 }
@@ -84,7 +84,7 @@ count_t GpReferenceCounter::Release (void) noexcept
         return Count();
     } else
     {
-        const size_t cnt = iCounter.fetch_sub(1, std::memory_order_relaxed);
+        const size_t cnt = iCounter.fetch_sub(1, std::memory_order_release);
 
         if (cnt <= 1)
         {

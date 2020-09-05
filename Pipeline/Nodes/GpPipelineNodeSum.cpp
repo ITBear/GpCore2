@@ -8,7 +8,7 @@ namespace GPlatform {
 
 GpPipelineEvaluateCtx::SP   GpPipelineNodeSum::NewEvaluateCtx (void) const
 {
-    return GpPipelineNodeSumEvCtx::SP::SNew();
+    return MakeSP<GpPipelineNodeSumEvCtx>();
 }
 
 }//GPlatform

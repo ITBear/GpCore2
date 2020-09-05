@@ -27,13 +27,15 @@ GpTask::Res GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
         {
             case StageT::NOT_RUN:
             {
-                iCtx = GpTaskFiberCtx::SP::SNew();
+                iCtx = MakeSP<GpTaskFiberCtx>();
                 iCtx.Vn().Init();
                 iStage = StageT::RUN;
             } [[fallthrough]];
             case StageT::RUN:
             {
-                taskRes = iCtx.Vn().Enter(aStopToken, std::bind(&GpTaskFiber::FiberFn, this, std::placeholders::_1));
+                taskRes = iCtx.Vn().Enter(aStopToken,
+                                          GetWeakPtr(),
+                                          std::bind(&GpTaskFiber::FiberFn, this, std::placeholders::_1));
             } break;
             case StageT::FINISHED: [[fallthrough]];
             default:
@@ -60,6 +62,22 @@ GpTask::Res GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
     }
 
     return taskRes;
+}
+
+void    GpTaskFiber::Terminate (void) noexcept
+{
+    if (iStage != StageT::RUN)
+    {
+        return;
+    }
+
+    //iStage == StageT::RUN
+
+    GpThreadStopSource  stopSource;
+    GpThreadStopToken   stopToken = stopSource.get_token();
+    stopSource.request_stop();
+
+    Do(stopToken);
 }
 
 /*void  GpTaskFiber::FiberFn (GpThreadStopToken aStopToken)

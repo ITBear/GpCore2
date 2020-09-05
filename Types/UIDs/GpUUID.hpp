@@ -205,28 +205,6 @@ consteval GpUUID::DataT GpUUID::CE_FromString (std::string_view aStr)
     }
 
     return data;
-
-    /*const char*   strPtr  = aStr.data();
-    DataT       uuid    = {};
-
-    for (size_t id = 0; id < 16; id++)
-    {
-        if ((id == 4) ||
-            (id == 6) ||
-            (id == 8) ||
-            (id == 10))
-        {
-            strPtr++;
-        }
-
-        GpArray<char,2> octetStr = {0, 0};
-        octetStr.data()[0] = *strPtr++;
-        octetStr.data()[1] = *strPtr++;
-
-        uuid.data()[id] = std::byte(GpStringOps::SToByte(octetStr));
-    }
-
-    return uuid;*/
 }
 
 consteval GpUUID::DataT GpUUID::CE_Zero (void)
@@ -239,68 +217,6 @@ consteval GpUUID::DataT GpUUID::CE_Zero (void)
 
 //*******************************************
 namespace std {
-
-/*template<> struct hash<GPlatform::GpUUID>
-{
-    using argument_type = GPlatform::GpUUID;
-    using result_type   = size_t;
-
-    result_type operator()(argument_type const& aArg) const noexcept
-    {
-        if constexpr (sizeof(result_type) == sizeof(u_int_64))
-        {
-            const std::byte* data = aArg.Data();
-            result_type part_0;
-            result_type part_1;
-
-            std::memcpy(&part_0, data + 0*sizeof(result_type), sizeof(result_type));
-            std::memcpy(&part_1, data + 1*sizeof(result_type), sizeof(result_type));
-
-            return std::hash<result_type>()(part_0) ^
-                   std::hash<result_type>()(part_1);
-        } else if constexpr (sizeof(result_type) == sizeof(u_int_32))
-        {
-            const std::byte* data = aArg.Data();
-            result_type part_0;
-            result_type part_1;
-            result_type part_2;
-            result_type part_3;
-
-            std::memcpy(&part_0, data + 0*sizeof(result_type), sizeof(result_type));
-            std::memcpy(&part_1, data + 1*sizeof(result_type), sizeof(result_type));
-            std::memcpy(&part_2, data + 2*sizeof(result_type), sizeof(result_type));
-            std::memcpy(&part_3, data + 3*sizeof(result_type), sizeof(result_type));
-
-            return std::hash<result_type>()(part_0) ^
-                   std::hash<result_type>()(part_1) ^
-                   std::hash<result_type>()(part_2) ^
-                   std::hash<result_type>()(part_3);
-        }
-    }
-};*/
-
-/*template<> struct hash<std::pair<GPlatform::GpUUID, GPlatform::GpUUID>>
-{
-    using argument_type = std::pair<GPlatform::GpUUID, GPlatform::GpUUID>;
-    using result_type   = size_t;
-
-    result_type operator()(argument_type const& aArg) const noexcept
-    {
-        return hash<GPlatform::GpUUID>()(aArg.first) ^
-               hash<GPlatform::GpUUID>()(aArg.second);
-    }
-};*/
-
-/*template<> struct equal_to<GPlatform::GpUUID>
-{
-    using argument_type = GPlatform::GpUUID;
-
-    bool    operator()(const argument_type& aA,
-                       const argument_type& aB) const noexcept
-    {
-        return aA == aB;
-    }
-};*/
 
 inline string to_string(const GPlatform::GpUUID& aUUID)
 {

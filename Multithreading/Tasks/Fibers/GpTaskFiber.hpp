@@ -24,9 +24,11 @@ public:
     virtual                 ~GpTaskFiber        (void) noexcept override;
 
     virtual Res             Do                  (GpThreadStopToken aStopToken) noexcept override final;
+    virtual void            Terminate           (void) noexcept override final;
 
 protected:
     virtual void            FiberFn             (GpThreadStopToken aStopToken) = 0;
+    GpTaskFiber::WP         GetWeakPtr          (void) const noexcept {return GpTask::GetWeakPtr().As<GpTaskFiber::WP>();}
 
 private:
     GpTaskFiberCtx::SP      iCtx;

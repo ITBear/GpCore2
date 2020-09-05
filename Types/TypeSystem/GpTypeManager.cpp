@@ -1,6 +1,6 @@
 #include "GpTypeManager.hpp"
 
-#if defined(GP_USE_REFLECTION)
+#if defined(GP_USE_TYPE_SYSTEM)
 
 namespace GPlatform {
 
@@ -19,12 +19,12 @@ GpTypeManager&  GpTypeManager::S (void) noexcept
     return m;
 }
 
-void    GpTypeManager::Register (const GpTypeInfo& aTypeInfo)
+void    GpTypeManager::Register (const GpTypeStructInfo& aTypeInfo)
 {
     iElements.Register(aTypeInfo.UID(), aTypeInfo);
 }
 
-void    GpTypeManager::Register (GpTypeInfo&& aTypeInfo)
+void    GpTypeManager::Register (GpTypeStructInfo&& aTypeInfo)
 {
     const GpUUID& uid = aTypeInfo.UID();
     iElements.Register(uid, std::move(aTypeInfo));
@@ -35,7 +35,7 @@ void    GpTypeManager::Unregister (const GpUUID& aTypeUID)
     iElements.Unregister(aTypeUID);
 }
 
-GpTypeInfo::C::Opt::CRef    GpTypeManager::Find (const GpUUID& aTypeUID) const noexcept
+GpTypeStructInfo::C::Opt::CRef  GpTypeManager::Find (const GpUUID& aTypeUID) const noexcept
 {
     return iElements.Find(aTypeUID);
 }
@@ -53,11 +53,11 @@ bool    GpTypeManager::IsBaseOf (const GpUUID& aBaseTypeUID, const GpUUID& aDeri
         return true;
     }
 
-    GpTypeInfo::C::Opt::CRef typeInfoOpt = Find(aDerivedTypeUID);
+    GpTypeStructInfo::C::Opt::CRef typeInfoOpt = Find(aDerivedTypeUID);
 
     while (typeInfoOpt.has_value())
     {
-        const GpTypeInfo& typeInfo = typeInfoOpt.value();
+        const GpTypeStructInfo& typeInfo = typeInfoOpt.value();
 
         if (typeInfo.UID() == aBaseTypeUID)
         {
@@ -70,6 +70,23 @@ bool    GpTypeManager::IsBaseOf (const GpUUID& aBaseTypeUID, const GpUUID& aDeri
     return false;
 }
 
+void    GpTypeManager::UnregisterGroup (const GpUUID& aGroupID)
+{
+    iElements.Process([&](ElementsT::container_type& aElements)
+    {
+        for (auto iter = aElements.begin(); iter != aElements.end(); )
+        {
+            if (iter->second.GroupID() == aGroupID)
+            {
+                iter = aElements.erase(iter);
+            } else
+            {
+                iter++;
+            }
+        }
+    });
+}
+
 }//GPlatform
 
-#endif//GP_USE_REFLECTION
+#endif//GP_USE_TYPE_SYSTEM

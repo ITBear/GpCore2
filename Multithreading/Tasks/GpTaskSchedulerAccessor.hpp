@@ -15,7 +15,7 @@ class GpTaskSchedulerAccessor
 public:
     static void         SMoveToReady        (GpTaskScheduler& aScheduler, GpTask::SP aTask)
     {
-        aScheduler.MoveToReady(aTask);
+        aScheduler.MoveToReady(std::move(aTask));
     }
 };
 

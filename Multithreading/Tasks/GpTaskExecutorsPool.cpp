@@ -51,10 +51,10 @@ void    GpTaskExecutorsPool::PreInit (const count_t aCount)
     }
 
     // Start threads
-    iExecutorsCondVar = GpConditionVar::SP::SNew();
+    iExecutorsCondVar = MakeSP<GpConditionVar>();
     for (GpThread& t: iThreads)
     {
-        ExecutorT::SP executor = ExecutorT::SP::SNew(iScheduler, iExecutorsCondVar);
+        ExecutorT::SP executor = MakeSP<ExecutorT>(iScheduler, iExecutorsCondVar);
         iExecutors.emplace_back(executor);
 
         t.Run(executor);

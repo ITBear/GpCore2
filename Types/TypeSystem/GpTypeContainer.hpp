@@ -2,7 +2,7 @@
 
 #include "../../Config/GpConfig.hpp"
 
-#if defined(GP_USE_REFLECTION)
+#if defined(GP_USE_TYPE_SYSTEM)
 
 #include "../Enums/GpEnums.hpp"
 
@@ -18,4 +18,4 @@ GP_ENUM(GPCORE_API, GpTypeContainer,
 
 }//GPlatform
 
-#endif//GP_USE_REFLECTION
+#endif//GP_USE_TYPE_SYSTEM

@@ -121,13 +121,13 @@ public:
     using pointer_type_t                            = std::experimental::detected_or_t<void, has_pointer_type_v, C>;
 
     template<typename FROM, typename TO>
-    static consteval bool is_convertable_raw_v      =    SHasTag_GpRawPtr<FROM>
-                                                      && SHasTag_GpRawPtr<TO>
+    static consteval bool is_convertable_raw_v      =    SHasTag_GpRawPtr<FROM>()
+                                                      && SHasTag_GpRawPtr<TO>()
                                                       && is_convertable_ptr_v<pointer_type_t<FROM>, pointer_type_t<TO>>;
 
     template<typename FROM, typename TO>
-    static consteval bool is_reinterpretable_raw_v  =    SHasTag_GpRawPtr<FROM>
-                                                      && SHasTag_GpRawPtr<TO>
+    static consteval bool is_reinterpretable_raw_v  =    SHasTag_GpRawPtr<FROM>()
+                                                      && SHasTag_GpRawPtr<TO>()
                                                       && is_reinterpretable_ptr_v<pointer_type_t<FROM>, pointer_type_t<TO>>;
 
 public:

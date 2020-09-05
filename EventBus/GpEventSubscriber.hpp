@@ -4,6 +4,7 @@
 
 #if defined (GP_USE_EVENT_BUS)
 
+#include <mutex>
 #include "GpEvent.hpp"
 #include "../Multithreading/SyncPrimitives/GpSpinlock.hpp"
 
@@ -28,14 +29,15 @@ public:
     virtual                 ~GpEventSubscriber  (void) noexcept;
 
     void                    PushEvent           (GpEvent::SP aEvent);
-
-protected:
     GpEvent::SP             PopNextEvent        (void) noexcept;
+    bool                    HasEvents           (void) const noexcept {std::scoped_lock lock(iEventsLock); return !iEvents.empty();}
+
+protected:  
     void                    ClearEventsQueue    (void) noexcept;
     virtual PushEvevtRes    OnPushEvent         (GpEvent::SP& aEvent) noexcept = 0;
 
 private:
-    GpSpinlock              iEventsLock;
+    mutable GpSpinlock      iEventsLock;
     GpEvent::C::Queue::SP   iEvents;
 };
 

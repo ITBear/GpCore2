@@ -21,11 +21,12 @@ using StackContextT                 = boost::context::stack_context;
 using FiberRunFnT                   = std::function<void(GpThreadStopToken)>;
 using FiberT                        = boost::context::fiber;
 using PreallocatedT                 = boost::context::preallocated;
-using FiberArgsT                    = GpTuple<std::optional<FiberT>,
-                                              std::optional<FiberRunFnT>,
-                                              std::optional<GpThreadStopToken>,
-                                              GpTask::Res,
-                                              std::optional<std::exception_ptr>>;
+using FiberArgsT                    = GpTuple</*0*/std::optional<FiberT>,
+                                              /*1*/std::optional<FiberRunFnT>,
+                                              /*2*/std::optional<GpThreadStopToken>,
+                                              /*3*/GpTask::Res,
+                                              /*4*/std::optional<std::exception_ptr>,
+                                              /*5*/GpTask::WP>;
 using BasicProtectedFixedSizeStackT = boost::context::basic_protected_fixedsize_stack<StackSizePolicyT>;
 
 

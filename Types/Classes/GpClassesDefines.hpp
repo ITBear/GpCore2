@@ -53,7 +53,7 @@ namespace GPlatform {
     using STAG_FN_DETECTOR__##TAG_NAME = decltype(std::declval<TAGGED_TYPE&>().__TAG_##TAG_NAME##__()); \
 \
     template<typename TAGGED_TYPE> \
-    static consteval bool SHasTag_##TAG_NAME = std::experimental::is_detected_v<STAG_FN_DETECTOR__##TAG_NAME, TAGGED_TYPE>;
+    static consteval bool SHasTag_##TAG_NAME (void) {return std::experimental::is_detected_v<STAG_FN_DETECTOR__##TAG_NAME, TAGGED_TYPE>;}
 
 //TODO: remove std::experimental::is_detected
 

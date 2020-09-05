@@ -2,13 +2,14 @@
 
 #include "../../Config/GpConfig.hpp"
 
-#if defined(GP_USE_REFLECTION)
+#if defined(GP_USE_TYPE_SYSTEM)
 
 #include "../Enums/GpEnums.hpp"
 
 namespace GPlatform {
 
 GP_ENUM(GPCORE_API, GpType,
+    NOT_SET,
     U_INT_8,
     S_INT_8,
     U_INT_16,
@@ -28,4 +29,4 @@ GP_ENUM(GPCORE_API, GpType,
 
 }//GPlatform
 
-#endif//GP_USE_REFLECTION
+#endif//GP_USE_TYPE_SYSTEM

@@ -9,6 +9,8 @@ DEFINES		+= GPCORE_LIBRARY \
 			HAVE_NETINET_IN_H \
 			_GLIBCXX_USE_NANOSLEEP
 
+QMAKE_CXXFLAGS += -DGP_MODULE_UUID=96155f96-6bc0-434e-a2da-0f9e72368461
+
 PACKET_NAME     = GpCore2
 OUT_BUILD_PATH  = ./../../../Bin_tmp/
 
@@ -28,8 +30,8 @@ compiler_gcc{
 }
 
 #c++20
-CONFIG			+=	c++20
-QMAKE_CXXFLAGS	+=	-std=gnu++20
+CONFIG			+=	c++2a
+QMAKE_CXXFLAGS	+=	-std=gnu++2a
 
 QMAKE_CXXFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden
 QMAKE_CXXFLAGS	+= -ffunction-sections -fdata-sections -fexceptions -fstrict-aliasing -fstack-clash-protection
@@ -193,6 +195,8 @@ HEADERS += \
 	Multithreading/Tasks/GpTaskSchedulerAccessor.hpp \
 	Multithreading/Tasks/GpTaskState.hpp \
 	Multithreading/Tasks/GpTasks.hpp \
+	Multithreading/Tasks/SyncPrimitives/GpTaskFiberBarrier.hpp \
+	Multithreading/Tasks/SyncPrimitives/GpTaskSyncPrimitives.hpp \
 	Multithreading/Threads/GpRunnable.hpp \
 	Multithreading/Threads/GpThread.hpp \
 	Multithreading/Threads/GpThreadStopToken.hpp \
@@ -248,10 +252,13 @@ HEADERS += \
 	Types/Strings/GpStrings.hpp \
 	Types/TypeSystem/GpType.hpp \
 	Types/TypeSystem/GpTypeContainer.hpp \
-	Types/TypeSystem/GpTypeInfo.hpp \
 	Types/TypeSystem/GpTypeManager.hpp \
 	Types/TypeSystem/GpTypePropInfo.hpp \
+	Types/TypeSystem/GpTypeStructBase.hpp \
+	Types/TypeSystem/GpTypeStructFactory.hpp \
+	Types/TypeSystem/GpTypeStructInfo.hpp \
 	Types/TypeSystem/GpTypeSystem.hpp \
+	Types/TypeSystem/GpTypeUtils.hpp \
 	Types/UIDs/GpUIDs.hpp \
 	Types/UIDs/GpUUID.hpp \
 	Types/Units/GpUnit.hpp \
@@ -315,6 +322,7 @@ SOURCES += \
 	Multithreading/Tasks/GpTaskExecutorsPool.cpp \
 	Multithreading/Tasks/GpTaskScheduler.cpp \
 	Multithreading/Tasks/GpTaskState.cpp \
+	Multithreading/Tasks/SyncPrimitives/GpTaskFiberBarrier.cpp \
 	Multithreading/Threads/GpRunnable.cpp \
 	Multithreading/Threads/GpThread.cpp \
 	Pipeline/GpPipeline.cpp \
@@ -337,9 +345,10 @@ SOURCES += \
 	Types/Strings/GpStringOps.cpp \
 	Types/TypeSystem/GpType.cpp \
 	Types/TypeSystem/GpTypeContainer.cpp \
-	Types/TypeSystem/GpTypeInfo.cpp \
 	Types/TypeSystem/GpTypeManager.cpp \
 	Types/TypeSystem/GpTypePropInfo.cpp \
+	Types/TypeSystem/GpTypeStructBase.cpp \
+	Types/TypeSystem/GpTypeStructInfo.cpp \
 	Types/UIDs/GpUUID.cpp \
 	Utils/Streams/GpBitReader.cpp \
 	Utils/Streams/GpBitReaderStorage.cpp \

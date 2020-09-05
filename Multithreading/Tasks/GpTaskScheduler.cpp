@@ -19,12 +19,19 @@ GpTaskScheduler::~GpTaskScheduler (void) noexcept
         std::scoped_lock lock(iReadyLock);
         while (!iReadyTasks.empty())
         {
+            iReadyTasks.front().Vn().Terminate();
             iReadyTasks.pop();
         }
     }
 
     {
         std::scoped_lock lock(iWaitingLock);
+
+        for (auto& task: iWaitingTasks)
+        {
+            const_cast<GpTask&>(task.VCn()).Terminate();
+        }
+
         iWaitingTasks.clear();
     }
 
@@ -73,8 +80,21 @@ GpTask::SP  GpTaskScheduler::Reshedule (GpTask::SP          aLastTask,
         // State can be: RUNNING (task just came from executor), READY_TO_RUN (task was moved to READY_TO_RUN from GpTaskScheduler::MoveToReady)
         if (GpTaskAccessor::SState(task) == GpTask::StateTE::RUNNING)
         {
-            GpTaskAccessor::SUpdateState(aLastTask.Vn(), GpTask::StateTE::WAITING);
-            iWaitingTasks.emplace(std::move(aLastTask));
+            if (task.HasEvents())
+            {
+                if (!iReadyTasks.empty())
+                {
+                    GpTaskAccessor::SUpdateState(aLastTask.Vn(), GpTask::StateTE::READY_TO_RUN);
+                    iReadyTasks.push(std::move(aLastTask));
+                } else
+                {
+                    return aLastTask;
+                }
+            } else
+            {
+                GpTaskAccessor::SUpdateState(aLastTask.Vn(), GpTask::StateTE::WAITING);
+                iWaitingTasks.emplace(std::move(aLastTask));
+            }
         } else//READY_TO_RUN
         {
             std::scoped_lock lock_r(iReadyLock);

@@ -28,8 +28,10 @@ public:
     void                        Init                (void);
     void                        Clear               (void) noexcept;
     GpTask::Res                 Enter               (GpThreadStopToken  aStopToken,
+                                                     GpTask::WP         aTask,
                                                      FiberRunFnT        aRunFn);
-    static void                 SYeld               (const GpTask::Res  aRes = GpTask::Res::WAITING);
+    static void                 SYeld               (const GpTask::Res aRes);
+    static GpTask::WP           SCurrentTask        (void);
 
 private:
     alignas(alignof(std::max_align_t)) std::array<std::byte, 32>    iFiberStorage;

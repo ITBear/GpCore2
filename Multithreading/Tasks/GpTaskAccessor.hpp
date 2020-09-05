@@ -17,6 +17,7 @@ public:
     using StateTE   = StateT::EnumT;
 
 public:
+    static GpTask::WP   GetWeakPtr      (GpTask& aTask) noexcept {return aTask.GetWeakPtr();}
     static StateTE      SState          (GpTask& aTask) noexcept {return aTask.State();}
     static void         SUpdateState    (GpTask& aTask, StateTE aNewState) noexcept {aTask.UpdateState(aNewState);}
     static void         SSetScheduler   (GpTask& aTask, GpTaskScheduler& aScheduler) noexcept {aTask.SetScheduler(aScheduler);}

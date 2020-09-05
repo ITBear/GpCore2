@@ -17,7 +17,8 @@
 namespace GPlatform {
 
 #if defined(GP_USE_MULTITHREADING_IMPL_JTHREAD)
-    using GpThreadStopToken = std::stop_token;
+    using GpThreadStopToken     = std::stop_token;
+    using GpThreadStopSource    = std::stop_source;
 #endif//#if defined(GP_USE_MULTITHREADING_IMPL_JTHREAD)
 
 }//GPlatform

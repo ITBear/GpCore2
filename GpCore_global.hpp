@@ -25,3 +25,7 @@ namespace GPlatform {
 }
 
 namespace GP = ::GPlatform;
+
+#if !defined(GP_MODULE_UUID)
+#   error Please define GP_MODULE_UUID:  -DGP_MODULE_UUID=...
+#endif

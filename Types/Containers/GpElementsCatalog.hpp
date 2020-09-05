@@ -13,6 +13,7 @@
 
 #include <mutex>
 #include <shared_mutex>
+#include <functional>
 
 namespace GPlatform {
 
@@ -48,6 +49,8 @@ public:
                                     Find                (const KeyT& aKey) const noexcept;
     std::optional<std::reference_wrapper<ValueT>>
                                     Find                (const KeyT& aKey) noexcept;
+
+    void                            Process             (std::function<void(container_type&)> aFn);
 
 private:
     count_t                         _Count              (const KeyT& aKey) const noexcept;
@@ -175,6 +178,15 @@ std::optional<std::reference_wrapper<ValueT>>   GpElementsCatalog<KeyT, ValueT, 
     {
         return std::nullopt;
     }
+}
+
+template<typename KeyT,
+         typename ValueT,
+         template<typename...> class ContainerT>
+void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Process (std::function<void(container_type&)> aFn)
+{
+    std::shared_lock lock(iLock);
+    aFn(iElements);
 }
 
 template<typename KeyT,
