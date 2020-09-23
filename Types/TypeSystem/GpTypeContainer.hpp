@@ -5,6 +5,7 @@
 #if defined(GP_USE_TYPE_SYSTEM)
 
 #include "../Enums/GpEnums.hpp"
+#include "../Strings/GpStringOps.hpp"
 
 namespace GPlatform {
 

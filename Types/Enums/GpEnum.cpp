@@ -1,4 +1,5 @@
 #include "GpEnum.hpp"
+#include "../Strings/GpStringOps.hpp"
 
 #if defined(GP_USE_ENUMS)
 

@@ -66,25 +66,27 @@ namespace GPlatform{
 class GPCORE_API GpException: public std::exception
 {
 private:
-                        GpException     (void) noexcept = delete;
-                        GpException     (const GpException& aException) noexcept = delete;
+                            GpException     (void) noexcept = delete;
+                            GpException     (const GpException& aException) noexcept = delete;
 
-    GpException&        operator=       (const GpException& aException) noexcept = delete;
-    GpException&        operator=       (GpException&& aException) noexcept = delete;
+    GpException&            operator=       (const GpException& aException) noexcept = delete;
+    GpException&            operator=       (GpException&& aException) noexcept = delete;
 
 public:
-                        GpException     (GpException&& aException) noexcept;
-                        GpException     (std::string_view       aMsg,
-                                         const SourceLocationT& aLocation = SourceLocationT::current()) noexcept;
+                            GpException     (GpException&& aException) noexcept;
+                            GpException     (std::string_view       aMsg,
+                                             const SourceLocationT& aSourceLocation = SourceLocationT::current()) noexcept;
 
-    virtual             ~GpException    (void) noexcept override;
+    virtual                 ~GpException    (void) noexcept override;
 
-    virtual const char* what            (void) const noexcept override {return iWhat.data();}
-    std::string_view    Message         (void) const noexcept {return iMsg;}
+    virtual const char*     what            (void) const noexcept override {return iWhat.data();}
+    std::string_view        Message         (void) const noexcept {return iMsg;}
+    const SourceLocationT&  SourceLocation  (void) const noexcept {return iSourceLocation;}
 
 private:
-    std::string         iWhat;
-    std::string_view    iMsg;
+    std::string             iWhat;
+    std::string_view        iMsg;
+    SourceLocationT         iSourceLocation;
 };
 
 }//GPlatform

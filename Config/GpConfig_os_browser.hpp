@@ -16,3 +16,4 @@
 //#define GP_USE_PIPELINE
 #define GP_USE_TYPE_SYSTEM
 #define GP_USE_UUID
+//#define GP_USE_UNIT_TESTS

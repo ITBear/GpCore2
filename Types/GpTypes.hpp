@@ -11,3 +11,4 @@
 #include "Bits/GpBits.hpp"
 #include "TypeSystem/GpTypeSystem.hpp"
 #include "Containers/GpContainers.hpp"
+#include "Graphs/GpGraphs.hpp"

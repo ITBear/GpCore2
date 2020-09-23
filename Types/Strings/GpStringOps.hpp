@@ -13,6 +13,7 @@
 #include "../Units/Other/count_t.hpp"
 #include "../Units/Other/size_byte_t.hpp"
 #include "../../Algorithms/GpSplit.hpp"
+#include "../Enums/GpEnum.hpp"
 
 #include <variant>
 
@@ -81,6 +82,10 @@ public:
     //------------------------- Count -----------------------------
     static inline constexpr count_t         SCountChars     (std::string_view aStr, const char aChar) noexcept;
 
+    //------------------------- Auto to string -----------------------------
+    template<typename T>
+    static std::string                      SToString       (const T& aValue);
+
 private:
     static void                             _SFromUI64      (const u_int_64 aValue,
                                                              GpRawPtrCharRW aStrOut);
@@ -145,6 +150,42 @@ constexpr count_t   GpStringOps::SCountChars (std::string_view aStr, const char 
     }
 
     return count_t::SMake(count);
+}
+
+template<typename T>
+std::string GpStringOps::SToString (const T& aValue)
+{
+    if constexpr (std::is_same_v<T, std::string>)
+    {
+        return aValue;
+    } else if constexpr (std::is_same_v<T, std::string_view>)
+    {
+        return aValue;
+    } else if constexpr (std::is_integral_v<T>)
+    {
+        if constexpr (std::is_signed_v<T>)
+        {
+            return SFromSI64(NumOps::SConvert<s_int_64>(aValue));
+        } else
+        {
+            return SFromUI64(NumOps::SConvert<u_int_64>(aValue));
+        }
+    } else if constexpr (std::is_floating_point_v<T>)
+    {
+        return SFromDouble(NumOps::SConvert<double>(aValue));
+    } else if constexpr (GpUnitUtils::SHasTag_GpUnit<T>())
+    {
+        return SToString<typename T::value_type>(aValue.Value());
+    } else if constexpr (GpEnum::SHasTag_GpEnum<T>())
+    {
+        return aValue.ToString();
+    } else if constexpr (std::is_same_v<T, GpBytesArray>)
+    {
+        return SFromBytes(aValue);
+    } else
+    {
+        return "Unknown object type";
+    }
 }
 
 }//GPlatform

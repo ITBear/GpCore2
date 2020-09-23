@@ -5,6 +5,7 @@
 #if defined(GP_USE_MULTITHREADING)
 
 #include "../../Types/Enums/GpEnum.hpp"
+#include "../../Types/Strings/GpStringOps.hpp"
 
 namespace GPlatform {
 

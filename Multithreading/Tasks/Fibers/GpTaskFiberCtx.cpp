@@ -171,6 +171,12 @@ GpTask::WP  GpTaskFiberCtx::SCurrentTask (void)
     return std::get<5>(fiberArgs);
 }
 
+bool    GpTaskFiberCtx::SIsIntoFiber (void) noexcept
+{
+    FiberArgsT& fiberArgs   = sFiberArgsTLS;
+    return std::get<0>(fiberArgs).has_value();
+}
+
 }//namespace GPlatform
 
 #endif//#if defined(GP_USE_MULTITHREADING_FIBERS)

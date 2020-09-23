@@ -6,6 +6,7 @@
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
 #include "../../../Types/Enums/GpEnum.hpp"
+#include "../../../Types/Strings/GpStringOps.hpp"
 
 namespace GPlatform {
 

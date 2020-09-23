@@ -24,8 +24,8 @@ public:
 
     static GpTypeManager&           S               (void) noexcept;
 
-    void                            Register        (const GpTypeStructInfo& aTypeInfo);
-    void                            Register        (GpTypeStructInfo&& aTypeInfo);
+    size_t                          Register        (const GpTypeStructInfo& aTypeInfo);
+    size_t                          Register        (GpTypeStructInfo&& aTypeInfo);
     void                            Unregister      (const GpUUID& aTypeUID);
     GpTypeStructInfo::C::Opt::CRef  Find            (const GpUUID& aTypeUID) const noexcept;
     bool                            IsBaseOf        (const GpUUID& aBaseTypeUID, const GpUUID& aDerivedTypeUID) const noexcept;

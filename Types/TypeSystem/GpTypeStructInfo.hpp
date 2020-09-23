@@ -41,6 +41,16 @@ public:
     GpTypeStructFactory::SP     Factory             (void) const noexcept {return iFactory;}
     GpSP<GpTypeStructBase>      NewInstance         (void) const {return iFactory.VCn().NewInstance();}
 
+    static std::string          SEcho               (const GpTypeStructBase& aStruct);
+
+private:
+    static void                 _SEcho              (const GpTypeStructBase&    aStruct,
+                                                     std::string&               aStrOut,
+                                                     const size_t               aLevel);
+    static void                 _SEchoValue         (const GpTypeStructBase&    aStruct,
+                                                     std::string&               aStrOut,
+                                                     const GpTypePropInfo&      aPropInfo,
+                                                     const size_t               aLevel);
 
 private:
     GpUUID                      iUID;

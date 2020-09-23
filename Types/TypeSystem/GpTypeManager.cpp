@@ -19,15 +19,19 @@ GpTypeManager&  GpTypeManager::S (void) noexcept
     return m;
 }
 
-void    GpTypeManager::Register (const GpTypeStructInfo& aTypeInfo)
+size_t  GpTypeManager::Register (const GpTypeStructInfo& aTypeInfo)
 {
     iElements.Register(aTypeInfo.UID(), aTypeInfo);
+
+    return 0;
 }
 
-void    GpTypeManager::Register (GpTypeStructInfo&& aTypeInfo)
+size_t  GpTypeManager::Register (GpTypeStructInfo&& aTypeInfo)
 {
     const GpUUID& uid = aTypeInfo.UID();
     iElements.Register(uid, std::move(aTypeInfo));
+
+    return 0;
 }
 
 void    GpTypeManager::Unregister (const GpUUID& aTypeUID)

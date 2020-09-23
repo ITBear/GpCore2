@@ -32,13 +32,23 @@ protected:
     virtual const GpTypeStructInfo& _TypeStructInfo     (void) const noexcept = 0;
     virtual GpTypeStructBase::SP    _NewInstance        (void) const = 0;
     static const GpTypeStructInfo&  STypeStructInfo     (void);
+    static const GpUUID&            STypeStructUID      (void) noexcept;
 };
 
 //------------------------- TYPE_STRUCT_DECLARE -------------------------
+#if defined(GP_TYPE_SYSTEM_STATIC_ADD_TO_MANAGER)
+#   define TYPE_STRUCT_DECLARE_STATIC_TO_TYPE_MANAGER static const size_t _sTYPE_MANAGER
+#   define TYPE_STRUCT_IMPLEMENT_STATIC_TO_TYPE_MANAGER(T) const size_t T::_sTYPE_MANAGER = GpTypeManager::S().Register(T::STypeStructInfo());
+#else
+#   define TYPE_STRUCT_DECLARE_STATIC_TO_TYPE_MANAGER
+#   define TYPE_STRUCT_IMPLEMENT_STATIC_TO_TYPE_MANAGER(T)
+#endif//#if defined(GP_TYPE_SYSTEM_STATIC_ADD_TO_MANAGER)
+
 #define TYPE_STRUCT_DECLARE() \
     using BaseT     = std::remove_reference<decltype(SGetBaseObjectType(&this_type::_type_id_tag_fn))>::type; \
 \
     static const GpTypeStructInfo&  STypeStructInfo     (void); \
+    static const GpUUID&            STypeStructUID      (void) noexcept; \
 \
     class StructFactory final: public GpTypeStructFactory \
     { \
@@ -54,18 +64,28 @@ protected: \
 private: \
     static GpTypeStructInfo         _SCollectStructInfo (const GpTypeStructInfo* aBaseStructInfo); \
     static void                     _SCollectStructProps(GpTypePropInfo::C::Vec::Val& aPropsOut); \
+    TYPE_STRUCT_DECLARE_STATIC_TO_TYPE_MANAGER;
+\
 
 //------------------------- TYPE_STRUCT_IMPLEMENT -------------------------
 #define MACRO_D_TO_STR(VAL) #VAL
 
 #define TYPE_STRUCT_IMPLEMENT(T, TUUID, MODULE_UUID) \
 \
-    GpSP<GpTypeStructBase>  T::StructFactory::NewInstance (void) const {return T::SP::SNew();} \
+    TYPE_STRUCT_IMPLEMENT_STATIC_TO_TYPE_MANAGER(T); \
+\
+    GpSP<GpTypeStructBase>  T::StructFactory::NewInstance (void) const {return MakeSP<T>();} \
 \
     const GpTypeStructInfo& T::STypeStructInfo (void) \
     { \
         static const GpTypeStructInfo sStructInfo = T::_SCollectStructInfo(&T::BaseT::STypeStructInfo()); \
         return sStructInfo; \
+    } \
+\
+    const GpUUID&   T::STypeStructUID (void) noexcept \
+    { \
+        static constexpr const GpUUID sStructUID = GpUUID::CE_FromString(TUUID); \
+        return sStructUID; \
     } \
 \
     const GpTypeStructInfo& T::_TypeStructInfo (void) const noexcept \
@@ -75,7 +95,7 @@ private: \
 \
     GpTypeStructBase::SP    T::_NewInstance (void) const \
     { \
-        return T::SP::SNew(); \
+        return MakeSP<T>(); \
     } \
 \
     GpTypeStructInfo    T::_SCollectStructInfo (const GpTypeStructInfo* aBaseStructInfo) \

@@ -10,6 +10,7 @@ DEFINES		+= GPCORE_LIBRARY \
 			_GLIBCXX_USE_NANOSLEEP
 
 QMAKE_CXXFLAGS += -DGP_MODULE_UUID=96155f96-6bc0-434e-a2da-0f9e72368461
+QMAKE_CXXFLAGS += -DGP_TYPE_SYSTEM_STATIC_ADD_TO_MANAGER
 
 PACKET_NAME     = GpCore2
 OUT_BUILD_PATH  = ./../../../Bin_tmp/
@@ -137,6 +138,7 @@ INCLUDEPATH += \
 HEADERS += \
 	Algorithms/GpAlgorithms.hpp \
 	Algorithms/GpAverage.hpp \
+	Algorithms/GpFind.hpp \
 	Algorithms/GpSplit.hpp \
 	Asm/GpAsm.hpp \
 	Asm/GpAsmSpinPause.hpp \
@@ -237,6 +239,11 @@ HEADERS += \
 	Types/Enums/GpEnumFlags.hpp \
 	Types/Enums/GpEnums.hpp \
 	Types/GpTypes.hpp \
+	Types/Graphs/DAG/GpGraphDAG.hpp \
+	Types/Graphs/GpGraph.hpp \
+	Types/Graphs/GpGraphEdge.hpp \
+	Types/Graphs/GpGraphNode.hpp \
+	Types/Graphs/GpGraphs.hpp \
 	Types/Numerics/GpNumericOps.hpp \
 	Types/Numerics/GpNumericTypes.hpp \
 	Types/Numerics/GpNumerics.hpp \
@@ -280,6 +287,7 @@ HEADERS += \
 	Types/Units/Other/GpOtherUnits.hpp \
 	Types/Units/Other/count_t.hpp \
 	Types/Units/Other/monetary_t.hpp \
+	Types/Units/Other/pixels_t.hpp \
 	Types/Units/Other/size_byte_t.hpp \
 	Types/Units/Other/size_mebibyte_t.hpp \
 	Types/Units/Other/unix_ts_t.hpp \
@@ -288,7 +296,14 @@ HEADERS += \
 	Types/Units/SI/GpUnitsSI_Length.hpp \
 	Types/Units/SI/GpUnitsSI_Time.hpp \
 	Types/Units/SI/GpUnitsSI_Weight.hpp \
+	UnitTests/GpUnitTest.hpp \
+	UnitTests/GpUnitTestCtx.hpp \
+	UnitTests/GpUnitTestException.hpp \
+	UnitTests/GpUnitTestLayeredCtx.hpp \
+	UnitTests/GpUnitTestStreamOutCtx.hpp \
+	UnitTests/GpUnitTests.hpp \
 	Utils/GpUtils.hpp \
+	Utils/RAII/GpOnThrowStackUnwindFn.hpp \
 	Utils/RAII/GpRAIIonDestruct.hpp \
 	Utils/RAII/GpRAIIutils.hpp \
 	Utils/Streams/GpBitReader.hpp \
@@ -340,6 +355,9 @@ SOURCES += \
 	RandomGenerators/GpSRandom.cpp \
 	Types/DateTime/GpDateTimeOps.cpp \
 	Types/Enums/GpEnum.cpp \
+	Types/Graphs/GpGraph.cpp \
+	Types/Graphs/GpGraphEdge.cpp \
+	Types/Graphs/GpGraphNode.cpp \
 	Types/Numerics/GpNumericOps.cpp \
 	Types/Pointers/GpRawPtr.cpp \
 	Types/Strings/GpStringOps.cpp \
@@ -350,6 +368,11 @@ SOURCES += \
 	Types/TypeSystem/GpTypeStructBase.cpp \
 	Types/TypeSystem/GpTypeStructInfo.cpp \
 	Types/UIDs/GpUUID.cpp \
+	UnitTests/GpUnitTest.cpp \
+	UnitTests/GpUnitTestCtx.cpp \
+	UnitTests/GpUnitTestException.cpp \
+	UnitTests/GpUnitTestLayeredCtx.cpp \
+	UnitTests/GpUnitTestStreamOutCtx.cpp \
 	Utils/Streams/GpBitReader.cpp \
 	Utils/Streams/GpBitReaderStorage.cpp \
 	Utils/Streams/GpBitWriter.cpp \

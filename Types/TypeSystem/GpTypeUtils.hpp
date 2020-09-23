@@ -57,12 +57,14 @@ public:
         else if constexpr (std::is_same_v<T, s_int_64>) return GpType::S_INT_64;
         else if constexpr (std::is_same_v<T, double>) return GpType::DOUBLE;
         else if constexpr (std::is_same_v<T, float>) return GpType::FLOAT;
+        else if constexpr (std::is_same_v<T, bool>) return GpType::BOOLEAN;
         else if constexpr (std::is_same_v<T, GpUUID>) return GpType::UUID;
         else if constexpr (std::is_same_v<T, std::string>) return GpType::STRING;
         else if constexpr (std::is_same_v<T, GpBytesArray>) return GpType::BLOB;
         else if constexpr (std::is_base_of_v<GpTypeStructBase, T>) return GpType::STRUCT;
         else if constexpr (GpTypeStructBase::SP::SHasTag_GpSharedPtr<T>()) return GpType::STRUCT_SP;
         else if constexpr (GpUnitUtils::SHasTag_GpUnit<T>()) return SDetectType<typename T::value_type>();
+        else if constexpr (GpEnum::SHasTag_GpEnum<T>()) return GpType::ENUM;
         else return GpType::NOT_SET;
     }
 
@@ -107,14 +109,13 @@ public:
             return T::STypeStructInfo().UID();
         } else if constexpr (GpTypeStructBase::SP::SHasTag_GpSharedPtr<T>())
         {
-            return T::value_type::STypeStructInfo().UID();
+            return T::value_type::STypeStructUID();
         } else
         {
             return GpUUID();
         }
     }
 };
-
 
 }//namespace GPlatform
 

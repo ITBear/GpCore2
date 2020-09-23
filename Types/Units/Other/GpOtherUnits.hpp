@@ -5,3 +5,4 @@
 #include "count_t.hpp"
 #include "unix_ts_t.hpp"
 #include "monetary_t.hpp"
+#include "pixels_t.hpp"

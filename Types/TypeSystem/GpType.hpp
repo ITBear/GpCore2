@@ -5,6 +5,7 @@
 #if defined(GP_USE_TYPE_SYSTEM)
 
 #include "../Enums/GpEnums.hpp"
+#include "../Strings/GpStringOps.hpp"
 
 namespace GPlatform {
 
@@ -20,11 +21,13 @@ GP_ENUM(GPCORE_API, GpType,
     S_INT_64,
     DOUBLE,
     FLOAT,
-    UUID,
+    BOOLEAN,
+    UUID,       
     STRING,
     BLOB,
     STRUCT,
-    STRUCT_SP
+    STRUCT_SP,
+    ENUM
 );
 
 }//GPlatform

@@ -32,6 +32,7 @@ public:
                                                      FiberRunFnT        aRunFn);
     static void                 SYeld               (const GpTask::Res aRes);
     static GpTask::WP           SCurrentTask        (void);
+    static bool                 SIsIntoFiber        (void) noexcept;
 
 private:
     alignas(alignof(std::max_align_t)) std::array<std::byte, 32>    iFiberStorage;

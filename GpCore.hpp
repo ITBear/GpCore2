@@ -11,3 +11,4 @@
 #include "EventBus/GpEventBus.hpp"
 #include "Pipeline/GpPipelineManager.hpp"
 #include "Utils/GpUtils.hpp"
+#include "UnitTests/GpUnitTests.hpp"

@@ -7,7 +7,6 @@
 #include "../Classes/GpClassesDefines.hpp"
 #include "../Numerics/GpNumerics.hpp"
 #include "../Containers/GpContainersT.hpp"
-#include "../Strings/GpStringOps.hpp"
 #include "../Pointers/GpSharedPtr.hpp"
 
 namespace GPlatform {
@@ -18,6 +17,7 @@ public:
     CLASS_REMOVE_CTRS_EXCEPT_DEFAULT_COPY(GpEnum)
     CLASS_DECLARE_DEFAULTS(GpEnum)
     CLASS_TAG(GpEnum)
+    CLASS_TAG_DETECTOR(GpEnum)
 
     using value_type    = size_t;
     using NamesListT    = GpVector<GpTuple<std::string_view, value_type>>;

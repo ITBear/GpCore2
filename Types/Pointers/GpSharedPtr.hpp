@@ -194,7 +194,7 @@ public:
         return TSP::_SConstructFromRefCounter(iRefCounter);
     }
 
-    template<typename TSP, typename = IsCastable<TSP, this_type>>
+    template<typename TSP, typename = IsCastable<this_type, TSP>>
     TSP                             CastAs          (void) noexcept
     {
         return TSP::_SConstructFromRefCounter(iRefCounter);
@@ -202,7 +202,16 @@ public:
 
     RefPtrT             _RefCounter                 (void) const noexcept {return iRefCounter;}
     RefPtrT             _MoveRefCounter             (void) noexcept {RefPtrT r = iRefCounter; iRefCounter = nullptr; return r;}
-    static this_type    _SConstructFromRefCounter   (RefPtrT aRefCounter) {return this_type(aRefCounter);}
+
+    static this_type    _SConstructFromRefCounter   (RefPtrT aRefCounter)
+    {
+        if (aRefCounter)
+        {
+            aRefCounter->template Acquire<_IsWeak>();
+        }
+
+        return this_type(aRefCounter);
+    }
 
 private:
     RefPtrT             iRefCounter = nullptr;
