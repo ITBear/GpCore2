@@ -19,6 +19,8 @@ GpTaskExecutor::~GpTaskExecutor (void) noexcept
 
 void    GpTaskExecutor::Run (GpThreadStopToken aStopToken) noexcept
 {
+    GpTaskScheduler::SSetCurrentScheduler(iScheduler);
+
     GpTask::SP  currentTask;
     GpTask::Res currentTaskExecRes = GpTask::Res::DONE;
 
@@ -35,6 +37,8 @@ void    GpTaskExecutor::Run (GpThreadStopToken aStopToken) noexcept
             currentTaskExecRes = GpTask::Res::DONE;
         }
     }
+
+    GpTaskScheduler::SSetCurrentScheduler(std::nullopt);
 }
 
 }//GPlatform

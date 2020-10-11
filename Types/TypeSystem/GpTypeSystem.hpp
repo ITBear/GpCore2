@@ -3,6 +3,7 @@
 #include "GpType.hpp"
 #include "GpTypeContainer.hpp"
 #include "GpTypePropInfo.hpp"
+#include "GpTypePropInfoGetter.hpp"
 #include "GpTypeStructInfo.hpp"
 #include "GpTypeStructBase.hpp"
 #include "GpTypeManager.hpp"

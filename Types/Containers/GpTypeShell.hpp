@@ -24,8 +24,8 @@ public:
     T*                      operator ->     (void) noexcept {return &iValue;}
     const T*                operator ->     (void) const noexcept {return &iValue;}
 
-    T&                      Val             (void) noexcept {return iValue;}
-    const T&                Val             (void) const noexcept {return iValue;}
+    T&                      Value           (void) noexcept {return iValue;}
+    const T&                Value           (void) const noexcept {return iValue;}
 
     T&&                     ValueMove       (void) noexcept {return std::move(iValue);}
 

@@ -181,6 +181,7 @@ HEADERS += \
 	Multithreading/SyncPrimitives/GpRWLock.hpp \
 	Multithreading/SyncPrimitives/GpSpinlock.hpp \
 	Multithreading/SyncPrimitives/GpSyncPrimitives.hpp \
+	Multithreading/Tasks/Fibers/GpBaseTaskFiber.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiber.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberCtx.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberManager.hpp \
@@ -261,6 +262,7 @@ HEADERS += \
 	Types/TypeSystem/GpTypeContainer.hpp \
 	Types/TypeSystem/GpTypeManager.hpp \
 	Types/TypeSystem/GpTypePropInfo.hpp \
+	Types/TypeSystem/GpTypePropInfoGetter.hpp \
 	Types/TypeSystem/GpTypeStructBase.hpp \
 	Types/TypeSystem/GpTypeStructFactory.hpp \
 	Types/TypeSystem/GpTypeStructInfo.hpp \
@@ -302,7 +304,9 @@ HEADERS += \
 	UnitTests/GpUnitTestLayeredCtx.hpp \
 	UnitTests/GpUnitTestStreamOutCtx.hpp \
 	UnitTests/GpUnitTests.hpp \
+	Utils/File/GpFileUtils.hpp \
 	Utils/GpUtils.hpp \
+	Utils/Pragma/GpPragmaUtils.hpp \
 	Utils/RAII/GpOnThrowStackUnwindFn.hpp \
 	Utils/RAII/GpRAIIonDestruct.hpp \
 	Utils/RAII/GpRAIIutils.hpp \
@@ -326,6 +330,7 @@ SOURCES += \
 	Exceptions/GpException.cpp \
 	Exceptions/GpExceptionsSink.cpp \
 	Multithreading/SyncPrimitives/GpConditionVar.cpp \
+	Multithreading/Tasks/Fibers/GpBaseTaskFiber.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiber.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberCtx.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberManager.cpp \
@@ -373,6 +378,7 @@ SOURCES += \
 	UnitTests/GpUnitTestException.cpp \
 	UnitTests/GpUnitTestLayeredCtx.cpp \
 	UnitTests/GpUnitTestStreamOutCtx.cpp \
+	Utils/File/GpFileUtils.cpp \
 	Utils/Streams/GpBitReader.cpp \
 	Utils/Streams/GpBitReaderStorage.cpp \
 	Utils/Streams/GpBitWriter.cpp \

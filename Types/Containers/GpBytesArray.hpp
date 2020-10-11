@@ -39,6 +39,21 @@ public:
         resPtr.CopyFrom(aData);
         return res;
     }
+
+    static std::string          SToString (GpRawPtr<const std::byte*> aData)
+    {
+        const size_t size = aData.CountLeftV<size_t>();
+
+        std::string res;
+
+        if (size > 0)
+        {
+            res.reserve(size);
+            res.append(aData.PtrAs<const char*>(), size);
+        }
+
+        return res;
+    }
 };
 
 }//GPlatform

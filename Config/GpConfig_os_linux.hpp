@@ -18,3 +18,4 @@
 #define GP_USE_UUID
 #define GP_USE_GRAPHS
 #define GP_USE_UNIT_TESTS
+#define GP_USE_FILE_UTILS

@@ -34,7 +34,7 @@ public:
 
         return part_2;
     #else
-    #   error Unsupported compiller
+    #   error Unsupported compiler
     #endif
     }
 
@@ -101,19 +101,54 @@ public:
         return {GpType::NOT_SET, GpType::NOT_SET, GpTypeContainer::NO};
     }
 
-    template<typename T> [[nodiscard]] static
-    GpUUID  SDetectStructTypeUID (void)
+    template<typename T, GpType::EnumT Type> [[nodiscard]] static
+    GpUUID  SGetTypeStructUID (void)
     {
-        if constexpr (std::is_base_of_v<GpTypeStructBase, T>)
+        if constexpr (Type == GpType::STRUCT)
         {
-            return T::STypeStructInfo().UID();
-        } else if constexpr (GpTypeStructBase::SP::SHasTag_GpSharedPtr<T>())
+            return T::STypeStructUID();
+        } else if constexpr (Type == GpType::STRUCT_SP)
         {
             return T::value_type::STypeStructUID();
         } else
         {
             return GpUUID();
         }
+    }
+
+    template<typename T> [[nodiscard]] static
+    GpUUID  SDetectStructTypeUID (void)
+    {
+        constexpr GpType::EnumT t = SDetectType<T>();
+
+        if constexpr (t != GpType::NOT_SET)
+        {
+            return SGetTypeStructUID<T, t>();
+        } else
+        {
+            if constexpr (std::is_same_v<T, GpVector<typename T::value_type>>)
+            {
+                constexpr GpType::EnumT et = SDetectType<typename T::value_type>();
+                return SGetTypeStructUID<typename T::value_type, et>();
+            } else if constexpr (std::is_same_v<T, GpList<typename T::value_type>>)
+            {
+                constexpr GpType::EnumT et = SDetectType<typename T::value_type>();
+                return SGetTypeStructUID<typename T::value_type, et>();
+            } else if constexpr (std::is_same_v<T, GpSet<typename T::value_type>>)
+            {
+                constexpr GpType::EnumT et = SDetectType<typename T::value_type>();
+                return SGetTypeStructUID<typename T::value_type, et>();
+            } else if constexpr (std::is_same_v<T, GpMap<typename T::key_type, typename T::mapped_type>>)
+            {
+                constexpr GpType::EnumT et = SDetectType<typename T::mapped_type>();
+                return SGetTypeStructUID<typename T::mapped_type, et>();
+            } else
+            {
+                GpThrowCe<std::out_of_range>("Unknown type '"_sv + STypeName<T>() + "'");
+            }
+        }
+
+        return GpUUID();
     }
 };
 

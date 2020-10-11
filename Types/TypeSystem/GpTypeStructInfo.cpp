@@ -174,7 +174,7 @@ void    GpTypeStructInfo::_SEchoValue (const GpTypeStructBase&  aStruct,
         } break;
         case GpType::FLOAT:
         {
-            aStrOut.append(GpStringOps::SFromDouble(aPropInfo.Value_Float(aStruct)));
+            aStrOut.append(GpStringOps::SFromDouble(double(aPropInfo.Value_Float(aStruct))));
         } break;
         case GpType::BOOLEAN:
         {

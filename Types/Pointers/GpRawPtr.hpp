@@ -373,6 +373,7 @@ public:
         iOffset = 0_cnt;
     }
 
+    template <typename _D = void, typename = std::enable_if_t<!is_const_v<T>, _D>>
     constexpr void                              CopyFrom        (const this_type& aRawPtr)
     {
         const count_t countLeftThis     = CountLeft();
@@ -381,6 +382,7 @@ public:
         MemOps::SCopy(Ptr(), aRawPtr.Ptr(), countLeftOther);
     }
 
+    template <typename _D = void, typename = std::enable_if_t<!is_const_v<T>, _D>>
     constexpr void                              CopyFrom        (const value_type* aPtr, const count_t aCount)
     {
         const count_t countLeftThis = CountLeft();
@@ -388,21 +390,24 @@ public:
         MemOps::SCopy(Ptr(), aPtr, aCount);
     }
 
-    template<typename P, typename = std::enable_if_t<is_convertable_ptr_v<P, const value_type*>, P>>
+    template<typename P, typename = std::enable_if_t<   is_convertable_ptr_v<P, const value_type*>
+                                                     && !is_const_v<T>, P>>
     constexpr   void                            CopyFrom        (P aPtr, const size_t aSize)
     {
         CopyFrom(SPtrAs<P, const value_type*>(aPtr),
                  SCountAs<P, const value_type*>(count_t::SMake(aSize)));
     }
 
-    template<typename P, typename = std::enable_if_t<is_convertable_ptr_v<P, const value_type*>, P>>
+    template<typename P, typename = std::enable_if_t<   is_convertable_ptr_v<P, const value_type*>
+                                                     && !is_const_v<T>, P>>
     constexpr   void                            CopyFrom        (P aPtr, const count_t aSize)
     {
         CopyFrom(SPtrAs<P, const value_type*>(aPtr),
                  SCountAs<P, const value_type*>(aSize));
     }
 
-    template<typename R, typename = std::enable_if_t<is_convertable_raw_v<R, GpRawPtr<const value_type*>>, R>>
+    template<typename R, typename = std::enable_if_t<   is_convertable_raw_v<R, GpRawPtr<const value_type*>>
+                                                     && !is_const_v<T>, R>>
     constexpr   void                            CopyFrom        (const R& aRawPtr)
     {
         CopyFrom(aRawPtr.template _PtrAs<const value_type*>(),
@@ -466,13 +471,13 @@ public:
         return _Ptr(aOffset);
     }
 
-    //template <typename _D = void, typename = std::enable_if_t<!is_const_v<T>, _D>>
+    template <typename _D = void, typename = std::enable_if_t<!is_const_v<T>, _D>>
     constexpr value_type*                       Ptr                 (void)
     {
         return const_cast<value_type*>(std::as_const(*this).Ptr());
     }
 
-    //template <typename _D = void, typename = std::enable_if_t<!is_const_v<T>, _D>>
+    template <typename _D = void, typename = std::enable_if_t<!is_const_v<T>, _D>>
     constexpr value_type*                       Ptr                 (const count_t aOffset)
     {
         return const_cast<value_type*>(std::as_const(*this).Ptr(aOffset));

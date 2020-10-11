@@ -36,16 +36,13 @@ std::string GpUUID::ToString (void) const
     return str;
 }
 
-void    GpUUID::FromString (std::string_view aStr)
+void    GpUUID::FromString (GpRawPtrCharR aStr)
 {
-    if (aStr.length() != 36)
-    {
-        THROW_GPE("Length of UUID string must be 36"_sv);
-    }
+    THROW_GPE_COND_CHECK_M(aStr.SizeTotalV<size_t>() == 36, "Length of UUID string must be 36"_sv);
 
     DataT data;
 
-    const char* _R_ strPtr  = aStr.data();
+    const char* _R_ strPtr  = aStr.Ptr();
     std::byte* _R_  dataPtr = data.data();
 
     for (size_t id = 0; id < data.size(); ++id)
@@ -97,7 +94,7 @@ GpUUID  GpUUID::SGenRandom (void)
     return GpUUID(data);
 }
 
-GpUUID  GpUUID::SFromString (std::string_view aStr)
+GpUUID  GpUUID::SFromString (GpRawPtrCharR aStr)
 {
     GpUUID uuid;
     uuid.FromString(aStr);

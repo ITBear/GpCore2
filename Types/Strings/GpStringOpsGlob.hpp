@@ -6,6 +6,21 @@
 
 #include <string>
 #include <string_view>
+#include "../Containers/GpRawPtrByte.hpp"
+
+namespace std {
+
+inline string to_string(string_view aStrView)
+{
+    return string(aStrView);
+}
+
+inline string to_string(GPlatform::GpRawPtrCharR aStrPtr)
+{
+    return string(aStrPtr.AsStringView());
+}
+
+}//std
 
 namespace GPlatform {
 

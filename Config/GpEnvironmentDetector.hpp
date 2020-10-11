@@ -15,16 +15,20 @@
 //************************* COMPILER *****************************************
 #if defined(__INTEL_COMPILER) || defined(__ICC)
 #   define  GP_COMPILER_ICC
-#   define  GP_COMPILER_NAME "Intel"
+#   define  GP_COMPILER_NAME_STR "Intel"
+#   define  GP_COMPILER_NAME intel
 #elif defined(__clang__)
 #   define  GP_COMPILER_CLANG
-#   define  GP_COMPILER_NAME "Clang"
+#   define  GP_COMPILER_NAME_STR "Clang"
+#   define  GP_COMPILER_NAME clang
 #elif defined(__GNUC__) || defined(__GNUG__)
 #   define  GP_COMPILER_GCC
-#   define  GP_COMPILER_NAME "GCC"
+#   define  GP_COMPILER_NAME_STR "GCC"
+#   define  GP_COMPILER_NAME GCC
 #elif defined(_MSC_VER)
 #   define  GP_COMPILER_MSVS
-#   define  GP_COMPILER_NAME "Visual studio"
+#   define  GP_COMPILER_NAME_STR "Visual studio"
+#   define  GP_COMPILER_NAME msvs
 #else
 #   error Unknown compiler
 #endif

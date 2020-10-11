@@ -5,6 +5,8 @@
 
 namespace GPlatform {
 
+static thread_local std::optional<std::reference_wrapper<GpTaskScheduler>> sCurrentTaskScheduler = std::nullopt;
+
 GpTaskScheduler::GpTaskScheduler (void) noexcept:
 iExecutorsPool(*this)
 {
@@ -167,6 +169,16 @@ void    GpTaskScheduler::AddTaskToWaiting (GpTask::SP aTask)
     GpTaskAccessor::SSetWeakPtr(task, aTask);
 
     iWaitingTasks.insert(std::move(aTask));
+}
+
+GpTaskScheduler::TaskSchedulerOptRefT   GpTaskScheduler::SCurrentScheduler (void) noexcept
+{
+    return sCurrentTaskScheduler;
+}
+
+void    GpTaskScheduler::SSetCurrentScheduler (TaskSchedulerOptRefT aValue) noexcept
+{
+    sCurrentTaskScheduler = aValue;
 }
 
 void    GpTaskScheduler::MoveToReady (GpTask::SP aTask)

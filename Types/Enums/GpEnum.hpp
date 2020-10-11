@@ -7,6 +7,7 @@
 #include "../Classes/GpClassesDefines.hpp"
 #include "../Numerics/GpNumerics.hpp"
 #include "../Containers/GpContainersT.hpp"
+#include "../Containers/GpRawPtrByte.hpp"
 #include "../Pointers/GpSharedPtr.hpp"
 
 namespace GPlatform {
@@ -37,7 +38,7 @@ public:
     value_type                  ID                  (void) const noexcept {return iId;}
     void                        FromID              (value_type aId);
     std::string_view            ToString            (void) const noexcept;
-    void                        FromString          (std::string_view aName);
+    void                        FromString          (GpRawPtrCharR aName);
     virtual const NamesListT&   Names               (void) const noexcept = 0;
     virtual std::string_view    TypeName            (void) const noexcept = 0;
 
@@ -52,7 +53,7 @@ protected:
     static std::string_view     _SToString          (const NamesListT&  aNamesList,
                                                      const value_type   aId) noexcept;
     static value_type           _SFromString        (const NamesListT&  aNamesList,
-                                                     std::string_view   aName,
+                                                     GpRawPtrCharR      aName,
                                                      std::string_view   aEnumTypeName);
     static NamesListT           _SParseEnumElements (std::string_view aEnumName,
                                                      std::string_view aEnumElementsStr);

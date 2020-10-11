@@ -27,10 +27,11 @@ public:
                                         ~GpUUID         (void) noexcept = default;
 
     [[nodiscard]] const DataT&          Data            (void) const noexcept {return iData;}
+    [[nodiscard]] DataT&                Data            (void) noexcept {return iData;}
     [[nodiscard]] std::string_view      AsStringView    (void) const noexcept {return std::string_view(reinterpret_cast<const char*>(Data().data()), Data().size());}
 
     [[nodiscard]] std::string           ToString        (void) const;
-    void                                FromString      (std::string_view aStr);
+    void                                FromString      (GpRawPtrCharR aStr);
 
     inline void                         Set             (const GpUUID& aUUID) noexcept;
     inline void                         Set             (GpUUID&& aUUID) noexcept;
@@ -59,7 +60,7 @@ public:
     void                                FromRandom      (GpRandom& aRandom);
 
     static GpUUID                       SGenRandom      (void);
-    static GpUUID                       SFromString     (std::string_view aStr);
+    static GpUUID                       SFromString     (GpRawPtrCharR aStr);
 
     inline static consteval DataT       CE_FromString   (std::string_view aStr);
     inline static consteval DataT       CE_Zero         (void);
@@ -179,10 +180,7 @@ constexpr bool  GpUUID::operator!= (const DataT& aData) const noexcept
 
 consteval GpUUID::DataT GpUUID::CE_FromString (std::string_view aStr)
 {
-    if (aStr.length() != 36)
-    {
-        THROW_GPE("Length of UUID string must be 36"_sv);
-    }
+    THROW_GPE_COND_CHECK_M(aStr.size() == 36, "Length of UUID string must be 36"_sv);
 
     DataT data = {};
 

@@ -34,8 +34,10 @@ public:
     using StateTE       = StateT::EnumT;
     using SchedulerRefT = std::optional<std::reference_wrapper<GpTaskScheduler>>;
 
-public:
+protected:
                             GpTask          (void) noexcept = default;
+
+public:
     virtual                 ~GpTask         (void) noexcept override = default;
 
     void                    MoveToReady     (void);

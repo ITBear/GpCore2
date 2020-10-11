@@ -24,7 +24,7 @@ std::string_view    GpEnum::ToString (void) const noexcept
     return _SToString(Names(), ID());
 }
 
-void    GpEnum::FromString (std::string_view aName)
+void    GpEnum::FromString (GpRawPtrCharR aName)
 {
     _SetID(_SFromString(Names(), aName, TypeName()));
 }
@@ -44,12 +44,12 @@ std::string_view    GpEnum::_SToString (const NamesListT&   aNamesList,
 }
 
 GpEnum::value_type  GpEnum::_SFromString (const NamesListT& aNamesList,
-                                          std::string_view  aName,
+                                          GpRawPtrCharR     aName,
                                           std::string_view  aEnumTypeName)
 {
     for (auto&& [name, id]: aNamesList)
     {
-        if (aName == name)
+        if (aName.IsEqual(name))
         {
             return id;
         }
