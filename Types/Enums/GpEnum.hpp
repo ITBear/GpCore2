@@ -187,9 +187,9 @@ std::string_view    TYPE_NAME::TypeName (void) const noexcept\
 //********************** Hash *********************
 namespace std {
 
-template<> struct hash<GPlatform::GpEnum>
+template<> struct hash<::GPlatform::GpEnum>
 {
-    using argument_type = GPlatform::GpEnum;
+    using argument_type = ::GPlatform::GpEnum;
     using result_type   = std::size_t;
 
     result_type operator()(argument_type const& aArg) const noexcept
@@ -197,6 +197,11 @@ template<> struct hash<GPlatform::GpEnum>
         return result_type(aArg.ID());
     }
 };
+
+inline string to_string(const ::GPlatform::GpEnum& aEnum)
+{
+    return string(aEnum.ToString());
+}
 
 }//std
 

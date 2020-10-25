@@ -34,7 +34,7 @@ public:
     static GpBytesArray         SMake   (GpRawPtr<const std::byte*> aData)
     {
         GpBytesArray res;
-        res.resize(aData.CountLeftV<size_t>());
+        res.resize(aData.CountLeft().As<size_t>());
         GpRawPtr<std::byte*> resPtr(res);
         resPtr.CopyFrom(aData);
         return res;
@@ -42,7 +42,7 @@ public:
 
     static std::string          SToString (GpRawPtr<const std::byte*> aData)
     {
-        const size_t size = aData.CountLeftV<size_t>();
+        const size_t size = aData.CountLeft().As<size_t>();
 
         std::string res;
 

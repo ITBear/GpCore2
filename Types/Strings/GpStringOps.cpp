@@ -141,7 +141,7 @@ u_int_64    GpStringOps::SToUI64 (GpRawPtrCharR aStr)
 {
     UInt64          res = 0_u_int_64;
     const char*     str = aStr.Ptr();
-    size_t          len = aStr.CountLeftV<size_t>();
+    size_t          len = aStr.CountLeft().As<size_t>();
 
     while (len-- > 0)
     {
@@ -156,7 +156,7 @@ u_int_64    GpStringOps::SToUI64 (GpRawPtrCharR aStr)
         }
     }
 
-    return res.ValueAs<u_int_64>();
+    return res.As<u_int_64>();
 }
 
 s_int_64    GpStringOps::SToSI64 (GpRawPtrCharR aStr)
@@ -185,7 +185,7 @@ s_int_64    GpStringOps::SToSI64 (GpRawPtrCharR aStr)
             THROW_GPE("Value "_sv + aStr.AsStringView() + " is out of range SInt64"_sv);
         } else
         {
-            return SInt64::SBitCast(valueWithoutSign).ValueAs<s_int_64>();
+            return SInt64::SBitCast(valueWithoutSign).As<s_int_64>();
         }
     } else
     {
@@ -246,7 +246,7 @@ double      GpStringOps::SToDouble_fast (GpRawPtrCharR aStr)
     if (!fractionalPart.IsEmpty())
     {
         const u_int_64 v = SToUI64(fractionalPart);
-        res += double(v)/pow(10.0, double(fractionalPart.CountLeftV<size_t>()));
+        res += double(v)/pow(10.0, double(fractionalPart.CountLeft().As<size_t>()));
     }
 
     return res * sign;
@@ -283,7 +283,7 @@ count_t GpStringOps::SFromBytes (GpRawPtrByteR  aData,
 
     THROW_GPE_COND_CHECK_M(strOutLength >= (dataLength * 2_cnt), "Out string size is too small"_sv);
 
-    size_t                  countLeft   = aData.CountLeftV<size_t>();
+    size_t                  countLeft   = aData.CountLeft().As<size_t>();
     const std::byte* _R_    data        = aData.Ptr();
     char* _R_               str         = aStrOut.Ptr();
 
@@ -305,7 +305,7 @@ std::string GpStringOps::SFromBytes (GpRawPtrByteR aData)
     const count_t charsCount = count_t::SMake(aData.SizeLeft().Value()) * 2_cnt;
 
     std::string res;
-    res.resize(charsCount.ValueAs<size_t>());
+    res.resize(charsCount.As<size_t>());
 
     if (SFromBytes(aData, res) != charsCount)
     {
@@ -348,7 +348,7 @@ size_byte_t GpStringOps::SToBytes (GpRawPtrCharR    aStr,
     const count_t outSize = strHexPtr.CountLeft() / 2_cnt;
     THROW_GPE_COND_CHECK_M(aDataOut.CountLeft() >= outSize, "Out data size is too small"_sv);
 
-    size_t          countLeft   = strHexPtr.CountLeftV<size_t>();
+    size_t          countLeft   = strHexPtr.CountLeft().As<size_t>();
     const char* _R_ str         = strHexPtr.Ptr();
 
     while (countLeft > 0)
@@ -363,11 +363,11 @@ size_byte_t GpStringOps::SToBytes (GpRawPtrCharR    aStr,
 
 GpBytesArray    GpStringOps::SToBytes (GpRawPtrCharR aStr)
 {
-    const size_t size = aStr.CountLeftV<size_t>();
+    const size_t size = aStr.CountLeft().As<size_t>();
 
     GpBytesArray res;
     res.resize(size/2);
-    res.resize(SToBytes(aStr, res).ValueAs<size_t>());
+    res.resize(SToBytes(aStr, res).As<size_t>());
     return res;
 }
 
@@ -375,8 +375,8 @@ std::string GpStringOps::SFromBits (GpRawPtrByteR aData)
 {
     std::string res;
 
-    const size_t    bytesCount  = aData.SizeLeftV<size_t>();
-    const size_t    bitsCount   = (aData.SizeLeftV<size_bit_t>() * 8_bit).ValueAs<size_t>();
+    const size_t    bytesCount  = aData.SizeLeft().As<size_t>();
+    const size_t    bitsCount   = (aData.SizeLeft().As<size_bit_t>() * 8_bit).As<size_t>();
     const u_int_8*  data        = aData.PtrAs<const u_int_8*>();
 
     res.resize(bitsCount + bytesCount + 1);
@@ -512,7 +512,7 @@ void    GpStringOps::_SFromUI64 (const u_int_64 aValue,
     {
         const count_t countLeft = aStrOut.CountLeft();
         const count_t offset    = countLeft - 2_cnt;
-        str += offset.ValueAs<size_t>();
+        str += offset.As<size_t>();
     }
 
     while (value >= 100)

@@ -7,4 +7,3 @@
 #include "GpElementsPool.hpp"
 #include "GpElementsCatalog.hpp"
 #include "GpTypeShell.hpp"
-

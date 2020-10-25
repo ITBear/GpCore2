@@ -20,7 +20,7 @@ void    GpTaskFiberStack::Init (const size_byte_t aSize)
 {
     Clear();
 
-    iStackAllocator = GpMemOps::SNew<BasicProtectedFixedSizeStackT>(aSize.ValueAs<size_t>());
+    iStackAllocator = GpMemOps::SNew<BasicProtectedFixedSizeStackT>(aSize.As<size_t>());
     iStackContext   = GpMemOps::SNew<StackContextT>(reinterpret_cast<BasicProtectedFixedSizeStackT*>(iStackAllocator)->allocate());
 }
 

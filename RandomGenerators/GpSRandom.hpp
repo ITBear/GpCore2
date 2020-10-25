@@ -38,11 +38,25 @@ public:
                                                  const SInt64   aMax = SInt64::SMake(NumOps::SMax<SInt64::value_type>()));
     [[nodiscard]] UInt64        UI64            (const UInt64   aMin = UInt64::SMake(NumOps::SMin<UInt64::value_type>()),
                                                  const UInt64   aMax = UInt64::SMake(NumOps::SMax<UInt64::value_type>()));
+    [[nodiscard]] bool          Bool            (void);
+
+    [[nodiscard]] std::string   String          (const GpRandomStrMode::EnumT   aMode,
+                                                 const count_t                  aLength);
+
+    template<typename T>
+    typename T::EnumT           Enum            (void);
 
 private:
     GpRandom                    iRandom;
     mutable GpSpinlock          iLock;
 };
+
+template<typename T>
+typename T::EnumT   GpSRandom::Enum (void)
+{
+    std::scoped_lock l(iLock);
+    return iRandom.Enum<T>();
+}
 
 }//GPlatform
 

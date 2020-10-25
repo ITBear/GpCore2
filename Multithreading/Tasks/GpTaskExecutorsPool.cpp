@@ -40,8 +40,8 @@ void    GpTaskExecutorsPool::WakeupAll (void) noexcept
 
 void    GpTaskExecutorsPool::PreInit (const count_t aCount)
 {
-    iExecutors.reserve(aCount.ValueAs<size_t>());
-    iThreads.reserve(aCount.ValueAs<size_t>());
+    iExecutors.reserve(aCount.As<size_t>());
+    iThreads.reserve(aCount.As<size_t>());
 
     // Create threads
     for (count_t id = 0_cnt; id < aCount; ++id)
@@ -67,9 +67,9 @@ GpTaskExecutorsPool::value_type GpTaskExecutorsPool::NewElement (void)
 {
     THROW_GPE_COND_CHECK(iExecutorsLeft > 0_cnt);
 
-    const size_t id = iExecutors.size() - iExecutorsLeft.ValueAs<size_t>();
+    const count_t id = count_t::SMake(iExecutors.size()) - iExecutorsLeft;
 
-    return iExecutors.at(id).Pn();
+    return iExecutors.at(id.As<size_t>()).Pn();
 }
 
 void    GpTaskExecutorsPool::OnClear (void) noexcept

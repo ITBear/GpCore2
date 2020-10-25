@@ -39,7 +39,7 @@ private:
 GpBitWriterStorage::GpBitWriterStorage (GpRawPtrByteRW      aDataOut,
                                         const size_bit_t    aOffset) noexcept:
 iData(aDataOut.Ptr()),
-iSize(aDataOut.CountLeftV<size_byte_t>()),
+iSize(aDataOut.CountLeft().As<size_byte_t>()),
 iOffset(aOffset),
 iLeft(iSize)
 {

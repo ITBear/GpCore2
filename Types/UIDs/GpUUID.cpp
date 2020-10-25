@@ -3,6 +3,7 @@
 #if defined(GP_USE_UUID)
 
 #include "../../RandomGenerators/GpSRandom.hpp"
+#include "../Strings/GpStringOps.hpp"
 
 namespace GPlatform {
 
@@ -38,7 +39,7 @@ std::string GpUUID::ToString (void) const
 
 void    GpUUID::FromString (GpRawPtrCharR aStr)
 {
-    THROW_GPE_COND_CHECK_M(aStr.SizeTotalV<size_t>() == 36, "Length of UUID string must be 36"_sv);
+    THROW_GPE_COND_CHECK_M(aStr.SizeTotal().As<size_t>() == 36, "Length of UUID string must be 36"_sv);
 
     DataT data;
 

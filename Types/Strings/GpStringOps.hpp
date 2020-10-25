@@ -5,15 +5,14 @@
 #if defined(GP_USE_STRINGS)
 
 #include "GpStringLiterals.hpp"
-#include "GpStringOpsGlob.hpp"
 #include "../Classes/GpClassesDefines.hpp"
-#include "../Containers/GpContainersT.hpp"
 #include "../Containers/GpBytesArray.hpp"
 #include "../Containers/GpRawPtrByte.hpp"
 #include "../Units/Other/count_t.hpp"
 #include "../Units/Other/size_byte_t.hpp"
 #include "../../Algorithms/GpSplit.hpp"
 #include "../Enums/GpEnum.hpp"
+#include "../UIDs/GpUUID.hpp"
 
 #include <variant>
 
@@ -83,8 +82,46 @@ public:
     static inline constexpr count_t         SCountChars     (std::string_view aStr, const char aChar) noexcept;
 
     //------------------------- Auto to string -----------------------------
-    template<typename T>
-    static std::string                      SToString       (const T& aValue);
+    static std::string_view                 SToString       (const std::string& aValue) {return aValue;}
+    static std::string_view                 SToString       (std::string_view aValue) {return aValue;}
+    static std::string                      SToString       (const GpBytesArray& aValue) {return SFromBytes(aValue);}
+    //static std::string_view               SToString       (GpRawPtrCharR aValue) {return aValue.AsStringView();}
+    //static std::string_view               SToString       (GpRawPtrCharRW aValue) {return aValue.AsStringView();}
+    //static std::string                    SToString       (GpRawPtrByteR aValue) {return SFromBytes(aValue);}
+    //static std::string                    SToString       (GpRawPtrByteRW aValue) {return SFromBytes(aValue);}
+    static std::string_view                 SToString       (const GpEnum& aValue) {return aValue.ToString();}
+    static std::string                      SToString       (const GpUUID& aValue) {return aValue.ToString();}
+    static std::string                      SToString       (float aValue) {return SFromDouble(double(aValue));}
+    static std::string                      SToString       (double aValue) {return SFromDouble(aValue);}
+
+    template<typename T, typename _D = void, typename = std::enable_if_t<std::is_integral_v<T>, _D>>
+    static std::string                      SToString       (T aValue)
+    {
+        if constexpr (std::is_signed_v<T>)
+        {
+            return SFromSI64(NumOps::SConvert<s_int_64>(aValue));
+        } else
+        {
+            return SFromUI64(NumOps::SConvert<u_int_64>(aValue));
+        }
+    }
+
+    template<typename T, typename = std::enable_if_t<GpUnitUtils::SHasTag_GpUnit<T>()>>
+    static std::string                      SToString       (T aValue)
+    {
+        return SToString<typename T::value_type>(aValue.Value());
+    }
+
+    template<typename E,
+             typename T>
+    static std::string                      SJoin           (const T&           aArray,
+                                                             std::string_view   aSeparator);
+
+    template<typename E,
+             typename T>
+    static std::string                      SJoin           (const T&                                       aArray,
+                                                             std::function<E(typename T::const_iterator&)>  aGetterFn,
+                                                             std::string_view                               aSeparator);
 
 private:
     static void                             _SFromUI64      (const u_int_64 aValue,
@@ -152,42 +189,112 @@ constexpr count_t   GpStringOps::SCountChars (std::string_view aStr, const char 
     return count_t::SMake(count);
 }
 
-template<typename T>
-std::string GpStringOps::SToString (const T& aValue)
+template<typename E,
+         typename T>
+std::string GpStringOps::SJoin (const T& aArray, std::string_view aSeparator)
 {
-    if constexpr (std::is_same_v<T, std::string>)
+    return SJoin<E, T>(aArray,
+                      [](typename T::const_iterator& aIter)->E {return *aIter;},
+                      aSeparator);
+}
+
+template<typename E,
+         typename T>
+std::string GpStringOps::SJoin (const T&                                        aArray,
+                                std::function<E(typename T::const_iterator&)>   aGetterFn,
+                                std::string_view                                aSeparator)
+{
+    const size_t elementsCount = aArray.size();
+    std::string res;
+    res.reserve(elementsCount * 16);
+
+    bool isFirst = true;
+    for (typename T::const_iterator iter = aArray.begin(); iter != aArray.end(); ++iter)
     {
-        return aValue;
-    } else if constexpr (std::is_same_v<T, std::string_view>)
-    {
-        return aValue;
-    } else if constexpr (std::is_integral_v<T>)
-    {
-        if constexpr (std::is_signed_v<T>)
+        if (!isFirst)
         {
-            return SFromSI64(NumOps::SConvert<s_int_64>(aValue));
+            res.append(aSeparator);
         } else
         {
-            return SFromUI64(NumOps::SConvert<u_int_64>(aValue));
+            isFirst = false;
         }
-    } else if constexpr (std::is_floating_point_v<T>)
-    {
-        return SFromDouble(NumOps::SConvert<double>(aValue));
-    } else if constexpr (GpUnitUtils::SHasTag_GpUnit<T>())
-    {
-        return SToString<typename T::value_type>(aValue.Value());
-    } else if constexpr (GpEnum::SHasTag_GpEnum<T>())
-    {
-        return aValue.ToString();
-    } else if constexpr (std::is_same_v<T, GpBytesArray>)
-    {
-        return SFromBytes(aValue);
-    } else
-    {
-        return "Unknown object type";
+
+        res.append(aGetterFn(iter));
     }
+
+    return res;
 }
 
 }//GPlatform
+
+//*********************************************************
+
+namespace std {
+
+inline string to_string(string_view aStrView)
+{
+    return string(aStrView);
+}
+
+/*inline string to_string(GPlatform::GpRawPtrByteR aStrPtr)
+{
+    return string(aStrPtr.AsStringView());
+}*/
+
+inline std::string operator+ (const std::string& aLeft, std::string_view aRight)
+{
+    std::string res;
+    res.reserve(aLeft.length() + aRight.length());
+    res.append(aLeft.data(), aLeft.length());
+    res.append(aRight.data(), aRight.length());
+
+    return res;
+}
+
+inline std::string operator+ (std::string_view aLeft, std::string_view aRight)
+{
+    std::string res;
+    res.reserve(aLeft.length() + aRight.length());
+    res.append(aLeft.data(), aLeft.length());
+    res.append(aRight.data(), aRight.length());
+
+    return res;
+}
+
+inline std::string operator+ (std::string_view aLeft, const std::string& aRight)
+{
+    std::string res;
+    res.reserve(aLeft.length() + aRight.length());
+    res.append(aLeft.data(), aLeft.length());
+    res.append(aRight.data(), aRight.length());
+
+    return res;
+}
+
+inline std::string operator+ (std::string_view aLeft, const char* aRight)
+{
+    std::string_view    right(aRight);
+    std::string         res;
+    res.reserve(aLeft.length() + right.length());
+    res.append(aLeft.data(), aLeft.length());
+    res.append(right.data(), right.length());
+
+    return res;
+}
+
+template<typename T>
+inline std::string operator+ (std::string_view aLeft, T aRight)
+{
+    const std::string value(::GPlatform::GpStringOps::SToString(aRight));
+
+    std::string res;
+    res.reserve(aLeft.length() + value.length());
+    res.append(aLeft.data(), aLeft.length());
+    res.append(value.data(), value.length());
+
+    return res;
+}
+
+}//std
 
 #endif//#if defined(GP_USE_STRINGS)

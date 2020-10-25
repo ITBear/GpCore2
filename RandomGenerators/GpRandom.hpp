@@ -7,6 +7,7 @@
 #include "../Multithreading/SyncPrimitives/GpSyncPrimitives.hpp"
 #include "../Types/Numerics/GpNumericOps.hpp"
 #include "../Types/Units/Numerics/GpUnitsNumerics.hpp"
+#include "GpRandomStrMode.hpp"
 #include <random>
 #include <array>
 #include <type_traits>
@@ -48,6 +49,13 @@ public:
                                                  const SInt64   aMax = SInt64::SMake(NumOps::SMax<SInt64::value_type>()));
     [[nodiscard]] UInt64        UI64            (const UInt64   aMin = UInt64::SMake(NumOps::SMin<UInt64::value_type>()),
                                                  const UInt64   aMax = UInt64::SMake(NumOps::SMax<UInt64::value_type>()));
+    [[nodiscard]] bool          Bool            (void);
+
+    [[nodiscard]] std::string   String          (const GpRandomStrMode::EnumT   aMode,
+                                                 const count_t                  aLength);
+
+    template<typename T>
+    typename T::EnumT           Enum            (void);
 
 private:
     template<typename T,
@@ -59,8 +67,15 @@ private:
     }
 
 private:
-    random_mt19937      iEngine;
+    random_mt19937                          iEngine;
+    static std::array<const std::string, 2> sStrs;
 };
+
+template<typename T>
+typename T::EnumT   GpRandom::Enum (void)
+{
+    return typename T::EnumT(UI64(0_u_int_64, T::SCount().template As<UInt64>() - 1_u_int_64).Value());
+}
 
 }//GPlatform
 

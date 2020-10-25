@@ -80,6 +80,19 @@ UInt64  GpSRandom::UI64 (const UInt64 aMin, const UInt64 aMax)
     return iRandom.UI64(aMin, aMax);
 }
 
+bool    GpSRandom::Bool (void)
+{
+    std::scoped_lock l(iLock);
+    return iRandom.Bool();
+}
+
+std::string GpSRandom::String (const GpRandomStrMode::EnumT aMode,
+                               const count_t                aLength)
+{
+    std::scoped_lock l(iLock);
+    return iRandom.String(aMode, aLength);
+}
+
 }//GPlatform
 
 #endif//#if defined(GP_USE_RANDOM_GENERATORS)

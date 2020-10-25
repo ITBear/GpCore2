@@ -1,5 +1,5 @@
 #include "GpException.hpp"
-#include "../Types/Strings/GpStringOps.hpp"
+#include "../Types/Strings/GpStringLiterals.hpp"
 #include "GpExceptionsSink.hpp"
 
 #if defined(GP_USE_EXCEPTIONS)

@@ -130,14 +130,14 @@ void    GpBitReader::Copy (std::byte*       aDst,
                            const size_bit_t aSrcOffset,
                            const size_bit_t aSize)
 {
-    const size_t size = aSize.ValueAs<size_t>();
+    const size_t size = aSize.As<size_t>();
 
     //Pointer to actual bytes
-    aDst += aDstOffset.ValueAs<size_t>() / 8;
-    const size_t dstOffset = aDstOffset.ValueAs<size_t>() % 8;
+    aDst += aDstOffset.As<size_t>() / 8;
+    const size_t dstOffset = aDstOffset.As<size_t>() % 8;
 
-    aSrc += aSrcOffset.ValueAs<size_t>() / 8;
-    const size_t srcOffset = aSrcOffset.ValueAs<size_t>() % 8;
+    aSrc += aSrcOffset.As<size_t>() / 8;
+    const size_t srcOffset = aSrcOffset.As<size_t>() % 8;
 
     //Bytes intersection with ...offset[size...]
     size_t dstBytesIntersectCnt = NumOps::SAdd(size, dstOffset);

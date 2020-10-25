@@ -28,6 +28,8 @@ public:
 
     size_byte_t             SizeLeft        (void) const noexcept {return iStorage.SizeLeft();}
 
+    void                    Rollback        (const size_byte_t aSize) {return iStorage.Rollback(aSize);}
+
 private:
     template<typename T>
     T                       ReadPOD         (void)
@@ -35,7 +37,7 @@ private:
         GpRawPtrByteR data = Bytes(size_byte_t::SMake(sizeof(T)));
 
         T val;
-        std::memcpy(&val, data.PtrBegin(), data.CountTotalV<size_t>());
+        std::memcpy(&val, data.PtrBegin(), data.CountTotal().As<size_t>());
         val = BitOps::H2N(val);
         return val;
     }

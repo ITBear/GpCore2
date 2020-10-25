@@ -32,9 +32,26 @@ public:
 
     void                            UnregisterGroup (const GpUUID& aGroupID);
 
+    template<typename TO_SP, typename FROM_SP> [[nodiscard]]
+    TO_SP                           Cast            (FROM_SP& aFrom) const;
+
 private:
     ElementsT                       iElements;
 };
+
+template<typename TO_SP, typename FROM_SP> [[nodiscard]]
+TO_SP   GpTypeManager::Cast (FROM_SP& aFrom) const
+{
+    using TO_VAL_T = typename TO_SP::value_type;
+
+    const GpUUID fromUID    = aFrom.VC().TypeStructInfo().UID();
+    const GpUUID toUID      = TO_VAL_T::STypeStructUID();
+
+    THROW_GPE_COND_CHECK_M(IsBaseOf(fromUID, toUID),
+                           "Failed to cast from UID "_sv + fromUID.ToString() + " to UID " + toUID.ToString());
+
+    return aFrom.template CastAs<TO_SP>();
+}
 
 }//GPlatform
 

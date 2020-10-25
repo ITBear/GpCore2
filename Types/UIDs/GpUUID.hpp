@@ -6,7 +6,7 @@
 
 #include "../Numerics/GpNumerics.hpp"
 #include "../Containers/GpContainersT.hpp"
-#include "../Strings/GpStringOps.hpp"
+#include "../Containers/GpRawPtrByte.hpp"
 
 namespace GPlatform {
 
@@ -63,6 +63,7 @@ public:
     static GpUUID                       SFromString     (GpRawPtrCharR aStr);
 
     inline static consteval DataT       CE_FromString   (std::string_view aStr);
+    inline static consteval std::byte   SToByte         (GpArray<char,2> aStr);
     inline static consteval DataT       CE_Zero         (void);
 
 private:
@@ -191,7 +192,7 @@ consteval GpUUID::DataT GpUUID::CE_FromString (std::string_view aStr)
     {
         GpArray<char,2> str = {*strPtr++, *strPtr++};
 
-        *dataPtr++ = GpStringOps::SToByte(str);
+        *dataPtr++ = SToByte(str);
 
         if ((id == 3) ||
             (id == 5) ||
@@ -203,6 +204,35 @@ consteval GpUUID::DataT GpUUID::CE_FromString (std::string_view aStr)
     }
 
     return data;
+}
+
+consteval std::byte GpUUID::SToByte (GpArray<char,2> aStr)
+{
+    //--------------------------
+    char    ch      = aStr.data()[0];
+    size_t  valHi   = 0;
+    size_t  valLo   = 0;
+    size_t  beginCh = 0;
+    size_t  shift   = 0;
+
+    if ((ch >= '0') && (ch <= '9'))     {beginCh = size_t('0'); shift = 0;}
+    else if ((ch >= 'A') && (ch <= 'Z')){beginCh = size_t('A'); shift = 10;}
+    else if ((ch >= 'a') && (ch <= 'z')){beginCh = size_t('a'); shift = 10;}
+    else GpThrowCe<std::out_of_range>("Wrong HEX character");
+
+    valHi = u_int_8(size_t(ch) - beginCh + shift);
+
+    //--------------------------
+    ch = aStr.data()[1];
+
+    if ((ch >= '0') && (ch <= '9'))     {beginCh = size_t('0'); shift = 0;}
+    else if ((ch >= 'A') && (ch <= 'Z')){beginCh = size_t('A'); shift = 10;}
+    else if ((ch >= 'a') && (ch <= 'z')){beginCh = size_t('a'); shift = 10;}
+    else GpThrowCe<std::out_of_range>("Wrong HEX character");
+
+    valLo = u_int_8(size_t(ch) - beginCh + shift);
+
+    return std::byte(u_int_8(valHi << 4) | u_int_8(valLo));
 }
 
 consteval GpUUID::DataT GpUUID::CE_Zero (void)

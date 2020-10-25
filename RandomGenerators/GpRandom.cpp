@@ -10,6 +10,12 @@
 
 namespace GPlatform {
 
+std::array<const std::string, 2> GpRandom::sStrs =
+{
+    std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"_sv),   //StrMode::ALPHA_NUM
+    std::string("0123456789"_sv)                                                        //StrMode::NUM
+};
+
 GpRandom::GpRandom (void) noexcept
 {
 }
@@ -75,6 +81,30 @@ SInt64  GpRandom::SI64 (const SInt64 aMin, const SInt64 aMax)
 UInt64  GpRandom::UI64 (const UInt64 aMin, const UInt64 aMax)
 {
     return Next<UInt64>(aMin, aMax);
+}
+
+bool    GpRandom::Bool (void)
+{
+    return Next<UInt64>(0_u_int_64, 1_u_int_64) == 0_u_int_64;
+}
+
+std::string     GpRandom::String (const GpRandomStrMode::EnumT  aMode,
+                                  const count_t                 aLength)
+{
+    const size_t            size        = aLength.As<size_t>();
+    const std::string_view  srcStr      = sStrs.at(size_t(aMode));
+    const UInt8             srcStrMaxId = UInt8::SMake(srcStr.size()) - 1_u_int_8;
+    std::string     res;
+
+    res.resize(size);
+    char* strData = res.data();
+
+    for (size_t id = 0; id < size; ++id)
+    {
+        *strData++ = srcStr.at(UI8(0_u_int_8, srcStrMaxId).As<size_t>());
+    }
+
+    return res;
 }
 
 }//GPlatform

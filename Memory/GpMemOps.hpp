@@ -163,7 +163,7 @@ public:
 
         SCopy(reinterpret_cast<std::byte*>(aElementsDst),
               reinterpret_cast<const std::byte*>(aElementsSrc),
-              aSize.ValueAs<count_t>());
+              aSize.As<count_t>());
     }
 
     template<typename T>
@@ -230,7 +230,7 @@ private:
                                   const count_t aCount)
     {
         static_assert(std::is_trivial_v<T>, "T must be TriviallyCopyable");
-        const size_t s = (aCount * count_t::SMake(sizeof(T))).ValueAs<size_t>();
+        const size_t s = (aCount * count_t::SMake(sizeof(T))).As<size_t>();
         std::memset(aElements, 0, s);
     }
 
@@ -266,7 +266,7 @@ private:
                                  const count_t  aCount) noexcept
     {
         static_assert(std::is_trivial_v<T>, "T must be TriviallyCopyable");
-        const size_t s = (aCount * count_t::SMake(sizeof(T))).ValueAs<size_t>();
+        const size_t s = (aCount * count_t::SMake(sizeof(T))).As<size_t>();
         std::memset(aElements, 0, s);
     }
 
@@ -288,7 +288,7 @@ private:
     {
         static_assert(std::is_trivial_v<T>, "T must be TriviallyCopyable");
 
-        const size_t s = (aCount * count_t::SMake(sizeof(T))).ValueAs<size_t>();
+        const size_t s = (aCount * count_t::SMake(sizeof(T))).As<size_t>();
 
         std::memcpy(aElementsDst, aElementsSrc, s);
     }
@@ -327,7 +327,7 @@ private:
                                          const T*       aElementsSrc,
                                          const count_t  aCount)
     {
-        const size_t s = (aCount * count_t::SMake(sizeof(T))).ValueAs<size_t>();
+        const size_t s = (aCount * count_t::SMake(sizeof(T))).As<size_t>();
         std::memcpy(aElementsDst, aElementsSrc, s);
     }
 
@@ -365,7 +365,7 @@ private:
                                                             const T*        aElementsB,
                                                             const count_t   aCount) noexcept
     {
-        const size_t s = (aCount * count_t::SMake(sizeof(T))).ValueAs<size_t>();
+        const size_t s = (aCount * count_t::SMake(sizeof(T))).As<size_t>();
         return std::memcmp(aElementsA, aElementsB, s);
     }
 
@@ -381,10 +381,10 @@ private:
 
             if (a > b)
             {
-                return (id + 1_cnt).ValueAs<ssize_t>();
+                return (id + 1_cnt).As<ssize_t>();
             } else if (a < b)
             {
-                return -(id + 1_cnt).ValueAs<ssize_t>();
+                return -(id + 1_cnt).As<ssize_t>();
             }
         }
 

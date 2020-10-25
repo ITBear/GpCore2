@@ -1,8 +1,6 @@
 #pragma once
 
 #include "../Types/Units/GpUnits.hpp"
-#include "../Types/Strings/GpStringOpsGlob.hpp"
-#include "../Types/Strings/GpStringLiterals.hpp"
 #include "../Types/Pointers/GpRawPtr.hpp"
 #include "../Memory/GpMemOps.hpp"
 #include "../Exceptions/GpExceptions.hpp"
@@ -42,10 +40,10 @@ ContainerRes    Split (RawPtrT          aElements,
             if (   (aSplitMode == SplitMode::COUNT_ZERO_LENGTH_PARTS)
                 || (partLength > 0_cnt))
             {               
-                res.emplace_back(partBegin, partLength.ValueAs<size_t>());
+                res.emplace_back(partBegin, partLength.As<size_t>());
 
                 if (   (aReturnPartsCountLimit > 0_cnt)
-                    && (res.size() >= aReturnPartsCountLimit.ValueAs<size_t>()))
+                    && (res.size() >= aReturnPartsCountLimit.As<size_t>()))
                 {
                     return res;
                 }
@@ -73,7 +71,7 @@ ContainerRes    Split (RawPtrT          aElements,
     if (   (partLength > 0_cnt)
         || (aSplitMode == SplitMode::COUNT_ZERO_LENGTH_PARTS))
     {
-        res.emplace_back(partBegin, partLength.ValueAs<size_t>());
+        res.emplace_back(partBegin, partLength.As<size_t>());
     }
 
     return res;

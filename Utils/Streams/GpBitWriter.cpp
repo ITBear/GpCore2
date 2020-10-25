@@ -5,7 +5,7 @@ namespace GPlatform {
 void    GpBitWriter::Bits (GpRawPtrByteR    aData,
                            const size_bit_t aSize)
 {
-    THROW_GPE_COND_CHECK_M(aData.CountLeftV<size_byte_t>() >= aSize, "Out of range"_sv);
+    THROW_GPE_COND_CHECK_M(aData.CountLeft().As<size_byte_t>() >= aSize, "Out of range"_sv);
     _Bits(aData.Ptr(), aSize);
 }
 
@@ -107,11 +107,11 @@ void    GpBitWriter::_Bits (const std::byte*    aData,
         left = iStorage.Left();
     }
 
-    size_t          leftToRead      = aSize.ValueAs<size_t>();
+    size_t          leftToRead      = aSize.As<size_t>();
     const size_t    finalReadBits   = leftToRead;
 
-    size_t          leftToWrite     = left.ValueAs<size_t>();
-    const size_t    finalWriteBits  = (iStorage.Offset() + iStorage.Size()).template ValueAs<size_t>();
+    size_t          leftToWrite     = left.As<size_t>();
+    const size_t    finalWriteBits  = (iStorage.Offset() + iStorage.Size()).template As<size_t>();
 
     const std::byte*    dataIn      = aData;
     std::byte*          dataOut     = iStorage.Data();

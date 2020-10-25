@@ -56,9 +56,9 @@ private:
 
         T val = T();
         _Bits(reinterpret_cast<std::byte*>(&val), aSize, aOffset);
-        //val = T(BitOps::N2H(val) >> (sizeof(T) - aSize.ValueAs<size_t>()));
+        //val = T(BitOps::N2H(val) >> (sizeof(T) - aSize.As<size_t>()));
 
-        val = T(BitOps::N2H(val) >> (sizeof(T)*8 - aSize.ValueAs<size_t>()));
+        val = T(BitOps::N2H(val) >> (sizeof(T)*8 - aSize.As<size_t>()));
 
         return val;
     }

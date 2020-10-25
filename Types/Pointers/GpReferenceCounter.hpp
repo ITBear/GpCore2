@@ -52,7 +52,7 @@ private:
 };
 
 GpReferenceCounter::GpReferenceCounter (const count_t aCounterValue, void* aValuePtr) noexcept:
-iCounter(aCounterValue.ValueAs<size_t>()),
+iCounter(aCounterValue.As<size_t>()),
 iValuePtr(aValuePtr)
 {
 }

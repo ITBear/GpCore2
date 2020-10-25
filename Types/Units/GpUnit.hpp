@@ -76,7 +76,7 @@ public:
     }
 
     template<typename AsT>
-    [[nodiscard]] constexpr AsT ValueAs (void) const
+    [[nodiscard]] constexpr AsT As (void) const
     {
         if constexpr (SHasTag_GpUnit<AsT>())
         {

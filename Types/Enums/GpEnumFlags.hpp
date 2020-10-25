@@ -3,7 +3,7 @@
 #include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_ENUMS)
-/*
+
 #include "GpEnum.hpp"
 
 namespace GPlatform {
@@ -11,55 +11,52 @@ namespace GPlatform {
 class GpEnumFlags
 {
 public:
-    using value_type= GpEnum::value_type;
-    using this_type = value_type;
-    using SP        = GpSharedPtr<this_type>;
-    using CSP       = GpSharedConstPtr<this_type>;
-    using WP        = GpWeakPtr<this_type>;
-    using CWP       = GpWeakConstPtr<this_type>;
+    CLASS_DECLARE_DEFAULTS(GpEnumFlags)
+    CLASS_TAG(GpEnumFlags)
+    CLASS_TAG_DETECTOR(GpEnumFlags)
+
+    using value_type = GpEnum::value_type;
 
 protected:
-                        GpEnumFlags (void) noexcept:
-                        iFlags(0)
+                        GpEnumFlags (void) noexcept
                         {
                         }
 
                         GpEnumFlags (const GpEnumFlags& aFlags) noexcept:
-                        iFlags(aFlags.iFlags)
+                        iValue(aFlags.iValue)
                         {
                         }
 
                         GpEnumFlags (GpEnumFlags&& aFlags) noexcept:
-                        iFlags(aFlags.iFlags)
+                        iValue(aFlags.iValue)
                         {
                         }
 
-                        GpEnumFlags (const value_type aFlagsRaw) noexcept:
-                        iFlags(aFlagsRaw)
+                        GpEnumFlags (const value_type aValue) noexcept:
+                        iValue(aValue)
                         {
                         }
 
 public:
     virtual             ~GpEnumFlags(void) noexcept
                         {
-                            iFlags = 0;
+                            iValue = 0;
                         }
 
-    void                Clear       (void) noexcept {iFlags = 0;}
+    void                Clear       (void) noexcept {iValue = 0;}
 
-    value_type          FlagsRaw    (void) const noexcept {return iFlags;}
-    void                SetFlagRaw  (const value_type aId) noexcept {iFlags |=  value_type(value_type(1) << aId);}
-    void                ClearFlagRaw(const value_type aId) noexcept {iFlags &= ~value_type(value_type(1) << aId);}
-    bool                TestFlagRaw (const value_type aId) const noexcept {return iFlags & value_type(value_type(1) << aId);}
+    value_type          Value       (void) const noexcept {return iValue;}
 
-    virtual void        SetFlagStr  (std::string_view aEnumName) = 0;
-    virtual void        ClearFlagStr(std::string_view aEnumName) = 0;
-    virtual bool        TestFlagStr (std::string_view aEnumName) = 0;
+    void                Set         (const value_type aId) noexcept {iValue |=  value_type(value_type(1) << aId);}
+    void                Clear       (const value_type aId) noexcept {iValue &= ~value_type(value_type(1) << aId);}
+    bool                Test        (const value_type aId) const noexcept {return iValue & value_type(value_type(1) << aId);}
 
-    virtual std::string_view    ToStringSingleEnum  (const value_type aId) const = 0;
+    virtual void        Set         (std::string_view aEnumName) = 0;
+    virtual void        Clear       (std::string_view aEnumName) = 0;
+    virtual bool        Test        (std::string_view aEnumName) const = 0;
 
 protected:
-    value_type          iFlags;
+    value_type          iValue  = 0;
 };
 
 
@@ -68,15 +65,10 @@ template<typename E> class GpEnumFlagsST: public GpEnumFlags
 public:
     static_assert(std::is_base_of<GpEnum, E>::value, "E must be inherited from GpEnum");
 
-    using this_type = GpEnumFlagsST<E>;
-    using SP        = GpSharedPtr<this_type>;
-    using CSP       = GpSharedConstPtr<this_type>;
-    using WP        = GpWeakPtr<this_type>;
-    using CWP       = GpWeakConstPtr<this_type>;
-
-    using EType             = E;
-    using EnumT             = typename E::EnumT;
-    using init_mask_type    = std::initializer_list<EnumT>;
+    using this_type         = GpEnumFlagsST<E>;
+    using EnumT             = E;
+    using EnumTE            = typename E::EnumT;
+    using init_mask_type    = std::initializer_list<EnumTE>;
 
 public:
                         GpEnumFlagsST   (void) noexcept
@@ -95,7 +87,7 @@ public:
 
                         GpEnumFlagsST   (const init_mask_type aFlags) noexcept
                         {
-                            SetFlags(aFlags);
+                            Set(aFlags);
                         }
 
                         GpEnumFlagsST   (const value_type aFlagsRaw) noexcept:
@@ -107,60 +99,58 @@ public:
                         {
                         }
 
-    void                SetFlags        (const init_mask_type aFlags) noexcept
+    void                Set             (const init_mask_type aFlags) noexcept
     {
-        for (const EnumT e: aFlags)
+        for (const EnumTE e: aFlags)
         {
-            GpEnumFlags::SetFlagRaw(GpEnumFlags::value_type(e));
+            Set(e);
         }
     }
 
-    void                SetFlagE        (const EnumT aEnum) noexcept
+    void                Set             (const EnumTE aEnum) noexcept
     {
-        GpEnumFlags::SetFlagRaw(GpEnumFlags::value_type(aEnum));
+        GpEnumFlags::Set(GpEnumFlags::value_type(aEnum));
     }
 
-    void                ClearFlagE      (const EnumT aEnum) noexcept
+    void                Clear           (const EnumTE aEnum) noexcept
     {
-        GpEnumFlags::ClearFlagRaw(GpEnumFlags::value_type(aEnum));
+        GpEnumFlags::Clear(GpEnumFlags::value_type(aEnum));
     }
 
-    bool                TestFlagE       (const EnumT aEnum) const noexcept
+    bool                Test            (const EnumTE aEnum) const noexcept
     {
-        return GpEnumFlags::TestFlagRaw(GpEnumFlags::value_type(aEnum));
+        return GpEnumFlags::Test(GpEnumFlags::value_type(aEnum));
     }
 
-    virtual void        SetFlagStr      (std::string_view aEnumName) override final
+    virtual void        Set             (std::string_view aEnumName) override final
     {
-        GpEnumFlags::SetFlagRaw(GpEnumFlags::value_type(E::SFromString(aEnumName)));
+        GpEnumFlags::Set(GpEnumFlags::value_type(E::SFromString(aEnumName)));
     }
 
-    virtual void        ClearFlagStr    (std::string_view aEnumName) override final
+    virtual void        Clear           (std::string_view aEnumName) override final
     {
-        GpEnumFlags::ClearFlagRaw(GpEnumFlags::value_type(E::SFromString(aEnumName)));
+        GpEnumFlags::Clear(GpEnumFlags::value_type(E::SFromString(aEnumName)));
     }
 
-    virtual bool        TestFlagStr     (std::string_view aEnumName) override final
+    virtual bool        Test            (std::string_view aEnumName) const override final
     {
-        return GpEnumFlags::TestFlagRaw(GpEnumFlags::value_type(E::SFromString(aEnumName)));
+        return GpEnumFlags::Test(GpEnumFlags::value_type(E::SFromString(aEnumName)));
     }
 
-    virtual std::string_view
-                        ToStringSingleEnum  (const value_type aId) const override final
+    this_type&          operator=       (const this_type& aFlags) noexcept
     {
-        return E::SToString(EnumT(aId));
+        iValue = aFlags.iValue;
+        return *this;
     }
-
-    this_type&          operator=       (const this_type& aFlags) noexcept;
 
     friend this_type    operator|       (const this_type& aFlagsLeft, const this_type& aFlagsRight) noexcept
     {
-        return this_type(aFlagsLeft.iFlags | aFlagsRight.iFlags);
+        return this_type(aFlagsLeft.iValue | aFlagsRight.iValue);
     }
 
     friend this_type    operator|       (const this_type& aFlagsLeft, const typename E::EnumT aFlagRight) noexcept
     {
-        return this_type(aFlagsLeft.iFlags | value_type(value_type(1) << aFlagRight));
+        return this_type(aFlagsLeft.iValue | value_type(value_type(1) << aFlagRight));
     }
 
     friend this_type    operator|       (const typename E::EnumT aFlagLeft, const typename E::EnumT aFlagRight) noexcept
@@ -170,16 +160,9 @@ public:
 
     friend this_type    operator|       (const typename E::EnumT aFlagLeft, const this_type& aFlagsRight) noexcept
     {
-        return this_type(value_type(value_type(1) << aFlagLeft) | aFlagsRight.iFlags);
+        return this_type(value_type(value_type(1) << aFlagLeft) | aFlagsRight.iValue);
     }
 };
-
-template<typename E>
-typename GpEnumFlagsST<E>::this_type&   GpEnumFlagsST<E>::operator= (const this_type& aFlags) noexcept
-{
-    iFlags = aFlags.iFlags;
-    return *this;
-}
 
 }//GPlatform
 
@@ -193,10 +176,10 @@ template<> struct hash<GPlatform::GpEnumFlags>
 
     result_type operator()(argument_type const& aArg) const noexcept
     {
-        return result_type(aArg.FlagsRaw());
+        return result_type(aArg.Value());
     }
 };
 
 }//std
-*/
+
 #endif//#if defined(GP_USE_ENUMS)

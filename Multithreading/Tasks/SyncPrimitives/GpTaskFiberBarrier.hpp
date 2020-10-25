@@ -39,7 +39,7 @@ private:
 };
 
 GpTaskFiberBarrier::GpTaskFiberBarrier (const count_t aCountToRelease) noexcept:
-iCountLeft(aCountToRelease.ValueAs<size_t>())
+iCountLeft(aCountToRelease.As<size_t>())
 {
 }
 

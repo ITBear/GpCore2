@@ -8,3 +8,5 @@
 #include "GpTypeStructBase.hpp"
 #include "GpTypeManager.hpp"
 #include "GpTypeUtils.hpp"
+#include "GpStaticCatalog.hpp"
+#include "GpStaticCatalogC.hpp"

@@ -27,11 +27,11 @@ void    GpBitWriterStorageByteArray::AllocateNext (const size_bit_t aSize)
 
     const size_byte_t allocSize = newSize;
 
-    iOut.resize(allocSize.ValueAs<size_t>());
+    iOut.resize(allocSize.As<size_t>());
 
     SetSize(newSize);
     SetLeft(left + delta);
-    SetData(iOut.data() + (size_byte_t::SMake(iOut.size()) - Left()).ValueAs<size_t>());
+    SetData(iOut.data() + (size_byte_t::SMake(iOut.size()) - Left()).As<size_t>());
 }
 
 }//namespace GPlatform
