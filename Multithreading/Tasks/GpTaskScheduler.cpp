@@ -1,14 +1,14 @@
 #include "GpTaskScheduler.hpp"
 #include "GpTaskAccessor.hpp"
+#include <iostream>
 
 #if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
 
-static thread_local std::optional<std::reference_wrapper<GpTaskScheduler>> sCurrentTaskScheduler = std::nullopt;
+static thread_local std::optional<GpTaskScheduler::WP> sCurrentTaskScheduler = std::nullopt;
 
-GpTaskScheduler::GpTaskScheduler (void) noexcept:
-iExecutorsPool(*this)
+GpTaskScheduler::GpTaskScheduler (void) noexcept
 {
 }
 
@@ -16,6 +16,8 @@ GpTaskScheduler::~GpTaskScheduler (void) noexcept
 {
     RequestStop();
     Join();
+
+    iExecutorsPool.Clear();
 
     {
         std::scoped_lock lock(iReadyLock);
@@ -35,15 +37,15 @@ GpTaskScheduler::~GpTaskScheduler (void) noexcept
         }
 
         iWaitingTasks.clear();
-    }
-
-    iExecutorsPool.Clear();
+    }   
 }
 
-void    GpTaskScheduler::Start (const count_t aExecutorsCount)
+void    GpTaskScheduler::Start (GpTaskScheduler::WP aSelfWP,
+                                const count_t       aExecutorsCount)
 {
     THROW_GPE_COND_CHECK_M(aExecutorsCount >= 1_cnt, "Executors count must be >= 1"_sv);
 
+    iExecutorsPool.SetScheduler(aSelfWP);
     iExecutorsPool.Init(aExecutorsCount, aExecutorsCount);
 }
 
@@ -58,10 +60,10 @@ void    GpTaskScheduler::Join (void) noexcept
 }
 
 GpTask::SP  GpTaskScheduler::Reshedule (GpTask::SP          aLastTask,
-                                        const GpTask::Res   aLastTaskExecRes) noexcept
+                                        const GpTask::ResT  aLastTaskExecRes) noexcept
 {
     // Process last task result
-    if (aLastTaskExecRes == GpTask::Res::READY_TO_EXEC)
+    if (aLastTaskExecRes == GpTask::ResT::READY_TO_EXEC)
     {
         std::scoped_lock lock(iReadyLock);
 
@@ -73,7 +75,7 @@ GpTask::SP  GpTaskScheduler::Reshedule (GpTask::SP          aLastTask,
         {
             return aLastTask;
         }
-    } else if (aLastTaskExecRes == GpTask::Res::WAITING)
+    } else if (aLastTaskExecRes == GpTask::ResT::WAITING)
     {
         std::scoped_lock lock_w(iWaitingLock);
 
@@ -109,7 +111,7 @@ GpTask::SP  GpTaskScheduler::Reshedule (GpTask::SP          aLastTask,
                 return aLastTask;
             }
         }
-    } else if (aLastTaskExecRes == GpTask::Res::DONE)
+    } else if (aLastTaskExecRes == GpTask::ResT::DONE)
     {
         if (aLastTask.IsNotNULL())
         {

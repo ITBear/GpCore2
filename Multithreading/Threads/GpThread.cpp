@@ -39,7 +39,7 @@ void    GpThread::Run (GpRunnable::SP aRunnable)
     iThread = std::jthread([aRunnable](GpThreadStopToken aStopToken) noexcept
     {
         GpRunnable::SP runnable = aRunnable;
-        runnable.V().Run(aStopToken);
+        runnable->Run(aStopToken);
     });
 #else
 #   error Unimplemented

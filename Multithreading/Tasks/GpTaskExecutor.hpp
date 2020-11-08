@@ -18,14 +18,14 @@ public:
     CLASS_DECLARE_DEFAULTS(GpTaskExecutor)
 
 public:
-                        GpTaskExecutor  (GpTaskScheduler&   aScheduler,
-                                         GpConditionVar::SP aCondVar) noexcept;
-    virtual             ~GpTaskExecutor (void) noexcept override final;
+                            GpTaskExecutor  (GpWP<GpTaskScheduler>  aScheduler,
+                                             GpConditionVar::SP     aCondVar) noexcept;
+    virtual                 ~GpTaskExecutor (void) noexcept override final;
 
-    virtual void        Run             (GpThreadStopToken aStopToken) noexcept override final;
+    virtual void            Run             (GpThreadStopToken aStopToken) noexcept override final;
 
 private:
-    GpTaskScheduler&    iScheduler;
+    GpWP<GpTaskScheduler>   iScheduler;
 };
 
 }//GPlatform

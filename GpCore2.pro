@@ -7,9 +7,9 @@ QMAKE_CXXFLAGS += -DGP_MODULE_UUID=96155f96-6bc0-434e-a2da-0f9e72368461
 QMAKE_CXXFLAGS += -DGP_TYPE_SYSTEM_STATIC_ADD_TO_MANAGER
 DEFINES		   += GPCORE_LIBRARY
 PACKET_NAME     = GpCore2
-DIR_LEVEL       = .
+DIR_LEVEL       = ./..
 
-include(../QtGlobalPro.pri)
+include(../../QtGlobalPro.pri)
 
 #------------------------------ LIBS BEGIN ---------------------------------
 os_windows{
@@ -72,24 +72,29 @@ HEADERS += \
 	Multithreading/SyncPrimitives/GpRWLock.hpp \
 	Multithreading/SyncPrimitives/GpSpinlock.hpp \
 	Multithreading/SyncPrimitives/GpSyncPrimitives.hpp \
-	Multithreading/Tasks/Fibers/GpBaseTaskFiber.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiber.hpp \
+	Multithreading/Tasks/Fibers/GpTaskFiberBase.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberCtx.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberManager.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberStack.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberStackPool.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberStage.hpp \
+	Multithreading/Tasks/Fibers/GpTaskFiberStopEx.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFibers.hpp \
 	Multithreading/Tasks/Fibers/boost_context.hpp \
 	Multithreading/Tasks/GpTask.hpp \
 	Multithreading/Tasks/GpTaskAccessor.hpp \
+	Multithreading/Tasks/GpTaskBase.hpp \
 	Multithreading/Tasks/GpTaskExecutor.hpp \
 	Multithreading/Tasks/GpTaskExecutorsPool.hpp \
+	Multithreading/Tasks/GpTaskFactory.hpp \
 	Multithreading/Tasks/GpTaskScheduler.hpp \
 	Multithreading/Tasks/GpTaskSchedulerAccessor.hpp \
 	Multithreading/Tasks/GpTaskState.hpp \
 	Multithreading/Tasks/GpTasks.hpp \
 	Multithreading/Tasks/SyncPrimitives/GpTaskFiberBarrier.hpp \
+	Multithreading/Tasks/SyncPrimitives/GpTaskFiberBarrierLock.hpp \
+	Multithreading/Tasks/SyncPrimitives/GpTaskFiberBarrierWaiter.hpp \
 	Multithreading/Tasks/SyncPrimitives/GpTaskSyncPrimitives.hpp \
 	Multithreading/Threads/GpRunnable.hpp \
 	Multithreading/Threads/GpThread.hpp \
@@ -224,14 +229,16 @@ SOURCES += \
 	Exceptions/GpException.cpp \
 	Exceptions/GpExceptionsSink.cpp \
 	Multithreading/SyncPrimitives/GpConditionVar.cpp \
-	Multithreading/Tasks/Fibers/GpBaseTaskFiber.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiber.cpp \
+	Multithreading/Tasks/Fibers/GpTaskFiberBase.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberCtx.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberManager.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberStack.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberStackPool.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberStage.cpp \
+	Multithreading/Tasks/Fibers/GpTaskFiberStopEx.cpp \
 	Multithreading/Tasks/GpTask.cpp \
+	Multithreading/Tasks/GpTaskBase.cpp \
 	Multithreading/Tasks/GpTaskExecutor.cpp \
 	Multithreading/Tasks/GpTaskExecutorsPool.cpp \
 	Multithreading/Tasks/GpTaskScheduler.cpp \
@@ -259,7 +266,6 @@ SOURCES += \
 	Types/Graphs/GpGraphEdge.cpp \
 	Types/Graphs/GpGraphNode.cpp \
 	Types/Numerics/GpNumericOps.cpp \
-	Types/Pointers/GpRawPtr.cpp \
 	Types/Strings/GpStringOps.cpp \
 	Types/TypeSystem/GpStaticCatalog.cpp \
 	Types/TypeSystem/GpStaticCatalogC.cpp \

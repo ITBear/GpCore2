@@ -410,6 +410,17 @@ public:
         return SubrangeAs<R>(aOffset, CountLeft() - aOffset);
     }
 
+    constexpr this_type                         SubrangeEndOffset   (const count_t aOffset) const
+    {
+        return SubrangeAs<this_type>(CountLeft() - aOffset, aOffset);
+    }
+
+    template<typename R, typename = std::enable_if_t<is_convertable_raw_v<this_type, R>, R>>
+    constexpr R                                 SubrangeEndOffsetAs (const count_t aOffset) const
+    {
+        return SubrangeAs<R>(CountLeft() - aOffset, aOffset);
+    }
+
     template<typename R, typename = std::enable_if_t<is_convertable_raw_v<this_type, R>, R>>
     constexpr R                                 As                  (void) const
     {

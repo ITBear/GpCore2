@@ -15,7 +15,7 @@ GpGraph::~GpGraph (void) noexcept
 
 void    GpGraph::AddNode (GpGraphNode::SP aNode)
 {
-    aNode.V().OnAssignToGraph(*this);
+    aNode->OnAssignToGraph(*this);
 
     const bool isAdded = std::get<1>(iNodes.emplace(std::move(aNode)));
 

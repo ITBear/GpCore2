@@ -14,13 +14,13 @@ void    GpUnitTest::TEST (std::string_view      aTestName,
         aFn();
     } catch (const GpUnitTestException& aTestEx)
     {
-        aCtx.V().OnTestFailure(aTestName, aTestEx);
+        aCtx->OnTestFailure(aTestName, aTestEx);
     } catch (std::exception& aEx)
     {
-        aCtx.V().OnException(aTestName, aEx);
+        aCtx->OnException(aTestName, aEx);
     } catch (...)
     {
-        aCtx.V().OnUnknownException(aTestName);
+        aCtx->OnUnknownException(aTestName);
     }
 }
 

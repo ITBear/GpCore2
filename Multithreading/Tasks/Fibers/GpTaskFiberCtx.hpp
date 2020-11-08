@@ -27,10 +27,10 @@ public:
 
     void                        Init                (void);
     void                        Clear               (void) noexcept;
-    GpTask::Res                 Enter               (GpThreadStopToken  aStopToken,
+    GpTask::ResT                Enter               (GpThreadStopToken  aStopToken,
                                                      GpTask::WP         aTask,
                                                      FiberRunFnT        aRunFn);
-    static void                 SYeld               (const GpTask::Res aRes);
+    static void                 SYeld               (const GpTask::ResT aRes);
     static GpTask::WP           SCurrentTask        (void);
     static bool                 SIsIntoFiber        (void) noexcept;
 

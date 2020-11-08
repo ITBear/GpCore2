@@ -6,46 +6,39 @@
 
 namespace GPlatform {
 
-GpTaskFiberBarrier::~GpTaskFiberBarrier (void) noexcept
-{
-}
 
-void    GpTaskFiberBarrier::Release (void) noexcept
+void    GpTaskFiberBarrier::Release (void)
 {
-    const size_t cnt = iCountLeft.fetch_sub(1, std::memory_order_release);
+    const intmax_t cnt = iCounter.fetch_sub(1, std::memory_order_release);
 
-    if (cnt <= 1)
+    if (cnt == 1)
     {
         WakeupAll();
     }
 }
 
-void    GpTaskFiberBarrier::WakeupOnAllReleased (GpTaskFiber::WP aTask)
+void    GpTaskFiberBarrier::Wait (GpTaskFiber::SP aTask)
 {
+    //Subscribe
     {
         std::scoped_lock lock(iWakeupLock);
 
-        if (CountLeft() == 0_cnt)
+        if (iCounter.load(std::memory_order_acquire) <= 0)
         {
             return;
         }
 
-        iWakeupOnAllReleasedTasks.emplace_back(GpTaskFiber::SP(aTask));
+        iWakeupOnAllReleasedTasks.emplace_back(std::move(aTask));
     }
 
-    bool fin;
-    do
+    //Wait
+    while (iCounter.load(std::memory_order_acquire) > 0)
     {
-        GpTaskFiberCtx::SYeld(GpTask::Res::WAITING);
-
-        {
-            std::scoped_lock lock(iWakeupLock);
-            fin = CountLeft() == 0_cnt;
-        }
-    } while (!fin);
+        GpTaskFiberCtx::SYeld(GpTask::ResT::WAITING);
+    }
 }
 
-void    GpTaskFiberBarrier::WakeupAll (void) noexcept
+void    GpTaskFiberBarrier::WakeupAll (void)
 {
     std::scoped_lock lock(iWakeupLock);
 

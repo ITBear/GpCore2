@@ -5,8 +5,9 @@
 
 #include "../../../Exceptions/GpExceptionsSink.hpp"
 #include "GpTaskFiberManager.hpp"
-#include "boost_context.hpp"
 #include "GpTaskFiber.hpp"
+#include "GpTaskFiberStopEx.hpp"
+#include "boost_context.hpp"
 
 namespace GPlatform {
 
@@ -30,7 +31,7 @@ static FiberT _FiberFn (FiberT&& aOuterFiber)
         {
             FiberArgsT& fiberArgs = sFiberArgsTLS;
 
-            std::get<3>(fiberArgs) = GpTask::Res::DONE;
+            std::get<3>(fiberArgs) = GpTask::ResT::DONE;
             std::get<4>(fiberArgs) = std::current_exception();
 
             return std::move(std::get<0>(fiberArgs).value());
@@ -41,7 +42,7 @@ static FiberT _FiberFn (FiberT&& aOuterFiber)
     {
         FiberArgsT& fiberArgs = sFiberArgsTLS;
 
-        std::get<3>(fiberArgs) = GpTask::Res::DONE;
+        std::get<3>(fiberArgs) = GpTask::ResT::DONE;
         std::get<4>(fiberArgs).reset();
 
         return std::move(std::get<0>(fiberArgs).value());
@@ -100,9 +101,9 @@ void    GpTaskFiberCtx::Clear (void) noexcept
     }
 }
 
-GpTask::Res GpTaskFiberCtx::Enter (GpThreadStopToken    aStopToken,
-                                   GpTask::WP           aTask,
-                                   FiberRunFnT          aRunFn)
+GpTask::ResT    GpTaskFiberCtx::Enter (GpThreadStopToken    aStopToken,
+                                       GpTask::WP           aTask,
+                                       FiberRunFnT          aRunFn)
 {
     //IN
     {
@@ -110,7 +111,7 @@ GpTask::Res GpTaskFiberCtx::Enter (GpThreadStopToken    aStopToken,
 
         std::get<1>(fiberArgs) = aRunFn;
         std::get<2>(fiberArgs) = aStopToken;
-        std::get<3>(fiberArgs) = GpTask::Res::DONE;
+        std::get<3>(fiberArgs) = GpTask::ResT::DONE;
         //std::get<4>(fiberArgs) = task res
         std::get<5>(fiberArgs) = aTask;
 
@@ -131,12 +132,12 @@ GpTask::Res GpTaskFiberCtx::Enter (GpThreadStopToken    aStopToken,
              std::rethrow_exception(ex.value());
         }
 
-        GpTask::Res res = std::get<3>(fiberArgs);
+        GpTask::ResT res = std::get<3>(fiberArgs);
         return res;
     }
 }
 
-void    GpTaskFiberCtx::SYeld (const GpTask::Res aRes)
+void    GpTaskFiberCtx::SYeld (const GpTask::ResT aRes)
 {
     FiberT fiber;
 
@@ -160,7 +161,7 @@ void    GpTaskFiberCtx::SYeld (const GpTask::Res aRes)
         if (std::get<2>(fiberArgs)->stop_requested())
         {
             //throw boost::context::detail::forced_unwind();
-            THROW_GPE("Stop GpTaskFiber by force"_sv);
+            throw GpTaskFiberStopEx("Stop GpTaskFiber by force"_sv);
         }
     }
 }

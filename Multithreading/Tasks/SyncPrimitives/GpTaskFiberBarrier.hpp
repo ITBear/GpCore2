@@ -13,40 +13,38 @@ namespace GPlatform {
 class GPCORE_API GpTaskFiberBarrier
 {
 public:
-    CLASS_REMOVE_CTRS(GpTaskFiberBarrier)
+    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFiberBarrier)
     CLASS_DECLARE_DEFAULTS(GpTaskFiberBarrier)
 
 public:
-    inline                      GpTaskFiberBarrier      (const count_t aCountToRelease) noexcept;
-                                ~GpTaskFiberBarrier     (void) noexcept;
+    inline                      GpTaskFiberBarrier      (void) noexcept;
+    inline                      ~GpTaskFiberBarrier     (void) noexcept;
 
-    //for std::scoped_lock use
-    void                        lock                    (void) noexcept {/*NOP*/}
-    void                        unlock                  (void) noexcept {Release();}
-    bool                        try_lock                (void) noexcept {return true;}
+    inline void                 Acquire                 (void) noexcept;
+    void                        Release                 (void);
 
-    inline count_t              CountLeft               (void) const noexcept;
-    void                        Release                 (void) noexcept;
-    void                        WakeupOnAllReleased     (GpTaskFiber::WP aTask);
+    void                        Wait                    (GpTaskFiber::SP aTask);
 
 private:
-    void                        WakeupAll               (void) noexcept;
+    void                        WakeupAll               (void);
 
 private:
-    std::atomic_size_t          iCountLeft;
+    std::atomic_intmax_t        iCounter;
     GpSpinlock                  iWakeupLock;
     GpTaskFiber::C::Vec::SP     iWakeupOnAllReleasedTasks;
 };
 
-GpTaskFiberBarrier::GpTaskFiberBarrier (const count_t aCountToRelease) noexcept:
-iCountLeft(aCountToRelease.As<size_t>())
+GpTaskFiberBarrier::GpTaskFiberBarrier (void) noexcept
 {
 }
 
-count_t GpTaskFiberBarrier::CountLeft (void) const noexcept
+GpTaskFiberBarrier::~GpTaskFiberBarrier (void) noexcept
 {
-    const size_t cnt = iCountLeft.load(std::memory_order_acquire);
-    return count_t::SMake(cnt);
+}
+
+void    GpTaskFiberBarrier::Acquire (void) noexcept
+{
+    iCounter.fetch_add(1, std::memory_order_release);
 }
 
 }//GPlatform

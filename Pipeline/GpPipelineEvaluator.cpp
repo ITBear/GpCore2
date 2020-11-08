@@ -33,7 +33,7 @@ void    GpPipelineEvaluator::FiberFn (GpThreadStopToken aStopToken)
             }
 
             readyNodes.clear();
-            GpTaskFiberCtx::SYeld(GpTask::Res::WAITING);
+            GpTaskFiberCtx::SYeld(GpTask::ResT::WAITING);
         } else
         {
             //if (nextNodes.size() > )

@@ -13,11 +13,6 @@ void    GpTask::MoveToReady (void)
     GpTaskSchedulerAccessor::SMoveToReady(iScheduler.value().get(), iThisWeakPtr);
 }
 
-void    GpTask::Terminate (void) noexcept
-{
-    //NOP
-}
-
 GpEventSubscriber::PushEvevtRes GpTask::OnPushEvent (GpEvent::SP& /*aEvent*/) noexcept
 {
     MoveToReady();

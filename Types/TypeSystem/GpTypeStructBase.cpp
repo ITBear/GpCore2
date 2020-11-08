@@ -4,7 +4,7 @@
 
 namespace GPlatform {
 
-const GpTypeStructInfo& GpTypeStructBase::STypeStructInfo (void)
+const GpTypeStructInfo& GpTypeStructBase::STypeInfo (void)
 {
     static const GpTypeStructInfo sStructInfo;
     return sStructInfo;

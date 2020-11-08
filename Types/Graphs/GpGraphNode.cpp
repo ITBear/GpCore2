@@ -28,13 +28,13 @@ void    GpGraphNode::RemoveEdge (GpGraphEdge::SP aEdge)
     if (edgeIn_id.has_value())
     {
         OnDisconnectIn(aEdge);
-        aEdge.V().OnDisconnectIn();
+        aEdge->OnDisconnectIn();
     }
 
     if (edgeOut_Id.has_value())
     {
         OnDisconnectOut(aEdge);
-        aEdge.V().OnDisconnectOut();
+        aEdge->OnDisconnectOut();
     }
 }
 
@@ -43,13 +43,13 @@ void    GpGraphNode::RemoveAllEdges (void) noexcept
     for (GpGraphEdge::SP egde: iEdgesIn)
     {
         OnDisconnectIn(egde);
-        egde.V().OnDisconnectIn();
+        egde->OnDisconnectIn();
     }
 
     for (GpGraphEdge::SP egde: iEdgesOut)
     {
         OnDisconnectOut(egde);
-        egde.V().OnDisconnectOut();
+        egde->OnDisconnectOut();
     }
 
     iEdgesIn.clear();

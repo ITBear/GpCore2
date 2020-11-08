@@ -83,14 +83,14 @@ void    GpTypeStructInfo::_SEcho (const GpTypeStructBase&   aStruct,
                                   std::string&              aStrOut,
                                   const size_t              aLevel)
 {
-    const GpTypeStructInfo& structInfo = aStruct.TypeStructInfo();
+    const GpTypeStructInfo& typeInfo = aStruct.TypeInfo();
 
     const size_t indentSize = 4;
     const std::string indent1(aLevel*indentSize, ' ');
     const std::string indent2(aLevel*indentSize + indentSize, ' ');
-    aStrOut.append(indent1).append("Struct: '"_sv).append(structInfo.Name()).append("'"_sv);
+    aStrOut.append(indent1).append("Struct: '"_sv).append(typeInfo.Name()).append("'"_sv);
 
-    const auto& props = structInfo.Props();
+    const auto& props = typeInfo.Props();
 
     if (props.size() == 0)
     {

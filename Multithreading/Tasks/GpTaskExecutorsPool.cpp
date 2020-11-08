@@ -4,13 +4,17 @@
 
 namespace GPlatform {
 
-GpTaskExecutorsPool::GpTaskExecutorsPool (GpTaskScheduler& aScheduler) noexcept:
-iScheduler(aScheduler)
+GpTaskExecutorsPool::GpTaskExecutorsPool (void) noexcept
 {
 }
 
 GpTaskExecutorsPool::~GpTaskExecutorsPool (void) noexcept
 {   
+}
+
+void    GpTaskExecutorsPool::SetScheduler (GpWP<GpTaskScheduler> aScheduler) noexcept
+{
+    iScheduler = std::move(aScheduler);
 }
 
 void    GpTaskExecutorsPool::RequestStop (void) noexcept

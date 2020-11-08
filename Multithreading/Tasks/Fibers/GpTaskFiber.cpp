@@ -4,6 +4,7 @@
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
 #include "../../../Exceptions/GpExceptionsSink.hpp"
+#include "GpTaskFiberStopEx.hpp"
 #include "boost_context.hpp"
 #include <iostream>
 
@@ -17,9 +18,9 @@ GpTaskFiber::~GpTaskFiber (void) noexcept
 {
 }
 
-GpTask::Res GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
+GpTask::ResT    GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
 {
-    GpTaskFiber::Res taskRes = GpTaskFiber::Res::DONE;
+    ResT taskRes = ResT::DONE;
 
     try
     {
@@ -43,6 +44,10 @@ GpTask::Res GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
                 //NOP
             } break;
         }
+    } catch (const GpTaskFiberStopEx&)
+    {
+        iCtx.Clear();
+        iStage = StageT::FINISHED;
     } catch (const std::exception& e)
     {
         iCtx.Clear();
@@ -55,10 +60,10 @@ GpTask::Res GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
         GpExceptionsSink::SSinkUnknown();
     }
 
-    if (taskRes == GpTask::Res::DONE)
+    if (taskRes == ResT::DONE)
     {
-        iStage = StageT::FINISHED;
         iCtx.Clear();
+        iStage = StageT::FINISHED;      
     }
 
     return taskRes;
@@ -71,39 +76,12 @@ void    GpTaskFiber::Terminate (void) noexcept
         return;
     }
 
-    //iStage == StageT::RUN
-
     GpThreadStopSource  stopSource;
     GpThreadStopToken   stopToken = stopSource.get_token();
     stopSource.request_stop();
 
     Do(stopToken);
 }
-
-/*void  GpTaskFiber::FiberFn (GpThreadStopToken aStopToken)
-{
-    size_t counter = 0;
-
-    A a1;
-    counter++;
-    std::cout << "[GpTaskFiber::RunNext]: counter = " << counter << std::endl;
-    GpTaskFiberCtx::SYeld(GpTask::Res::READY_TO_EXEC);
-
-    while (!aStopToken.stop_requested())
-    {
-        GpTaskFiberCtx::SYeld(GpTask::Res::READY_TO_EXEC);
-        counter++;
-    }
-
-    A a2;
-    counter++;
-    std::cout << "[GpTaskFiber::RunNext]: counter = " << counter << std::endl;
-    GpTaskFiberCtx::SYeld(GpTask::Res::DONE);
-
-    A a3;
-    counter++;
-    std::cout << "[GpTaskFiber::RunNext]: counter = " << counter << std::endl;
-}*/
 
 }//GPlatform
 

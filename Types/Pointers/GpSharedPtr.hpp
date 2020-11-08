@@ -38,6 +38,16 @@ public:
                                                   && !(FROM::SIsConst() && !TO::SIsConst())
                                                  >::type;
 
+    //      Derived ->       Base OK
+    //const Derived -> const Base OK
+    //      Derived -> const Base OK
+    //const Derived ->       Base Error
+    template<typename FROM, typename TO>
+    using IsMovable = typename std::enable_if<   IsBaseOf<TO, FROM>::value
+                                              && !(FROM::SIsConst() && !TO::SIsConst())
+                                              && !(FROM::SIsWeak() && !TO::SIsWeak())
+                                             >::type;
+
     //      Base ->       Derived OK
     //const Base -> const Derived OK
     //      Base -> const Derived OK
@@ -88,11 +98,10 @@ public:
         }
     }
 
-    template<typename TSP, typename = IsConvertible<TSP, this_type>>
+    template<typename TSP, typename = IsMovable<TSP, this_type>>
                                     GpSharedPtrBase (TSP&& aSharedPtr) noexcept:
     iRefCounter(aSharedPtr._MoveRefCounter())
     {
-        static_assert (!(TSP::SIsWeak() && !SIsWeak()) , "Can`t move from Weak to !Weak");
     }
 
                                     GpSharedPtrBase (void) noexcept;
@@ -135,7 +144,7 @@ public:
         }
     }
 
-    template<typename TSP, typename = IsConvertible<TSP, this_type>>
+    template<typename TSP, typename = IsMovable<TSP, this_type>>
     void                            Set             (TSP&& aSharedPtr) noexcept
     {
         static_assert (!(TSP::SIsWeak() && !SIsWeak()) , "Can`t move from Weak to !Weak");
@@ -166,6 +175,9 @@ public:
     [[nodiscard]] const value_type* PCn             (void) const noexcept;
 
     //----------------- operators -------------------------
+    [[nodiscard]] value_type*       operator->      (void);
+    [[nodiscard]] const value_type* operator->      (void) const;
+
     [[nodiscard]] bool              operator!=      (const this_type& aSharedPtr) const noexcept;
     [[nodiscard]] bool              operator==      (const this_type& aSharedPtr) const noexcept;
     [[nodiscard]] bool              operator>       (const this_type& aSharedPtr) const noexcept;
@@ -181,7 +193,7 @@ public:
         return *this;
     }
 
-    template<typename TSP, typename = IsConvertible<TSP, this_type>>
+    template<typename TSP, typename = IsMovable<TSP, this_type>>
     this_type&                      operator=       (TSP&& aSharedPtr) noexcept
     {
         Set(std::move(aSharedPtr));
@@ -439,6 +451,18 @@ const T*    GpSharedPtrBase<T, RefPtrT, _IsWeak>::PCn (void) const noexcept
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
+T*  GpSharedPtrBase<T, RefPtrT, _IsWeak>::operator-> (void)
+{
+    return P();
+}
+
+template <typename T, typename RefPtrT, bool _IsWeak>
+const T*    GpSharedPtrBase<T, RefPtrT, _IsWeak>::operator-> (void) const
+{
+    return PC();
+}
+
+template <typename T, typename RefPtrT, bool _IsWeak>
 bool    GpSharedPtrBase<T, RefPtrT, _IsWeak>::operator!= (const this_type& aSharedPtr) const noexcept
 {
     return iRefCounter != aSharedPtr.iRefCounter;
@@ -495,5 +519,21 @@ template<typename T, typename... Ts>
 }
 
 }//namespace GPlatform
+
+//********************** Hash *********************
+namespace std {
+
+template <typename  T,
+          typename  RefPtrT,
+          bool      _IsWeak>
+struct hash<GPlatform::GpSharedPtrBase<T, RefPtrT, _IsWeak>>
+{
+    size_t operator()(const GPlatform::GpSharedPtrBase<T, RefPtrT, _IsWeak>& aSP) const noexcept
+    {
+        return std::hash<const GPlatform::GpReferenceCounter*>()(aSP._RefCounter());
+    }
+};
+
+}//std
 
 #endif//#if defined(GP_USE_SHARED_POINTERS)

@@ -24,7 +24,7 @@ using PreallocatedT                 = boost::context::preallocated;
 using FiberArgsT                    = GpTuple</*0*/std::optional<FiberT>,
                                               /*1*/std::optional<FiberRunFnT>,
                                               /*2*/std::optional<GpThreadStopToken>,
-                                              /*3*/GpTask::Res,
+                                              /*3*/GpTask::ResT,
                                               /*4*/std::optional<std::exception_ptr>,
                                               /*5*/GpTask::WP>;
 using BasicProtectedFixedSizeStackT = boost::context::basic_protected_fixedsize_stack<StackSizePolicyT>;

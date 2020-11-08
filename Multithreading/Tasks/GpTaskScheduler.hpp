@@ -20,18 +20,19 @@ public:
     CLASS_DECLARE_DEFAULTS(GpTaskScheduler)
 
     using ExecutorT             = GpTaskExecutor;
-    using TaskSchedulerOptRefT  = std::optional<std::reference_wrapper<GpTaskScheduler>>;
+    using TaskSchedulerOptRefT  = std::optional<GpTaskScheduler::WP>;
 
 public:
                                 GpTaskScheduler         (void) noexcept;
                                 ~GpTaskScheduler        (void) noexcept;
 
-    void                        Start                   (const count_t aExecutorsCount);
+    void                        Start                   (GpTaskScheduler::WP    aSelfWP,
+                                                         const count_t          aExecutorsCount);
     void                        RequestStop             (void) noexcept;
     void                        Join                    (void) noexcept;
 
     GpTask::SP                  Reshedule               (GpTask::SP         aLastTask,
-                                                         const GpTask::Res  aLastTaskExecRes) noexcept;
+                                                         const GpTask::ResT aLastTaskExecRes) noexcept;
 
     void                        AddTaskToReady          (GpTask::SP aTask);
     void                        AddTaskToWaiting        (GpTask::SP aTask);
@@ -49,7 +50,7 @@ private:
     mutable GpSpinlock          iWaitingLock;
     GpTask::C::Set::SP          iWaitingTasks;
 
-    GpTaskExecutorsPool     iExecutorsPool;
+    GpTaskExecutorsPool         iExecutorsPool;
 };
 
 }//GPlatform

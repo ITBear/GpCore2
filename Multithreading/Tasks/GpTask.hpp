@@ -23,7 +23,7 @@ public:
     CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTask)
     CLASS_DECLARE_DEFAULTS(GpTask)
 
-    enum class Res
+    enum class ResT
     {
         READY_TO_EXEC,
         WAITING,
@@ -41,8 +41,8 @@ public:
     virtual                 ~GpTask         (void) noexcept override = default;
 
     void                    MoveToReady     (void);
-    virtual Res             Do              (GpThreadStopToken aStopToken) noexcept = 0;
-    virtual void            Terminate       (void) noexcept;
+    virtual ResT            Do              (GpThreadStopToken aStopToken) noexcept = 0;
+    virtual void            Terminate       (void) noexcept = 0;
 
 protected:
     virtual PushEvevtRes    OnPushEvent     (GpEvent::SP& aEvent) noexcept override final;

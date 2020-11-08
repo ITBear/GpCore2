@@ -27,7 +27,7 @@ void    GpPipeline::AddNode (NodeT::SP aNode)
 
     THROW_GPE_COND_CHECK_M(iAllNodes.count(aNode) == 0, "Node already added"_sv);
 
-    aNode.V().AssignToPipeline(*this);
+    aNode->AssignToPipeline(*this);
 
     iRootNodes.emplace(aNode);
     iAllNodes.emplace(aNode);

@@ -24,21 +24,21 @@ protected:
 public:
     virtual                         ~GpTypeStructBase   (void) noexcept {}
 
-    const GpTypeStructInfo&         TypeStructInfo      (void) const noexcept {return _TypeStructInfo();}
+    const GpTypeStructInfo&         TypeInfo            (void) const noexcept {return _TypeInfo();}
     GpTypeStructBase::SP            NewInstance         (void) const {return _NewInstance();}
 
 protected:
     virtual void                    _type_id_tag_fn     (_type_id_tag_t&) const noexcept {}
-    virtual const GpTypeStructInfo& _TypeStructInfo     (void) const noexcept = 0;
+    virtual const GpTypeStructInfo& _TypeInfo           (void) const noexcept = 0;
     virtual GpTypeStructBase::SP    _NewInstance        (void) const = 0;
-    static const GpTypeStructInfo&  STypeStructInfo     (void);
+    static const GpTypeStructInfo&  STypeInfo           (void);
     static const GpUUID&            STypeStructUID      (void) noexcept;
 };
 
 //------------------------- TYPE_STRUCT_DECLARE -------------------------
 #if defined(GP_TYPE_SYSTEM_STATIC_ADD_TO_MANAGER)
 #   define TYPE_STRUCT_DECLARE_STATIC_TO_TYPE_MANAGER static const size_t _sTYPE_MANAGER
-#   define TYPE_STRUCT_IMPLEMENT_STATIC_TO_TYPE_MANAGER(T) const size_t T::_sTYPE_MANAGER = GpTypeManager::S().Register(T::STypeStructInfo());
+#   define TYPE_STRUCT_IMPLEMENT_STATIC_TO_TYPE_MANAGER(T) const size_t T::_sTYPE_MANAGER = GpTypeManager::S().Register(T::STypeInfo());
 #else
 #   define TYPE_STRUCT_DECLARE_STATIC_TO_TYPE_MANAGER
 #   define TYPE_STRUCT_IMPLEMENT_STATIC_TO_TYPE_MANAGER(T)
@@ -47,8 +47,8 @@ protected:
 #define TYPE_STRUCT_DECLARE() \
     using BaseT     = std::remove_reference<decltype(SGetBaseObjectType(&this_type::_type_id_tag_fn))>::type; \
 \
-    static const GpTypeStructInfo&  STypeStructInfo     (void); \
-    static const GpUUID&            STypeStructUID      (void) noexcept; \
+    static const GpTypeStructInfo&  STypeInfo       (void); \
+    static const GpUUID&            STypeStructUID  (void) noexcept; \
 \
     class StructFactory final: public GpTypeStructFactory \
     { \
@@ -57,9 +57,9 @@ protected:
     }; \
 \
 protected: \
-    virtual void                    _type_id_tag_fn     (_type_id_tag_t&) const noexcept override{} \
-    virtual const GpTypeStructInfo& _TypeStructInfo     (void) const noexcept override; \
-    virtual GpTypeStructBase::SP    _NewInstance        (void) const override; \
+    virtual void                    _type_id_tag_fn (_type_id_tag_t&) const noexcept override{} \
+    virtual const GpTypeStructInfo& _TypeInfo       (void) const noexcept override; \
+    virtual GpTypeStructBase::SP    _NewInstance    (void) const override; \
 \
 private: \
     static GpTypeStructInfo         _SCollectStructInfo (const GpTypeStructInfo* aBaseStructInfo); \
@@ -76,9 +76,9 @@ private: \
 \
     GpSP<GpTypeStructBase>  T::StructFactory::NewInstance (void) const {return MakeSP<T>();} \
 \
-    const GpTypeStructInfo& T::STypeStructInfo (void) \
+    const GpTypeStructInfo& T::STypeInfo (void) \
     { \
-        static const GpTypeStructInfo sStructInfo = T::_SCollectStructInfo(&T::BaseT::STypeStructInfo()); \
+        static const GpTypeStructInfo sStructInfo = T::_SCollectStructInfo(&T::BaseT::STypeInfo()); \
         return sStructInfo; \
     } \
 \
@@ -88,9 +88,9 @@ private: \
         return sStructUID; \
     } \
 \
-    const GpTypeStructInfo& T::_TypeStructInfo (void) const noexcept \
+    const GpTypeStructInfo& T::_TypeInfo (void) const noexcept \
     { \
-        return T::STypeStructInfo(); \
+        return T::STypeInfo(); \
     } \
 \
     GpTypeStructBase::SP    T::_NewInstance (void) const \

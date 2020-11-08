@@ -26,13 +26,13 @@ void    GpStaticCatalogC::Clear (void) noexcept
 }
 
 void    GpStaticCatalogC::Register (std::string_view        aKey,
-                                   GpTypeStructBase::CSP    aValue)
+                                    GpTypeStructBase::CSP   aValue)
 {
     iCatalog.Register(std::string(aKey), std::move(aValue));
 }
 
 void    GpStaticCatalogC::Register (std::string&&           aKey,
-                                   GpTypeStructBase::CSP    aValue)
+                                    GpTypeStructBase::CSP   aValue)
 {
     iCatalog.Register(std::move(aKey), std::move(aValue));
 }
