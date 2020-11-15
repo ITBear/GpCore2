@@ -17,8 +17,8 @@ public:
     CLASS_DECLARE_DEFAULTS(GpTaskFiberBarrier)
 
 public:
-    inline                      GpTaskFiberBarrier      (void) noexcept;
-    inline                      ~GpTaskFiberBarrier     (void) noexcept;
+                                GpTaskFiberBarrier      (void) noexcept {}
+                                ~GpTaskFiberBarrier     (void) noexcept {}
 
     inline void                 Acquire                 (void) noexcept;
     void                        Release                 (void);
@@ -33,14 +33,6 @@ private:
     GpSpinlock                  iWakeupLock;
     GpTaskFiber::C::Vec::SP     iWakeupOnAllReleasedTasks;
 };
-
-GpTaskFiberBarrier::GpTaskFiberBarrier (void) noexcept
-{
-}
-
-GpTaskFiberBarrier::~GpTaskFiberBarrier (void) noexcept
-{
-}
 
 void    GpTaskFiberBarrier::Acquire (void) noexcept
 {

@@ -6,7 +6,7 @@
 
 namespace GPlatform {
 
-GpEventBus::GpEventBus (void) noexcept
+/*GpEventBus::GpEventBus (void) noexcept
 {
 }
 
@@ -31,12 +31,6 @@ void    GpEventBus::Unsubscribe (GpEventSubscriber::SP aSubscriber)
 {
     std::scoped_lock lock(iLock);
     iSubscribers.erase(aSubscriber);
-}
-
-/*void  GpEventBus::Post (GpEvent::SP aEvent)
-{
-    std::scoped_lock lock(iLock);
-    THROW_NOT_IMPLEMENTED();
 }*/
 
 }//GPlatform

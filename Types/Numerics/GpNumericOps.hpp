@@ -16,8 +16,8 @@ class GPCORE_API GpNumericOps
 {
     CLASS_REMOVE_CTRS(GpNumericOps)
 
-    static_assert (sizeof(int) == sizeof (s_int_32), "sizeof(int) != sizeof (s_int_32)");
-    static_assert (sizeof(long long int) == sizeof (s_int_64), "sizeof(long long int) == sizeof (s_int_64)");
+    static_assert (sizeof(int) == sizeof(s_int_32), "sizeof(int) != sizeof (s_int_32)");
+    static_assert (sizeof(long long int) == sizeof(s_int_64), "sizeof(long long int) == sizeof (s_int_64)");
 
 public:
     [[nodiscard]] static
@@ -247,6 +247,31 @@ public:
         } else
         {
             GpThrowCe<std::out_of_range>("Div by zero");            
+        }
+
+        return 0;
+    }
+
+    template<typename T>
+    [[nodiscard]] static constexpr T SDivCeil (const T a, const T b)
+    {
+        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
+
+        if (SIsNotEqual(b,T(0))) //b != 0
+        {
+            if constexpr (std::is_floating_point<T>())
+            {
+                return std::ceil(a / b);
+            } else if constexpr (std::is_integral<T>())
+            {
+                const T d = a / b;
+                const T m = a % b;
+
+                return d + ((m != 0) ? 1 : 0);
+            }
+        } else
+        {
+            GpThrowCe<std::out_of_range>("Div by zero");
         }
 
         return 0;

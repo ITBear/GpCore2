@@ -22,37 +22,28 @@ GpTask::ResT    GpTaskBase::Do (GpThreadStopToken aStopToken) noexcept
             iIsStarted = true;
         }
 
-        if (!aStopToken.stop_requested())
+        GpEvent::SP event = PopNextEvent();
+        while (!aStopToken.stop_requested())
         {
-            GpEvent::SP event = PopNextEvent();
+            const GpTask::ResT stepRes = OnStep(event.IsNotNULL() ? EventOptRefT(event.Vn()) : std::nullopt);
 
-            GpTask::ResT stepRes = OnStep(event.IsNotNULL() ? EventOptRefT(event.Vn()) : std::nullopt);
-
-            if (stepRes == ResT::DONE)
+            if (stepRes == GpTask::ResT::READY_TO_EXEC)
             {
-                OnStop();
-                return ResT::DONE;
-            }
-
-            //Pop until event queue is empty
-            while ((event = PopNextEvent()).IsNotNULL())
+                return GpTask::ResT::READY_TO_EXEC;
+            } else if (stepRes == GpTask::ResT::WAITING)
             {
-                if (aStopToken.stop_requested())
+                event = PopNextEvent();
+                if (event.IsNotNULL())
                 {
-                    OnStop();
-                    return ResT::DONE;
-                }
-
-                 stepRes = OnStep(EventOptRefT(event.Vn()));
-
-                if (stepRes == ResT::DONE)
+                    continue;
+                } else
                 {
-                    OnStop();
-                    return ResT::DONE;
+                    return GpTask::ResT::WAITING;
                 }
+            } else if (stepRes == GpTask::ResT::DONE)
+            {
+                break;
             }
-
-            return stepRes;
         }
     } catch (const std::exception& e)
     {
@@ -63,7 +54,7 @@ GpTask::ResT    GpTaskBase::Do (GpThreadStopToken aStopToken) noexcept
     }
 
     OnStop();
-    return ResT::DONE;
+    return GpTask::ResT::DONE;
 }
 
 void    GpTaskBase::Terminate (void) noexcept

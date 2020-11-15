@@ -5,6 +5,7 @@
 #include "Algorithms/GpAlgorithms.hpp"
 #include "Constexpr/GpConstexprUtils.hpp"
 #include "Exceptions/GpExceptions.hpp"
+#include "Exceptions/GpExceptionDesc.hpp"
 #include "RandomGenerators/GpRandomGenerators.hpp"
 #include "Types/GpTypes.hpp"
 #include "Multithreading/GpMultithreading.hpp"

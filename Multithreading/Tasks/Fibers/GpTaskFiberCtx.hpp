@@ -37,7 +37,7 @@ public:
 private:
     alignas(alignof(std::max_align_t)) std::array<std::byte, 32>    iFiberStorage;
     void*                                                           iFiberPtr = nullptr;
-    GpTaskFiberStack::SP                                            iStack;
+    GpTaskFiberStack::SP                                            iFiberStack;
 };
 
 }//namespace GPlatform

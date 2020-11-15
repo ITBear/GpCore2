@@ -32,6 +32,9 @@ public:
     GpEvent::SP             PopNextEvent        (void) noexcept;
     bool                    HasEvents           (void) const noexcept {std::scoped_lock lock(iEventsLock); return !iEvents.empty();}
 
+    GpSpinlock&             EventsLock          (void) const noexcept {return iEventsLock;}
+    bool                    HasEventsNoLock     (void) const noexcept {return !iEvents.empty();}
+
 protected:  
     void                    ClearEventsQueue    (void) noexcept;
     virtual PushEvevtRes    OnPushEvent         (GpEvent::SP& aEvent) noexcept = 0;

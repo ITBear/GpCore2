@@ -32,7 +32,7 @@ protected:
     virtual const GpTypeStructInfo& _TypeInfo           (void) const noexcept = 0;
     virtual GpTypeStructBase::SP    _NewInstance        (void) const = 0;
     static const GpTypeStructInfo&  STypeInfo           (void);
-    static const GpUUID&            STypeStructUID      (void) noexcept;
+    static const GpUUID&            STypeUID            (void) noexcept;
 };
 
 //------------------------- TYPE_STRUCT_DECLARE -------------------------
@@ -44,11 +44,15 @@ protected:
 #   define TYPE_STRUCT_IMPLEMENT_STATIC_TO_TYPE_MANAGER(T)
 #endif//#if defined(GP_TYPE_SYSTEM_STATIC_ADD_TO_MANAGER)
 
-#define TYPE_STRUCT_DECLARE() \
+#define TYPE_STRUCT_DECLARE(TUUID) \
     using BaseT     = std::remove_reference<decltype(SGetBaseObjectType(&this_type::_type_id_tag_fn))>::type; \
 \
-    static const GpTypeStructInfo&  STypeInfo       (void); \
-    static const GpUUID&            STypeStructUID  (void) noexcept; \
+    static const GpTypeStructInfo&  STypeInfo   (void); \
+    constexpr static const GpUUID   STypeUID    (void) noexcept \
+    { \
+        constexpr const GpUUID structUID = GpUUID::CE_FromString(TUUID); \
+        return structUID; \
+    } \
 \
     class StructFactory final: public GpTypeStructFactory \
     { \
@@ -70,7 +74,7 @@ private: \
 //------------------------- TYPE_STRUCT_IMPLEMENT -------------------------
 #define MACRO_D_TO_STR(VAL) #VAL
 
-#define TYPE_STRUCT_IMPLEMENT(T, TUUID, MODULE_UUID) \
+#define TYPE_STRUCT_IMPLEMENT(T, MODULE_UUID) \
 \
     TYPE_STRUCT_IMPLEMENT_STATIC_TO_TYPE_MANAGER(T); \
 \
@@ -80,12 +84,6 @@ private: \
     { \
         static const GpTypeStructInfo sStructInfo = T::_SCollectStructInfo(&T::BaseT::STypeInfo()); \
         return sStructInfo; \
-    } \
-\
-    const GpUUID&   T::STypeStructUID (void) noexcept \
-    { \
-        static constexpr const GpUUID sStructUID = GpUUID::CE_FromString(TUUID); \
-        return sStructUID; \
     } \
 \
     const GpTypeStructInfo& T::_TypeInfo (void) const noexcept \
@@ -107,7 +105,7 @@ private: \
         } \
         GpTypeStructFactory::SP factory = GpSP<StructFactory>::SNew(); \
         _SCollectStructProps(props); \
-        constexpr GpUUID typeUID    = GpUUID::CE_FromString(TUUID); \
+        constexpr GpUUID typeUID    = T::STypeUID(); \
         constexpr GpUUID groupUID   = GpUUID::CE_FromString(std::string_view(MACRO_D_TO_STR(MODULE_UUID))); \
         GpTypeStructInfo structInfo(typeUID, \
                                     (aBaseStructInfo != nullptr) ? aBaseStructInfo->UID() : GpUUID(), \
@@ -122,13 +120,13 @@ private: \
 #define PROP(PROP_NAME) \
     { \
         using PropT = decltype(PROP_NAME); \
-        constexpr const auto    types           = GpTypeUtils::SDetectTypeContainer<PropT>(); \
-        const GpUUID            structTypeUID   = GpTypeUtils::SDetectStructTypeUID<PropT>(); \
-        constexpr const size_t  align           = alignof(PropT); \
-        constexpr const size_t  size            = sizeof(PropT); \
-        const std::ptrdiff_t    offset          = GpTypeUtils::SOffsetOf(&this_type::PROP_NAME); \
+        constexpr const auto    types   = GpTypeUtils::SDetectTypeContainer<PropT>(); \
+        const GpUUID            typeUID = GpTypeUtils::SDetectTypeUID<PropT>(); \
+        constexpr const size_t  align   = alignof(PropT); \
+        constexpr const size_t  size    = sizeof(PropT); \
+        const std::ptrdiff_t    offset  = GpTypeUtils::SOffsetOf(&this_type::PROP_NAME); \
         aPropsOut.emplace_back(GpTypePropInfo(std::get<0>(types), \
-                                              structTypeUID, \
+                                              typeUID, \
                                               std::get<2>(types), \
                                               std::get<1>(types), \
                                               std::string(#PROP_NAME), \

@@ -24,7 +24,7 @@ static FiberT _FiberFn (FiberT&& aOuterFiber)
 
             std::get<0>(fiberArgs) = std::move(aOuterFiber);
             std::get<1>(fiberArgs).value()(std::get<2>(fiberArgs).value());
-        } catch (boost::context::detail::forced_unwind&)
+        } catch (const boost::context::detail::forced_unwind&)
         {
             throw;
         } catch (...)
@@ -63,25 +63,19 @@ void    GpTaskFiberCtx::Init (void)
 {
     Clear();
 
-    // Allocate stack
+    //Get stack from pool
     const auto res = GpTaskFiberManager::S().StackPool().Acquire();
-    if (res.has_value())
-    {
-        iStack = res.value();
-    } else
-    {
-        THROW_GPE("Failed to allocate stack for fiber"_sv);
-    }
+    THROW_GPE_COND_CHECK_M(res.has_value(), "Failed to get fiber stack from pool"_sv);
+    iFiberStack = res.value();
 
-    // Create fiber
-    StackContextT   sctx        = *reinterpret_cast<StackContextT*>(iStack.Vn().Context());
-    void*           sctx_sp     = static_cast<char*>(sctx.sp);
-    size_t          sctx_size   = sctx.size;
+    //Create fiber
+    GpFiberStackT& fiberStack = *reinterpret_cast<GpFiberStackT*>(iFiberStack.Vn().Stack());
+    //boost::context::stack_context stackCtx = fiberStack.NewCtx();
 
     iFiberPtr = GpMemOps::SEmplace<FiberT>(iFiberStorage.data(),
                                            std::allocator_arg,
-                                           PreallocatedT(sctx_sp, sctx_size, sctx),
-                                           GpPooledStack(sctx),
+                                           //FiberPreallocatedT(stackCtx.sp, stackCtx.size, stackCtx),
+                                           GpFiberStackWrapperT(fiberStack),
                                            _FiberFn);
 }
 
@@ -94,10 +88,9 @@ void    GpTaskFiberCtx::Clear (void) noexcept
         iFiberPtr = nullptr;
     }
 
-    if (iStack.IsNotNULL())
+    if (iFiberStack.IsNotNULL())
     {
-        GpTaskFiberManager::S().StackPool().Release(iStack);
-        iStack.Clear();
+        GpTaskFiberManager::S().StackPool().Release(std::move(iFiberStack));
     }
 }
 
@@ -110,10 +103,10 @@ GpTask::ResT    GpTaskFiberCtx::Enter (GpThreadStopToken    aStopToken,
         FiberArgsT& fiberArgs = sFiberArgsTLS;
 
         std::get<1>(fiberArgs) = aRunFn;
-        std::get<2>(fiberArgs) = aStopToken;
+        std::get<2>(fiberArgs) = std::move(aStopToken);
         std::get<3>(fiberArgs) = GpTask::ResT::DONE;
         //std::get<4>(fiberArgs) = task res
-        std::get<5>(fiberArgs) = aTask;
+        std::get<5>(fiberArgs) = std::move(aTask);
 
         FiberT& fiber = *reinterpret_cast<FiberT*>(iFiberPtr);
 

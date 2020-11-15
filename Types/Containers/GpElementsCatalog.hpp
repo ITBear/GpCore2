@@ -34,62 +34,74 @@ public:
     CLASS_TAG(THREAD_SAFE)
 
 public:
-                                    GpElementsCatalog   (void) noexcept = default;
-    virtual                         ~GpElementsCatalog  (void) noexcept;
+                            GpElementsCatalog       (void) noexcept = default;
+    virtual                 ~GpElementsCatalog      (void) noexcept;
 
-    void                            Clear               (void) noexcept;
+    void                    Clear                   (void) noexcept;
 
-    void                            Register            (const KeyT& aKey, const ValueT& aValue);
-    void                            Register            (KeyT&& aKey, const ValueT& aValue);
-    void                            Register            (const KeyT& aKey, ValueT&& aValue);
-    void                            Register            (KeyT&& aKey, ValueT&& aValue);
-
-    RegisterResT                    TryRegister         (const KeyT& aKey, const ValueT& aValue);
-    RegisterResT                    TryRegister         (KeyT&& aKey, const ValueT& aValue);
-    RegisterResT                    TryRegister         (const KeyT& aKey, ValueT&& aValue);
-    RegisterResT                    TryRegister         (KeyT&& aKey, ValueT&& aValue);
-
-    ValueT                          Unregister          (const KeyT& aKey);
+    const ValueT&           FindOrRegister          (const KeyT&    aKey, std::function<ValueT()> aValueFn);
+    const ValueT&           FindOrRegister          (KeyT&&         aKey, std::function<ValueT()> aValueFn);
 
     template<typename T>
-    ValueT                          Unregister          (T aKey);
+    const ValueT&           FindOrRegister          (T aKey, std::function<ValueT()> aValueFn);
+
+    void                    Register                (const KeyT& aKey, const ValueT& aValue);
+    void                    Register                (KeyT&& aKey, const ValueT& aValue);
+    void                    Register                (const KeyT& aKey, ValueT&& aValue);
+    void                    Register                (KeyT&& aKey, ValueT&& aValue);
+
+    RegisterResT            TryRegister             (const KeyT& aKey, const ValueT& aValue);
+    RegisterResT            TryRegister             (KeyT&& aKey, const ValueT& aValue);
+    RegisterResT            TryRegister             (const KeyT& aKey, ValueT&& aValue);
+    RegisterResT            TryRegister             (KeyT&& aKey, ValueT&& aValue);
+
+    template<typename T>
+    RegisterResT            TryRegister             (T aKey, const ValueT& aValue);
+
+    template<typename T>
+    RegisterResT            TryRegister             (T aKey, ValueT&& aValue);
+
+    ValueT                  Unregister              (const KeyT& aKey);
+
+    template<typename T>
+    ValueT                  Unregister              (T aKey);
 
     std::optional<std::reference_wrapper<const ValueT>>
-                                    Find                (const KeyT& aKey) const noexcept;
+                            Find                    (const KeyT& aKey) const noexcept;
 
     template<typename T>
     std::optional<std::reference_wrapper<const ValueT>>
-                                    Find                (T aKey) const noexcept;
+                            Find                    (T aKey) const noexcept;
 
     std::optional<std::reference_wrapper<ValueT>>
-                                    Find                (const KeyT& aKey) noexcept;
+                            Find                    (const KeyT& aKey) noexcept;
     template<typename T>
     std::optional<std::reference_wrapper<ValueT>>
-                                    Find                (T aKey) noexcept;
+                            Find                    (T aKey) noexcept;
 
-    std::optional<ValueT>           FindAndReturnCopy   (const KeyT& aKey) const noexcept;
-
-    template<typename T>
-    std::optional<ValueT>           FindAndReturnCopy   (T aKey) const noexcept;
-
-    const ValueT&                   FindOrThrow         (const KeyT& aKey) const;
+    std::optional<ValueT>   FindRetCopy             (const KeyT& aKey) const noexcept;
 
     template<typename T>
-    const ValueT&                   FindOrThrow         (T aKey) const;
+    std::optional<ValueT>   FindRetCopy             (T aKey) const noexcept;
 
-    ValueT&                         FindOrThrow         (const KeyT& aKey);
+    const ValueT&           FindOrThrow             (const KeyT& aKey) const;
 
     template<typename T>
-    ValueT&                         FindOrThrow         (T aKey);
+    const ValueT&           FindOrThrow             (T aKey) const;
 
-    void                            Process             (std::function<void(container_type&)> aFn);
+    ValueT&                 FindOrThrow             (const KeyT& aKey);
+
+    template<typename T>
+    ValueT&                 FindOrThrow             (T aKey);
+
+    void                    Process                 (std::function<void(container_type&)> aFn);
 
 private:
-    count_t                         _Count              (const KeyT& aKey) const noexcept;
+    count_t                 _Count                  (const KeyT& aKey) const noexcept;
 
 private:
-    mutable GpRWLock                iLock;
-    container_type                  iElements;
+    mutable GpRWLock        iLock;
+    container_type          iElements;
 };
 
 template<typename KeyT,
@@ -108,6 +120,49 @@ void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Clear (void) noexcept
     std::scoped_lock lock(iLock);
 
     iElements.clear();
+}
+
+template<typename KeyT,
+         typename ValueT,
+         template<typename...> class ContainerT>
+const ValueT&   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrRegister (const KeyT& aKey, std::function<ValueT()> aValueFn)
+{
+    const auto val = Find(aKey);
+    if (val.has_value()) return val.value().get();
+
+    auto res = TryRegister(aKey, aValueFn());
+
+    if (res.has_value()) return res.value().get();
+    else return Find(aKey).value().get();
+}
+
+template<typename KeyT,
+         typename ValueT,
+         template<typename...> class ContainerT>
+const ValueT&   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrRegister (KeyT&& aKey, std::function<ValueT()> aValueFn)
+{
+    const auto val = Find(aKey);
+    if (val.has_value()) return val.value().get();
+
+    auto res = TryRegister(std::move(aKey), aValueFn());
+
+    if (res.has_value()) return res.value().get();
+    else return Find(aKey).value().get();
+}
+
+template<typename KeyT,
+         typename ValueT,
+         template<typename...> class ContainerT>
+template<typename T>
+const ValueT&   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrRegister (T aKey, std::function<ValueT()> aValueFn)
+{
+    const auto val = Find(aKey);
+    if (val.has_value()) return val.value().get();
+
+    auto res = TryRegister(aKey, aValueFn());
+
+    if (res.has_value()) return res.value().get();
+    else return Find(aKey).value().get();
 }
 
 template<typename KeyT,
@@ -233,6 +288,44 @@ auto    GpElementsCatalog<KeyT, ValueT, ContainerT>::TryRegister (KeyT&& aKey, V
 template<typename KeyT,
          typename ValueT,
          template<typename...> class ContainerT>
+template<typename T>
+auto    GpElementsCatalog<KeyT, ValueT, ContainerT>::TryRegister (T aKey, const ValueT& aValue) -> RegisterResT
+{
+    std::scoped_lock lock(iLock);
+
+    auto res = iElements.try_emplace(KeyT(aKey), aValue);
+
+    if (res.second)
+    {
+        return res.first->second;
+    } else
+    {
+        return std::nullopt;
+    }
+}
+
+template<typename KeyT,
+         typename ValueT,
+         template<typename...> class ContainerT>
+template<typename T>
+auto    GpElementsCatalog<KeyT, ValueT, ContainerT>::TryRegister (T aKey, ValueT&& aValue) -> RegisterResT
+{
+    std::scoped_lock lock(iLock);
+
+    auto res = iElements.try_emplace(KeyT(aKey), std::move(aValue));
+
+    if (res.second)
+    {
+        return res.first->second;
+    } else
+    {
+        return std::nullopt;
+    }
+}
+
+template<typename KeyT,
+         typename ValueT,
+         template<typename...> class ContainerT>
 ValueT  GpElementsCatalog<KeyT, ValueT, ContainerT>::Unregister (const KeyT& aKey)
 {
     return Unregister<const KeyT&>(aKey);
@@ -316,16 +409,16 @@ std::optional<std::reference_wrapper<ValueT>>   GpElementsCatalog<KeyT, ValueT, 
 template<typename KeyT,
          typename ValueT,
          template<typename...> class ContainerT>
-std::optional<ValueT>   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindAndReturnCopy (const KeyT& aKey) const noexcept
+std::optional<ValueT>   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindRetCopy (const KeyT& aKey) const noexcept
 {
-    return FindAndReturnCopy<const KeyT&>(aKey);
+    return FindRetCopy<const KeyT&>(aKey);
 }
 
 template<typename KeyT,
          typename ValueT,
          template<typename...> class ContainerT>
 template<typename T>
-std::optional<ValueT>   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindAndReturnCopy  (T aKey) const noexcept
+std::optional<ValueT>   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindRetCopy    (T aKey) const noexcept
 {
     std::shared_lock lock(iLock);
 

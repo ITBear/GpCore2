@@ -9,7 +9,7 @@
 
 namespace GPlatform {
 
-class GPCORE_API GpEventBus
+/*class GPCORE_API GpEventBus
 {
 public:
     CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpEventBus)
@@ -23,12 +23,11 @@ public:
 
     void                            Subscribe   (GpEventSubscriber::SP aSubscriber);
     void                            Unsubscribe (GpEventSubscriber::SP aSubscriber);
-    //void                          Post        (GpEvent::SP aEvent);
 
 private:
     GpSpinlock                      iLock;
     GpEventSubscriber::C::Set::SP   iSubscribers;
-};
+};*/
 
 }//GPlatform
 

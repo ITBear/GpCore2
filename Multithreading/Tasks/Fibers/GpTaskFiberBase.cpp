@@ -3,18 +3,16 @@
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
-#include <iostream>
-
 #include "../../../Utils/RAII/GpRAIIonDestruct.hpp"
 
 namespace GPlatform {
 
 GpTaskFiberBase::GpTaskFiberBase (void) noexcept
-{
+{   
 }
 
 GpTaskFiberBase::~GpTaskFiberBase (void) noexcept
-{
+{   
 }
 
 void    GpTaskFiberBase::FiberFn (GpThreadStopToken aStopToken)
@@ -26,23 +24,31 @@ void    GpTaskFiberBase::FiberFn (GpThreadStopToken aStopToken)
 
     OnStart();
 
+    GpEvent::SP event = PopNextEvent();
     while (!aStopToken.stop_requested())
     {
-        GpEvent::SP event = PopNextEvent();
-        OnStep(event.IsNotNULL() ? EventOptRefT(event.Vn()) : std::nullopt);
+        const GpTask::ResT stepRes = OnStep(event.IsNotNULL() ? EventOptRefT(event.Vn()) : std::nullopt);
 
-        //Pop until event queue is empty
-        while ((event = PopNextEvent()).IsNotNULL())
+        if (stepRes == GpTask::ResT::READY_TO_EXEC)
         {
-            if (aStopToken.stop_requested())
+            GpTaskFiberCtx::SYeld(GpTask::ResT::READY_TO_EXEC);
+            //event = PopNextEvent();
+            //continue;
+        } else if (stepRes == GpTask::ResT::WAITING)
+        {
+            event = PopNextEvent();
+            if (event.IsNotNULL())
             {
-                GpTaskFiberCtx::SYeld(GpTask::ResT::DONE);
+                continue;
+            } else
+            {
+                GpTaskFiberCtx::SYeld(GpTask::ResT::WAITING);
+                event = PopNextEvent();
             }
-
-            OnStep(EventOptRefT(event.Vn()));
+        } else if (stepRes == GpTask::ResT::DONE)
+        {
+            break;
         }
-
-        GpTaskFiberCtx::SYeld(GpTask::ResT::WAITING);
     }
 
     GpTaskFiberCtx::SYeld(GpTask::ResT::DONE);

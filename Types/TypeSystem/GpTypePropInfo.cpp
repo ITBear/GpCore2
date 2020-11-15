@@ -9,7 +9,7 @@ GpTypePropInfo::GpTypePropInfo (void) noexcept
 }
 
 GpTypePropInfo::GpTypePropInfo (const TypeTE            aType,
-                                const GpUUID            aStructTypeUID,
+                                const GpUUID            aTypeUID,
                                 const ContainerTE       aContainer,
                                 const TypeTE            aContainerKeyType,
                                 std::string&&           aName,
@@ -17,7 +17,7 @@ GpTypePropInfo::GpTypePropInfo (const TypeTE            aType,
                                 const size_t            aSize,
                                 const std::ptrdiff_t    aOffset) noexcept:
 iType(aType),
-iStructTypeUID(aStructTypeUID),
+iTypeUID(aTypeUID),
 iContainer(aContainer),
 iContainerKeyType(aContainerKeyType),
 iName(std::move(aName)),
@@ -29,7 +29,7 @@ iOffset(aOffset)
 
 GpTypePropInfo::GpTypePropInfo (const GpTypePropInfo& aPropInfo):
 iType(aPropInfo.iType),
-iStructTypeUID(aPropInfo.iStructTypeUID),
+iTypeUID(aPropInfo.iTypeUID),
 iContainer(aPropInfo.iContainer),
 iContainerKeyType(aPropInfo.iContainerKeyType),
 iName(aPropInfo.iName),
@@ -41,7 +41,7 @@ iOffset(aPropInfo.iOffset)
 
 GpTypePropInfo::GpTypePropInfo (GpTypePropInfo&& aPropInfo) noexcept:
 iType(std::move(aPropInfo.iType)),
-iStructTypeUID(std::move(aPropInfo.iStructTypeUID)),
+iTypeUID(std::move(aPropInfo.iTypeUID)),
 iContainer(std::move(aPropInfo.iContainer)),
 iContainerKeyType(std::move(aPropInfo.iContainerKeyType)),
 iName(std::move(aPropInfo.iName)),
@@ -58,7 +58,7 @@ GpTypePropInfo::~GpTypePropInfo (void) noexcept
 GpTypePropInfo& GpTypePropInfo::operator= (const GpTypePropInfo& aPropInfo)
 {
     iType               = aPropInfo.iType;
-    iStructTypeUID      = aPropInfo.iStructTypeUID;
+    iTypeUID            = aPropInfo.iTypeUID;
     iContainer          = aPropInfo.iContainer;
     iContainerKeyType   = aPropInfo.iContainerKeyType;
     iName               = aPropInfo.iName;
@@ -72,7 +72,7 @@ GpTypePropInfo& GpTypePropInfo::operator= (const GpTypePropInfo& aPropInfo)
 GpTypePropInfo& GpTypePropInfo::operator= (GpTypePropInfo&& aPropInfo) noexcept
 {
     iType               = std::move(aPropInfo.iType);
-    iStructTypeUID      = std::move(aPropInfo.iStructTypeUID);
+    iTypeUID            = std::move(aPropInfo.iTypeUID);
     iContainer          = std::move(aPropInfo.iContainer);
     iContainerKeyType   = std::move(aPropInfo.iContainerKeyType);
     iName               = std::move(aPropInfo.iName);

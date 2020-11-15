@@ -27,7 +27,7 @@ public:
 public:
                                     GpTypePropInfo      (void) noexcept;
                                     GpTypePropInfo      (const TypeTE           aType,
-                                                         const GpUUID           aStructTypeUID,
+                                                         const GpUUID           aTypeUID,
                                                          const ContainerTE      aContainer,
                                                          const TypeTE           aContainerKeyType,
                                                          std::string&&          aName,
@@ -42,7 +42,7 @@ public:
     GpTypePropInfo&                 operator=           (GpTypePropInfo&& aPropInfo) noexcept;
 
     TypeTE                          Type                (void) const noexcept {return iType;}
-    const GpUUID&                   StructTypeUID       (void) const noexcept {return iStructTypeUID;}
+    const GpUUID&                   TypeUID             (void) const noexcept {return iTypeUID;}
     ContainerTE                     Container           (void) const noexcept {return iContainer;}
     TypeTE                          ContainerKeyType    (void) const noexcept {return iContainerKeyType;}
     std::string_view                Name                (void) const noexcept {return iName;}
@@ -234,7 +234,7 @@ private:
 
 private:
     TypeTE                  iType;
-    GpUUID                  iStructTypeUID;
+    GpUUID                  iTypeUID;
     ContainerTE             iContainer;
     TypeTE                  iContainerKeyType;
     std::string             iName;

@@ -25,12 +25,10 @@ public:
 
     void                Init                (const size_byte_t aSize);
     void                Clear               (void) noexcept;
-
-    void*               Context             (void) noexcept {return iStackContext;}
+    void*               Stack               (void) noexcept {return iStack;}
 
 private:
-    void*               iStackAllocator = nullptr;
-    void*               iStackContext   = nullptr;
+    void*               iStack = nullptr;//GpFiberStackT*
 };
 
 }//namespace GPlatform

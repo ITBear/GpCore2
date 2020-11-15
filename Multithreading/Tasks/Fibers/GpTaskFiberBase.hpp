@@ -25,7 +25,7 @@ protected:
     virtual void            FiberFn                 (GpThreadStopToken aStopToken) override final;
 
     virtual void            OnStart                 (void) = 0;
-    virtual void            OnStep                  (EventOptRefT aEvent) = 0;
+    virtual GpTask::ResT    OnStep                  (EventOptRefT aEvent) = 0;
     virtual void            OnStop                  (void) noexcept = 0;
 };
 

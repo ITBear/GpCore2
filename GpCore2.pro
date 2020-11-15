@@ -60,6 +60,7 @@ HEADERS += \
 	EventBus/GpEventSubscriber.hpp \
 	Exceptions/GpCeExceptions.hpp \
 	Exceptions/GpException.hpp \
+	Exceptions/GpExceptionDesc.hpp \
 	Exceptions/GpExceptionUtils.hpp \
 	Exceptions/GpExceptions.hpp \
 	Exceptions/GpExceptionsSink.hpp \
@@ -72,6 +73,7 @@ HEADERS += \
 	Multithreading/SyncPrimitives/GpRWLock.hpp \
 	Multithreading/SyncPrimitives/GpSpinlock.hpp \
 	Multithreading/SyncPrimitives/GpSyncPrimitives.hpp \
+	Multithreading/Tasks/Fibers/GpFixedSizeStack.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiber.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberBase.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberCtx.hpp \
@@ -224,9 +226,11 @@ HEADERS += \
 	Utils/Streams/GpStreams.hpp
 
 SOURCES += \
+	EventBus/GpEvent.cpp \
 	EventBus/GpEventBus.cpp \
 	EventBus/GpEventSubscriber.cpp \
 	Exceptions/GpException.cpp \
+	Exceptions/GpExceptionDesc.cpp \
 	Exceptions/GpExceptionsSink.cpp \
 	Multithreading/SyncPrimitives/GpConditionVar.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiber.cpp \

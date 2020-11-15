@@ -44,10 +44,11 @@ private:
     void                        MoveToReady             (GpTask::SP aTask);
 
 private:
-    mutable GpSpinlock          iReadyLock;
+    mutable GpSpinlock          iLock;
+    //mutable GpSpinlock        iReadyLock;
     GpTask::C::Queue::SP        iReadyTasks;
 
-    mutable GpSpinlock          iWaitingLock;
+    //mutable GpSpinlock            iWaitingLock;
     GpTask::C::Set::SP          iWaitingTasks;
 
     GpTaskExecutorsPool         iExecutorsPool;

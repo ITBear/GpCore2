@@ -42,6 +42,11 @@ void    GpTaskExecutorsPool::WakeupAll (void) noexcept
     iExecutorsCondVar.Vn().WakeupAll();
 }
 
+void    GpTaskExecutorsPool::WakeupOne (void) noexcept
+{
+    iExecutorsCondVar.Vn().WakeupOne();
+}
+
 void    GpTaskExecutorsPool::PreInit (const count_t aCount)
 {
     iExecutors.reserve(aCount.As<size_t>());

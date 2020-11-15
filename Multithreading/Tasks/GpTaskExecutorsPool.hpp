@@ -27,6 +27,7 @@ public:
     void                        RequestStop             (void) noexcept;
     void                        Join                    (void) noexcept;
     void                        WakeupAll               (void) noexcept;
+    void                        WakeupOne               (void) noexcept;
 
 protected:
     virtual void                PreInit                 (const count_t aCount) override final;

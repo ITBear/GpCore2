@@ -45,7 +45,7 @@ template<typename TO_SP, typename FROM_SP>
     using TO_VAL_T = typename TO_SP::value_type;
 
     const GpUUID fromUID    = aFrom.VC().TypeInfo().UID();
-    const GpUUID toUID      = TO_VAL_T::STypeStructUID();
+    const GpUUID toUID      = TO_VAL_T::STypeUID();
 
     THROW_GPE_COND_CHECK_M(IsBaseOf(fromUID, toUID),
                            "Failed to cast from UID "_sv + fromUID.ToString() + " to UID " + toUID.ToString());

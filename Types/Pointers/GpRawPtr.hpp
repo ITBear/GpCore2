@@ -548,6 +548,11 @@ public:
     {
         const count_t countLeft = CountLeft();
 
+        if (aOffset >= countLeft)
+        {
+            int d = 0;
+        }
+
         THROW_GPE_COND_CHECK_M(aOffset < countLeft, "Out of range"_sv);
         return _PtrBegin() + aOffset.As<size_t>();
     }

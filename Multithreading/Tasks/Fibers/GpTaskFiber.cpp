@@ -44,7 +44,12 @@ GpTask::ResT    GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
                 //NOP
             } break;
         }
-    } catch (const GpTaskFiberStopEx&)
+    } /*catch (const boost::context::detail::forced_unwind& e)
+    {
+        iCtx.Clear();
+        iStage = StageT::FINISHED;
+        GpExceptionsSink::SSink(e);
+    }*/ catch (const GpTaskFiberStopEx&)
     {
         iCtx.Clear();
         iStage = StageT::FINISHED;
