@@ -161,6 +161,7 @@ HEADERS += \
 	Types/TypeSystem/GpType.hpp \
 	Types/TypeSystem/GpTypeContainer.hpp \
 	Types/TypeSystem/GpTypeManager.hpp \
+	Types/TypeSystem/GpTypePropFlags.hpp \
 	Types/TypeSystem/GpTypePropInfo.hpp \
 	Types/TypeSystem/GpTypePropInfoGetter.hpp \
 	Types/TypeSystem/GpTypeStructBase.hpp \
@@ -266,6 +267,7 @@ SOURCES += \
 	RandomGenerators/GpSRandom.cpp \
 	Types/DateTime/GpDateTimeOps.cpp \
 	Types/Enums/GpEnum.cpp \
+	Types/Enums/GpEnumFlags.cpp \
 	Types/Graphs/GpGraph.cpp \
 	Types/Graphs/GpGraphEdge.cpp \
 	Types/Graphs/GpGraphNode.cpp \
@@ -276,6 +278,7 @@ SOURCES += \
 	Types/TypeSystem/GpType.cpp \
 	Types/TypeSystem/GpTypeContainer.cpp \
 	Types/TypeSystem/GpTypeManager.cpp \
+	Types/TypeSystem/GpTypePropFlags.cpp \
 	Types/TypeSystem/GpTypePropInfo.cpp \
 	Types/TypeSystem/GpTypeStructBase.cpp \
 	Types/TypeSystem/GpTypeStructInfo.cpp \

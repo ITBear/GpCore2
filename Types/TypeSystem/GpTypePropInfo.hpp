@@ -9,6 +9,7 @@
 #include "../Containers/GpContainersT.hpp"
 #include "GpType.hpp"
 #include "GpTypeContainer.hpp"
+#include "GpTypePropFlags.hpp"
 
 namespace GPlatform {
 
@@ -23,6 +24,8 @@ public:
     using TypeTE        = TypeT::EnumT;
     using ContainerT    = GpTypeContainer;
     using ContainerTE   = ContainerT::EnumT;
+    using FlagT         = GpTypePropFlag;
+    using FlagTE        = FlagT::EnumT;
 
 public:
                                     GpTypePropInfo      (void) noexcept;
@@ -30,10 +33,11 @@ public:
                                                          const GpUUID           aTypeUID,
                                                          const ContainerTE      aContainer,
                                                          const TypeTE           aContainerKeyType,
-                                                         std::string&&          aName,
+                                                         std::string_view       aName,
                                                          const size_t           aAlign,
                                                          const size_t           aSize,
-                                                         const std::ptrdiff_t   aOffset) noexcept;
+                                                         const std::ptrdiff_t   aOffset,
+                                                         const GpTypePropFlags  aFlags);
                                     GpTypePropInfo      (const GpTypePropInfo& aPropInfo);
                                     GpTypePropInfo      (GpTypePropInfo&& aPropInfo) noexcept;
                                     ~GpTypePropInfo     (void) noexcept;
@@ -49,6 +53,7 @@ public:
     size_t                          Align               (void) const noexcept {return iAlign;}
     size_t                          Size                (void) const noexcept {return iSize;}
     std::ptrdiff_t                  Offset              (void) const noexcept {return iOffset;}
+    const GpTypePropFlags&          Flags               (void) const noexcept {return iFlags;}
 
     const u_int_8&                  Value_UInt8         (const GpTypeStructBase& aStruct) const {return CastValueAsConst<u_int_8>(aStruct);}
     u_int_8&                        Value_UInt8         (GpTypeStructBase& aStruct) const       {return CastValueAs<u_int_8>(aStruct);}
@@ -84,6 +89,8 @@ public:
     GpSP<GpTypeStructBase>&         Value_StructSP      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSP<GpTypeStructBase>>(aStruct);}
     const GpEnum&                   Value_Enum          (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpEnum>(aStruct);}
     GpEnum&                         Value_Enum          (GpTypeStructBase& aStruct) const       {return CastValueAs<GpEnum>(aStruct);}
+    const GpEnumFlags&              Value_EnumFlags     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpEnumFlags>(aStruct);}
+    GpEnumFlags&                    Value_EnumFlags     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpEnumFlags>(aStruct);}
 
     const auto&                     Value_Vec_UInt8     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<u_int_8>>(aStruct);}
     auto&                           Value_Vec_UInt8     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<u_int_8>>(aStruct);}
@@ -241,6 +248,7 @@ private:
     size_t                  iAlign      = 0;
     size_t                  iSize       = 0;
     std::ptrdiff_t          iOffset     = 0;
+    GpTypePropFlags         iFlags;
 };
 
 template<typename T>

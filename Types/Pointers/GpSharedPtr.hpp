@@ -4,6 +4,8 @@
 
 #if defined(GP_USE_SHARED_POINTERS)
 
+#include <optional>
+
 #include "GpReferenceStorage.hpp"
 #include "../../Exceptions/GpException.hpp"
 #include "../../Memory/GpMemOps.hpp"
@@ -210,6 +212,28 @@ public:
     TSP                             CastAs          (void) noexcept
     {
         return TSP::_SConstructFromRefCounter(iRefCounter);
+    }
+
+    [[nodiscard]] std::optional<std::reference_wrapper<value_type>> AsOptRef    (void) noexcept
+    {
+        if (IsNotNULL())
+        {
+            return Vn();
+        } else
+        {
+            return std::nullopt;
+        }
+    }
+
+    [[nodiscard]] std::optional<std::reference_wrapper<const value_type>>   AsOptRef    (void) const noexcept
+    {
+        if (IsNotNULL())
+        {
+            return VCn();
+        } else
+        {
+            return std::nullopt;
+        }
     }
 
     RefPtrT             _RefCounter                 (void) const noexcept {return iRefCounter;}

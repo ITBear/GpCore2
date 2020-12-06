@@ -102,7 +102,7 @@ public: \
 \
     static constexpr count_t SCount (void) noexcept\
     {\
-        constexpr count_t cnt = GpStringOps::SCountChars(#__VA_ARGS__, ',') + 1_cnt; \
+        constexpr count_t cnt = StrOps::SCountChars(#__VA_ARGS__, ',') + 1_cnt; \
         return cnt;\
     }\
 \

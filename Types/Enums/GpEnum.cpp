@@ -73,11 +73,11 @@ void    GpEnum::_SParseEnumValues (NamesListT&      aNamesListOut,
                                    std::string_view aEnumElementsStr)
 {
     //Split by ','
-    const GpVector<GpRawPtrCharR> elements = GpStringOps::SSplit(aEnumElementsStr,
-                                                                 ',',
-                                                                 0_cnt,
-                                                                 0_cnt,
-                                                                 Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
+    const GpVector<GpRawPtrCharR> elements = StrOps::SSplit(aEnumElementsStr,
+                                                            ',',
+                                                            0_cnt,
+                                                            0_cnt,
+                                                            Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
 
     //Split each element (may be 'VALUE' or 'VALUE = ID')
     ssize_t lastId = -1;
@@ -87,11 +87,11 @@ void    GpEnum::_SParseEnumValues (NamesListT&      aNamesListOut,
     for (const GpRawPtrCharR& element: elements)
     {
         //Split by ' '
-        const GpVector<GpRawPtrCharR> parts = GpStringOps::SSplit(element,
-                                                                  ' ',
-                                                                  0_cnt,
-                                                                  0_cnt,
-                                                                  Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
+        const GpVector<GpRawPtrCharR> parts = StrOps::SSplit(element,
+                                                             ' ',
+                                                             0_cnt,
+                                                             0_cnt,
+                                                             Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
 
         GpRawPtrCharR   name;
         GpRawPtrCharR   id_str;
@@ -104,7 +104,7 @@ void    GpEnum::_SParseEnumValues (NamesListT&      aNamesListOut,
         {
             name    = parts.at(0);
             id_str  = parts.at(2);
-            id      = NumOps::SConvert<value_type>(GpStringOps::SToUI64(id_str));
+            id      = NumOps::SConvert<value_type>(StrOps::SToUI64(id_str));
         } else
         {
             THROW_GPE("Wrong enum '"_sv + aEnumName + "' element: "_sv + parts.at(0).AsStringView());

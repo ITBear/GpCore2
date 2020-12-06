@@ -548,11 +548,6 @@ public:
     {
         const count_t countLeft = CountLeft();
 
-        if (aOffset >= countLeft)
-        {
-            int d = 0;
-        }
-
         THROW_GPE_COND_CHECK_M(aOffset < countLeft, "Out of range"_sv);
         return _PtrBegin() + aOffset.As<size_t>();
     }
@@ -724,8 +719,16 @@ public:
 
     constexpr std::string_view      AsStringView        (void) const
     {
-        return std::string_view(PtrAs<const char*>(),
-                                CountLeft().template As<size_t>());
+        const size_t size = CountLeft().template As<size_t>();
+
+        if (size > 0)
+        {
+            return std::string_view(PtrAs<const char*>(),
+                                    size);
+        } else
+        {
+            return std::string_view();
+        }
     }
 
     std::vector<std::byte>          ToByteArray     (void) const

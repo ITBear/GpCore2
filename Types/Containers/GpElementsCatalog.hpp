@@ -172,7 +172,7 @@ void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (const KeyT& aKey,
 {
     std::scoped_lock lock(iLock);
 
-    THROW_GPE_COND_CHECK_M(_Count(aKey) == 0_cnt, "Key '"_sv + GpStringOps::SToString(aKey) + "' is not unique"_sv);
+    THROW_GPE_COND_CHECK_M(_Count(aKey) == 0_cnt, "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv);
 
     iElements.try_emplace(aKey, aValue);
 }
@@ -184,7 +184,7 @@ void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (KeyT&& aKey, cons
 {
     std::scoped_lock lock(iLock);
 
-    THROW_GPE_COND_CHECK_M(_Count(aKey) == 0_cnt, "Key '"_sv + GpStringOps::SToString(aKey) + "' is not unique"_sv);
+    THROW_GPE_COND_CHECK_M(_Count(aKey) == 0_cnt, "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv);
 
     iElements.try_emplace(std::move(aKey), aValue);
 }
@@ -196,7 +196,7 @@ void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (const KeyT& aKey,
 {
     std::scoped_lock lock(iLock);
 
-    THROW_GPE_COND_CHECK_M(_Count(aKey) == 0_cnt, "Key '"_sv + GpStringOps::SToString(aKey) + "' is not unique"_sv);
+    THROW_GPE_COND_CHECK_M(_Count(aKey) == 0_cnt, "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv);
 
     iElements.try_emplace(aKey, std::move(aValue));
 }
@@ -208,7 +208,7 @@ void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (KeyT&& aKey, Valu
 {
     std::scoped_lock lock(iLock);
 
-    THROW_GPE_COND_CHECK_M(_Count(aKey) == 0_cnt, "Key '"_sv + GpStringOps::SToString(aKey) + "' is not unique"_sv);
+    THROW_GPE_COND_CHECK_M(_Count(aKey) == 0_cnt, "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv);
 
     iElements.try_emplace(std::move(aKey), std::move(aValue));
 }
@@ -348,7 +348,7 @@ ValueT  GpElementsCatalog<KeyT, ValueT, ContainerT>::Unregister (T aKey)
         return v;
     } else
     {
-        THROW_GPE("Element not found by key '"_sv + GpStringOps::SToString(aKey) + "'"_sv);
+        THROW_GPE("Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv);
     }
 
     return ValueT();
@@ -449,7 +449,7 @@ const ValueT&   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrThrow (T aKey
 {
     auto res = Find<T>(aKey);
     THROW_GPE_COND_CHECK_M(res.has_value(),
-                           "Element not found by key '"_sv + GpStringOps::SToString(aKey) + "'"_sv);
+                           "Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv);
     return res.value().get();
 }
 
@@ -469,7 +469,7 @@ ValueT& GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrThrow (T aKey)
 {
     auto res = Find<T>(aKey);
     THROW_GPE_COND_CHECK_M(res.has_value(),
-                           "Element not found by key '"_sv + GpStringOps::SToString(aKey) + "'"_sv);
+                           "Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv);
     return res.value().get();
 }
 

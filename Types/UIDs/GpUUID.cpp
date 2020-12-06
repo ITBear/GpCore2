@@ -21,7 +21,7 @@ std::string GpUUID::ToString (void) const
 
     for (size_t id = 0; id < data.size(); ++id)
     {
-        GpArray<char,2> h = GpStringOps::SFromByte(*dataPtr++);
+        GpArray<char,2> h = StrOps::SFromByte(*dataPtr++);
         *strPtr++ = h.at(0);
         *strPtr++ = h.at(1);
 
@@ -50,7 +50,7 @@ void    GpUUID::FromString (GpRawPtrCharR aStr)
     {
         GpArray<char,2> str = {*strPtr++, *strPtr++};
 
-        *dataPtr++ = GpStringOps::SToByte(str);
+        *dataPtr++ = StrOps::SToByte(str);
 
         if ((id == 3) ||
             (id == 5) ||

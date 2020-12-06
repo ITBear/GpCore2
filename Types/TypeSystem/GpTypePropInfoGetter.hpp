@@ -77,6 +77,10 @@ public:
                                          const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Enum(aStruct);}
     static auto&            Enum        (GpTypeStructBase&          aStruct,
                                          const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Enum(aStruct);}
+    static const auto&      EnumFlags   (const GpTypeStructBase&    aStruct,
+                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_EnumFlags(aStruct);}
+    static auto&            EnumFlags   (GpTypeStructBase&          aStruct,
+                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_EnumFlags(aStruct);}
 };
 
 class GpTypePropInfoGetter_Vec

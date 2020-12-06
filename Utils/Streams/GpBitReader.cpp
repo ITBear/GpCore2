@@ -177,15 +177,15 @@ void    GpBitReader::Copy (std::byte*       aDst,
                 aSrc,
                 srcBytesIntersectCnt);
 
-    //std::cout << "tmpDst: " << GpStringOps::SFromBits({&tmpDst, 1_cnt}) << std::endl;
-    //std::cout << "tmpSrc: " << GpStringOps::SFromBits({&tmpSrc, 1_cnt}) << std::endl;
+    //std::cout << "tmpDst: " << StrOps::SFromBits({&tmpDst, 1_cnt}) << std::endl;
+    //std::cout << "tmpSrc: " << StrOps::SFromBits({&tmpSrc, 1_cnt}) << std::endl;
 
     //Shift src tmp buffer
     const size_t srcShiftTail = (sizeof(TmpBufferT) * 8) - (srcOffset + size);
     const size_t dstShiftTail = (sizeof(TmpBufferT) * 8) - (dstOffset + size);
     u_int_64 mask = ((u_int_64(1) << size) - u_int_64(1)) << srcShiftTail;
 
-    //std::cout << "mask:   " << GpStringOps::SFromBits({&mask, 1_cnt}) << std::endl;
+    //std::cout << "mask:   " << StrOps::SFromBits({&mask, 1_cnt}) << std::endl;
 
     tmpDst = BitOps::N2H(tmpDst);
     tmpSrc = BitOps::N2H(tmpSrc);
@@ -210,13 +210,13 @@ void    GpBitReader::Copy (std::byte*       aDst,
     tmpSrc  = BitOps::N2H(tmpSrc);
     mask    = BitOps::N2H(mask);
 
-    //std::cout << "tmpDst: " << GpStringOps::SFromBits({&tmpDst, 1_cnt}) << std::endl;
-    //std::cout << "tmpSrc: " << GpStringOps::SFromBits({&tmpSrc, 1_cnt}) << std::endl;
-    //std::cout << "mask:   " << GpStringOps::SFromBits({&mask, 1_cnt}) << std::endl;
+    //std::cout << "tmpDst: " << StrOps::SFromBits({&tmpDst, 1_cnt}) << std::endl;
+    //std::cout << "tmpSrc: " << StrOps::SFromBits({&tmpSrc, 1_cnt}) << std::endl;
+    //std::cout << "mask:   " << StrOps::SFromBits({&mask, 1_cnt}) << std::endl;
 
     tmpDst = BitOps::SetByMask(tmpDst, tmpSrc, mask);
 
-    //std::cout << "tmpDst: " << GpStringOps::SFromBits({&tmpDst, 1_cnt}) << std::endl;
+    //std::cout << "tmpDst: " << StrOps::SFromBits({&tmpDst, 1_cnt}) << std::endl;
 
     //Copy from dst tmp buffer
     std::memcpy(aDst,

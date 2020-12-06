@@ -212,6 +212,11 @@ public:
         return NumOps::SIsGreaterOrEqual(iValue, aValue.Value());
     }
 
+    [[nodiscard]] constexpr this_type   DivCeil (const this_type aDivider) const noexcept
+    {
+        return this_type(NumOps::SDivCeil<value_type>(iValue, aDivider.Value()));
+    }
+
     template<typename T_2,
              typename UNIT_TYPE_2,
              typename SCALE_2,

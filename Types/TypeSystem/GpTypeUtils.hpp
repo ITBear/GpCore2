@@ -31,6 +31,12 @@ public:
 
     template<typename T> [[nodiscard]] static
     GpUUID                                              SDetectTypeUID  (void);
+
+    template<typename T> static
+    void                                                SAddProp        (std::string_view               aPropName,
+                                                                         const std::ptrdiff_t           aOffset,
+                                                                         GpTypePropFlags                aFlags,
+                                                                         GpTypePropInfo::C::Vec::Val&   aPropsOut);
 };
 
 template<typename T> [[nodiscard]]
@@ -87,6 +93,7 @@ consteval GpType::EnumT GpTypeUtils::SDetectType (void)
     else if constexpr (GpTypeStructBase::SP::SHasTag_GpSharedPtr<VT>()) return GpType::STRUCT_SP;
     else if constexpr (GpUnitUtils::SHasTag_GpUnit<VT>()) return SDetectType<typename VT::value_type>();
     else if constexpr (GpEnum::SHasTag_GpEnum<VT>()) return GpType::ENUM;
+    else if constexpr (GpEnumFlags::SHasTag_GpEnumFlags<VT>()) return GpType::ENUM_FLAGS;
     else return GpType::NOT_SET;
 }
 
@@ -171,6 +178,33 @@ GpUUID  GpTypeUtils::SDetectTypeUID (void)
     }
 
     return GpUUID();
+}
+
+template<typename T>
+void    GpTypeUtils::SAddProp (std::string_view             aPropName,
+                               const std::ptrdiff_t         aOffset,
+                               GpTypePropFlags              aFlags,
+                               GpTypePropInfo::C::Vec::Val& aPropsOut)
+{
+    constexpr const auto    types   = GpTypeUtils::SDetectTypeContainer<T>();
+    const GpUUID            typeUID = GpTypeUtils::SDetectTypeUID<T>();
+    constexpr const size_t  align   = alignof(T);
+    constexpr const size_t  size    = sizeof(T);
+    aPropsOut.emplace_back
+    (
+        GpTypePropInfo
+        (
+            std::get<0>(types),
+            typeUID,
+            std::get<2>(types),
+            std::get<1>(types),
+            aPropName,
+            align,
+            size,
+            aOffset,
+            aFlags
+        )
+    );
 }
 
 }//namespace GPlatform

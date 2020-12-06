@@ -27,7 +27,8 @@ GP_ENUM(GPCORE_API, GpType,
     BLOB,
     STRUCT,
     STRUCT_SP,
-    ENUM
+    ENUM,
+    ENUM_FLAGS
 );
 
 }//GPlatform

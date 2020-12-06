@@ -23,20 +23,17 @@ void    GpExceptionUtils::SExpectThrow (std::function<void()>                   
                                         std::function<bool(const ExpectexExT& aEx)> aCatchFn,
                                         std::function<void()>                       aThrowFn)
 {
-    bool isExCatched = false;
+    bool isCatch = false;
 
     try
     {
         aThrowableFn();
-    } catch (const ExpectexExT& aEx)
+    } catch (const ExpectexExT& aEx/*expect this exception*/)
     {
-        if (aCatchFn(aEx))
-        {
-            isExCatched = true;
-        }
+        isCatch = aCatchFn(aEx);
     }
 
-    if (!isExCatched)
+    if (!isCatch)
     {
         aThrowFn();
     }

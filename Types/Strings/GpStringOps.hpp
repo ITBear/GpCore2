@@ -225,6 +225,8 @@ std::string GpStringOps::SJoin (const T&                                        
     return res;
 }
 
+using StrOps = GpStringOps;
+
 }//GPlatform
 
 //*********************************************************

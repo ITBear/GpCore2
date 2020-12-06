@@ -138,43 +138,43 @@ void    GpTypeStructInfo::_SEchoValue (const GpTypeStructBase&  aStruct,
     {
         case GpType::U_INT_8:
         {
-            aStrOut.append(GpStringOps::SFromUI64(aPropInfo.Value_UInt8(aStruct)));
+            aStrOut.append(StrOps::SFromUI64(aPropInfo.Value_UInt8(aStruct)));
         } break;
         case GpType::S_INT_8:
         {
-            aStrOut.append(GpStringOps::SFromSI64(aPropInfo.Value_SInt8(aStruct)));
+            aStrOut.append(StrOps::SFromSI64(aPropInfo.Value_SInt8(aStruct)));
         } break;
         case GpType::U_INT_16:
         {
-            aStrOut.append(GpStringOps::SFromUI64(aPropInfo.Value_UInt16(aStruct)));
+            aStrOut.append(StrOps::SFromUI64(aPropInfo.Value_UInt16(aStruct)));
         } break;
         case GpType::S_INT_16:
         {
-            aStrOut.append(GpStringOps::SFromSI64(aPropInfo.Value_SInt16(aStruct)));
+            aStrOut.append(StrOps::SFromSI64(aPropInfo.Value_SInt16(aStruct)));
         } break;
         case GpType::U_INT_32:
         {
-            aStrOut.append(GpStringOps::SFromUI64(aPropInfo.Value_UInt32(aStruct)));
+            aStrOut.append(StrOps::SFromUI64(aPropInfo.Value_UInt32(aStruct)));
         } break;
         case GpType::S_INT_32:
         {
-            aStrOut.append(GpStringOps::SFromSI64(aPropInfo.Value_SInt32(aStruct)));
+            aStrOut.append(StrOps::SFromSI64(aPropInfo.Value_SInt32(aStruct)));
         } break;
         case GpType::U_INT_64:
         {
-            aStrOut.append(GpStringOps::SFromUI64(aPropInfo.Value_UInt64(aStruct)));
+            aStrOut.append(StrOps::SFromUI64(aPropInfo.Value_UInt64(aStruct)));
         } break;
         case GpType::S_INT_64:
         {
-            aStrOut.append(GpStringOps::SFromSI64(aPropInfo.Value_SInt64(aStruct)));
+            aStrOut.append(StrOps::SFromSI64(aPropInfo.Value_SInt64(aStruct)));
         } break;
         case GpType::DOUBLE:
         {
-            aStrOut.append(GpStringOps::SFromDouble(aPropInfo.Value_Double(aStruct)));
+            aStrOut.append(StrOps::SFromDouble(aPropInfo.Value_Double(aStruct)));
         } break;
         case GpType::FLOAT:
         {
-            aStrOut.append(GpStringOps::SFromDouble(double(aPropInfo.Value_Float(aStruct))));
+            aStrOut.append(StrOps::SFromDouble(double(aPropInfo.Value_Float(aStruct))));
         } break;
         case GpType::BOOLEAN:
         {
@@ -190,7 +190,7 @@ void    GpTypeStructInfo::_SEchoValue (const GpTypeStructBase&  aStruct,
         } break;
         case GpType::BLOB:
         {
-            aStrOut.append(GpStringOps::SFromBytes(aPropInfo.Value_BLOB(aStruct)));
+            aStrOut.append(StrOps::SFromBytes(aPropInfo.Value_BLOB(aStruct)));
         } break;
         case GpType::STRUCT:
         {
@@ -210,6 +210,10 @@ void    GpTypeStructInfo::_SEchoValue (const GpTypeStructBase&  aStruct,
         case GpType::ENUM:
         {
             aStrOut.append(aPropInfo.Value_Enum(aStruct).ToString());
+        } break;
+        case GpType::ENUM_FLAGS:
+        {
+            aStrOut.append(aPropInfo.Value_EnumFlags(aStruct).Echo());
         } break;
         case GpType::NOT_SET:
         {

@@ -118,22 +118,26 @@ private: \
 
 //------------------------- PROP -------------------------
 #define PROP(PROP_NAME) \
-    { \
-        using PropT = decltype(PROP_NAME); \
-        constexpr const auto    types   = GpTypeUtils::SDetectTypeContainer<PropT>(); \
-        const GpUUID            typeUID = GpTypeUtils::SDetectTypeUID<PropT>(); \
-        constexpr const size_t  align   = alignof(PropT); \
-        constexpr const size_t  size    = sizeof(PropT); \
-        const std::ptrdiff_t    offset  = GpTypeUtils::SOffsetOf(&this_type::PROP_NAME); \
-        aPropsOut.emplace_back(GpTypePropInfo(std::get<0>(types), \
-                                              typeUID, \
-                                              std::get<2>(types), \
-                                              std::get<1>(types), \
-                                              std::string(#PROP_NAME), \
-                                              align, \
-                                              size, \
-                                              offset)); \
-    }
+{ \
+    GpTypeUtils::SAddProp<decltype(PROP_NAME)> \
+    ( \
+        std::string(#PROP_NAME), \
+        GpTypeUtils::SOffsetOf(&this_type::PROP_NAME), \
+        GpTypePropFlags(), \
+        aPropsOut \
+    ); \
+}
+
+#define PROP_F(PROP_NAME, FLAGS) \
+{ \
+    GpTypeUtils::SAddProp<decltype(PROP_NAME)> \
+    ( \
+        std::string(#PROP_NAME), \
+        GpTypeUtils::SOffsetOf(&this_type::PROP_NAME), \
+        FLAGS, \
+        aPropsOut \
+    ); \
+}
 
 }//GPlatform
 

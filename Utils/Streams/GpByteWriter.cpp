@@ -72,7 +72,7 @@ void    GpByteWriter::Bytes (GpRawPtrByteR aData)
 
 void    GpByteWriter::CompactSInt32 (const s_int_32 aValue)
 {
-    THROW_GPE_COND_CHECK_M((aValue >= s_int_32(0)) && (aValue <= s_int_32(0x0FFFFFFF)), "aValue is out of range");
+    THROW_GPE_COND_CHECK_M((aValue >= s_int_32(0)) && (aValue <= s_int_32(0x0FFFFFFF)), "aValue is out of range"_sv);
 
     std::array <u_int_32, 4> buf;
 

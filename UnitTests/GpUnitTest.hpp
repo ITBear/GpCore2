@@ -77,9 +77,9 @@ private:
 
         message
             .append("FAIL [").append(aTestName).append("]:"_sv)
-            .append(" '"_sv).append(GpStringOps::SToString<T>(aArg1)).append("' "_sv)
+            .append(" '"_sv).append(StrOps::SToString<T>(aArg1)).append("' "_sv)
             .append(aCompareText)
-            .append(" '"_sv).append(GpStringOps::SToString<T>(aArg2)).append("'"_sv);
+            .append(" '"_sv).append(StrOps::SToString<T>(aArg2)).append("'"_sv);
 
         if (aUserMessage.length() > 0)
         {

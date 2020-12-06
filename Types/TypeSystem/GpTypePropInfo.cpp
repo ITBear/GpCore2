@@ -12,18 +12,20 @@ GpTypePropInfo::GpTypePropInfo (const TypeTE            aType,
                                 const GpUUID            aTypeUID,
                                 const ContainerTE       aContainer,
                                 const TypeTE            aContainerKeyType,
-                                std::string&&           aName,
+                                std::string_view        aName,
                                 const size_t            aAlign,
                                 const size_t            aSize,
-                                const std::ptrdiff_t    aOffset) noexcept:
+                                const std::ptrdiff_t    aOffset,
+                                const GpTypePropFlags   aFlags):
 iType(aType),
 iTypeUID(aTypeUID),
 iContainer(aContainer),
 iContainerKeyType(aContainerKeyType),
-iName(std::move(aName)),
+iName(aName),
 iAlign(aAlign),
 iSize(aSize),
-iOffset(aOffset)
+iOffset(aOffset),
+iFlags(aFlags)
 {
 }
 
@@ -35,7 +37,8 @@ iContainerKeyType(aPropInfo.iContainerKeyType),
 iName(aPropInfo.iName),
 iAlign(aPropInfo.iAlign),
 iSize(aPropInfo.iSize),
-iOffset(aPropInfo.iOffset)
+iOffset(aPropInfo.iOffset),
+iFlags(aPropInfo.iFlags)
 {
 }
 
@@ -47,7 +50,8 @@ iContainerKeyType(std::move(aPropInfo.iContainerKeyType)),
 iName(std::move(aPropInfo.iName)),
 iAlign(std::move(aPropInfo.iAlign)),
 iSize(std::move(aPropInfo.iSize)),
-iOffset(std::move(aPropInfo.iOffset))
+iOffset(std::move(aPropInfo.iOffset)),
+iFlags(std::move(aPropInfo.iFlags))
 {
 }
 
@@ -65,6 +69,7 @@ GpTypePropInfo& GpTypePropInfo::operator= (const GpTypePropInfo& aPropInfo)
     iAlign              = aPropInfo.iAlign;
     iSize               = aPropInfo.iSize;
     iOffset             = aPropInfo.iOffset;
+    iFlags              = aPropInfo.iFlags;
 
     return *this;
 }
@@ -79,6 +84,7 @@ GpTypePropInfo& GpTypePropInfo::operator= (GpTypePropInfo&& aPropInfo) noexcept
     iAlign              = std::move(aPropInfo.iAlign);
     iSize               = std::move(aPropInfo.iSize);
     iOffset             = std::move(aPropInfo.iOffset);
+    iFlags              = std::move(aPropInfo.iFlags);
 
     return *this;
 }
