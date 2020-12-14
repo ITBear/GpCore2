@@ -123,7 +123,7 @@ public: \
 \
     static std::string_view SToString (EnumT aEnumValue) noexcept; \
 \
-    static EnumT SFromString (std::string_view aName) noexcept;\
+    static EnumT SFromString (std::string_view aName);\
 \
     virtual const NamesListT&   Names       (void) const noexcept override final;\
     virtual std::string_view    TypeName    (void) const noexcept override final;\
@@ -167,7 +167,7 @@ std::string_view    TYPE_NAME::SToString (EnumT aEnumValue) noexcept\
     return _SToString(SNames(), value_type(aEnumValue));\
 }\
 \
-TYPE_NAME::EnumT    TYPE_NAME::SFromString (std::string_view aName) noexcept\
+TYPE_NAME::EnumT    TYPE_NAME::SFromString (std::string_view aName)\
 {\
     return EnumT(_SFromString(SNames(), aName, #TYPE_NAME));\
 }\

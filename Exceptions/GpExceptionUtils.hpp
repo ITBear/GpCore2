@@ -16,6 +16,10 @@ public:
     static void         SExpectThrow            (std::function<void()>                          aThrowableFn,
                                                  std::function<bool(const ExpectexExT& aEx)>    aCatchFn,
                                                  std::function<void()>                          aThrowFn);
+
+    template<typename ExpectexExT>
+    static void         SCatch                  (std::function<void()>                          aThrowableFn,
+                                                 std::function<void(const ExpectexExT& aEx)>    aCatchFn);
 };
 
 template<typename ExpectexExT>
@@ -36,6 +40,19 @@ void    GpExceptionUtils::SExpectThrow (std::function<void()>                   
     if (!isCatch)
     {
         aThrowFn();
+    }
+}
+
+template<typename ExpectexExT>
+void    GpExceptionUtils::SCatch (std::function<void()>                         aThrowableFn,
+                                  std::function<void(const ExpectexExT& aEx)>   aCatchFn)
+{
+    try
+    {
+        aThrowableFn();
+    } catch (const ExpectexExT& aEx/*catch exception*/)
+    {
+        aCatchFn(aEx);
     }
 }
 

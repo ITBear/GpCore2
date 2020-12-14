@@ -33,24 +33,47 @@ public:
     void                            UnregisterGroup (const GpUUID& aGroupID);
 
     template<typename TO_SP, typename FROM_SP>
-    [[nodiscard]] TO_SP             Cast            (FROM_SP& aFrom) const;
+    [[nodiscard]] TO_SP             CastSP          (FROM_SP& aFrom) const;
+
+    template<typename TO, typename FROM>
+    [[nodiscard]] TO&               Cast            (FROM& aFrom) const;
 
 private:
     ElementsT                       iElements;
 };
 
 template<typename TO_SP, typename FROM_SP>
-[[nodiscard]] TO_SP GpTypeManager::Cast (FROM_SP& aFrom) const
+[[nodiscard]] TO_SP GpTypeManager::CastSP (FROM_SP& aFrom) const
 {
     using TO_VAL_T = typename TO_SP::value_type;
 
-    const GpUUID fromUID    = aFrom.VC().TypeInfo().UID();
+    const GpUUID fromUID    = aFrom.VC().TypeUID();
     const GpUUID toUID      = TO_VAL_T::STypeUID();
 
-    THROW_GPE_COND_CHECK_M(IsBaseOf(fromUID, toUID),
-                           "Failed to cast from UID "_sv + fromUID.ToString() + " to UID " + toUID.ToString());
+    THROW_GPE_COND_CHECK_M
+    (
+        IsBaseOf(toUID, fromUID),
+       "Failed to cast from UID "_sv + fromUID.ToString() + " to UID " + toUID.ToString()
+    );
 
     return aFrom.template CastAs<TO_SP>();
+}
+
+template<typename TO, typename FROM>
+[[nodiscard]] TO&   GpTypeManager::Cast (FROM& aFrom) const
+{
+    using TO_VAL_T = std::remove_cv_t<TO>;
+
+    const GpUUID fromUID    = aFrom.TypeUID();
+    const GpUUID toUID      = TO_VAL_T::STypeUID();
+
+    THROW_GPE_COND_CHECK_M
+    (
+        IsBaseOf(toUID, fromUID),
+        "Failed to cast from UID "_sv + fromUID.ToString() + " to UID " + toUID.ToString()
+    );
+
+    return static_cast<TO&>(aFrom);
 }
 
 }//GPlatform

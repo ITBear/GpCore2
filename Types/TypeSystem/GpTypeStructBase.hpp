@@ -25,6 +25,7 @@ public:
     virtual                         ~GpTypeStructBase   (void) noexcept {}
 
     const GpTypeStructInfo&         TypeInfo            (void) const noexcept {return _TypeInfo();}
+    const GpUUID                    TypeUID             (void) const noexcept {return TypeInfo().UID();}
     GpTypeStructBase::SP            NewInstance         (void) const {return _NewInstance();}
 
 protected:

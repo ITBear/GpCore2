@@ -10,3 +10,5 @@
 #include "GpTypeUtils.hpp"
 #include "GpStaticCatalog.hpp"
 #include "GpStaticCatalogC.hpp"
+#include "GpTypeMapper.hpp"
+#include "GpTypeMapperFactory.hpp"

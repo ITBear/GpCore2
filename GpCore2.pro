@@ -161,6 +161,8 @@ HEADERS += \
 	Types/TypeSystem/GpType.hpp \
 	Types/TypeSystem/GpTypeContainer.hpp \
 	Types/TypeSystem/GpTypeManager.hpp \
+	Types/TypeSystem/GpTypeMapper.hpp \
+	Types/TypeSystem/GpTypeMapperFactory.hpp \
 	Types/TypeSystem/GpTypePropFlags.hpp \
 	Types/TypeSystem/GpTypePropInfo.hpp \
 	Types/TypeSystem/GpTypePropInfoGetter.hpp \
@@ -278,6 +280,7 @@ SOURCES += \
 	Types/TypeSystem/GpType.cpp \
 	Types/TypeSystem/GpTypeContainer.cpp \
 	Types/TypeSystem/GpTypeManager.cpp \
+	Types/TypeSystem/GpTypeMapper.cpp \
 	Types/TypeSystem/GpTypePropFlags.cpp \
 	Types/TypeSystem/GpTypePropInfo.cpp \
 	Types/TypeSystem/GpTypeStructBase.cpp \

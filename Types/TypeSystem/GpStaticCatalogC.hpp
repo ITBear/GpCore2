@@ -43,7 +43,7 @@ template<typename T>
 T   GpStaticCatalogC::FindAs (std::string_view aKey) const
 {
     GpTypeStructBase::CSP val = Find(aKey);
-    return GpTypeManager::S().Cast<T>(val);
+    return GpTypeManager::S().CastSP<T>(val);
 }
 
 }//GPlatform

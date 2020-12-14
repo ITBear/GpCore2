@@ -49,6 +49,7 @@ GpTask::ResT    GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
         iCtx.Clear();
         iStage = StageT::FINISHED;
         GpExceptionsSink::SSink(e);
+        throw;
     }*/ catch (const GpTaskFiberStopEx&)
     {
         iCtx.Clear();
