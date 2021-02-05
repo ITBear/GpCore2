@@ -80,7 +80,13 @@ public:
     {
         if constexpr (SHasTag_GpUnit<AsT>())
         {
-            return AsT::SMake(Value());
+            if constexpr(std::is_same_v<unit_type, typename AsT::unit_type>)
+            {
+                return AsT(*this);
+            } else
+            {
+                return AsT::SMake(Value());
+            }
         } else
         {
             return NumOps::SConvert<AsT, value_type>(iValue);

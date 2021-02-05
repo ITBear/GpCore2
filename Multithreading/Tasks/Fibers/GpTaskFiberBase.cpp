@@ -24,34 +24,39 @@ void    GpTaskFiberBase::FiberFn (GpThreadStopToken aStopToken)
 
     OnStart();
 
-    GpEvent::SP event = PopNextEvent();
+    GpEvent::SP event;
     while (!aStopToken.stop_requested())
     {
-        const GpTask::ResT stepRes = OnStep(event.IsNotNULL() ? EventOptRefT(event.Vn()) : std::nullopt);
+        //Step
+        GpTask::ResT stepRes;
+        {
+            if (event.IsNULL())
+            {
+                event = PopNextEvent();
+            }
+
+            stepRes = OnStep(event.IsNotNULL() ? EventOptRefT(event.Vn()) : std::nullopt);
+            event.Clear();
+        }
 
         if (stepRes == GpTask::ResT::READY_TO_EXEC)
         {
             GpTaskFiberCtx::SYeld(GpTask::ResT::READY_TO_EXEC);
-            //event = PopNextEvent();
-            //continue;
         } else if (stepRes == GpTask::ResT::WAITING)
         {
             event = PopNextEvent();
-            if (event.IsNotNULL())
-            {
-                continue;
-            } else
+            if (event.IsNULL())
             {
                 GpTaskFiberCtx::SYeld(GpTask::ResT::WAITING);
-                event = PopNextEvent();
             }
         } else if (stepRes == GpTask::ResT::DONE)
         {
-            break;
+            //break;
+            return;
         }
     }
 
-    GpTaskFiberCtx::SYeld(GpTask::ResT::DONE);
+    //GpTaskFiberCtx::SYeld(GpTask::ResT::DONE);
 }
 
 }//namespace GPlatform

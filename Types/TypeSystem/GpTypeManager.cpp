@@ -1,4 +1,5 @@
 #include "GpTypeManager.hpp"
+#include <iostream>
 
 #if defined(GP_USE_TYPE_SYSTEM)
 
@@ -21,15 +22,12 @@ GpTypeManager&  GpTypeManager::S (void) noexcept
 
 size_t  GpTypeManager::Register (const GpTypeStructInfo& aTypeInfo)
 {
+    //std::string s = aTypeInfo.UID().ToString();
+    //printf("[GpTypeManager::Register]: aTypeInfo.UID() = ");
+    //printf(s.data());
+    //printf("\n");
+
     iElements.Register(aTypeInfo.UID(), aTypeInfo);
-
-    return 0;
-}
-
-size_t  GpTypeManager::Register (GpTypeStructInfo&& aTypeInfo)
-{
-    const GpUUID& uid = aTypeInfo.UID();
-    iElements.Register(uid, std::move(aTypeInfo));
 
     return 0;
 }
@@ -80,7 +78,7 @@ void    GpTypeManager::UnregisterGroup (const GpUUID& aGroupID)
     {
         for (auto iter = aElements.begin(); iter != aElements.end(); )
         {
-            if (iter->second.GroupID() == aGroupID)
+            if (iter->second.get().GroupID() == aGroupID)
             {
                 iter = aElements.erase(iter);
             } else

@@ -28,19 +28,17 @@ void    GpTaskExecutor::Run (GpThreadStopToken aStopToken) noexcept
 
     while (!aStopToken.stop_requested())
     {
+        //std::cout << "[GpTaskExecutor::Run]: !!! STEP " << this << std::endl;
         currentTask = iScheduler.Vn().Reshedule(currentTask, currentTaskExecRes);
 
         if (currentTask.IsNotNULL())
         {
-            //size_t tsBegin = GpDateTimeOps::SHighResTS_us().As<size_t>();
-            //std::cout << "[GpTaskExecutor::Run]: Do next task BEGIN..." << std::endl;
             currentTaskExecRes = currentTask.Vn().Do(aStopToken);
-
-            //size_t tsEnd = GpDateTimeOps::SHighResTS_us().As<size_t>();
-            //std::cout << "[GpTaskExecutor::Run]: Do next task END..." << (tsEnd - tsBegin) << std::endl;
         } else
         {
+            //std::cout << "[GpTaskExecutor::Run]: wait for wakeup " << this << std::endl;
             WaitForWakeup(10.0_si_s);
+            //std::cout << "[GpTaskExecutor::Run]: WAKEUP " << this << std::endl;
             currentTaskExecRes = GpTask::ResT::DONE;
         }
     }

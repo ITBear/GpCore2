@@ -35,6 +35,8 @@ public:
                                                              const count_t          aDelimCountLimit,
                                                              const Algo::SplitMode  aSplitMode);
 
+    static inline std::string_view          SFromChar       (const char* aStrPtr);
+
     //------------------------- Numeric from/to string --------------------------
     static count_t                          SFromUI64       (const u_int_64     aValue,
                                                              GpRawPtrCharRW     aStrOut);
@@ -75,8 +77,13 @@ public:
     static count_t                          SConv_UTF32_UTF8(GpArray<std::byte, 4>&         aUTF8_valueOut,
                                                              const GpArray<std::byte, 4>    aUTF32_value);//return bytes count of aUTF8Out
 
+    //------------------------- Encode --------------------------
+    static std::string                      PercentEncode   (GpRawPtrCharR aSrc);
+
     //------------------------- Replace --------------------------
-    static std::string&                     SReplace        (std::string& aStr, const char aChar, const char aNewChar);
+    static std::string&                     SReplaceAll     (std::string& aStr, const char aChar, const char aNewChar);
+    static std::string                      SReplaceAll     (GpRawPtrCharR  aStr, const char aChar, const char aNewChar);
+    static std::string                      SReplaceAll     (GpRawPtrCharR  aStr, std::string_view aMatchStr, std::string_view aNewStr);
 
     //------------------------- Count -----------------------------
     static inline constexpr count_t         SCountChars     (std::string_view aStr, const char aChar) noexcept;
@@ -131,6 +138,16 @@ private:
     static const GpArray<char, 201>&        SDigits         (void) noexcept;
 };
 
+std::string_view    GpStringOps::SFromChar (const char* aStrPtr)
+{
+    if (aStrPtr != nullptr)
+    {
+        return std::string_view(aStrPtr);
+    } else
+    {
+        return std::string_view();
+    }
+}
 
 GpArray<char,2> GpStringOps::SFromByte (const std::byte aData) noexcept
 {

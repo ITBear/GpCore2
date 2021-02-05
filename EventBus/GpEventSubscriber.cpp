@@ -24,13 +24,11 @@ void    GpEventSubscriber::PushEvent (GpEvent::SP aEvent)
 {
     std::scoped_lock lock(iEventsLock);
 
-    if (OnPushEvent(aEvent) == PushEvevtRes::ACCEPT)
-    {
-        iEvents.push(std::move(aEvent));
-    }
+    OnPushEvent();
+    iEvents.push(std::move(aEvent));
 }
 
-GpEvent::SP GpEventSubscriber::PopNextEvent (void) noexcept
+GpEvent::SP GpEventSubscriber::PopNextEvent (void)
 {
     std::scoped_lock lock(iEventsLock);
 
@@ -45,7 +43,7 @@ GpEvent::SP GpEventSubscriber::PopNextEvent (void) noexcept
     return event;
 }
 
-void    GpEventSubscriber::ClearEventsQueue (void) noexcept
+void    GpEventSubscriber::ClearEventsQueue (void)
 {
     std::scoped_lock lock(iEventsLock);
 

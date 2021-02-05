@@ -61,6 +61,11 @@ public:
     template<typename T>
     RegisterResT            TryRegister             (T aKey, ValueT&& aValue);
 
+    void                    ReplaceOrRegister       (const KeyT& aKey, const ValueT& aValue);
+    void                    ReplaceOrRegister       (KeyT&& aKey, const ValueT& aValue);
+    void                    ReplaceOrRegister       (const KeyT& aKey, ValueT&& aValue);
+    void                    ReplaceOrRegister       (KeyT&& aKey, ValueT&& aValue);
+
     ValueT                  Unregister              (const KeyT& aKey);
 
     template<typename T>
@@ -326,6 +331,46 @@ auto    GpElementsCatalog<KeyT, ValueT, ContainerT>::TryRegister (T aKey, ValueT
 template<typename KeyT,
          typename ValueT,
          template<typename...> class ContainerT>
+void    GpElementsCatalog<KeyT, ValueT, ContainerT>::ReplaceOrRegister (const KeyT& aKey, const ValueT& aValue)
+{
+    std::scoped_lock lock(iLock);
+
+    iElements.insert_or_assign(aKey, aValue);
+}
+
+template<typename KeyT,
+         typename ValueT,
+         template<typename...> class ContainerT>
+void    GpElementsCatalog<KeyT, ValueT, ContainerT>::ReplaceOrRegister (KeyT&& aKey, const ValueT& aValue)
+{
+    std::scoped_lock lock(iLock);
+
+    iElements.insert_or_assign(std::move(aKey), aValue);
+}
+
+template<typename KeyT,
+         typename ValueT,
+         template<typename...> class ContainerT>
+void    GpElementsCatalog<KeyT, ValueT, ContainerT>::ReplaceOrRegister (const KeyT& aKey, ValueT&& aValue)
+{
+    std::scoped_lock lock(iLock);
+
+    iElements.insert_or_assign(aKey, std::move(aValue));
+}
+
+template<typename KeyT,
+         typename ValueT,
+         template<typename...> class ContainerT>
+void    GpElementsCatalog<KeyT, ValueT, ContainerT>::ReplaceOrRegister (KeyT&& aKey, ValueT&& aValue)
+{
+    std::scoped_lock lock(iLock);
+
+    iElements.insert_or_assign(std::move(aKey), std::move(aValue));
+}
+
+template<typename KeyT,
+         typename ValueT,
+         template<typename...> class ContainerT>
 ValueT  GpElementsCatalog<KeyT, ValueT, ContainerT>::Unregister (const KeyT& aKey)
 {
     return Unregister<const KeyT&>(aKey);
@@ -346,12 +391,9 @@ ValueT  GpElementsCatalog<KeyT, ValueT, ContainerT>::Unregister (T aKey)
         ValueT v = std::move(iter->second);
         iElements.erase(iter);
         return v;
-    } else
-    {
-        THROW_GPE("Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv);
     }
 
-    return ValueT();
+    THROW_GPE("Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv);
 }
 
 template<typename KeyT,
@@ -374,7 +416,8 @@ std::optional<std::reference_wrapper<const ValueT>> GpElementsCatalog<KeyT, Valu
 
     if (iter != iElements.end())
     {
-        return std::cref(iter->second);
+        //return std::cref(iter->second);
+        return iter->second;
     } else
     {
         return std::nullopt;

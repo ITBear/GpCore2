@@ -35,8 +35,10 @@ public:
     template<typename T> static
     void                                                SAddProp        (std::string_view               aPropName,
                                                                          const std::ptrdiff_t           aOffset,
-                                                                         GpTypePropFlags                aFlags,
+                                                                         const GpTypePropFlags&         aFlags,
                                                                          GpTypePropInfo::C::Vec::Val&   aPropsOut);
+    template<typename T> static
+    void                                                SStaticTypeReg  (void);
 };
 
 template<typename T> [[nodiscard]]
@@ -91,7 +93,22 @@ consteval GpType::EnumT GpTypeUtils::SDetectType (void)
     else if constexpr (std::is_same_v<VT, GpBytesArray>) return GpType::BLOB;
     else if constexpr (std::is_base_of_v<GpTypeStructBase, VT>) return GpType::STRUCT;
     else if constexpr (GpTypeStructBase::SP::SHasTag_GpSharedPtr<VT>()) return GpType::STRUCT_SP;
-    else if constexpr (GpUnitUtils::SHasTag_GpUnit<VT>()) return SDetectType<typename VT::value_type>();
+    else if constexpr (GpUnitUtils::SHasTag_GpUnit<VT>())
+    {
+        if constexpr (std::is_same_v<typename VT::unit_type, GpUnitType_UNIX_TIMESTAMP>)
+        {
+            if constexpr (std::is_same_v<std::ratio<intmax_t(1), intmax_t(1)>, typename VT::scale_ratio>)
+            {
+                return GpType::UNIX_TS_S;
+            } else
+            {
+                return GpType::UNIX_TS_MS;
+            }
+        } else
+        {
+            return SDetectType<typename VT::value_type>();
+        }
+    }
     else if constexpr (GpEnum::SHasTag_GpEnum<VT>()) return GpType::ENUM;
     else if constexpr (GpEnumFlags::SHasTag_GpEnumFlags<VT>()) return GpType::ENUM_FLAGS;
     else return GpType::NOT_SET;
@@ -135,9 +152,11 @@ GpUUID  GpTypeUtils::SGetTypeUID (void)
 {
     if constexpr (Type == GpType::STRUCT)
     {
+        SStaticTypeReg<T>();
         return T::STypeUID();
     } else if constexpr (Type == GpType::STRUCT_SP)
     {
+        SStaticTypeReg<typename T::value_type>();
         return T::value_type::STypeUID();
     } else
     {
@@ -181,15 +200,19 @@ GpUUID  GpTypeUtils::SDetectTypeUID (void)
 }
 
 template<typename T>
-void    GpTypeUtils::SAddProp (std::string_view             aPropName,
-                               const std::ptrdiff_t         aOffset,
-                               GpTypePropFlags              aFlags,
-                               GpTypePropInfo::C::Vec::Val& aPropsOut)
+void    GpTypeUtils::SAddProp
+(
+    std::string_view                aPropName,
+    const std::ptrdiff_t            aOffset,
+    const GpTypePropFlags&          aFlags,
+    GpTypePropInfo::C::Vec::Val&    aPropsOut
+)
 {
     constexpr const auto    types   = GpTypeUtils::SDetectTypeContainer<T>();
     const GpUUID            typeUID = GpTypeUtils::SDetectTypeUID<T>();
     constexpr const size_t  align   = alignof(T);
     constexpr const size_t  size    = sizeof(T);
+
     aPropsOut.emplace_back
     (
         GpTypePropInfo
@@ -205,6 +228,12 @@ void    GpTypeUtils::SAddProp (std::string_view             aPropName,
             aFlags
         )
     );
+}
+
+template<typename T>
+void    GpTypeUtils::SStaticTypeReg (void)
+{
+    T::SStaticTypeReg();
 }
 
 }//namespace GPlatform

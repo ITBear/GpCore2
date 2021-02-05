@@ -34,9 +34,12 @@ GpTask::ResT    GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
             } [[fallthrough]];
             case StageT::RUN:
             {
-                taskRes = iCtx.Vn().Enter(aStopToken,
-                                          GetWeakPtr(),
-                                          std::bind(&GpTaskFiber::FiberFn, this, std::placeholders::_1));
+                taskRes = iCtx.Vn().Enter
+                (
+                    aStopToken,
+                    GetWeakPtr(),
+                    std::bind(&GpTaskFiber::FiberFn, this, std::placeholders::_1)
+                );
             } break;
             case StageT::FINISHED: [[fallthrough]];
             default:

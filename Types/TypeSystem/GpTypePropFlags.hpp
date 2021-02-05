@@ -11,10 +11,11 @@ namespace GPlatform {
 
 GP_ENUM(GPCORE_API, GpTypePropFlag,
     UNWRAP_CONTAINER,
-    UNWRAP_CONTAINER_KEY
+    UNWRAP_CONTAINER_KEY,
+    CONTAINER_ELEMENT_NAME
 );
 
-using GpTypePropFlags = GpEnumFlagsST<GpTypePropFlag>;
+using GpTypePropFlags = GpMap<GpTypePropFlag, std::string>;
 
 }//GPlatform
 

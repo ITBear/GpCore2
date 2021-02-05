@@ -48,13 +48,19 @@ void    GpConditionVar::WaitForWakeup (const milliseconds_t aTimeout) noexcept
     {
         if (aTimeout > 0.0_si_s)
         {
-            iWakeupCV.wait_for(lock,
-                               std::chrono::milliseconds(aTimeout.As<ssize_t>()),
-                               [&]{return iNeedToWakeUp;});
+            iWakeupCV.wait_for
+            (
+                lock,
+                std::chrono::milliseconds(aTimeout.As<ssize_t>()),
+                [&]{return iNeedToWakeUp;}
+            );
         } else
         {
-            iWakeupCV.wait(lock,
-                           [&]{return iNeedToWakeUp;});
+            iWakeupCV.wait
+            (
+                lock,
+                [&]{return iNeedToWakeUp;}
+            );
         }
     } catch (const std::exception& e)
     {

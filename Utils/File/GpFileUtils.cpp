@@ -5,6 +5,7 @@
 #if defined(GP_USE_FILE_UTILS)
 
 #include <fstream>
+#include <filesystem>
 
 namespace GPlatform {
 
@@ -51,6 +52,12 @@ void    GpFileUtils::SAppend (const GpRawPtrCharR aFileName,
     ofs.write(aData.PtrAs<const char*>(), aData.SizeLeft().As<std::streamsize>());
     ofs.flush();
     ofs.close();
+}
+
+void    GpFileUtils::SCopy (const GpRawPtrCharR aFrom,
+                            const GpRawPtrCharR aTo)
+{
+    std::filesystem::copy(aFrom.AsStringView(), aTo.AsStringView());
 }
 
 }//namespace GPlatform

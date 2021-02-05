@@ -16,12 +16,6 @@ public:
     CLASS_DECLARE_DEFAULTS(GpEventSubscriber)
     CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpEventSubscriber)
 
-    enum class PushEvevtRes
-    {
-        REJECT,
-        ACCEPT
-    };
-
 protected:
                             GpEventSubscriber   (void) noexcept;
 
@@ -29,15 +23,15 @@ public:
     virtual                 ~GpEventSubscriber  (void) noexcept;
 
     void                    PushEvent           (GpEvent::SP aEvent);
-    GpEvent::SP             PopNextEvent        (void) noexcept;
+    GpEvent::SP             PopNextEvent        (void);
     bool                    HasEvents           (void) const noexcept {std::scoped_lock lock(iEventsLock); return !iEvents.empty();}
 
     GpSpinlock&             EventsLock          (void) const noexcept {return iEventsLock;}
     bool                    HasEventsNoLock     (void) const noexcept {return !iEvents.empty();}
 
 protected:  
-    void                    ClearEventsQueue    (void) noexcept;
-    virtual PushEvevtRes    OnPushEvent         (GpEvent::SP& aEvent) noexcept = 0;
+    void                    ClearEventsQueue    (void);
+    virtual void            OnPushEvent         (void) = 0;
 
 private:
     mutable GpSpinlock      iEventsLock;

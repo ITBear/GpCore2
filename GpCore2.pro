@@ -134,6 +134,7 @@ HEADERS += \
 	Types/Containers/GpRawPtrNumerics.hpp \
 	Types/Containers/GpTypeShell.hpp \
 	Types/DateTime/GpDateTime.hpp \
+	Types/DateTime/GpDateTimeFormat.hpp \
 	Types/DateTime/GpDateTimeOps.hpp \
 	Types/Enums/GpEnum.hpp \
 	Types/Enums/GpEnumFlags.hpp \
@@ -207,6 +208,8 @@ HEADERS += \
 	UnitTests/GpUnitTestLayeredCtx.hpp \
 	UnitTests/GpUnitTestStreamOutCtx.hpp \
 	UnitTests/GpUnitTests.hpp \
+	Utils/Encoders/GpBase64.hpp \
+	Utils/Encoders/GpEncoders.hpp \
 	Utils/Errno/GpErrno.hpp \
 	Utils/File/GpFileUtils.hpp \
 	Utils/GpUtils.hpp \
@@ -267,6 +270,7 @@ SOURCES += \
 	RandomGenerators/GpRandomDeviceWin.cpp \
 	RandomGenerators/GpRandomStrMode.cpp \
 	RandomGenerators/GpSRandom.cpp \
+	Types/DateTime/GpDateTimeFormat.cpp \
 	Types/DateTime/GpDateTimeOps.cpp \
 	Types/Enums/GpEnum.cpp \
 	Types/Enums/GpEnumFlags.cpp \
@@ -291,6 +295,7 @@ SOURCES += \
 	UnitTests/GpUnitTestException.cpp \
 	UnitTests/GpUnitTestLayeredCtx.cpp \
 	UnitTests/GpUnitTestStreamOutCtx.cpp \
+	Utils/Encoders/GpBase64.cpp \
 	Utils/Errno/GpErrno.cpp \
 	Utils/File/GpFileUtils.cpp \
 	Utils/Streams/GpBitReader.cpp \

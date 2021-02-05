@@ -17,6 +17,7 @@ public:
     GpRawPtrByteRW          DataOut                 (void) noexcept {return iDataOut;}
     size_byte_t             SizeLeft                (void) const noexcept {return iDataOut.SizeLeft();}
     void                    WriteAndShift           (GpRawPtrByteR aData);
+    void                    OffsetAdd               (const size_byte_t aOffset);
 
     virtual void            AllocateNext            (const size_byte_t aSize);
 

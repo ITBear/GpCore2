@@ -13,10 +13,9 @@ void    GpTask::MoveToReady (void)
     GpTaskSchedulerAccessor::SMoveToReady(iScheduler.value().get(), iThisWeakPtr);
 }
 
-GpEventSubscriber::PushEvevtRes GpTask::OnPushEvent (GpEvent::SP& /*aEvent*/) noexcept
+void    GpTask::OnPushEvent (void)
 {
     MoveToReady();
-    return PushEvevtRes::ACCEPT;
 }
 
 }//GPlatform

@@ -45,7 +45,7 @@ public:
     virtual void            Terminate       (void) noexcept = 0;
 
 protected:
-    virtual PushEvevtRes    OnPushEvent     (GpEvent::SP& aEvent) noexcept override final;
+    virtual void            OnPushEvent     (void) override final;
     GpTask::WP              GetWeakPtr      (void) const noexcept {return iThisWeakPtr;}
 
 private:

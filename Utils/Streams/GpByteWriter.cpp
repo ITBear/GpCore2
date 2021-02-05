@@ -2,47 +2,72 @@
 
 namespace GPlatform {
 
-void    GpByteWriter::UInt8 (const u_int_8 aValue)
+GpByteWriter&   GpByteWriter::OffsetAdd (const size_byte_t aOffset)
 {
-    WritePOD<decltype(aValue)>(aValue);
+    if (aOffset == 0_byte)
+    {
+        return *this;
+    }
+
+    if (iStorage.SizeLeft() < aOffset)
+    {
+        iStorage.AllocateNext(aOffset);
+    }
+
+    iStorage.OffsetAdd(aOffset);
+
+    return *this;
 }
 
-void    GpByteWriter::SInt8 (const s_int_8 aValue)
+GpByteWriter&   GpByteWriter::UInt8 (const u_int_8 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
+    return *this;
 }
 
-void    GpByteWriter::UInt16 (const u_int_16 aValue)
+GpByteWriter&   GpByteWriter::SInt8 (const s_int_8 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
+    return *this;
 }
 
-void    GpByteWriter::SInt16 (const s_int_16 aValue)
+GpByteWriter&   GpByteWriter::UInt16 (const u_int_16 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
+    return *this;
 }
 
-void    GpByteWriter::UInt32 (const u_int_32 aValue)
+GpByteWriter&   GpByteWriter::SInt16 (const s_int_16 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
+    return *this;
 }
 
-void    GpByteWriter::SInt32 (const s_int_32 aValue)
+GpByteWriter&   GpByteWriter::UInt32 (const u_int_32 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
+    return *this;
 }
 
-void    GpByteWriter::UInt64 (const u_int_64 aValue)
+GpByteWriter&   GpByteWriter::SInt32 (const s_int_32 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
+    return *this;
 }
 
-void    GpByteWriter::SInt64 (const s_int_64 aValue)
+GpByteWriter&   GpByteWriter::UInt64 (const u_int_64 aValue)
 {
     WritePOD<decltype(aValue)>(aValue);
+    return *this;
 }
 
-void    GpByteWriter::BytesWithLen (GpRawPtrByteR aData)
+GpByteWriter&   GpByteWriter::SInt64 (const s_int_64 aValue)
+{
+    WritePOD<decltype(aValue)>(aValue);
+    return *this;
+}
+
+GpByteWriter&   GpByteWriter::BytesWithLen (GpRawPtrByteR aData)
 {
     const s_int_32 size = aData.CountLeft().As<s_int_32>();
     CompactSInt32(size);
@@ -51,15 +76,17 @@ void    GpByteWriter::BytesWithLen (GpRawPtrByteR aData)
     {
         Bytes(aData);
     }
+
+    return *this;
 }
 
-void    GpByteWriter::Bytes (GpRawPtrByteR aData)
+GpByteWriter&   GpByteWriter::Bytes (GpRawPtrByteR aData)
 {
     const size_byte_t dataSize = aData.SizeLeft();
 
     if (dataSize == 0_byte)
     {
-        return;
+        return *this;
     }
 
     if (iStorage.SizeLeft() < dataSize)
@@ -68,9 +95,11 @@ void    GpByteWriter::Bytes (GpRawPtrByteR aData)
     }
 
     iStorage.WriteAndShift(aData);
+
+    return *this;
 }
 
-void    GpByteWriter::CompactSInt32 (const s_int_32 aValue)
+GpByteWriter&   GpByteWriter::CompactSInt32 (const s_int_32 aValue)
 {
     THROW_GPE_COND_CHECK_M((aValue >= s_int_32(0)) && (aValue <= s_int_32(0x0FFFFFFF)), "aValue is out of range"_sv);
 
@@ -94,6 +123,8 @@ void    GpByteWriter::CompactSInt32 (const s_int_32 aValue)
             UInt8(u_int_8(buf[i++]));
         }
     }
+
+    return *this;
 }
 
 }//GPlatform

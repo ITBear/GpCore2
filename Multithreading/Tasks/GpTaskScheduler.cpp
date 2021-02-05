@@ -25,13 +25,14 @@ GpTaskScheduler::~GpTaskScheduler (void) noexcept
 
     //Terminate ready tasks
     bool isEmpty = false;
+
+    //std::cout << "[GpTaskScheduler::~GpTaskScheduler]:...: 1" << std::endl;
     while (!isEmpty)
     {
         GpTask::SP task;
 
         //Pick task
         {
-            //std::scoped_lock lock(iLock);
             isEmpty = iReadyTasks.empty();
             if (!isEmpty)
             {
@@ -42,9 +43,12 @@ GpTaskScheduler::~GpTaskScheduler (void) noexcept
 
         if (task.IsNotNULL())
         {
+            //TODO: add tasks dependencies
             task.Vn().Terminate();
         }
     }
+
+    std::cout << "[GpTaskScheduler::~GpTaskScheduler]:...: 2" << std::endl;
 
     //Terminate waiting tasks
     isEmpty = false;
@@ -54,7 +58,6 @@ GpTaskScheduler::~GpTaskScheduler (void) noexcept
 
         //Pick task
         {
-            //std::scoped_lock lock(iLock);
             isEmpty = iWaitingTasks.empty();
             if (!isEmpty)
             {
@@ -66,13 +69,19 @@ GpTaskScheduler::~GpTaskScheduler (void) noexcept
 
         if (task.IsNotNULL())
         {
+            //TODO: add tasks dependencies
             task.Vn().Terminate();
         }
     }
+
+    std::cout << "[GpTaskScheduler::~GpTaskScheduler]:...: 3" << std::endl;
 }
 
-void    GpTaskScheduler::Start (GpTaskScheduler::WP aSelfWP,
-                                const count_t       aExecutorsCount)
+void    GpTaskScheduler::Start
+(
+    GpTaskScheduler::WP aSelfWP,
+    const count_t       aExecutorsCount
+)
 {
     THROW_GPE_COND_CHECK_M(aExecutorsCount >= 1_cnt, "Executors count must be >= 1"_sv);
 
@@ -90,9 +99,14 @@ void    GpTaskScheduler::Join (void) noexcept
     iExecutorsPool.Join();
 }
 
-GpTask::SP  GpTaskScheduler::Reshedule (GpTask::SP          aLastTask,
-                                        const GpTask::ResT  aLastTaskExecRes) noexcept
+GpTask::SP  GpTaskScheduler::Reshedule
+(
+    GpTask::SP          aLastTask,
+    const GpTask::ResT  aLastTaskExecRes
+) noexcept
 {
+    //std::cout << "[GpTaskScheduler::Reshedule]: !!!!!!!!!!!!!!!!!!!!!!!!!!!"_sv << std::endl;
+
     // Process last task result
     if (aLastTask.IsNotNULL())
     {
@@ -170,8 +184,11 @@ void    GpTaskScheduler::AddTaskToReady (GpTask::SP aTask)
 
         GpTask& task = aTask.V();
 
-        THROW_GPE_COND_CHECK_M(GpTaskAccessor::SState(task) == GpTask::StateTE::NOT_ASSIGNED_TO_SCHEDULER,
-                               "Task already assigned to scheduler"_sv);
+        THROW_GPE_COND_CHECK_M
+        (
+            GpTaskAccessor::SState(task) == GpTask::StateTE::NOT_ASSIGNED_TO_SCHEDULER,
+            "Task already assigned to scheduler"_sv
+        );
 
         GpTaskAccessor::SUpdateState(task, GpTask::StateTE::READY_TO_RUN);
         GpTaskAccessor::SSetScheduler(task, *this);
@@ -189,8 +206,11 @@ void    GpTaskScheduler::AddTaskToWaiting (GpTask::SP aTask)
 
     GpTask& task = aTask.V();
 
-    THROW_GPE_COND_CHECK_M(GpTaskAccessor::SState(task) == GpTask::StateTE::NOT_ASSIGNED_TO_SCHEDULER,
-                           "Task already assigned to scheduler"_sv);
+    THROW_GPE_COND_CHECK_M
+    (
+        GpTaskAccessor::SState(task) == GpTask::StateTE::NOT_ASSIGNED_TO_SCHEDULER,
+        "Task already assigned to scheduler"_sv
+    );
 
     GpTaskAccessor::SUpdateState(task, GpTask::StateTE::WAITING);
     GpTaskAccessor::SSetScheduler(task, *this);

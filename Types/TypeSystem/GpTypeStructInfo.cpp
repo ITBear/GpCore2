@@ -164,7 +164,9 @@ void    GpTypeStructInfo::_SEchoValue (const GpTypeStructBase&  aStruct,
         {
             aStrOut.append(StrOps::SFromUI64(aPropInfo.Value_UInt64(aStruct)));
         } break;
-        case GpType::S_INT_64:
+        case GpType::S_INT_64:   [[fallthrough]];
+        case GpType::UNIX_TS_S:  [[fallthrough]];
+        case GpType::UNIX_TS_MS:
         {
             aStrOut.append(StrOps::SFromSI64(aPropInfo.Value_SInt64(aStruct)));
         } break;

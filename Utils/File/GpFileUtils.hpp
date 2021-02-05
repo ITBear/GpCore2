@@ -19,7 +19,8 @@ public:
     static GpBytesArray     SReadAll    (const GpRawPtrCharR aFileName);
     static void             SAppend     (const GpRawPtrCharR aFileName,
                                          const GpRawPtrByteR aData);
-
+    static void             SCopy       (const GpRawPtrCharR aFrom,
+                                         const GpRawPtrCharR aTo);
 private:
 
 };

@@ -41,6 +41,7 @@ protected:
     virtual void                PreInit         (const count_t aCount);
     virtual value_type          NewElement      (void);
     virtual void                OnClear         (void) noexcept;
+    virtual bool                Validate        (value_type aElement) noexcept;
 
 private:
     void                        _Clear          (bool aIsDestructorCall) noexcept;
@@ -131,7 +132,11 @@ void    GpElementsPool<T>::Release (value_type aElement)
 
     THROW_GPE_COND_CHECK_M(iAcquiredCount > 0_cnt, "Release without acquire"_sv);
 
-    iElements.push(aElement);
+    if (Validate(aElement))
+    {
+        iElements.push(aElement);
+    }
+
     iAcquiredCount--;
 }
 
@@ -151,6 +156,12 @@ template<typename T>
 void    GpElementsPool<T>::OnClear (void) noexcept
 {
     //NOP
+}
+
+template<typename T>
+bool    GpElementsPool<T>::Validate (value_type /*aElement*/) noexcept
+{
+    return true;
 }
 
 template<typename T>

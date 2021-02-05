@@ -6,6 +6,14 @@
 
 #include "GpTypeStructInfo.hpp"
 
+#if defined(GP_TYPE_SYSTEM_STATIC_ADD_TO_MANAGER)
+#   define GP_TYPE_STRUCT_STATIC_TYPE_REG_IMPL(T) const size_t T::_sStaticTypeReg = ::GPlatform::GpTypeManager::S().Register(T::STypeInfo())
+#   define GP_TYPE_STRUCT_STATIC_TYPE_REG_DECL    static const size_t _sStaticTypeReg
+#else
+#   define GP_TYPE_STRUCT_STATIC_TYPE_REG_IMPL(T)
+#   define GP_TYPE_STRUCT_STATIC_TYPE_REG_DECL
+#endif//#if defined(GP_TYPE_SYSTEM_STATIC_ADD_TO_MANAGER)
+
 namespace GPlatform {
 
 class GPCORE_API GpTypeStructBase
@@ -16,130 +24,148 @@ public:
     struct  _type_id_tag_t{};
     template<typename T> static T& SGetBaseObjectType(void(T::*)(typename T::_type_id_tag_t&) const);
 
-    using   BaseT = std::false_type;
+    using BaseT = std::false_type;
 
-protected:
-                                    GpTypeStructBase    (void) noexcept {}
+    class StructFactory final: public GpTypeStructFactory
+    {
+    public:
+        virtual GpTypeStructBase::SP    NewInstance (void) const override final;
+    };
 
 public:
+                                    GpTypeStructBase    (void) noexcept {}
     virtual                         ~GpTypeStructBase   (void) noexcept {}
+
+    static const GpTypeStructInfo&  STypeInfo           (void);
+    static constexpr GpUUID         STypeUID            (void) noexcept
+    {
+        constexpr const GpUUID structUID = GpUUID::CE_FromString("000056df-0000-4be7-0000-97c0c4060000"_sv);
+        return structUID;
+    }
 
     const GpTypeStructInfo&         TypeInfo            (void) const noexcept {return _TypeInfo();}
     const GpUUID                    TypeUID             (void) const noexcept {return TypeInfo().UID();}
     GpTypeStructBase::SP            NewInstance         (void) const {return _NewInstance();}
 
+    static size_t                   SStaticTypeReg      (void);
+
 protected:
     virtual void                    _type_id_tag_fn     (_type_id_tag_t&) const noexcept {}
-    virtual const GpTypeStructInfo& _TypeInfo           (void) const noexcept = 0;
-    virtual GpTypeStructBase::SP    _NewInstance        (void) const = 0;
-    static const GpTypeStructInfo&  STypeInfo           (void);
-    static const GpUUID&            STypeUID            (void) noexcept;
+    virtual const GpTypeStructInfo& _TypeInfo           (void) const noexcept;
+    virtual GpTypeStructBase::SP    _NewInstance        (void) const;   
+
+private:
+    static GpTypeStructInfo         _SCollectStructInfo (void);
+    GP_TYPE_STRUCT_STATIC_TYPE_REG_DECL;
 };
 
-//------------------------- TYPE_STRUCT_DECLARE -------------------------
-#if defined(GP_TYPE_SYSTEM_STATIC_ADD_TO_MANAGER)
-#   define TYPE_STRUCT_DECLARE_STATIC_TO_TYPE_MANAGER static const size_t _sTYPE_MANAGER
-#   define TYPE_STRUCT_IMPLEMENT_STATIC_TO_TYPE_MANAGER(T) const size_t T::_sTYPE_MANAGER = GpTypeManager::S().Register(T::STypeInfo());
-#else
-#   define TYPE_STRUCT_DECLARE_STATIC_TO_TYPE_MANAGER
-#   define TYPE_STRUCT_IMPLEMENT_STATIC_TO_TYPE_MANAGER(T)
-#endif//#if defined(GP_TYPE_SYSTEM_STATIC_ADD_TO_MANAGER)
+}//GPlatform
 
+//------------------------- TYPE_STRUCT_DECLARE -------------------------
 #define TYPE_STRUCT_DECLARE(TUUID) \
-    using BaseT     = std::remove_reference<decltype(SGetBaseObjectType(&this_type::_type_id_tag_fn))>::type; \
+    using BaseT = std::remove_reference<decltype(SGetBaseObjectType(&this_type::_type_id_tag_fn))>::type; \
 \
-    static const GpTypeStructInfo&  STypeInfo   (void); \
-    constexpr static const GpUUID   STypeUID    (void) noexcept \
+    class StructFactory final: public ::GPlatform::GpTypeStructFactory \
     { \
-        constexpr const GpUUID structUID = GpUUID::CE_FromString(TUUID); \
+    public: \
+        virtual ::GPlatform::GpSP<::GPlatform::GpTypeStructBase>    NewInstance (void) const override final; \
+    }; \
+\
+    static const ::GPlatform::GpTypeStructInfo& STypeInfo   (void); \
+    constexpr static const ::GPlatform::GpUUID  STypeUID    (void) noexcept \
+    { \
+        constexpr const ::GPlatform::GpUUID structUID = ::GPlatform::GpUUID::CE_FromString(TUUID); \
         return structUID; \
     } \
 \
-    class StructFactory final: public GpTypeStructFactory \
-    { \
-    public: \
-        virtual GpSP<GpTypeStructBase>  NewInstance (void) const override final; \
-    }; \
+    static size_t                                   SStaticTypeReg  (void); \
 \
 protected: \
-    virtual void                    _type_id_tag_fn (_type_id_tag_t&) const noexcept override{} \
-    virtual const GpTypeStructInfo& _TypeInfo       (void) const noexcept override; \
-    virtual GpTypeStructBase::SP    _NewInstance    (void) const override; \
+    virtual void                                    _type_id_tag_fn (_type_id_tag_t&) const noexcept override{} \
+    virtual const ::GPlatform::GpTypeStructInfo&    _TypeInfo       (void) const noexcept override; \
+    virtual ::GPlatform::GpTypeStructBase::SP       _NewInstance    (void) const override; \
 \
 private: \
-    static GpTypeStructInfo         _SCollectStructInfo (const GpTypeStructInfo* aBaseStructInfo); \
-    static void                     _SCollectStructProps(GpTypePropInfo::C::Vec::Val& aPropsOut); \
-    TYPE_STRUCT_DECLARE_STATIC_TO_TYPE_MANAGER;
+    static ::GPlatform::GpTypeStructInfo            _SCollectStructInfo (const ::GPlatform::GpTypeStructInfo* aBaseStructInfo); \
+    static void                                     _SCollectStructProps(::GPlatform::GpTypePropInfo::C::Vec::Val& aPropsOut);\
 \
+    GP_TYPE_STRUCT_STATIC_TYPE_REG_DECL;
+
 
 //------------------------- TYPE_STRUCT_IMPLEMENT -------------------------
 #define MACRO_D_TO_STR(VAL) #VAL
 
 #define TYPE_STRUCT_IMPLEMENT(T, MODULE_UUID) \
 \
-    TYPE_STRUCT_IMPLEMENT_STATIC_TO_TYPE_MANAGER(T); \
+    GP_TYPE_STRUCT_STATIC_TYPE_REG_IMPL(T); \
 \
-    GpSP<GpTypeStructBase>  T::StructFactory::NewInstance (void) const {return MakeSP<T>();} \
+    ::GPlatform::GpSP<::GPlatform::GpTypeStructBase>    T::StructFactory::NewInstance (void) const {return MakeSP<T>();} \
 \
-    const GpTypeStructInfo& T::STypeInfo (void) \
+    const ::GPlatform::GpTypeStructInfo&    T::STypeInfo (void) \
     { \
-        static const GpTypeStructInfo sStructInfo = T::_SCollectStructInfo(&T::BaseT::STypeInfo()); \
+        static const ::GPlatform::GpTypeStructInfo sStructInfo = T::_SCollectStructInfo(&T::BaseT::STypeInfo()); \
         return sStructInfo; \
     } \
 \
-    const GpTypeStructInfo& T::_TypeInfo (void) const noexcept \
+    size_t  T::SStaticTypeReg (void) \
+    { \
+        return T::_sStaticTypeReg; \
+    } \
+\
+    const ::GPlatform::GpTypeStructInfo&    T::_TypeInfo (void) const noexcept \
     { \
         return T::STypeInfo(); \
     } \
 \
-    GpTypeStructBase::SP    T::_NewInstance (void) const \
+    ::GPlatform::GpTypeStructBase::SP   T::_NewInstance (void) const \
     { \
         return MakeSP<T>(); \
     } \
 \
-    GpTypeStructInfo    T::_SCollectStructInfo (const GpTypeStructInfo* aBaseStructInfo) \
+    ::GPlatform::GpTypeStructInfo   T::_SCollectStructInfo (const ::GPlatform::GpTypeStructInfo* aBaseStructInfo) \
     { \
-        GpTypePropInfo::C::Vec::Val props; \
+        ::GPlatform::GpTypePropInfo::C::Vec::Val props; \
         if (aBaseStructInfo != nullptr) \
         { \
             props = aBaseStructInfo->Props(); \
         } \
-        GpTypeStructFactory::SP factory = GpSP<StructFactory>::SNew(); \
+        ::GPlatform::GpTypeStructFactory::SP factory = ::GPlatform::GpSP<StructFactory>::SNew(); \
         _SCollectStructProps(props); \
-        constexpr GpUUID typeUID    = T::STypeUID(); \
-        constexpr GpUUID groupUID   = GpUUID::CE_FromString(std::string_view(MACRO_D_TO_STR(MODULE_UUID))); \
-        GpTypeStructInfo structInfo(typeUID, \
-                                    (aBaseStructInfo != nullptr) ? aBaseStructInfo->UID() : GpUUID(), \
-                                    std::string(GpTypeUtils::STypeName<T>()), \
-                                    std::move(props), \
-                                    groupUID, \
-                                    factory); \
+        constexpr ::GPlatform::GpUUID typeUID   = T::STypeUID(); \
+        constexpr ::GPlatform::GpUUID groupUID  = ::GPlatform::GpUUID::CE_FromString(std::string_view(MACRO_D_TO_STR(MODULE_UUID))); \
+        ::GPlatform::GpTypeStructInfo structInfo \
+        (\
+            typeUID, \
+            (aBaseStructInfo != nullptr) ? aBaseStructInfo->UID() : ::GPlatform::GpUUID(), \
+            std::string(::GPlatform::GpTypeUtils::STypeName<T>()), \
+            std::move(props), \
+            groupUID, \
+            factory \
+        ); \
         return structInfo;\
     }
 
 //------------------------- PROP -------------------------
 #define PROP(PROP_NAME) \
 { \
-    GpTypeUtils::SAddProp<decltype(PROP_NAME)> \
+    ::GPlatform::GpTypeUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
         std::string(#PROP_NAME), \
-        GpTypeUtils::SOffsetOf(&this_type::PROP_NAME), \
-        GpTypePropFlags(), \
+        ::GPlatform::GpTypeUtils::SOffsetOf(&this_type::PROP_NAME), \
+        {}, \
         aPropsOut \
     ); \
 }
 
 #define PROP_F(PROP_NAME, FLAGS) \
 { \
-    GpTypeUtils::SAddProp<decltype(PROP_NAME)> \
+    ::GPlatform::GpTypeUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
         std::string(#PROP_NAME), \
-        GpTypeUtils::SOffsetOf(&this_type::PROP_NAME), \
+        ::GPlatform::GpTypeUtils::SOffsetOf(&this_type::PROP_NAME), \
         FLAGS, \
         aPropsOut \
     ); \
 }
-
-}//GPlatform
 
 #endif//GP_USE_TYPE_SYSTEM

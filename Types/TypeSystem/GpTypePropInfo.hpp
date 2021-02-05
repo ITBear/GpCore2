@@ -37,7 +37,7 @@ public:
                                                          const size_t           aAlign,
                                                          const size_t           aSize,
                                                          const std::ptrdiff_t   aOffset,
-                                                         const GpTypePropFlags  aFlags);
+                                                         const GpTypePropFlags& aFlags);
                                     GpTypePropInfo      (const GpTypePropInfo& aPropInfo);
                                     GpTypePropInfo      (GpTypePropInfo&& aPropInfo) noexcept;
                                     ~GpTypePropInfo     (void) noexcept;
@@ -54,6 +54,9 @@ public:
     size_t                          Size                (void) const noexcept {return iSize;}
     std::ptrdiff_t                  Offset              (void) const noexcept {return iOffset;}
     const GpTypePropFlags&          Flags               (void) const noexcept {return iFlags;}
+    bool                            FlagTest            (const GpTypePropFlag::EnumT aFlag) const noexcept;
+    std::optional<std::string_view> FlagArg             (const GpTypePropFlag::EnumT aFlag) const noexcept;
+    const GpTypePropInfo&           UnwrapContainerKeyProp (void) const;
 
     const u_int_8&                  Value_UInt8         (const GpTypeStructBase& aStruct) const {return CastValueAsConst<u_int_8>(aStruct);}
     u_int_8&                        Value_UInt8         (GpTypeStructBase& aStruct) const       {return CastValueAs<u_int_8>(aStruct);}
@@ -241,7 +244,7 @@ private:
 
 private:
     TypeTE                  iType;
-    GpUUID                  iTypeUID;
+    GpUUID                  iTypeUID;   //Only for structs
     ContainerTE             iContainer;
     TypeTE                  iContainerKeyType;
     std::string             iName;

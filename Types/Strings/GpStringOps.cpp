@@ -7,37 +7,52 @@
 
 namespace GPlatform {
 
-GpVector<GpRawPtrCharR> GpStringOps::SSplit (GpRawPtrCharR          aSourceStr,
-                                             const char             aDelim,
-                                             const count_t          aReturnPartsCountLimit,
-                                             const count_t          aDelimCountLimit,
-                                             const Algo::SplitMode  aSplitMode)
+GpVector<GpRawPtrCharR> GpStringOps::SSplit
+(
+    GpRawPtrCharR           aSourceStr,
+    const char              aDelim,
+    const count_t           aReturnPartsCountLimit,
+    const count_t           aDelimCountLimit,
+    const Algo::SplitMode   aSplitMode
+)
 {
     auto a = GpRawPtrCharR(aSourceStr);
     auto b = GpRawPtrCharR(&aDelim, 1_cnt);
 
-    return Algo::Split<char, GpVector<GpRawPtrCharR>>(a,
-                                                      b,
-                                                      aReturnPartsCountLimit,
-                                                      aDelimCountLimit,
-                                                      aSplitMode);
+    return Algo::Split<char, GpVector<GpRawPtrCharR>>
+    (
+        a,
+        b,
+        aReturnPartsCountLimit,
+        aDelimCountLimit,
+        aSplitMode
+    );
 }
 
-GpVector<GpRawPtrCharR> GpStringOps::SSplit (GpRawPtrCharR          aSourceStr,
-                                             GpRawPtrCharR          aDelim,
-                                             const count_t          aReturnPartsCountLimit,
-                                             const count_t          aDelimCountLimit,
-                                             const Algo::SplitMode  aSplitMode)
+GpVector<GpRawPtrCharR> GpStringOps::SSplit
+(
+    GpRawPtrCharR           aSourceStr,
+    GpRawPtrCharR           aDelim,
+    const count_t           aReturnPartsCountLimit,
+    const count_t           aDelimCountLimit,
+    const Algo::SplitMode   aSplitMode
+)
 {
-    return Algo::Split<char, GpVector<GpRawPtrCharR>>(GpRawPtrCharR(aSourceStr),
-                                                      GpRawPtrCharR(aDelim),
-                                                      aReturnPartsCountLimit,
-                                                      aDelimCountLimit,
-                                                      aSplitMode);
+    return Algo::Split<char, GpVector<GpRawPtrCharR>>
+    (
+        GpRawPtrCharR(aSourceStr),
+        GpRawPtrCharR(aDelim),
+        aReturnPartsCountLimit,
+        aDelimCountLimit,
+        aSplitMode
+    );
 }
 
-count_t GpStringOps::SFromUI64 (const u_int_64  aValue,
-                                GpRawPtrCharRW  aStrOut)
+count_t GpStringOps::SFromUI64
+(
+    const u_int_64  aValue,
+    GpRawPtrCharRW  aStrOut
+)
 {
     const count_t length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(aValue));
 
@@ -59,8 +74,11 @@ std::string GpStringOps::SFromUI64 (const u_int_64 aValue)
     return s;
 }
 
-count_t GpStringOps::SFromSI64 (const s_int_64  aValue,
-                                GpRawPtrCharRW  aStrOut)
+count_t GpStringOps::SFromSI64
+(
+    const s_int_64  aValue,
+    GpRawPtrCharRW  aStrOut
+)
 {
     count_t length = 0_cnt;
 
@@ -112,8 +130,11 @@ std::string GpStringOps::SFromSI64 (const s_int_64 aValue)
     return s;
 }
 
-count_t GpStringOps::SFromDouble (const double      aValue,
-                                  GpRawPtrCharRW    aStrOut)
+count_t GpStringOps::SFromDouble
+(
+    const double    aValue,
+    GpRawPtrCharRW  aStrOut
+)
 {
     //TODO reimplement
     std::string s = std::to_string(aValue);
@@ -122,7 +143,7 @@ count_t GpStringOps::SFromDouble (const double      aValue,
 
     THROW_GPE_COND_CHECK_M(aStrOut.CountLeft() >= length, "aMaxOutLength value are too small"_sv);
 
-    SReplace(s, ',', '.');
+    SReplaceAll(s, ',', '.');
 
     aStrOut.CopyFrom(s.data(), length);
 
@@ -133,7 +154,7 @@ std::string GpStringOps::SFromDouble (const double aValue)
 {
     //TODO reimplement
     std::string s = std::to_string(aValue);
-    SReplace(s, ',', '.');
+    SReplaceAll(s, ',', '.');
     return s;
 }
 
@@ -208,7 +229,7 @@ double      GpStringOps::SToDouble_fast (GpRawPtrCharR aStr)
     //Supported format: [+-][UInt64][.[UInt64]]
 
     //----------------- Find decimal separator (radix character) -----------------
-    GpVector<GpRawPtrCharR> parts = SSplit(aStr, '.', 2_cnt, 1_cnt, Algo::SplitMode::COUNT_ZERO_LENGTH_PARTS);
+    GpVector<GpRawPtrCharR> parts = SSplit(aStr, '.', 2_cnt, 2_cnt, Algo::SplitMode::COUNT_ZERO_LENGTH_PARTS);
     GpRawPtrCharR integerPart;
     GpRawPtrCharR fractionalPart;
 
@@ -270,8 +291,11 @@ std::variant<s_int_64, double>  GpStringOps::SToNumeric (GpRawPtrCharR aStr)
     }
 }
 
-count_t GpStringOps::SFromBytes (GpRawPtrByteR  aData,
-                                 GpRawPtrCharRW aStrOut)
+count_t GpStringOps::SFromBytes
+(
+    GpRawPtrByteR   aData,
+    GpRawPtrCharRW  aStrOut
+)
 {
     const count_t dataLength    = aData.CountLeft();
     const count_t strOutLength  = aStrOut.CountLeft();
@@ -315,8 +339,11 @@ std::string GpStringOps::SFromBytes (GpRawPtrByteR aData)
     return res;
 }
 
-size_byte_t GpStringOps::SToBytes (GpRawPtrCharR    aStr,
-                                   GpRawPtrByteRW   aDataOut)
+size_byte_t GpStringOps::SToBytes
+(
+    GpRawPtrCharR   aStr,
+    GpRawPtrByteRW  aDataOut
+)
 {
     //String length
     const count_t strLength = aStr.CountLeft();
@@ -398,8 +425,11 @@ std::string GpStringOps::SFromBits (GpRawPtrByteR aData)
     return res;
 }
 
-count_t     GpStringOps::SConv_UTF16_UTF8 (GpArray<std::byte, 4>&       aUTF8_valueOut,
-                                           const GpArray<std::byte, 2>  aUTF16_value)
+count_t     GpStringOps::SConv_UTF16_UTF8
+(
+    GpArray<std::byte, 4>&      aUTF8_valueOut,
+    const GpArray<std::byte, 2> aUTF16_value
+)
 {
     const u_int_16  utf16_val   = BitOps::N2H(std::bit_cast<u_int_16>(aUTF16_value));
     std::byte*      utf8_val    = aUTF8_valueOut.data();
@@ -432,8 +462,11 @@ count_t     GpStringOps::SConv_UTF16_UTF8 (GpArray<std::byte, 4>&       aUTF8_va
     }
 }
 
-count_t     GpStringOps::SConv_UTF32_UTF8 (GpArray<std::byte, 4>&       aUTF8_valueOut,
-                                           const GpArray<std::byte, 4>  aUTF32_value)
+count_t     GpStringOps::SConv_UTF32_UTF8
+(
+    GpArray<std::byte, 4>&      aUTF8_valueOut,
+    const GpArray<std::byte, 4> aUTF32_value
+)
 {
     const u_int_32  utf32_val   = BitOps::N2H(std::bit_cast<u_int_32>(aUTF32_value));
     std::byte*      utf8_val    = aUTF8_valueOut.data();
@@ -477,7 +510,59 @@ count_t     GpStringOps::SConv_UTF32_UTF8 (GpArray<std::byte, 4>&       aUTF8_va
     }
 }
 
-std::string&    GpStringOps::SReplace (std::string& aStr, const char aChar, const char aNewChar)
+std::string GpStringOps::PercentEncode (GpRawPtrCharR aSrc)
+{
+    std::string_view    srcStr      = aSrc.AsStringView();
+    const char*         srcStrPtr   = srcStr.data();
+    std::string         encodedStr;
+    encodedStr.resize(NumOps::SMul<size_t>(srcStr.size(), 3));
+    char*               encodedStrPtr   = encodedStr.data();
+    size_t              usedSize        = 0;
+    size_t              unprocessedSize = srcStr.size();
+
+    while (unprocessedSize > 0)
+    {
+        unprocessedSize--;
+        const char ch = *srcStrPtr++;
+
+        if (size_t(ch) < 127)
+        {
+            if (   ((ch >= '0') && (ch <= '9'))
+                || ((ch >= 'A') && (ch <= 'Z'))
+                || ((ch >= 'a') && (ch <= 'z'))
+                || (ch == '-')
+                || (ch == '_')
+                || (ch == '.')
+                || (ch == '~'))
+            {
+                *encodedStrPtr++ = ch;
+                usedSize += 1;
+                continue;
+            }
+        }
+
+        const auto hexStr = StrOps::SFromByte(std::byte(ch));
+        GpArray<char, 3> buff;
+        buff.at(0) = '%';
+        buff.at(1) = hexStr.at(0);
+        buff.at(2) = hexStr.at(1);
+
+        std::memcpy(encodedStrPtr, buff.data(), buff.size());
+        encodedStrPtr   += buff.size();
+        usedSize        += buff.size();
+    }
+
+    encodedStr.resize(usedSize);
+
+    return encodedStr;
+}
+
+std::string&    GpStringOps::SReplaceAll
+(
+    std::string&    aStr,
+    const char      aChar,
+    const char      aNewChar
+)
 {
     const size_t    len     = aStr.length();
     char* _R_       data    = aStr.data();
@@ -496,8 +581,50 @@ std::string&    GpStringOps::SReplace (std::string& aStr, const char aChar, cons
     return aStr;
 }
 
-void    GpStringOps::_SFromUI64 (const u_int_64 aValue,
-                                 GpRawPtrCharRW aStrOut)
+std::string GpStringOps::SReplaceAll
+(
+    GpRawPtrCharR   aStr,
+    const char      aChar,
+    const char      aNewChar
+)
+{
+    std::string s(aStr.AsStringView());
+    SReplaceAll(s, aChar, aNewChar);
+    return s;
+}
+
+std::string GpStringOps::SReplaceAll
+(
+    GpRawPtrCharR       aStr,
+    std::string_view    aMatchStr,
+    std::string_view    aNewStr
+)
+{
+    //TODO: reimplement
+
+    std::string res(aStr.AsStringView());
+
+    for (size_t pos = 0; ; pos += aNewStr.length())
+    {
+        pos = res.find(aMatchStr, pos);
+
+        if (pos == std::string::npos)
+        {
+            break;
+        }
+
+        res.erase(pos, aMatchStr.length());
+        res.insert(pos, aNewStr);
+    }
+
+    return res;
+}
+
+void    GpStringOps::_SFromUI64
+(
+    const u_int_64  aValue,
+    GpRawPtrCharRW  aStrOut
+)
 {
     u_int_64        value   = aValue;
     const char* _R_ digits  = SDigits().data();
