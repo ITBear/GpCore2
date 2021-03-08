@@ -16,14 +16,22 @@ GpGraphEdge::~GpGraphEdge (void) noexcept
 
 void    GpGraphEdge::OnConnectIn (GpGraphNode::WP aInNode)
 {
-    THROW_GPE_COND_CHECK_M(iNodeIn.IsNULL(), "In node already connected"_sv);
+    THROW_GPE_COND
+    (
+        iNodeIn.IsNULL(),
+        "In node already connected"_sv
+    );
 
     iNodeIn = aInNode;
 }
 
 void    GpGraphEdge::OnConnectOut (GpGraphNode::WP aOutNode)
 {
-    THROW_GPE_COND_CHECK_M(iNodeOut.IsNULL(), "Out node already connected"_sv);
+    THROW_GPE_COND
+    (
+        iNodeOut.IsNULL(),
+        "Out node already connected"_sv
+    );
 
     iNodeOut = aOutNode;
 }

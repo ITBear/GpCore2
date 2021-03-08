@@ -163,12 +163,3 @@
 #   endif
 
 #endif//#if !defined(GP_MANUAL_ENVIRONMENT_SETTINGS)
-
-//*************************** ENDIAN **************************************
-#if defined(__ORDER_LITTLE_ENDIAN__)
-#   define GP_ORDER_LITTLE_ENDIAN
-#elif defined(__ORDER_BIG_ENDIAN__)
-#   define GP_ORDER_BIG_ENDIAN
-#else
-#   error unknown endian
-#endif

@@ -59,15 +59,15 @@ public:
     static std::variant<s_int_64, double>   SToNumeric      (GpRawPtrCharR aStr);
 
     //------------------------- Bytes from/to string --------------------------
-    static count_t                          SFromBytes      (GpRawPtrByteR  aData,
+    static count_t                          SFromBytesHex   (GpRawPtrByteR  aData,
                                                              GpRawPtrCharRW aStrOut);
-    static std::string                      SFromBytes      (GpRawPtrByteR  aData);
-    static inline GpArray<char,2>           SFromByte       (const std::byte    aData) noexcept;
+    static std::string                      SFromBytesHex   (GpRawPtrByteR  aData);
+    static inline GpArray<char,2>           SFromByteHex    (const std::byte    aData) noexcept;
 
-    static size_byte_t                      SToBytes        (GpRawPtrCharR  aStr,
+    static size_byte_t                      SToBytesHex     (GpRawPtrCharR  aStr,
                                                              GpRawPtrByteRW aDataOut);
-    static GpBytesArray                     SToBytes        (GpRawPtrCharR      aStr);
-    static constexpr std::byte              SToByte         (GpArray<char,2>    aStr);
+    static GpBytesArray                     SToBytesHex     (GpRawPtrCharR      aStr);
+    static constexpr std::byte              SToByteHex      (GpArray<char,2>    aStr);
 
     static std::string                      SFromBits       (GpRawPtrByteR  aData);
 
@@ -85,17 +85,18 @@ public:
     static std::string                      SReplaceAll     (GpRawPtrCharR  aStr, const char aChar, const char aNewChar);
     static std::string                      SReplaceAll     (GpRawPtrCharR  aStr, std::string_view aMatchStr, std::string_view aNewStr);
 
+    //------------------------- Register --------------------------
+    static void                             SToLower        (GpRawPtrCharRW aStr);
+    static void                             SToUpper        (GpRawPtrCharRW aStr);
+
     //------------------------- Count -----------------------------
-    static inline constexpr count_t         SCountChars     (std::string_view aStr, const char aChar) noexcept;
+    static inline constexpr count_t         SCountChars     (std::string_view   aStr, const char aChar) noexcept;
+    static bool                             SContainsOnly   (GpRawPtrCharR      aStr, const GpSet<char>& aSet) noexcept;
 
     //------------------------- Auto to string -----------------------------
     static std::string_view                 SToString       (const std::string& aValue) {return aValue;}
     static std::string_view                 SToString       (std::string_view aValue) {return aValue;}
-    static std::string                      SToString       (const GpBytesArray& aValue) {return SFromBytes(aValue);}
-    //static std::string_view               SToString       (GpRawPtrCharR aValue) {return aValue.AsStringView();}
-    //static std::string_view               SToString       (GpRawPtrCharRW aValue) {return aValue.AsStringView();}
-    //static std::string                    SToString       (GpRawPtrByteR aValue) {return SFromBytes(aValue);}
-    //static std::string                    SToString       (GpRawPtrByteRW aValue) {return SFromBytes(aValue);}
+    static std::string                      SToString       (const GpBytesArray& aValue) {return SFromBytesHex(aValue);}
     static std::string_view                 SToString       (const GpEnum& aValue) {return aValue.ToString();}
     static std::string                      SToString       (const GpUUID& aValue) {return aValue.ToString();}
     static std::string                      SToString       (float aValue) {return SFromDouble(double(aValue));}
@@ -149,7 +150,7 @@ std::string_view    GpStringOps::SFromChar (const char* aStrPtr)
     }
 }
 
-GpArray<char,2> GpStringOps::SFromByte (const std::byte aData) noexcept
+GpArray<char,2> GpStringOps::SFromByteHex (const std::byte aData) noexcept
 {
     constexpr GpArray<char, 16> hexToChar =
     {
@@ -160,7 +161,7 @@ GpArray<char,2> GpStringOps::SFromByte (const std::byte aData) noexcept
             hexToChar.data()[(size_t(aData) & size_t(0x0F)) >> 0]};
 }
 
-constexpr std::byte GpStringOps::SToByte (GpArray<char,2> aStr)
+constexpr std::byte GpStringOps::SToByteHex (GpArray<char,2> aStr)
 {
     //--------------------------
     char    ch      = aStr.data()[0];

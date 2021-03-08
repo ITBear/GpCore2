@@ -69,7 +69,7 @@ protected:
 };
 
 
-template<typename E> class GpEnumFlagsST: public GpEnumFlags
+template<typename E> class GpEnumFlagsST final: public GpEnumFlags
 {
 public:
     static_assert(std::is_base_of<GpEnum, E>::value, "E must be inherited from GpEnum");

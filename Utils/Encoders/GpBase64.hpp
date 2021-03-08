@@ -14,24 +14,26 @@ class GPCORE_API GpBase64
     CLASS_REMOVE_CTRS(GpBase64)
 
 public:
-    static size_byte_t      SEncode             (GpRawPtrByteR  aSrcData,
+    static void             SEncode             (GpRawPtrByteR  aData,
                                                  GpByteWriter&  aWriterBase64Str,
                                                  const count_t  aSingleLineMaxLength);
-    static std::string      SEncode             (GpRawPtrByteR  aData,
+    static std::string      SEncodeToStr        (GpRawPtrByteR  aData,
+                                                 const count_t  aSingleLineMaxLength);
+    static GpBytesArray     SEncodeToByteArray  (GpRawPtrByteR  aData,
                                                  const count_t  aSingleLineMaxLength);
 
-    static size_byte_t      SDecode             (GpRawPtrCharR  aBase64Str,
+    static void             SDecode             (GpRawPtrCharR  aBase64Str,
                                                  GpByteWriter&  aWriterData);
-    static std::string      SDecode             (GpRawPtrByteR  aBase64Str);
+    static std::string      SDecodeToStr        (GpRawPtrCharR  aBase64Str);
+    static GpBytesArray     SDecodeToByteArray  (GpRawPtrCharR  aBase64Str);
 
 private:
-    static size_byte_t      SCalcEncodedSize    (GpRawPtrByteR  aSrcData,
+    static size_byte_t      SEncodedSize        (GpRawPtrByteR  aData,
                                                  const count_t  aSingleLineMaxLength);
-    static count_t          SCalcBlocksCount    (GpRawPtrByteR  aSrcData);
+    static size_byte_t      SDecodedSize        (GpRawPtrCharR  aBase64Str);
+    static count_t          SEncodedBlocksCount (GpRawPtrByteR  aData);
 
-    static u_int_8          SAlphabetToByte     (const u_int_8  aValue,
-                                                 size_t&        aBlockPartsRead,
-                                                 bool&          aIsEnd);
+    static std::byte        SAlphabetToByte     (const std::byte aValue);
 
     static const GpArray<std::byte, 64> sAlphabet;
 };

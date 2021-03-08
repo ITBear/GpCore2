@@ -70,19 +70,63 @@ public:
     }
 
     template<typename T> [[nodiscard]] static
+    T                               Native2BigEndian (T aValue)
+    {
+        if constexpr (std::endian::native == std::endian::big)
+        {
+            return aValue;
+        } else if constexpr (std::endian::native == std::endian::little)
+        {
+            return BSwap(aValue);
+        } else
+        {
+            GpThrowCe<std::exception>("Mixed endian");
+        }
+    }
+
+    template<typename T> [[nodiscard]] static
+    T                               Native2LittleEndian (T aValue)
+    {
+        if constexpr (std::endian::native == std::endian::big)
+        {
+            return BSwap(aValue);
+        } else if constexpr (std::endian::native == std::endian::little)
+        {
+            return aValue;
+        } else
+        {
+            GpThrowCe<std::exception>("Mixed endian");
+        }
+    }
+
+    template<typename T> [[nodiscard]] static
     T                               N2H (T aValue)
     {
-#if defined(GP_ORDER_LITTLE_ENDIAN)
-        return BSwap(aValue);
-#else
-        return aValue;
-#endif
+        if constexpr (std::endian::native == std::endian::big)
+        {
+            return aValue;
+        } else if constexpr (std::endian::native == std::endian::little)
+        {
+            return BSwap(aValue);
+        } else
+        {
+            GpThrowCe<std::exception>("Mixed endian");
+        }
     }
 
     template<typename T> [[nodiscard]] static
     T                               H2N (T aValue)
     {
-        return N2H(aValue);
+        if constexpr (std::endian::native == std::endian::big)
+        {
+            return aValue;
+        } else if constexpr (std::endian::native == std::endian::little)
+        {
+            return BSwap(aValue);
+        } else
+        {
+            GpThrowCe<std::exception>("Mixed endian");
+        }
     }
 
     //------------------------------------ Interleave16_16(Morton Codes) ------------------------------------

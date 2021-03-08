@@ -84,6 +84,10 @@ consteval GpType::EnumT GpTypeUtils::SDetectType (void)
     else if constexpr (std::is_same_v<VT, s_int_32>) return GpType::S_INT_32;
     else if constexpr (std::is_same_v<VT, u_int_64>) return GpType::U_INT_64;
     else if constexpr (std::is_same_v<VT, s_int_64>) return GpType::S_INT_64;
+    else if constexpr ((sizeof( size_t) == sizeof(u_int_32)) && (!std::is_same_v< size_t, u_int_32>) && (std::is_same_v<VT,  size_t>)) return GpType::U_INT_32;
+    else if constexpr ((sizeof( size_t) == sizeof(u_int_64)) && (!std::is_same_v< size_t, u_int_64>) && (std::is_same_v<VT,  size_t>)) return GpType::U_INT_64;
+    else if constexpr ((sizeof(ssize_t) == sizeof(s_int_32)) && (!std::is_same_v<ssize_t, s_int_32>) && (std::is_same_v<VT, ssize_t>)) return GpType::S_INT_32;
+    else if constexpr ((sizeof(ssize_t) == sizeof(s_int_64)) && (!std::is_same_v<ssize_t, s_int_64>) && (std::is_same_v<VT, ssize_t>)) return GpType::S_INT_64;
     else if constexpr (std::is_same_v<VT, double>) return GpType::DOUBLE;
     else if constexpr (std::is_same_v<VT, float>) return GpType::FLOAT;
     else if constexpr (std::is_same_v<VT, bool>) return GpType::BOOLEAN;
@@ -106,7 +110,7 @@ consteval GpType::EnumT GpTypeUtils::SDetectType (void)
             }
         } else
         {
-            return SDetectType<typename VT::value_type>();
+            return GpTypeUtils::SDetectType<typename VT::value_type>();
         }
     }
     else if constexpr (GpEnum::SHasTag_GpEnum<VT>()) return GpType::ENUM;

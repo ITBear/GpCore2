@@ -192,7 +192,7 @@ void    GpTypeStructInfo::_SEchoValue (const GpTypeStructBase&  aStruct,
         } break;
         case GpType::BLOB:
         {
-            aStrOut.append(StrOps::SFromBytes(aPropInfo.Value_BLOB(aStruct)));
+            aStrOut.append(StrOps::SFromBytesHex(aPropInfo.Value_BLOB(aStruct)));
         } break;
         case GpType::STRUCT:
         {

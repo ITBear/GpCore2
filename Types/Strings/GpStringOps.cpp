@@ -56,7 +56,7 @@ count_t GpStringOps::SFromUI64
 {
     const count_t length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(aValue));
 
-    THROW_GPE_COND_CHECK_M(aStrOut.CountLeft() >= length, "aStrOut size are too small"_sv);
+    THROW_GPE_COND(aStrOut.CountLeft() >= length, "aStrOut size are too small"_sv);
 
     _SFromUI64(aValue, GpRawPtrCharRW(aStrOut.Ptr(), length));
 
@@ -87,7 +87,7 @@ count_t GpStringOps::SFromSI64
         const u_int_64 v = std::bit_cast<u_int_64>(aValue);
         length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(v));
 
-        THROW_GPE_COND_CHECK_M(aStrOut.CountLeft() >= length, "aStrOut size are too small"_sv);
+        THROW_GPE_COND(aStrOut.CountLeft() >= length, "aStrOut size are too small"_sv);
 
         _SFromUI64(v, GpRawPtrCharRW(aStrOut.Ptr(), length));
     } else
@@ -95,7 +95,7 @@ count_t GpStringOps::SFromSI64
         const u_int_64 v =std::bit_cast<u_int_64>(-aValue);
         length = count_t::SMake(GpNumericOps::SDecDigsCountUI64(v));
 
-        THROW_GPE_COND_CHECK_M(aStrOut.CountLeft() >= (length + 1_cnt), "StrOut size are too small"_sv);
+        THROW_GPE_COND(aStrOut.CountLeft() >= (length + 1_cnt), "StrOut size are too small"_sv);
 
         *aStrOut++ = '-';
         _SFromUI64(v, GpRawPtrCharRW(aStrOut.Ptr(), length));
@@ -141,7 +141,11 @@ count_t GpStringOps::SFromDouble
 
     const count_t length = count_t::SMake(s.length());
 
-    THROW_GPE_COND_CHECK_M(aStrOut.CountLeft() >= length, "aMaxOutLength value are too small"_sv);
+    THROW_GPE_COND
+    (
+        aStrOut.CountLeft() >= length,
+        "aMaxOutLength value are too small"_sv
+    );
 
     SReplaceAll(s, ',', '.');
 
@@ -291,7 +295,7 @@ std::variant<s_int_64, double>  GpStringOps::SToNumeric (GpRawPtrCharR aStr)
     }
 }
 
-count_t GpStringOps::SFromBytes
+count_t GpStringOps::SFromBytesHex
 (
     GpRawPtrByteR   aData,
     GpRawPtrCharRW  aStrOut
@@ -305,7 +309,11 @@ count_t GpStringOps::SFromBytes
         return 0_cnt;
     }
 
-    THROW_GPE_COND_CHECK_M(strOutLength >= (dataLength * 2_cnt), "Out string size is too small"_sv);
+    THROW_GPE_COND
+    (
+        strOutLength >= (dataLength * 2_cnt),
+        "Out string size is too small"_sv
+    );
 
     size_t                  countLeft   = aData.CountLeft().As<size_t>();
     const std::byte* _R_    data        = aData.Ptr();
@@ -324,14 +332,14 @@ count_t GpStringOps::SFromBytes
     return dataLength * 2_cnt;
 }
 
-std::string GpStringOps::SFromBytes (GpRawPtrByteR aData)
+std::string GpStringOps::SFromBytesHex (GpRawPtrByteR aData)
 {
     const count_t charsCount = count_t::SMake(aData.SizeLeft().Value()) * 2_cnt;
 
     std::string res;
     res.resize(charsCount.As<size_t>());
 
-    if (SFromBytes(aData, res) != charsCount)
+    if (SFromBytesHex(aData, res) != charsCount)
     {
         THROW_GPE("Failed to convert bytes to hex string"_sv);
     }
@@ -339,7 +347,7 @@ std::string GpStringOps::SFromBytes (GpRawPtrByteR aData)
     return res;
 }
 
-size_byte_t GpStringOps::SToBytes
+size_byte_t GpStringOps::SToBytesHex
 (
     GpRawPtrCharR   aStr,
     GpRawPtrByteRW  aDataOut
@@ -353,7 +361,11 @@ size_byte_t GpStringOps::SToBytes
         return 0_byte;
     }
 
-    THROW_GPE_COND_CHECK_M((strLength % 2_cnt) == 0_cnt, "String length must be even"_sv);
+    THROW_GPE_COND
+    (
+        (strLength % 2_cnt) == 0_cnt,
+        "String length must be even"_sv
+    );
 
     //Remove prefix
     GpRawPtrCharR prefix    = aStr.Subrange(0_cnt, 2_cnt);
@@ -373,7 +385,11 @@ size_byte_t GpStringOps::SToBytes
     GpRawPtrCharR strHexPtr(strHex);
 
     const count_t outSize = strHexPtr.CountLeft() / 2_cnt;
-    THROW_GPE_COND_CHECK_M(aDataOut.CountLeft() >= outSize, "Out data size is too small"_sv);
+    THROW_GPE_COND
+    (
+        aDataOut.CountLeft() >= outSize,
+        "Out data size is too small"_sv
+    );
 
     size_t          countLeft   = strHexPtr.CountLeft().As<size_t>();
     const char* _R_ str         = strHexPtr.Ptr();
@@ -382,19 +398,19 @@ size_byte_t GpStringOps::SToBytes
     {
         countLeft -= 2;
         GpArray<char,2> s = {*str++, *str++};
-        *aDataOut++ = SToByte(s);
+        *aDataOut++ = SToByteHex(s);
     }
 
     return size_byte_t::SMake(outSize.Value());
 }
 
-GpBytesArray    GpStringOps::SToBytes (GpRawPtrCharR aStr)
+GpBytesArray    GpStringOps::SToBytesHex (GpRawPtrCharR aStr)
 {
     const size_t size = aStr.CountLeft().As<size_t>();
 
     GpBytesArray res;
     res.resize(size/2);
-    res.resize(SToBytes(aStr, res).As<size_t>());
+    res.resize(SToBytesHex(aStr, res).As<size_t>());
     return res;
 }
 
@@ -541,7 +557,7 @@ std::string GpStringOps::PercentEncode (GpRawPtrCharR aSrc)
             }
         }
 
-        const auto hexStr = StrOps::SFromByte(std::byte(ch));
+        const auto hexStr = StrOps::SFromByteHex(std::byte(ch));
         GpArray<char, 3> buff;
         buff.at(0) = '%';
         buff.at(1) = hexStr.at(0);
@@ -618,6 +634,68 @@ std::string GpStringOps::SReplaceAll
     }
 
     return res;
+}
+
+void    GpStringOps::SToLower (GpRawPtrCharRW aStr)
+{
+    if (aStr.IsEmpty())
+    {
+        return;
+    }
+
+    char* _R_       str     = aStr.Ptr();
+    const size_t    size    = aStr.SizeLeft().As<size_t>();
+
+    for (size_t id = 0; id < size; ++id)
+    {
+        const char ch = *str;
+        *str++ = static_cast<char>(std::tolower(ch));
+    }
+}
+
+void    GpStringOps::SToUpper (GpRawPtrCharRW aStr)
+{
+    if (aStr.IsEmpty())
+    {
+        return;
+    }
+
+    char* _R_       str     = aStr.Ptr();
+    const size_t    size    = aStr.SizeLeft().As<size_t>();
+
+    for (size_t id = 0; id < size; ++id)
+    {
+        const char ch = *str;
+        *str++ = static_cast<char>(std::toupper(ch));
+    }
+}
+
+bool    GpStringOps::SContainsOnly
+(
+    GpRawPtrCharR       aStr,
+    const GpSet<char>&  aSet
+) noexcept
+{
+    size_t size = aStr.CountLeft().As<size_t>();
+
+    if (size == 0)
+    {
+        return true;
+    }
+
+    const char* _R_ ptr = aStr.Ptr();
+
+    while (size > 0)
+    {
+        size--;
+
+        if (aSet.count(*ptr++) == 0)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void    GpStringOps::_SFromUI64

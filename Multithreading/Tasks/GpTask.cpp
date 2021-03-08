@@ -9,7 +9,12 @@ namespace GPlatform {
 
 void    GpTask::MoveToReady (void)
 {
-    THROW_GPE_COND_CHECK_M(iScheduler.has_value(), "Add task to scheduler"_sv);
+    THROW_GPE_COND
+    (
+        iScheduler.has_value(),
+        "Add task to scheduler"_sv
+    );
+
     GpTaskSchedulerAccessor::SMoveToReady(iScheduler.value().get(), iThisWeakPtr);
 }
 

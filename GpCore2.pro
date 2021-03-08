@@ -21,6 +21,14 @@ os_linux
 	#Only if GP_USE_MULTITHREADING_FIBERS set
 	LIBS += -lpthread
 	LIBS += -lboost_context
+	LIBS += -lgmp
+	LIBS += -lgmpxx
+}
+
+os_browser
+{
+	LIBS += -lgmp
+	LIBS += -lgmpxx
 }
 #------------------------------ LIBS END ---------------------------------
 
@@ -208,6 +216,7 @@ HEADERS += \
 	UnitTests/GpUnitTestLayeredCtx.hpp \
 	UnitTests/GpUnitTestStreamOutCtx.hpp \
 	UnitTests/GpUnitTests.hpp \
+	Utils/Encoders/GpBase58.hpp \
 	Utils/Encoders/GpBase64.hpp \
 	Utils/Encoders/GpEncoders.hpp \
 	Utils/Errno/GpErrno.hpp \
@@ -295,6 +304,7 @@ SOURCES += \
 	UnitTests/GpUnitTestException.cpp \
 	UnitTests/GpUnitTestLayeredCtx.cpp \
 	UnitTests/GpUnitTestStreamOutCtx.cpp \
+	Utils/Encoders/GpBase58.cpp \
 	Utils/Encoders/GpBase64.cpp \
 	Utils/Errno/GpErrno.cpp \
 	Utils/File/GpFileUtils.cpp \

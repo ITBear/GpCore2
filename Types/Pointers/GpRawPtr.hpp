@@ -146,17 +146,17 @@ public:
                                                                                                            iCount(aCount),
                                                                                                            iOffset(0_cnt)
     {
-        THROW_GPE_COND_CHECK_M((iPtr != nullptr) || (iCount == 0_cnt), "nullptr"_sv);
-        //THROW_GPE_COND_CHECK_M(iCount >= 1_cnt, "Count is less than 1"_sv);
+        THROW_GPE_COND((iPtr != nullptr) || (iCount == 0_cnt), "nullptr"_sv);
+        //THROW_GPE_COND(iCount >= 1_cnt, "Count is less than 1"_sv);
     }
 
     constexpr                                   GpRawPtr        (pointer_type aPtr, const count_t aCount, const count_t aOffset): iPtr(aPtr),
                                                                                                                                   iCount(aCount),
                                                                                                                                   iOffset(aOffset)
     {
-        THROW_GPE_COND_CHECK_M((iPtr != nullptr) || (iCount == 0_cnt), "nullptr"_sv);
-        //THROW_GPE_COND_CHECK_M(iCount >= 1_cnt, "Count is less than 1"_sv);
-        THROW_GPE_COND_CHECK_M(iCount >= iOffset, "Count < Offset"_sv);
+        THROW_GPE_COND((iPtr != nullptr) || (iCount == 0_cnt), "nullptr"_sv);
+        //THROW_GPE_COND(iCount >= 1_cnt, "Count is less than 1"_sv);
+        THROW_GPE_COND(iCount >= iOffset, "Count < Offset"_sv);
     }
 
     template<typename P, typename = std::enable_if_t<is_convertable_ptr_v<P, pointer_type>, P>>
@@ -209,8 +209,8 @@ public:
 
     constexpr void                              Set             (pointer_type aPtr, const count_t aCount)
     {
-        THROW_GPE_COND_CHECK_M((iPtr != nullptr) || (iCount == 0_cnt), "nullptr"_sv);
-        //THROW_GPE_COND_CHECK_M(aCount >= 1_cnt, "Count is less than 1"_sv);
+        THROW_GPE_COND((iPtr != nullptr) || (iCount == 0_cnt), "nullptr"_sv);
+        //THROW_GPE_COND(aCount >= 1_cnt, "Count is less than 1"_sv);
 
         iPtr    = aPtr;
         iCount  = aCount;
@@ -219,9 +219,9 @@ public:
 
     constexpr void                              Set             (pointer_type aPtr, const count_t aCount, const count_t aOffset)
     {
-        THROW_GPE_COND_CHECK_M((iPtr != nullptr) || (iCount == 0_cnt), "nullptr"_sv);
-        //THROW_GPE_COND_CHECK_M(aCount >= 1_cnt, "Count is less than 1"_sv);
-        THROW_GPE_COND_CHECK_M(aCount >= aOffset, "Count < Offset"_sv);
+        THROW_GPE_COND((iPtr != nullptr) || (iCount == 0_cnt), "nullptr"_sv);
+        //THROW_GPE_COND(aCount >= 1_cnt, "Count is less than 1"_sv);
+        THROW_GPE_COND(aCount >= aOffset, "Count < Offset"_sv);
 
         iPtr    = aPtr + aOffset.As<size_t>();
         iCount  = aCount;
@@ -313,7 +313,7 @@ public:
     constexpr void                              OffsetAdd       (const count_t aOffset)
     {
         const count_t countLeft = CountLeft();
-        THROW_GPE_COND_CHECK_M(aOffset <= countLeft, "Out of range"_sv);
+        THROW_GPE_COND(aOffset <= countLeft, "Out of range"_sv);
 
         iOffset += aOffset;
         iPtr    += aOffset.As<size_t>();
@@ -321,7 +321,7 @@ public:
 
     constexpr void                              OffsetSub       (const count_t aOffset)
     {
-        THROW_GPE_COND_CHECK_M(aOffset <= iOffset, "Out of range"_sv);
+        THROW_GPE_COND(aOffset <= iOffset, "Out of range"_sv);
 
         iOffset -= aOffset;
         iPtr    -= aOffset.As<size_t>();
@@ -337,7 +337,7 @@ public:
     {
         const count_t countLeftThis     = CountLeft();
         const count_t countLeftOther    = aRawPtr.CountLeft();
-        THROW_GPE_COND_CHECK_M(countLeftThis >= countLeftOther, "Out of range"_sv);
+        THROW_GPE_COND(countLeftThis >= countLeftOther, "Out of range"_sv);
         MemOps::SCopy(Ptr(), aRawPtr.Ptr(), countLeftOther);
     }
 
@@ -345,7 +345,7 @@ public:
     constexpr void                              CopyFrom        (const value_type* aPtr, const count_t aCount)
     {
         const count_t countLeftThis = CountLeft();
-        THROW_GPE_COND_CHECK_M(countLeftThis >= aCount, "Out of range"_sv);
+        THROW_GPE_COND(countLeftThis >= aCount, "Out of range"_sv);
         MemOps::SCopy(Ptr(), aPtr, aCount);
     }
 
@@ -394,7 +394,7 @@ public:
     constexpr R                                 SubrangeAs          (const count_t aOffset, const count_t aCount) const
     {
         const count_t countLeft = CountLeft();
-        THROW_GPE_COND_CHECK_M((aOffset + aCount) <= countLeft, "Out of range"_sv);
+        THROW_GPE_COND((aOffset + aCount) <= countLeft, "Out of range"_sv);
         return R(_PtrAs<typename R::pointer_type>(aOffset),
                  SCountAs<pointer_type, typename R::pointer_type>(aCount));
     }
@@ -433,11 +433,11 @@ public:
         const value_type*   ptr     = _Ptr();
         const size_t        addr    = std::bit_cast<size_t>(ptr);
 
-        THROW_GPE_COND_CHECK_M((addr % alignof(typename R::value_type)) == 0, "Wrong memory align"_sv);
+        THROW_GPE_COND((addr % alignof(typename R::value_type)) == 0, "Wrong memory align"_sv);
 
         const size_t countLeft = CountLeft().template As<size_t>();
 
-        THROW_GPE_COND_CHECK_M((countLeft % sizeof(typename R::value_type)) == 0, "Wrong elements count"_sv);
+        THROW_GPE_COND((countLeft % sizeof(typename R::value_type)) == 0, "Wrong elements count"_sv);
 
         return R(reinterpret_cast<typename R::pointer_type>(_Ptr()),
                  countLeft / sizeof(typename R::value_type));
@@ -548,7 +548,7 @@ public:
     {
         const count_t countLeft = CountLeft();
 
-        THROW_GPE_COND_CHECK_M(aOffset < countLeft, "Out of range"_sv);
+        THROW_GPE_COND(aOffset < countLeft, "Out of range"_sv);
         return _PtrBegin() + aOffset.As<size_t>();
     }
 
@@ -572,7 +572,7 @@ public:
     constexpr pointer_type                      _PtrBegin       (const count_t aOffset) const
     {
         const count_t countTotal = CountTotal();
-        THROW_GPE_COND_CHECK_M(aOffset < countTotal, "Out of range"_sv);
+        THROW_GPE_COND(aOffset < countTotal, "Out of range"_sv);
         return _PtrBegin() + aOffset.As<size_t>();
     }
 

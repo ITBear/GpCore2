@@ -20,3 +20,5 @@
 #define GP_USE_UNIT_TESTS
 #define GP_USE_FILE_UTILS
 #define GP_USE_BASE64
+#define GP_USE_BASE58
+#define GP_USE_GNU_GMP

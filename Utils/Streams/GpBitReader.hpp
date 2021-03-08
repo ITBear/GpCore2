@@ -52,7 +52,11 @@ private:
     T                       ReadPOD         (const size_bit_t aSize,
                                              const size_bit_t aOffset)
     {
-        THROW_GPE_COND_CHECK_M(aSize <= size_byte_t::SMake(sizeof(T)), "Out of range"_sv);
+        THROW_GPE_COND
+        (
+            aSize <= size_byte_t::SMake(sizeof(T)),
+            "Out of range"_sv
+        );
 
         T val = T();
         _Bits(reinterpret_cast<std::byte*>(&val), aSize, aOffset);

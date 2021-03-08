@@ -7,6 +7,7 @@
 #include "../Numerics/GpNumerics.hpp"
 #include "../Containers/GpContainersT.hpp"
 #include "../Containers/GpRawPtrByte.hpp"
+#include "../../Exceptions/GpCeExceptions.hpp"
 
 namespace GPlatform {
 
@@ -181,7 +182,10 @@ constexpr bool  GpUUID::operator!= (const DataT& aData) const noexcept
 
 consteval GpUUID::DataT GpUUID::CE_FromString (std::string_view aStr)
 {
-    THROW_GPE_COND_CHECK_M(aStr.size() == 36, "Length of UUID string must be 36"_sv);
+    if (aStr.size() != 36)
+    {
+        GpThrowCe<std::out_of_range>("Length of UUID string must be 36");
+    }
 
     DataT data = {};
 

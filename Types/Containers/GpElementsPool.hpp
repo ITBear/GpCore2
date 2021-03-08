@@ -72,14 +72,18 @@ template<typename T>
 void    GpElementsPool<T>::Init (const count_t aInitCount,
                                  const count_t aMaxCount)
 {
-    THROW_GPE_COND_CHECK(aInitCount >= 0_cnt);
-    THROW_GPE_COND_CHECK(aMaxCount >= aInitCount);
+    THROW_GPE_COND(aInitCount >= 0_cnt);
+    THROW_GPE_COND(aMaxCount >= aInitCount);
 
     Clear();
 
     std::scoped_lock lock(iLock);
 
-    THROW_GPE_COND_CHECK_M(iIsInit == false, "Already initialized"_sv);
+    THROW_GPE_COND
+    (
+        iIsInit == false,
+        "Already initialized"_sv
+    );
 
     PreInit(aInitCount);
 
@@ -130,7 +134,11 @@ void    GpElementsPool<T>::Release (value_type aElement)
 {
     std::scoped_lock lock(iLock);
 
-    THROW_GPE_COND_CHECK_M(iAcquiredCount > 0_cnt, "Release without acquire"_sv);
+    THROW_GPE_COND
+    (
+        iAcquiredCount > 0_cnt,
+        "Release without acquire"_sv
+    );
 
     if (Validate(aElement))
     {

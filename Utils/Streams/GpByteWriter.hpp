@@ -25,7 +25,8 @@ public:
     GpByteWriter&           SInt64          (const s_int_64 aValue);
     GpByteWriter&           BytesWithLen    (GpRawPtrByteR aData);
     GpByteWriter&           Bytes           (GpRawPtrByteR aData);
-    GpByteWriter&           CompactSInt32   (const s_int_32 aValue);
+    GpByteWriter&           CompactUInt32   (const u_int_32 aValue);
+    GpByteWriter&           CompactUInt16   (const u_int_16 aValue);
 
 private:
     template<typename T>

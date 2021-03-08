@@ -103,8 +103,14 @@ void    GpBitReader::_Bits (std::byte*          aDataOut,
                             const size_bit_t    aOffset)
 {
     //Check range
-    THROW_GPE_COND_CHECK_M(   (aSize > 0_bit)
-                           && (iStorage.Left() >= aSize), "Out of range"_sv);
+    THROW_GPE_COND
+    (
+        (
+              (aSize > 0_bit)
+           && (iStorage.Left() >= aSize)
+        ),
+        "Out of range"_sv
+    );
 
     //Copy
     std::byte*          dstPtr      = aDataOut;
@@ -161,9 +167,12 @@ void    GpBitReader::Copy (std::byte*       aDst,
 
     //Check tmp buffers size
     using TmpBufferT = u_int_64;
-    THROW_GPE_COND_CHECK_M(   (dstBytesIntersectCnt <= (sizeof(TmpBufferT)-1))
-                           && (srcBytesIntersectCnt <= (sizeof(TmpBufferT)-1)),
-                              "tmp buffer size is out of range"_sv);
+    THROW_GPE_COND
+    (
+           (dstBytesIntersectCnt <= (sizeof(TmpBufferT)-1))
+        && (srcBytesIntersectCnt <= (sizeof(TmpBufferT)-1)),
+        "tmp buffer size is out of range"_sv
+    );
 
     //Copy to tmp buffers
     TmpBufferT tmpDst = 0;

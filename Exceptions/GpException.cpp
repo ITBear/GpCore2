@@ -20,8 +20,11 @@ iSourceLocation(aException.iSourceLocation)
 {
 }
 
-GpException::GpException (std::string_view          aMsg,
-                          const SourceLocationT&    aSourceLocation) noexcept
+GpException::GpException
+(
+    std::string_view        aMsg,
+    const SourceLocationT&  aSourceLocation
+) noexcept
 try
 {
     std::string_view    fileName(aSourceLocation.file_name());

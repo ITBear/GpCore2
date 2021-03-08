@@ -15,8 +15,11 @@ GpExceptionDesc::~GpExceptionDesc (void) noexcept
 {
 }
 
-void    GpExceptionDesc::SetFromExceptionSTD (const std::exception&     aException,
-                                              const SourceLocationT&    aSourceLocation)
+void    GpExceptionDesc::SetFromExceptionSTD
+(
+    const std::exception&   aException,
+    const SourceLocationT&  aSourceLocation
+)
 {
     message         = "std::exception: "_sv + aException.what();
     line            = count_t::SMake(aSourceLocation.line());

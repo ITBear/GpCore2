@@ -83,7 +83,11 @@ void    GpTaskScheduler::Start
     const count_t       aExecutorsCount
 )
 {
-    THROW_GPE_COND_CHECK_M(aExecutorsCount >= 1_cnt, "Executors count must be >= 1"_sv);
+    THROW_GPE_COND
+    (
+        aExecutorsCount >= 1_cnt,
+        "Executors count must be >= 1"_sv
+    );
 
     iExecutorsPool.SetScheduler(aSelfWP);
     iExecutorsPool.Init(aExecutorsCount, aExecutorsCount);
@@ -184,7 +188,7 @@ void    GpTaskScheduler::AddTaskToReady (GpTask::SP aTask)
 
         GpTask& task = aTask.V();
 
-        THROW_GPE_COND_CHECK_M
+        THROW_GPE_COND
         (
             GpTaskAccessor::SState(task) == GpTask::StateTE::NOT_ASSIGNED_TO_SCHEDULER,
             "Task already assigned to scheduler"_sv
@@ -206,7 +210,7 @@ void    GpTaskScheduler::AddTaskToWaiting (GpTask::SP aTask)
 
     GpTask& task = aTask.V();
 
-    THROW_GPE_COND_CHECK_M
+    THROW_GPE_COND
     (
         GpTaskAccessor::SState(task) == GpTask::StateTE::NOT_ASSIGNED_TO_SCHEDULER,
         "Task already assigned to scheduler"_sv

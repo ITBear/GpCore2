@@ -111,7 +111,7 @@ std::optional<std::string_view> GpTypePropInfo::FlagArg (const GpTypePropFlag::E
 const GpTypePropInfo&   GpTypePropInfo::UnwrapContainerKeyProp (void) const
 {
     //
-    THROW_GPE_COND_CHECK_M
+    THROW_GPE_COND
     (
            (Container() != ContainerT::NO)
         || (FlagTest(GpTypePropFlag::UNWRAP_CONTAINER))
@@ -122,7 +122,7 @@ const GpTypePropInfo&   GpTypePropInfo::UnwrapContainerKeyProp (void) const
     //
     auto typeStructInfoOpt = GpTypeManager::S().Find(TypeUID());
 
-    THROW_GPE_COND_CHECK_M
+    THROW_GPE_COND
     (
         typeStructInfoOpt.has_value(),
         "Struct info not found by UID "_sv + TypeUID().ToString()

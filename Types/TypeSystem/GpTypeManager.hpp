@@ -49,7 +49,7 @@ template<typename TO_SP, typename FROM_SP>
     const GpUUID fromUID    = aFrom.VC().TypeUID();
     const GpUUID toUID      = TO_VAL_T::STypeUID();
 
-    THROW_GPE_COND_CHECK_M
+    THROW_GPE_COND
     (
         IsBaseOf(toUID, fromUID),
        "Failed to cast from UID "_sv + fromUID.ToString() + " to UID " + toUID.ToString()
@@ -66,7 +66,7 @@ template<typename TO, typename FROM>
     const GpUUID fromUID    = aFrom.TypeUID();
     const GpUUID toUID      = TO_VAL_T::STypeUID();
 
-    THROW_GPE_COND_CHECK_M
+    THROW_GPE_COND
     (
         IsBaseOf(toUID, fromUID),
         "Failed to cast from UID "_sv + fromUID.ToString() + " to UID " + toUID.ToString()

@@ -16,4 +16,9 @@
 //#define GP_USE_PIPELINE
 #define GP_USE_TYPE_SYSTEM
 #define GP_USE_UUID
+//#define GP_USE_GRAPHS
 //#define GP_USE_UNIT_TESTS
+//#define GP_USE_FILE_UTILS
+#define GP_USE_BASE64
+#define GP_USE_BASE58
+#define GP_USE_GNU_GMP

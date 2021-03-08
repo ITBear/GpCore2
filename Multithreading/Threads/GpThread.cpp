@@ -31,7 +31,11 @@ void    GpThread::Run (GpRunnable::SP aRunnable)
 {
     {
         std::scoped_lock lock(iMutex);
-        THROW_GPE_COND_CHECK_M(iRunnable.IsNULL(), "Already run"_sv);
+        THROW_GPE_COND
+        (
+            iRunnable.IsNULL(),
+            "Already run"_sv
+        );
         iRunnable = aRunnable;
     }
 

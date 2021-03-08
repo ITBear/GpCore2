@@ -19,7 +19,11 @@ void    GpByteWriterStorage::OffsetAdd (const size_byte_t aOffset)
 
 void    GpByteWriterStorage::AllocateNext (const size_byte_t aSize)
 {
-    THROW_GPE_COND_CHECK_M(iDataOut.SizeLeft() >= aSize, "Out of range"_sv);
+    THROW_GPE_COND
+    (
+        iDataOut.SizeLeft() >= aSize,
+        "Out of range"_sv
+    );
 }
 
 }//GPlatform

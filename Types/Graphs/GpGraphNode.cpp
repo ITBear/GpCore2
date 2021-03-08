@@ -21,9 +21,14 @@ void    GpGraphNode::RemoveEdge (GpGraphEdge::SP aEdge)
     std::optional<size_t> edgeIn_id     = FindEdgeId(aEdge, iEdgesIn);
     std::optional<size_t> edgeOut_Id    = FindEdgeId(aEdge, iEdgesOut);
 
-    THROW_GPE_COND_CHECK_M(edgeIn_id.has_value() ||
-                           edgeOut_Id.has_value(),
-                           "Edge not found"_sv);
+    THROW_GPE_COND
+    (
+        (
+               edgeIn_id.has_value()
+            || edgeOut_Id.has_value()
+        ),
+        "Edge not found"_sv
+    );
 
     if (edgeIn_id.has_value())
     {
@@ -58,7 +63,11 @@ void    GpGraphNode::RemoveAllEdges (void) noexcept
 
 void    GpGraphNode::OnAssignToGraph (GpGraph& aGraph)
 {
-    THROW_GPE_COND_CHECK_M(!iGraph.has_value(), "Node already assigned to graph"_sv);
+    THROW_GPE_COND
+    (
+        !iGraph.has_value(),
+        "Node already assigned to graph"_sv
+    );
 
     iGraph = aGraph;
 }
@@ -76,16 +85,22 @@ void    GpGraphNode::OnRemoveFromGraph (void) noexcept
 
 void    GpGraphNode::OnConnectIn (GpGraphEdge::SP aEdgeIn)
 {
-    THROW_GPE_COND_CHECK_M(FindEdgeId(aEdgeIn, iEdgesIn).has_value() == false,
-                           "Edge already connected as IN");
+    THROW_GPE_COND
+    (
+        FindEdgeId(aEdgeIn, iEdgesIn).has_value() == false,
+        "Edge already connected as IN"
+    );
 
     iEdgesIn.emplace_back(aEdgeIn);
 }
 
 void    GpGraphNode::OnConnectOut (GpGraphEdge::SP aEdgeOut)
 {
-    THROW_GPE_COND_CHECK_M(FindEdgeId(aEdgeOut, iEdgesOut).has_value() == false,
-                           "Edge already connected as OUT");
+    THROW_GPE_COND
+    (
+        FindEdgeId(aEdgeOut, iEdgesOut).has_value() == false,
+        "Edge already connected as OUT"
+    );
 
     iEdgesOut.emplace_back(aEdgeOut);
 }
@@ -110,8 +125,11 @@ void    GpGraphNode::OnDisconnectOut (GpGraphEdge::SP aEdgeOut) noexcept
     }
 }
 
-std::optional<size_t>   GpGraphNode::FindEdgeId (const GpGraphEdge::SP&         aEdge,
-                                                 const GpGraphEdge::C::Vec::SP& aEdges) const noexcept
+std::optional<size_t>   GpGraphNode::FindEdgeId
+(
+    const GpGraphEdge::SP&          aEdge,
+    const GpGraphEdge::C::Vec::SP&  aEdges
+) const noexcept
 {
     return Algo::FindElementId(aEdges, aEdge);
 }

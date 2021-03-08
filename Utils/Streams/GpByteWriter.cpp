@@ -69,8 +69,8 @@ GpByteWriter&   GpByteWriter::SInt64 (const s_int_64 aValue)
 
 GpByteWriter&   GpByteWriter::BytesWithLen (GpRawPtrByteR aData)
 {
-    const s_int_32 size = aData.CountLeft().As<s_int_32>();
-    CompactSInt32(size);
+    const u_int_32 size = aData.CountLeft().As<u_int_32>();
+    CompactUInt32(size);
 
     if (size > 0)
     {
@@ -99,17 +99,22 @@ GpByteWriter&   GpByteWriter::Bytes (GpRawPtrByteR aData)
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::CompactSInt32 (const s_int_32 aValue)
+GpByteWriter&   GpByteWriter::CompactUInt32 (const u_int_32 aValue)
 {
-    THROW_GPE_COND_CHECK_M((aValue >= s_int_32(0)) && (aValue <= s_int_32(0x0FFFFFFF)), "aValue is out of range"_sv);
+    THROW_GPE_COND
+    (
+        (aValue <= u_int_32(0x0FFFFFFF)),
+        "aValue is out of range"_sv
+    );
 
-    std::array <u_int_32, 4> buf;
+    std::array <u_int_8, 4> buf;
 
-    size_t i = buf.size();
-    s_int_32 value = aValue;
+    size_t      i       = buf.size();
+    u_int_32    value   = aValue;
+
     do
     {
-        buf.data()[--i] = value & 0b01111111;
+        buf.data()[--i] = u_int_8(value & u_int_32(0b01111111));
         value = value >> 7;
     } while (value > 0);
 
@@ -117,7 +122,40 @@ GpByteWriter&   GpByteWriter::CompactSInt32 (const s_int_32 aValue)
     {
         if (i != buf.size() - 1)
         {
-            UInt8(u_int_8(buf[i++] | 0b10000000));
+            UInt8(u_int_8(buf[i++]) | u_int_8(0b10000000));
+        } else
+        {
+            UInt8(u_int_8(buf[i++]));
+        }
+    }
+
+    return *this;
+}
+
+GpByteWriter&   GpByteWriter::CompactUInt16 (const u_int_16 aValue)
+{
+    THROW_GPE_COND
+    (
+        (aValue <= u_int_16(0x0FFF)),
+        "aValue is out of range"_sv
+    );
+
+    std::array <u_int_8, 4> buf;
+
+    size_t      i       = buf.size();
+    u_int_16    value   = aValue;
+
+    do
+    {
+        buf.data()[--i] = u_int_8(value & u_int_16(0b01111111));
+        value = value >> 7;
+    } while (value > 0);
+
+    while (i < buf.size())
+    {
+        if (i != buf.size() - 1)
+        {
+            UInt8(u_int_8(buf[i++]) | u_int_8(0b10000000));
         } else
         {
             UInt8(u_int_8(buf[i++]));

@@ -373,21 +373,21 @@ bool    GpSharedPtrBase<T, RefPtrT, _IsWeak>::IsNotNULL (void) const noexcept
 template <typename T, typename RefPtrT, bool _IsWeak>
 T&  GpSharedPtrBase<T, RefPtrT, _IsWeak>::V (void)
 {
-    if (iRefCounter != nullptr)
-    {
-        if constexpr(_IsWeak)
-        {
-            if (iRefCounter->Count() == 0_cnt)
-            {
-                THROW_GPE("Weak shared pointer counter is 0"_sv);
-            }
-        }
+    THROW_GPE_COND
+    (
+        iRefCounter != nullptr,
+        "Shared pointer is empty"_sv
+    );
 
-        return iRefCounter->template Value<T>();
-    } else
+    if constexpr(_IsWeak)
     {
-        THROW_GPE("Shared pointer is empty"_sv);
+        if (iRefCounter->Count() == 0_cnt)
+        {
+            THROW_GPE("Weak shared pointer counter is 0"_sv);
+        }
     }
+
+    return iRefCounter->template Value<T>();
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
@@ -399,21 +399,21 @@ T&  GpSharedPtrBase<T, RefPtrT, _IsWeak>::Vn (void) noexcept
 template <typename T, typename RefPtrT, bool _IsWeak>
 T*  GpSharedPtrBase<T, RefPtrT, _IsWeak>::P (void)
 {
-    if (iRefCounter != nullptr)
-    {
-        if constexpr(_IsWeak)
-        {
-            if (iRefCounter->Count() == 0_cnt)
-            {
-                THROW_GPE("Weak shared pointer counter is 0"_sv);
-            }
-        }
+    THROW_GPE_COND
+    (
+        iRefCounter != nullptr,
+        "Shared pointer is empty"_sv
+    );
 
-        return iRefCounter->template Ptr<T>();
-    } else
+    if constexpr(_IsWeak)
     {
-        THROW_GPE("Shared pointer is empty"_sv);
+        if (iRefCounter->Count() == 0_cnt)
+        {
+            THROW_GPE("Weak shared pointer counter is 0"_sv);
+        }
     }
+
+    return iRefCounter->template Ptr<T>();
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
@@ -425,21 +425,21 @@ T*  GpSharedPtrBase<T, RefPtrT, _IsWeak>::Pn (void) noexcept
 template <typename T, typename RefPtrT, bool _IsWeak>
 const T&    GpSharedPtrBase<T, RefPtrT, _IsWeak>::VC (void) const
 {
-    if (iRefCounter != nullptr)
-    {
-        if constexpr(_IsWeak)
-        {
-            if (iRefCounter->Count() == 0_cnt)
-            {
-                THROW_GPE("Weak shared pointer counter is 0"_sv);
-            }
-        }
+    THROW_GPE_COND
+    (
+        iRefCounter != nullptr,
+        "Shared pointer is empty"_sv
+    );
 
-        return iRefCounter->template Value<T>();
-    } else
+    if constexpr(_IsWeak)
     {
-        THROW_GPE("Shared pointer is empty"_sv);
+        if (iRefCounter->Count() == 0_cnt)
+        {
+            THROW_GPE("Weak shared pointer counter is 0"_sv);
+        }
     }
+
+    return iRefCounter->template Value<T>();
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
@@ -451,21 +451,21 @@ const T&    GpSharedPtrBase<T, RefPtrT, _IsWeak>::VCn (void) const noexcept
 template <typename T, typename RefPtrT, bool _IsWeak>
 const T*    GpSharedPtrBase<T, RefPtrT, _IsWeak>::PC (void) const
 {
-    if (iRefCounter != nullptr)
-    {
-        if constexpr(_IsWeak)
-        {
-            if (iRefCounter->Count() == 0_cnt)
-            {
-                THROW_GPE("Weak shared pointer counter is 0"_sv);
-            }
-        }
+    THROW_GPE_COND
+    (
+        iRefCounter != nullptr,
+        "Shared pointer is empty"_sv
+    );
 
-        return iRefCounter->template Ptr<T>();
-    } else
+    if constexpr(_IsWeak)
     {
-        THROW_GPE("Shared pointer is empty"_sv);
+        if (iRefCounter->Count() == 0_cnt)
+        {
+            THROW_GPE("Weak shared pointer counter is 0"_sv);
+        }
     }
+
+    return iRefCounter->template Ptr<T>();
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>

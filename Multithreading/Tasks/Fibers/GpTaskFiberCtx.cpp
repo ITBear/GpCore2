@@ -65,7 +65,11 @@ void    GpTaskFiberCtx::Init (void)
 
     //Get stack from pool
     const auto res = GpTaskFiberManager::S().StackPool().Acquire();
-    THROW_GPE_COND_CHECK_M(res.has_value(), "Failed to get fiber stack from pool"_sv);
+    THROW_GPE_COND
+    (
+        res.has_value(),
+        "Failed to get fiber stack from pool"_sv
+    );
     iFiberStack = res.value();
 
     //Create fiber

@@ -6,9 +6,10 @@
 
 namespace GPlatform {
 
-constexpr auto GpThrowByCondition (bool aCondition) -> void
+template<bool ConditionV>
+constexpr auto GpThrowByCondition (void) -> void
 {
-    aCondition ? throw std::runtime_error("") : 0;
+    ConditionV ? throw std::runtime_error("") : 0;
 }
 
 template<typename Exception, typename... Args>
@@ -16,7 +17,7 @@ void GpThrowCe([[maybe_unused]] Args... aArgs)
 {
     if (std::is_constant_evaluated())
     {
-        GpThrowByCondition(true);
+        GpThrowByCondition<true>();
     } else
     {
         throw Exception(aArgs...);

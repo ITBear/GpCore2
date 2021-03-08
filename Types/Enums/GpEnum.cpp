@@ -55,9 +55,9 @@ GpEnum::value_type  GpEnum::_SFromString (const NamesListT& aNamesList,
         }
     }
 
-    std::string_view n = aEnumTypeName;
-    std::string_view v = aName.AsStringView();
-    std::string s = "Failed to set enum ("_sv + n + ") value from string '"_sv + v + "'"_sv;
+    std::string_view    n = aEnumTypeName;
+    std::string_view    v = aName.AsStringView();
+    std::string         s = "Failed to set enum ("_sv + n + ") value from string '"_sv + v + "'"_sv;
 
     THROW_GPE(s);
 }

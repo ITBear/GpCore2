@@ -21,7 +21,7 @@ std::string GpUUID::ToString (void) const
 
     for (size_t id = 0; id < data.size(); ++id)
     {
-        GpArray<char,2> h = StrOps::SFromByte(*dataPtr++);
+        GpArray<char,2> h = StrOps::SFromByteHex(*dataPtr++);
         *strPtr++ = h.at(0);
         *strPtr++ = h.at(1);
 
@@ -39,7 +39,11 @@ std::string GpUUID::ToString (void) const
 
 void    GpUUID::FromString (GpRawPtrCharR aStr)
 {
-    THROW_GPE_COND_CHECK_M(aStr.SizeTotal().As<size_t>() == 36, "Length of UUID string must be 36"_sv);
+    THROW_GPE_COND
+    (
+        aStr.SizeTotal().As<size_t>() == 36,
+        "Length of UUID string must be 36"_sv
+    );
 
     DataT data;
 
@@ -50,7 +54,7 @@ void    GpUUID::FromString (GpRawPtrCharR aStr)
     {
         GpArray<char,2> str = {*strPtr++, *strPtr++};
 
-        *dataPtr++ = StrOps::SToByte(str);
+        *dataPtr++ = StrOps::SToByteHex(str);
 
         if ((id == 3) ||
             (id == 5) ||

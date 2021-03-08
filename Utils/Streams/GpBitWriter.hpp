@@ -42,7 +42,11 @@ private:
     template<typename T>
     void                    WritePOD        (const T aValue, const size_bit_t aSize)
     {
-        THROW_GPE_COND_CHECK_M(aSize <= size_byte_t::SMake(sizeof(T)), "Out of range"_sv);
+        THROW_GPE_COND
+        (
+            aSize <= size_byte_t::SMake(sizeof(T)),
+            "Out of range"_sv
+        );
 
         T val = aValue;
 #if defined(GP_ORDER_BIG_ENDIAN)

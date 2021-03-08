@@ -25,7 +25,11 @@ void    GpPipeline::AddNode (NodeT::SP aNode)
 {
     std::scoped_lock lock(iLock);
 
-    THROW_GPE_COND_CHECK_M(iAllNodes.count(aNode) == 0, "Node already added"_sv);
+    THROW_GPE_COND
+    (
+        iAllNodes.count(aNode) == 0,
+        "Node already added"_sv
+    );
 
     aNode->AssignToPipeline(*this);
 
@@ -38,7 +42,11 @@ void    GpPipeline::RemoveNode (NodeT::SP aNode)
     std::scoped_lock lock(iLock);
 
     auto iter = iAllNodes.find(aNode);
-    THROW_GPE_COND_CHECK_M(iter != iAllNodes.end(), "Node not found"_sv);
+    THROW_GPE_COND
+    (
+        iter != iAllNodes.end(),
+        "Node not found"_sv
+    );
 
     _BreakConnections(aNode);
 
@@ -47,22 +55,25 @@ void    GpPipeline::RemoveNode (NodeT::SP aNode)
     iRootNodes.erase(aNode);
 }
 
-GpPipeline::ConnectorT  GpPipeline::ConnectNodes (NodeT::SP aNodeFrom, SocketT& aFrom,
-                                                  NodeT::SP aNodeTo,   SocketT& aTo)
+GpPipeline::ConnectorT  GpPipeline::ConnectNodes
+(
+    NodeT::SP aNodeFrom, SocketT& aFrom,
+    NodeT::SP aNodeTo,   SocketT& aTo
+)
 {   
     SocketT&    socketFrom  = aFrom;
     SocketT&    socketTo    = aTo;
     NodeT&      nodeFrom    = socketFrom.Node();
     NodeT&      nodeTo      = socketTo.Node();
 
-    THROW_GPE_COND_CHECK_M(&nodeFrom == aNodeFrom.PCn(), "FROM Node != socket.Node"_sv);
-    THROW_GPE_COND_CHECK_M(&nodeTo   == aNodeTo.PCn(), "FROM Node != socket.Node"_sv);
-    THROW_GPE_COND_CHECK_M(nodeFrom.Pipeline() == this, "Node FROM not assigned to this pipeline"_sv);
-    THROW_GPE_COND_CHECK_M(nodeTo.Pipeline() == this, "Node TO not assigned to this pipeline"_sv);
-    THROW_GPE_COND_CHECK_M(socketFrom.Directrion() == GpPipelineNodeSocketDir::OUT, "Socket FROM must be OUT"_sv);
-    THROW_GPE_COND_CHECK_M(socketTo.Directrion() == GpPipelineNodeSocketDir::IN, "Socket TO must be IN"_sv);
-    THROW_GPE_COND_CHECK_M(socketTo.IsEmpty(), "Socket TO must be empty"_sv);
-    THROW_GPE_COND_CHECK_M(socketFrom.TypeUID() == socketTo.TypeUID(), "FROM socket type UID != TO socket type UID"_sv);
+    THROW_GPE_COND(&nodeFrom == aNodeFrom.PCn(), "FROM Node != socket.Node"_sv);
+    THROW_GPE_COND(&nodeTo   == aNodeTo.PCn(), "FROM Node != socket.Node"_sv);
+    THROW_GPE_COND(nodeFrom.Pipeline() == this, "Node FROM not assigned to this pipeline"_sv);
+    THROW_GPE_COND(nodeTo.Pipeline() == this, "Node TO not assigned to this pipeline"_sv);
+    THROW_GPE_COND(socketFrom.Directrion() == GpPipelineNodeSocketDir::OUT, "Socket FROM must be OUT"_sv);
+    THROW_GPE_COND(socketTo.Directrion() == GpPipelineNodeSocketDir::IN, "Socket TO must be IN"_sv);
+    THROW_GPE_COND(socketTo.IsEmpty(), "Socket TO must be empty"_sv);
+    THROW_GPE_COND(socketFrom.TypeUID() == socketTo.TypeUID(), "FROM socket type UID != TO socket type UID"_sv);
 
     ConnectorT connector(socketFrom, socketTo);
 
@@ -94,10 +105,10 @@ GpPipeline::NodeT::C::Set::CSP  GpPipeline::RootNodes (void) const
 
 void    GpPipeline::_BreakConnections (NodeT::SP /*aNode*/)
 {
-    THROW_NOT_IMPLEMENTED();
+    THROW_GPE_NOT_IMPLEMENTED();
     /*auto iter = iNodes.find(aNode);
 
-    THROW_GPE_COND_CHECK_M(iter != iNodes.end(), "Node not found"_sv);
+    THROW_GPE_COND(iter != iNodes.end(), "Node not found"_sv);
 
     NodeT& n = aNode.V();
     n.BreakConnections();*/

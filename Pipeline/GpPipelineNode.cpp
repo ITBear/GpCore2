@@ -14,7 +14,12 @@ GpPipelineNode::~GpPipelineNode (void) noexcept
 
 void    GpPipelineNode::AssignToPipeline (GpPipeline& aPipeline)
 {
-    THROW_GPE_COND_CHECK_M(iPipeline == nullptr, "Node assigned to pipeline already"_sv);
+    THROW_GPE_COND
+    (
+        iPipeline == nullptr,
+        "Node assigned to pipeline already"_sv
+    );
+
     iPipeline = &aPipeline;
 }
 

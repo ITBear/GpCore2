@@ -40,10 +40,6 @@ public:
     void                    Clear                   (void) noexcept;
 
     const ValueT&           FindOrRegister          (const KeyT&    aKey, std::function<ValueT()> aValueFn);
-    const ValueT&           FindOrRegister          (KeyT&&         aKey, std::function<ValueT()> aValueFn);
-
-    template<typename T>
-    const ValueT&           FindOrRegister          (T aKey, std::function<ValueT()> aValueFn);
 
     void                    Register                (const KeyT& aKey, const ValueT& aValue);
     void                    Register                (KeyT&& aKey, const ValueT& aValue);
@@ -133,41 +129,19 @@ template<typename KeyT,
 const ValueT&   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrRegister (const KeyT& aKey, std::function<ValueT()> aValueFn)
 {
     const auto val = Find(aKey);
-    if (val.has_value()) return val.value().get();
+    if (val.has_value())
+    {
+        return val.value().get();
+    }
 
-    auto res = TryRegister(aKey, aValueFn());
-
-    if (res.has_value()) return res.value().get();
-    else return Find(aKey).value().get();
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-const ValueT&   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrRegister (KeyT&& aKey, std::function<ValueT()> aValueFn)
-{
-    const auto val = Find(aKey);
-    if (val.has_value()) return val.value().get();
-
-    auto res = TryRegister(std::move(aKey), aValueFn());
-
-    if (res.has_value()) return res.value().get();
-    else return Find(aKey).value().get();
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-template<typename T>
-const ValueT&   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrRegister (T aKey, std::function<ValueT()> aValueFn)
-{
-    const auto val = Find(aKey);
-    if (val.has_value()) return val.value().get();
-
-    auto res = TryRegister(aKey, aValueFn());
-
-    if (res.has_value()) return res.value().get();
-    else return Find(aKey).value().get();
+    auto reg = TryRegister(aKey, aValueFn());
+    if (reg.has_value())
+    {
+        return reg.value().get();
+    } else
+    {
+        return Find(aKey).value().get();
+    }
 }
 
 template<typename KeyT,
@@ -177,7 +151,11 @@ void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (const KeyT& aKey,
 {
     std::scoped_lock lock(iLock);
 
-    THROW_GPE_COND_CHECK_M(_Count(aKey) == 0_cnt, "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv);
+    THROW_GPE_COND
+    (
+        _Count(aKey) == 0_cnt,
+        "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv
+    );
 
     iElements.try_emplace(aKey, aValue);
 }
@@ -189,7 +167,11 @@ void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (KeyT&& aKey, cons
 {
     std::scoped_lock lock(iLock);
 
-    THROW_GPE_COND_CHECK_M(_Count(aKey) == 0_cnt, "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv);
+    THROW_GPE_COND
+    (
+        _Count(aKey) == 0_cnt,
+        "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv
+    );
 
     iElements.try_emplace(std::move(aKey), aValue);
 }
@@ -201,7 +183,11 @@ void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (const KeyT& aKey,
 {
     std::scoped_lock lock(iLock);
 
-    THROW_GPE_COND_CHECK_M(_Count(aKey) == 0_cnt, "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv);
+    THROW_GPE_COND
+    (
+        _Count(aKey) == 0_cnt,
+        "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv
+    );
 
     iElements.try_emplace(aKey, std::move(aValue));
 }
@@ -213,7 +199,11 @@ void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (KeyT&& aKey, Valu
 {
     std::scoped_lock lock(iLock);
 
-    THROW_GPE_COND_CHECK_M(_Count(aKey) == 0_cnt, "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv);
+    THROW_GPE_COND
+    (
+        _Count(aKey) == 0_cnt,
+        "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv
+    );
 
     iElements.try_emplace(std::move(aKey), std::move(aValue));
 }
@@ -491,8 +481,11 @@ template<typename T>
 const ValueT&   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrThrow (T aKey) const
 {
     auto res = Find<T>(aKey);
-    THROW_GPE_COND_CHECK_M(res.has_value(),
-                           "Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv);
+    THROW_GPE_COND
+    (
+        res.has_value(),
+        "Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv
+    );
     return res.value().get();
 }
 
@@ -511,8 +504,12 @@ template<typename T>
 ValueT& GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrThrow (T aKey)
 {
     auto res = Find<T>(aKey);
-    THROW_GPE_COND_CHECK_M(res.has_value(),
-                           "Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv);
+    THROW_GPE_COND
+    (
+        res.has_value(),
+        "Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv
+    );
+
     return res.value().get();
 }
 

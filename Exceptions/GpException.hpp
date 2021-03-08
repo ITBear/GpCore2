@@ -1,9 +1,10 @@
 #pragma once
 
 #include "../GpCore_global.hpp"
-#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_EXCEPTIONS)
+
+#include "../Types/Strings/GpStringLiterals.hpp"
 
 #include <exception>
 #include <string_view>
@@ -75,7 +76,7 @@ private:
 public:
                             GpException     (GpException&& aException) noexcept;
                             GpException     (std::string_view       aMsg,
-                                             const SourceLocationT& aSourceLocation = SourceLocationT::current()) noexcept;
+                                             const SourceLocationT& aSourceLocation) noexcept;
 
     virtual                 ~GpException    (void) noexcept override;
 
@@ -89,16 +90,55 @@ private:
     SourceLocationT         iSourceLocation;
 };
 
+[[noreturn]] inline void    THROW_GPE
+(
+    std::string_view        aMsg,
+    const SourceLocationT&  aSourceLocation = SourceLocationT::current()
+)
+{
+    throw GpException(aMsg, aSourceLocation);
+}
+
+[[noreturn]] inline void    THROW_GPE_NOT_IMPLEMENTED
+(
+    const SourceLocationT&  aSourceLocation = SourceLocationT::current()
+)
+{
+    throw GpException("Not implemented yet..."_sv, aSourceLocation);
+}
+
+inline void THROW_GPE_COND
+(
+    const bool              aCondition,
+    const SourceLocationT&  aSourceLocation = SourceLocationT::current()
+)
+{
+    if (!aCondition)
+    {
+        throw GpException("Condition not met", aSourceLocation);
+    }
+}
+
+inline void THROW_GPE_COND
+(
+    const bool          aCondition,
+    std::string_view    aMsg,
+    const SourceLocationT&  aSourceLocation = SourceLocationT::current()
+)
+{
+    if (!aCondition)
+    {
+        throw GpException(aMsg, aSourceLocation);
+    }
+}
+
 }//GPlatform
 
-#define THROW_GPE(m)                    throw ::GPlatform::GpException((m))
-#define THROW_NOT_IMPLEMENTED()         throw ::GPlatform::GpException("Not implemented yet..."_sv)
-#define THROW_GPE_COND_CHECK(COND)      if (!(COND)) throw ::GPlatform::GpException(("Condition not met: "#COND))
-#define THROW_GPE_COND_CHECK_M(COND, m) if (!(COND)) throw ::GPlatform::GpException((m))
+/*#if !defined(GP_USE_EXCEPTIONS)
+#   define THROW_GPE(m)
+#   define THROW_GPE_NOT_IMPLEMENTED()
+#endif*/
 
 #endif//#if defined(GP_USE_EXCEPTIONS)
 
-#if !defined(GP_USE_EXCEPTIONS)
-#   define THROW_GPE(m)
-#   define THROW_NOT_IMPLEMENTED()
-#endif
+

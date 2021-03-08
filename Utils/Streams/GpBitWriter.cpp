@@ -5,7 +5,11 @@ namespace GPlatform {
 void    GpBitWriter::Bits (GpRawPtrByteR    aData,
                            const size_bit_t aSize)
 {
-    THROW_GPE_COND_CHECK_M(aData.CountLeft().As<size_byte_t>() >= aSize, "Out of range"_sv);
+    THROW_GPE_COND
+    (
+        aData.CountLeft().As<size_byte_t>() >= aSize,
+        "Out of range"_sv
+    );
     _Bits(aData.Ptr(), aSize);
 }
 
@@ -97,7 +101,11 @@ void GpBitWriter::SizeT (const size_t aValue, const size_bit_t aSize)
 void    GpBitWriter::_Bits (const std::byte*    aData,
                             const size_bit_t    aSize)
 {
-    THROW_GPE_COND_CHECK_M(aSize > 0_bit, "aSize is 0"_sv);
+    THROW_GPE_COND
+    (
+        aSize > 0_bit,
+        "aSize is 0"_sv
+    );
 
     size_bit_t left = iStorage.Left();
 
