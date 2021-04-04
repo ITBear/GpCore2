@@ -19,8 +19,11 @@ GpTaskFiberManager& GpTaskFiberManager::S (void)
     return sManager;
 }
 
-void    GpTaskFiberManager::Init (const count_t     aMaxStacksCount,
-                                  const size_byte_t aStackSize)
+void    GpTaskFiberManager::Init
+(
+    const count_t       aMaxStacksCount,
+    const size_byte_t   aStackSize
+)
 {
     iStackPool.SetStackSize(aStackSize);
     iStackPool.Init(0_cnt, aMaxStacksCount);

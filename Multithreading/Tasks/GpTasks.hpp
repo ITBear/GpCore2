@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Fibers/GpTaskFibers.hpp"
-#include "SyncPrimitives/GpTaskSyncPrimitives.hpp"
 #include "GpTask.hpp"
 #include "GpTaskBase.hpp"
 #include "GpTaskAccessor.hpp"

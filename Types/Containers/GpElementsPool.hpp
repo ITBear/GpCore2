@@ -69,11 +69,14 @@ GpElementsPool<T>::~GpElementsPool (void) noexcept
 }
 
 template<typename T>
-void    GpElementsPool<T>::Init (const count_t aInitCount,
-                                 const count_t aMaxCount)
+void    GpElementsPool<T>::Init
+(
+    const count_t aInitCount,
+    const count_t aMaxCount
+)
 {
-    THROW_GPE_COND(aInitCount >= 0_cnt);
-    THROW_GPE_COND(aMaxCount >= aInitCount);
+    THROW_GPE_COND(aInitCount >= 0_cnt, "aInitCount >= 0_cnt"_sv);
+    THROW_GPE_COND(aMaxCount >= aInitCount, "aMaxCount >= aInitCount"_sv);
 
     Clear();
 

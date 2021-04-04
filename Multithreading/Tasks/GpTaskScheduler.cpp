@@ -109,8 +109,6 @@ GpTask::SP  GpTaskScheduler::Reshedule
     const GpTask::ResT  aLastTaskExecRes
 ) noexcept
 {
-    //std::cout << "[GpTaskScheduler::Reshedule]: !!!!!!!!!!!!!!!!!!!!!!!!!!!"_sv << std::endl;
-
     // Process last task result
     if (aLastTask.IsNotNULL())
     {

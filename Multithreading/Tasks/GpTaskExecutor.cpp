@@ -1,6 +1,5 @@
 #include "GpTaskExecutor.hpp"
 #include "../../Types/DateTime/GpDateTime.hpp"
-#include <iostream>
 
 #if defined(GP_USE_MULTITHREADING)
 
@@ -8,8 +7,11 @@
 
 namespace GPlatform {
 
-GpTaskExecutor::GpTaskExecutor (GpWP<GpTaskScheduler>   aScheduler,
-                                GpConditionVar::SP      aCondVar) noexcept:
+GpTaskExecutor::GpTaskExecutor
+(
+    GpWP<GpTaskScheduler>   aScheduler,
+    GpConditionVar::SP      aCondVar
+) noexcept:
 GpRunnable(std::move(aCondVar)),
 iScheduler(std::move(aScheduler))
 {
@@ -28,7 +30,6 @@ void    GpTaskExecutor::Run (GpThreadStopToken aStopToken) noexcept
 
     while (!aStopToken.stop_requested())
     {
-        //std::cout << "[GpTaskExecutor::Run]: !!! STEP " << this << std::endl;
         currentTask = iScheduler.Vn().Reshedule(currentTask, currentTaskExecRes);
 
         if (currentTask.IsNotNULL())
@@ -36,9 +37,7 @@ void    GpTaskExecutor::Run (GpThreadStopToken aStopToken) noexcept
             currentTaskExecRes = currentTask.Vn().Do(aStopToken);
         } else
         {
-            //std::cout << "[GpTaskExecutor::Run]: wait for wakeup " << this << std::endl;
             WaitForWakeup(10.0_si_s);
-            //std::cout << "[GpTaskExecutor::Run]: WAKEUP " << this << std::endl;
             currentTaskExecRes = GpTask::ResT::DONE;
         }
     }

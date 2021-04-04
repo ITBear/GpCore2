@@ -18,18 +18,20 @@
 namespace GPlatform {
 
 template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
+         typename ValueT>
 class GpElementsCatalog
 {
     CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpElementsCatalog)
 
 public:
-    using this_type         = GpElementsCatalog<KeyT, ValueT, ContainerT>;
+    using this_type         = GpElementsCatalog<KeyT, ValueT>;
     using key_type          = KeyT;
     using value_type        = ValueT;
-    using container_type    = ContainerT<KeyT, ValueT, std::less<>>;
-    using RegisterResT      = std::optional<std::reference_wrapper<ValueT>>;
+    using container_type    = GpMap<KeyT, ValueT, std::less<>>;
+    using ValueRefOptT      = std::optional<std::reference_wrapper<ValueT>>;
+    using ValueCRefOptT     = std::optional<std::reference_wrapper<const ValueT>>;
+    using ValueOptT         = std::optional<ValueT>;
+    using ValueCOptT        = std::optional<const ValueT>;
 
     CLASS_TAG(THREAD_SAFE)
 
@@ -39,66 +41,41 @@ public:
 
     void                    Clear                   (void) noexcept;
 
-    const ValueT&           FindOrRegister          (const KeyT&    aKey, std::function<ValueT()> aValueFn);
+    template<typename K>
+    ValueT&                 FindOrRegister          (K&& aKey, std::function<ValueT()> aValueFn);
 
-    void                    Register                (const KeyT& aKey, const ValueT& aValue);
-    void                    Register                (KeyT&& aKey, const ValueT& aValue);
-    void                    Register                (const KeyT& aKey, ValueT&& aValue);
-    void                    Register                (KeyT&& aKey, ValueT&& aValue);
+    template<typename K, typename V>
+    void                    Register                (K&& aKey, V&& aValue);
 
-    RegisterResT            TryRegister             (const KeyT& aKey, const ValueT& aValue);
-    RegisterResT            TryRegister             (KeyT&& aKey, const ValueT& aValue);
-    RegisterResT            TryRegister             (const KeyT& aKey, ValueT&& aValue);
-    RegisterResT            TryRegister             (KeyT&& aKey, ValueT&& aValue);
+    template<typename K, typename V>
+    ValueRefOptT            TryRegister             (K&& aKey, V&& aValue);
 
-    template<typename T>
-    RegisterResT            TryRegister             (T aKey, const ValueT& aValue);
+    template<typename K, typename V>
+    void                    ReplaceOrRegister       (K&& aKey, V&& aValue);
 
-    template<typename T>
-    RegisterResT            TryRegister             (T aKey, ValueT&& aValue);
+    template<typename K>
+    ValueT                  Unregister              (K&& aKey);
 
-    void                    ReplaceOrRegister       (const KeyT& aKey, const ValueT& aValue);
-    void                    ReplaceOrRegister       (KeyT&& aKey, const ValueT& aValue);
-    void                    ReplaceOrRegister       (const KeyT& aKey, ValueT&& aValue);
-    void                    ReplaceOrRegister       (KeyT&& aKey, ValueT&& aValue);
+    template<typename K>
+    const ValueT&           Find                    (K&& aKey) const;
 
-    ValueT                  Unregister              (const KeyT& aKey);
+    template<typename K>
+    ValueT&                 Find                    (K&& aKey);
 
-    template<typename T>
-    ValueT                  Unregister              (T aKey);
+    template<typename K>
+    ValueCRefOptT           TryFind                 (K&& aKey) const noexcept;
 
-    std::optional<std::reference_wrapper<const ValueT>>
-                            Find                    (const KeyT& aKey) const noexcept;
+    template<typename K>
+    ValueRefOptT            TryFind                 (K&& aKey) noexcept;
 
-    template<typename T>
-    std::optional<std::reference_wrapper<const ValueT>>
-                            Find                    (T aKey) const noexcept;
-
-    std::optional<std::reference_wrapper<ValueT>>
-                            Find                    (const KeyT& aKey) noexcept;
-    template<typename T>
-    std::optional<std::reference_wrapper<ValueT>>
-                            Find                    (T aKey) noexcept;
-
-    std::optional<ValueT>   FindRetCopy             (const KeyT& aKey) const noexcept;
-
-    template<typename T>
-    std::optional<ValueT>   FindRetCopy             (T aKey) const noexcept;
-
-    const ValueT&           FindOrThrow             (const KeyT& aKey) const;
-
-    template<typename T>
-    const ValueT&           FindOrThrow             (T aKey) const;
-
-    ValueT&                 FindOrThrow             (const KeyT& aKey);
-
-    template<typename T>
-    ValueT&                 FindOrThrow             (T aKey);
+    template<typename K>
+    ValueOptT               TryFindRetCopy          (K&& aKey) const;
 
     void                    Process                 (std::function<void(container_type&)> aFn);
 
 private:
-    count_t                 _Count                  (const KeyT& aKey) const noexcept;
+    template<typename K>
+    count_t                 _Count                  (K&& aKey) const noexcept;
 
 private:
     mutable GpRWLock        iLock;
@@ -106,356 +83,160 @@ private:
 };
 
 template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-GpElementsCatalog<KeyT, ValueT, ContainerT>::~GpElementsCatalog (void) noexcept
+         typename ValueT>
+GpElementsCatalog<KeyT, ValueT>::~GpElementsCatalog (void) noexcept
 {
     Clear();
 }
 
 template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Clear (void) noexcept
+         typename ValueT>
+void    GpElementsCatalog<KeyT, ValueT>::Clear (void) noexcept
 {
     std::scoped_lock lock(iLock);
-
     iElements.clear();
 }
 
 template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-const ValueT&   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrRegister (const KeyT& aKey, std::function<ValueT()> aValueFn)
+         typename ValueT>
+template<typename K>
+ValueT& GpElementsCatalog<KeyT, ValueT>::FindOrRegister
+(
+    K&&                     aKey,
+    std::function<ValueT()> aValueFn
+)
 {
-    const auto val = Find(aKey);
+    const auto val = TryFind<K>(std::forward<K>(aKey));
     if (val.has_value())
     {
         return val.value().get();
     }
 
-    auto reg = TryRegister(aKey, aValueFn());
+    auto reg = TryRegister<K>(std::forward<K>(aKey), aValueFn());
+
     if (reg.has_value())
     {
         return reg.value().get();
     } else
     {
-        return Find(aKey).value().get();
+        return TryFind<K>(std::forward<K>(aKey)).value().get();
     }
 }
 
 template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (const KeyT& aKey, const ValueT& aValue)
+         typename ValueT>
+template<typename K,
+         typename V>
+void    GpElementsCatalog<KeyT, ValueT>::Register
+(
+    K&& aKey,
+    V&& aValue
+)
 {
     std::scoped_lock lock(iLock);
 
     THROW_GPE_COND
     (
-        _Count(aKey) == 0_cnt,
-        "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv
+        _Count<K>(std::forward<K>(aKey)) == 0_cnt,
+        [&](){return "Key '"_sv + StrOps::SToString(std::forward<K>(aKey)) + "' is not unique"_sv;}
     );
 
-    iElements.try_emplace(aKey, aValue);
+    iElements.emplace(std::forward<K>(aKey), std::forward<V>(aValue));
 }
 
 template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (KeyT&& aKey, const ValueT& aValue)
+         typename ValueT>
+template<typename K,
+         typename V>
+auto    GpElementsCatalog<KeyT, ValueT>::TryRegister
+(
+    K&& aKey,
+    V&& aValue
+) -> ValueRefOptT
 {
     std::scoped_lock lock(iLock);
+
+    auto res = iElements.emplace(std::forward<K>(aKey), std::forward<V>(aValue));
+
+    if (res.second)
+    {
+        return res.first->second;
+    } else
+    {
+        return std::nullopt;
+    }
+
+    return std::nullopt;
+}
+
+template<typename KeyT,
+         typename ValueT>
+template<typename K,
+         typename V>
+void    GpElementsCatalog<KeyT, ValueT>::ReplaceOrRegister
+(
+    K&& aKey,
+    V&& aValue
+)
+{
+    std::scoped_lock lock(iLock);
+    iElements.insert_or_assign(std::forward<K>(aKey), std::forward<V>(aValue));
+}
+
+template<typename KeyT,
+         typename ValueT>
+template<typename K>
+ValueT  GpElementsCatalog<KeyT, ValueT>::Unregister (K&& aKey)
+{
+    std::scoped_lock lock(iLock);
+
+    auto iter = iElements.find(std::forward<K>(aKey));
 
     THROW_GPE_COND
     (
-        _Count(aKey) == 0_cnt,
-        "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv
+        iter != iElements.end(),
+        [&](){return "Element not found by key '"_sv + StrOps::SToString(std::forward<K>(aKey)) + "'"_sv;}
     );
 
-    iElements.try_emplace(std::move(aKey), aValue);
+    ValueT v = std::move(iter->second);
+    iElements.erase(iter);
+    return v;
 }
 
 template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (const KeyT& aKey, ValueT&& aValue)
-{
-    std::scoped_lock lock(iLock);
-
-    THROW_GPE_COND
-    (
-        _Count(aKey) == 0_cnt,
-        "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv
-    );
-
-    iElements.try_emplace(aKey, std::move(aValue));
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Register (KeyT&& aKey, ValueT&& aValue)
-{
-    std::scoped_lock lock(iLock);
-
-    THROW_GPE_COND
-    (
-        _Count(aKey) == 0_cnt,
-        "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv
-    );
-
-    iElements.try_emplace(std::move(aKey), std::move(aValue));
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-auto    GpElementsCatalog<KeyT, ValueT, ContainerT>::TryRegister (const KeyT& aKey, const ValueT& aValue) -> RegisterResT
-{
-    std::scoped_lock lock(iLock);
-
-    auto res = iElements.try_emplace(aKey, aValue);
-
-    if (res.second)
-    {
-        return res.first->second;
-    } else
-    {
-        return std::nullopt;
-    }
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-auto    GpElementsCatalog<KeyT, ValueT, ContainerT>::TryRegister (KeyT&& aKey, const ValueT& aValue) -> RegisterResT
-{
-    std::scoped_lock lock(iLock);
-
-    auto res = iElements.try_emplace(std::move(aKey), aValue);
-
-    if (res.second)
-    {
-        return res.first->second;
-    } else
-    {
-        return std::nullopt;
-    }
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-auto    GpElementsCatalog<KeyT, ValueT, ContainerT>::TryRegister (const KeyT& aKey, ValueT&& aValue) -> RegisterResT
-{
-    std::scoped_lock lock(iLock);
-
-    auto res = iElements.try_emplace(aKey, std::move(aValue));
-
-    if (res.second)
-    {
-        return res.first->second;
-    } else
-    {
-        return std::nullopt;
-    }
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-auto    GpElementsCatalog<KeyT, ValueT, ContainerT>::TryRegister (KeyT&& aKey, ValueT&& aValue) -> RegisterResT
-{
-    std::scoped_lock lock(iLock);
-
-    auto res = iElements.try_emplace(std::move(aKey), std::move(aValue));
-
-    if (res.second)
-    {
-        return res.first->second;
-    } else
-    {
-        return std::nullopt;
-    }
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-template<typename T>
-auto    GpElementsCatalog<KeyT, ValueT, ContainerT>::TryRegister (T aKey, const ValueT& aValue) -> RegisterResT
-{
-    std::scoped_lock lock(iLock);
-
-    auto res = iElements.try_emplace(KeyT(aKey), aValue);
-
-    if (res.second)
-    {
-        return res.first->second;
-    } else
-    {
-        return std::nullopt;
-    }
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-template<typename T>
-auto    GpElementsCatalog<KeyT, ValueT, ContainerT>::TryRegister (T aKey, ValueT&& aValue) -> RegisterResT
-{
-    std::scoped_lock lock(iLock);
-
-    auto res = iElements.try_emplace(KeyT(aKey), std::move(aValue));
-
-    if (res.second)
-    {
-        return res.first->second;
-    } else
-    {
-        return std::nullopt;
-    }
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-void    GpElementsCatalog<KeyT, ValueT, ContainerT>::ReplaceOrRegister (const KeyT& aKey, const ValueT& aValue)
-{
-    std::scoped_lock lock(iLock);
-
-    iElements.insert_or_assign(aKey, aValue);
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-void    GpElementsCatalog<KeyT, ValueT, ContainerT>::ReplaceOrRegister (KeyT&& aKey, const ValueT& aValue)
-{
-    std::scoped_lock lock(iLock);
-
-    iElements.insert_or_assign(std::move(aKey), aValue);
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-void    GpElementsCatalog<KeyT, ValueT, ContainerT>::ReplaceOrRegister (const KeyT& aKey, ValueT&& aValue)
-{
-    std::scoped_lock lock(iLock);
-
-    iElements.insert_or_assign(aKey, std::move(aValue));
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-void    GpElementsCatalog<KeyT, ValueT, ContainerT>::ReplaceOrRegister (KeyT&& aKey, ValueT&& aValue)
-{
-    std::scoped_lock lock(iLock);
-
-    iElements.insert_or_assign(std::move(aKey), std::move(aValue));
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-ValueT  GpElementsCatalog<KeyT, ValueT, ContainerT>::Unregister (const KeyT& aKey)
-{
-    return Unregister<const KeyT&>(aKey);
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-template<typename T>
-ValueT  GpElementsCatalog<KeyT, ValueT, ContainerT>::Unregister (T aKey)
-{
-    std::scoped_lock lock(iLock);
-
-    auto iter = iElements.find(aKey);
-
-    if (iter != iElements.end())
-    {
-        ValueT v = std::move(iter->second);
-        iElements.erase(iter);
-        return v;
-    }
-
-    THROW_GPE("Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv);
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-std::optional<std::reference_wrapper<const ValueT>> GpElementsCatalog<KeyT, ValueT, ContainerT>::Find (const KeyT& aKey) const noexcept
-{
-    return Find<const KeyT&>(aKey);
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-template<typename T>
-std::optional<std::reference_wrapper<const ValueT>> GpElementsCatalog<KeyT, ValueT, ContainerT>::Find (T aKey) const noexcept
+         typename ValueT>
+template<typename K>
+const ValueT&   GpElementsCatalog<KeyT, ValueT>::Find (K&& aKey) const
 {
     std::shared_lock lock(iLock);
 
-    auto iter = iElements.find(aKey);
+    auto iter = iElements.find(std::forward<K>(aKey));
 
-    if (iter != iElements.end())
-    {
-        //return std::cref(iter->second);
-        return iter->second;
-    } else
-    {
-        return std::nullopt;
-    }
+    THROW_GPE_COND
+    (
+        iter != iElements.end(),
+        [&](){return "Element not found by key '"_sv + StrOps::SToString(std::forward<K>(aKey)) + "'"_sv;}
+    );
+
+    return iter->second;
 }
 
 template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-std::optional<std::reference_wrapper<ValueT>>   GpElementsCatalog<KeyT, ValueT, ContainerT>::Find (const KeyT& aKey) noexcept
+         typename ValueT>
+template<typename K>
+ValueT& GpElementsCatalog<KeyT, ValueT>::Find (K&& aKey)
 {
-    return Find<const KeyT&>(aKey);
+    return const_cast<ValueT&>(std::as_const(*this).template Find<K>(std::forward<K>(aKey)));
 }
 
 template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-template<typename T>
-std::optional<std::reference_wrapper<ValueT>>   GpElementsCatalog<KeyT, ValueT, ContainerT>::Find (T aKey) noexcept
-{
-    auto res = std::as_const(*this).template Find<T>(aKey);
-
-    if (res.has_value())
-    {
-        return const_cast<ValueT&>(res.value().get());
-    } else
-    {
-        return std::nullopt;
-    }
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-std::optional<ValueT>   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindRetCopy (const KeyT& aKey) const noexcept
-{
-    return FindRetCopy<const KeyT&>(aKey);
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-template<typename T>
-std::optional<ValueT>   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindRetCopy    (T aKey) const noexcept
+         typename ValueT>
+template<typename K>
+auto    GpElementsCatalog<KeyT, ValueT>::TryFind (K&& aKey) const noexcept -> ValueCRefOptT
 {
     std::shared_lock lock(iLock);
 
-    auto iter = iElements.find(aKey);
+    auto iter = iElements.find(std::forward<K>(aKey));
 
     if (iter != iElements.end())
     {
@@ -467,67 +248,53 @@ std::optional<ValueT>   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindRetCopy
 }
 
 template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-const ValueT&   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrThrow (const KeyT& aKey) const
+         typename ValueT>
+template<typename K>
+auto    GpElementsCatalog<KeyT, ValueT>::TryFind (K&& aKey) noexcept -> ValueRefOptT
 {
-    return FindOrThrow<const KeyT&>(aKey);
+    auto res = std::as_const(*this).template TryFind<K>(std::forward<K>(aKey));
+
+    if (res.has_value())
+    {
+        return const_cast<ValueT&>(res.value().get());
+    } else
+    {
+        return std::nullopt;
+    }
 }
 
 template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-template<typename T>
-const ValueT&   GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrThrow (T aKey) const
-{
-    auto res = Find<T>(aKey);
-    THROW_GPE_COND
-    (
-        res.has_value(),
-        "Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv
-    );
-    return res.value().get();
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-ValueT& GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrThrow (const KeyT& aKey)
-{
-    return FindOrThrow<const KeyT&>(aKey);
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-template<typename T>
-ValueT& GpElementsCatalog<KeyT, ValueT, ContainerT>::FindOrThrow (T aKey)
-{
-    auto res = Find<T>(aKey);
-    THROW_GPE_COND
-    (
-        res.has_value(),
-        "Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv
-    );
-
-    return res.value().get();
-}
-
-template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-void    GpElementsCatalog<KeyT, ValueT, ContainerT>::Process (std::function<void(container_type&)> aFn)
+         typename ValueT>
+template<typename K>
+auto    GpElementsCatalog<KeyT, ValueT>::TryFindRetCopy (K&& aKey) const -> ValueOptT
 {
     std::shared_lock lock(iLock);
+
+    auto iter = iElements.find(std::forward<K>(aKey));
+
+    if (iter != iElements.end())
+    {
+        return iter->second;
+    } else
+    {
+        return std::nullopt;
+    }
+}
+
+template<typename KeyT,
+         typename ValueT>
+void    GpElementsCatalog<KeyT, ValueT>::Process (std::function<void(container_type&)> aFn)
+{
+    std::scoped_lock lock(iLock);
     aFn(iElements);
 }
 
 template<typename KeyT,
-         typename ValueT,
-         template<typename...> class ContainerT>
-count_t GpElementsCatalog<KeyT, ValueT, ContainerT>::_Count (const KeyT& aKey) const noexcept
+         typename ValueT>
+template<typename K>
+count_t GpElementsCatalog<KeyT, ValueT>::_Count (K&& aKey) const noexcept
 {
-    return count_t::SMake(iElements.count(aKey));
+    return count_t::SMake(iElements.count(std::forward<K>(aKey)));
 }
 
 }//GPlatform

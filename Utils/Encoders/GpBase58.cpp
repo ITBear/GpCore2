@@ -28,7 +28,7 @@ void    GpBase58::SEncode
     const AlphabetTE    aAlphabet
 )
 {
-    THROW_GPE_COND(aData.CountLeft() > 0_cnt, "Data is empty");
+    THROW_GPE_COND(aData.CountLeft() > 0_cnt, "Data is empty"_sv);
 
     //----------------- Alphabet -------------------
     GpArray<u_int_8, 58> alphabet;
@@ -158,7 +158,7 @@ size_byte_t GpBase58::SEncodedSize (GpRawPtrByteR aData)
 {
     const size_t dataSize = aData.CountLeft().As<size_t>();
 
-    THROW_GPE_COND(dataSize > 0, "Data is empty");
+    THROW_GPE_COND(dataSize > 0, "Data is empty"_sv);
 
     mpz_class data;
     mpz_class remainder;
@@ -193,7 +193,7 @@ std::any    GpBase58::SDecodePrecalc
     const AlphabetTE    aAlphabet
 )
 {
-    THROW_GPE_COND(aBase58Str.CountLeft() > 0_cnt, "Data is empty");
+    THROW_GPE_COND(aBase58Str.CountLeft() > 0_cnt, "Data is empty"_sv);
 
     //----------------- Alphabet -------------------
     GpArray<u_int_8, 58> alphabet;

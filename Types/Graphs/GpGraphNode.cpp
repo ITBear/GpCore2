@@ -88,7 +88,7 @@ void    GpGraphNode::OnConnectIn (GpGraphEdge::SP aEdgeIn)
     THROW_GPE_COND
     (
         FindEdgeId(aEdgeIn, iEdgesIn).has_value() == false,
-        "Edge already connected as IN"
+        "Edge already connected as IN"_sv
     );
 
     iEdgesIn.emplace_back(aEdgeIn);
@@ -99,7 +99,7 @@ void    GpGraphNode::OnConnectOut (GpGraphEdge::SP aEdgeOut)
     THROW_GPE_COND
     (
         FindEdgeId(aEdgeOut, iEdgesOut).has_value() == false,
-        "Edge already connected as OUT"
+        "Edge already connected as OUT"_sv
     );
 
     iEdgesOut.emplace_back(aEdgeOut);

@@ -7,6 +7,8 @@
 
 #include "../../../Types/Numerics/GpNumericOps.hpp"
 
+#include <iostream>
+
 extern "C"
 {
 #   include <fcntl.h>
@@ -121,17 +123,19 @@ void    GpFixedSizeStack<TraitsT>::MemAlloc (void)
 {
     if (iMemPtr != nullptr)
     {
-        MemFree();
-        //return;
+        //MemFree();
+        return;
     }
 
     const size_t pagesCount     = NumOps::SDivCeil<size_t>(iSize, traits_type::page_size());
     const size_t sizeToAllocate = NumOps::SMul<size_t>(NumOps::SAdd<size_t>(pagesCount, 1), traits_type::page_size());
 
-    iMemPtr = std::malloc(sizeToAllocate);
-    iAllocatedSize = sizeToAllocate;
+    //iMemPtr = std::aligned_alloc(4096, sizeToAllocate);
+    //iAllocatedSize = sizeToAllocate;
 
-/*#if defined(BOOST_CONTEXT_USE_MAP_STACK)
+    //std::cout << iMemPtr << std::endl;
+
+#if defined(BOOST_CONTEXT_USE_MAP_STACK)
     iMemPtr = ::mmap(0, sizeToAllocate, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON | MAP_STACK, -1, 0);
 #elif defined(MAP_ANON)
     iMemPtr = ::mmap(0, sizeToAllocate, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
@@ -153,7 +157,6 @@ void    GpFixedSizeStack<TraitsT>::MemAlloc (void)
     const int result(::mprotect(iMemPtr, traits_type::page_size(), PROT_NONE));
     BOOST_ASSERT(0 == result);
 #endif
-*/
 }
 
 template<typename TraitsT>
@@ -164,8 +167,8 @@ void    GpFixedSizeStack<TraitsT>::MemFree (void) noexcept
         return;
     }
 
-    //::munmap(iMemPtr, iAllocatedSize);
-    std::free(iMemPtr);
+    ::munmap(iMemPtr, iAllocatedSize);
+    //std::free(iMemPtr);
 
     iAllocatedSize  = 0;
     iMemPtr         = nullptr;

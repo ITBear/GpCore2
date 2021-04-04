@@ -66,14 +66,14 @@ GpPipeline::ConnectorT  GpPipeline::ConnectNodes
     NodeT&      nodeFrom    = socketFrom.Node();
     NodeT&      nodeTo      = socketTo.Node();
 
-    THROW_GPE_COND(&nodeFrom == aNodeFrom.PCn(), "FROM Node != socket.Node"_sv);
-    THROW_GPE_COND(&nodeTo   == aNodeTo.PCn(), "FROM Node != socket.Node"_sv);
-    THROW_GPE_COND(nodeFrom.Pipeline() == this, "Node FROM not assigned to this pipeline"_sv);
-    THROW_GPE_COND(nodeTo.Pipeline() == this, "Node TO not assigned to this pipeline"_sv);
+    THROW_GPE_COND(&nodeFrom == aNodeFrom.PCn(),                            "FROM Node != socket.Node"_sv);
+    THROW_GPE_COND(&nodeTo   == aNodeTo.PCn(),                              "FROM Node != socket.Node"_sv);
+    THROW_GPE_COND(nodeFrom.Pipeline() == this,                             "Node FROM not assigned to this pipeline"_sv);
+    THROW_GPE_COND(nodeTo.Pipeline() == this,                               "Node TO not assigned to this pipeline"_sv);
     THROW_GPE_COND(socketFrom.Directrion() == GpPipelineNodeSocketDir::OUT, "Socket FROM must be OUT"_sv);
-    THROW_GPE_COND(socketTo.Directrion() == GpPipelineNodeSocketDir::IN, "Socket TO must be IN"_sv);
-    THROW_GPE_COND(socketTo.IsEmpty(), "Socket TO must be empty"_sv);
-    THROW_GPE_COND(socketFrom.TypeUID() == socketTo.TypeUID(), "FROM socket type UID != TO socket type UID"_sv);
+    THROW_GPE_COND(socketTo.Directrion() == GpPipelineNodeSocketDir::IN,    "Socket TO must be IN"_sv);
+    THROW_GPE_COND(socketTo.IsEmpty(),                                      "Socket TO must be empty"_sv);
+    THROW_GPE_COND(socketFrom.TypeUID() == socketTo.TypeUID(),              "FROM socket type UID != TO socket type UID"_sv);
 
     ConnectorT connector(socketFrom, socketTo);
 

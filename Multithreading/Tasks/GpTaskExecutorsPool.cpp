@@ -74,7 +74,7 @@ void    GpTaskExecutorsPool::PreInit (const count_t aCount)
 
 GpTaskExecutorsPool::value_type GpTaskExecutorsPool::NewElement (void)
 {
-    THROW_GPE_COND(iExecutorsLeft > 0_cnt);
+    THROW_GPE_COND(iExecutorsLeft > 0_cnt, "iExecutorsLeft > 0_cnt"_sv);
 
     const count_t id = count_t::SMake(iExecutors.size()) - iExecutorsLeft;
 

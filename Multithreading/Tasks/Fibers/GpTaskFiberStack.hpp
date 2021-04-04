@@ -24,11 +24,13 @@ public:
                         ~GpTaskFiberStack   (void) noexcept;
 
     void                Init                (const size_byte_t aSize);
+    size_byte_t         Size                (void) const noexcept {return iSize;}
     void                Clear               (void) noexcept;
     void*               Stack               (void) noexcept {return iStack;}
 
 private:
-    void*               iStack = nullptr;//GpFiberStackT*
+    void*               iStack  = nullptr;//GpFiberStackT*
+    size_byte_t         iSize   = 0_byte;
 };
 
 }//namespace GPlatform

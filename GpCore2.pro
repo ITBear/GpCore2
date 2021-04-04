@@ -13,7 +13,7 @@ include(../../QtGlobalPro.pri)
 
 #------------------------------ LIBS BEGIN ---------------------------------
 os_windows{
-	BOOST_LIB_POSTFIX	= -mgw82-mt-x64-1_72
+	BOOST_LIB_POSTFIX	= -mgw82-mt-x64-1_75
 }
 
 os_linux
@@ -83,6 +83,7 @@ HEADERS += \
 	Multithreading/SyncPrimitives/GpSyncPrimitives.hpp \
 	Multithreading/Tasks/Fibers/GpFixedSizeStack.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiber.hpp \
+	Multithreading/Tasks/Fibers/GpTaskFiberBarrier.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberBase.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberCtx.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberManager.hpp \
@@ -102,10 +103,6 @@ HEADERS += \
 	Multithreading/Tasks/GpTaskSchedulerAccessor.hpp \
 	Multithreading/Tasks/GpTaskState.hpp \
 	Multithreading/Tasks/GpTasks.hpp \
-	Multithreading/Tasks/SyncPrimitives/GpTaskFiberBarrier.hpp \
-	Multithreading/Tasks/SyncPrimitives/GpTaskFiberBarrierLock.hpp \
-	Multithreading/Tasks/SyncPrimitives/GpTaskFiberBarrierWaiter.hpp \
-	Multithreading/Tasks/SyncPrimitives/GpTaskSyncPrimitives.hpp \
 	Multithreading/Threads/GpRunnable.hpp \
 	Multithreading/Threads/GpThread.hpp \
 	Multithreading/Threads/GpThreadStopToken.hpp \
@@ -165,8 +162,8 @@ HEADERS += \
 	Types/Strings/GpStringOps.hpp \
 	Types/Strings/GpStringTemplateArg.hpp \
 	Types/Strings/GpStrings.hpp \
-	Types/TypeSystem/GpStaticCatalog.hpp \
-	Types/TypeSystem/GpStaticCatalogC.hpp \
+	Types/TypeSystem/GpGlobalStructCatalog.hpp \
+	Types/TypeSystem/GpGlobalStructCatalogC.hpp \
 	Types/TypeSystem/GpType.hpp \
 	Types/TypeSystem/GpTypeContainer.hpp \
 	Types/TypeSystem/GpTypeManager.hpp \
@@ -249,6 +246,7 @@ SOURCES += \
 	Exceptions/GpExceptionsSink.cpp \
 	Multithreading/SyncPrimitives/GpConditionVar.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiber.cpp \
+	Multithreading/Tasks/Fibers/GpTaskFiberBarrier.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberBase.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberCtx.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberManager.cpp \
@@ -262,7 +260,6 @@ SOURCES += \
 	Multithreading/Tasks/GpTaskExecutorsPool.cpp \
 	Multithreading/Tasks/GpTaskScheduler.cpp \
 	Multithreading/Tasks/GpTaskState.cpp \
-	Multithreading/Tasks/SyncPrimitives/GpTaskFiberBarrier.cpp \
 	Multithreading/Threads/GpRunnable.cpp \
 	Multithreading/Threads/GpThread.cpp \
 	Pipeline/GpPipeline.cpp \
@@ -288,8 +285,8 @@ SOURCES += \
 	Types/Graphs/GpGraphNode.cpp \
 	Types/Numerics/GpNumericOps.cpp \
 	Types/Strings/GpStringOps.cpp \
-	Types/TypeSystem/GpStaticCatalog.cpp \
-	Types/TypeSystem/GpStaticCatalogC.cpp \
+	Types/TypeSystem/GpGlobalStructCatalog.cpp \
+	Types/TypeSystem/GpGlobalStructCatalogC.cpp \
 	Types/TypeSystem/GpType.cpp \
 	Types/TypeSystem/GpTypeContainer.cpp \
 	Types/TypeSystem/GpTypeManager.cpp \

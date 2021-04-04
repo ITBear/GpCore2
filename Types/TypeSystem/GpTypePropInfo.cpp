@@ -116,7 +116,7 @@ const GpTypePropInfo&   GpTypePropInfo::UnwrapContainerKeyProp (void) const
            (Container() != ContainerT::NO)
         || (FlagTest(GpTypePropFlag::UNWRAP_CONTAINER))
         || (Type() == TypeT::STRUCT_SP),
-        "Failed to get unwrap container key. Struct UID "_sv + TypeUID().ToString()
+        [&](){return "Failed to get unwrap container key. Struct UID "_sv + TypeUID().ToString();}
     );
 
     //
@@ -125,7 +125,7 @@ const GpTypePropInfo&   GpTypePropInfo::UnwrapContainerKeyProp (void) const
     THROW_GPE_COND
     (
         typeStructInfoOpt.has_value(),
-        "Struct info not found by UID "_sv + TypeUID().ToString()
+        [&](){return "Struct info not found by UID "_sv + TypeUID().ToString();}
     );
 
     const auto& typeStructInfo = typeStructInfoOpt.value().get();

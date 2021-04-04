@@ -9,6 +9,7 @@
 #include <exception>
 #include <string_view>
 #include <string>
+#include <functional>
 
 #if  __has_include(<source_location>)
 #   include <source_location>
@@ -90,6 +91,8 @@ private:
     SourceLocationT         iSourceLocation;
 };
 
+using ThrowMsgGenT = std::function<std::string()>;
+
 [[noreturn]] inline void    THROW_GPE
 (
     std::string_view        aMsg,
@@ -110,19 +113,7 @@ private:
 inline void THROW_GPE_COND
 (
     const bool              aCondition,
-    const SourceLocationT&  aSourceLocation = SourceLocationT::current()
-)
-{
-    if (!aCondition)
-    {
-        throw GpException("Condition not met", aSourceLocation);
-    }
-}
-
-inline void THROW_GPE_COND
-(
-    const bool          aCondition,
-    std::string_view    aMsg,
+    std::string_view        aMsg,
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
 )
 {
@@ -132,12 +123,20 @@ inline void THROW_GPE_COND
     }
 }
 
-}//GPlatform
+inline void THROW_GPE_COND
+(
+    const bool              aCondition,
+    ThrowMsgGenT            aMsgGenFn,
+    const SourceLocationT&  aSourceLocation = SourceLocationT::current()
+)
+{
+    if (!aCondition)
+    {
+        throw GpException(aMsgGenFn(), aSourceLocation);
+    }
+}
 
-/*#if !defined(GP_USE_EXCEPTIONS)
-#   define THROW_GPE(m)
-#   define THROW_GPE_NOT_IMPLEMENTED()
-#endif*/
+}//GPlatform
 
 #endif//#if defined(GP_USE_EXCEPTIONS)
 

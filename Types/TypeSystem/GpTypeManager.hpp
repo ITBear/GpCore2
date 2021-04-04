@@ -16,7 +16,7 @@ public:
     CLASS_DECLARE_DEFAULTS(GpTypeManager)
     CLASS_TAG(THREAD_SAFE)
 
-    using ElementsT = GpElementsCatalog<GpUUID, std::reference_wrapper<const GpTypeStructInfo>, GpMap>;
+    using ElementsT = GpElementsCatalog<GpUUID, std::reference_wrapper<const GpTypeStructInfo>>;
 
 public:
                                     GpTypeManager   (void) noexcept;
@@ -52,7 +52,7 @@ template<typename TO_SP, typename FROM_SP>
     THROW_GPE_COND
     (
         IsBaseOf(toUID, fromUID),
-       "Failed to cast from UID "_sv + fromUID.ToString() + " to UID " + toUID.ToString()
+        [&](){return "Failed to cast from UID "_sv + fromUID.ToString() + " to UID " + toUID.ToString();}
     );
 
     return aFrom.template CastAs<TO_SP>();
@@ -69,7 +69,7 @@ template<typename TO, typename FROM>
     THROW_GPE_COND
     (
         IsBaseOf(toUID, fromUID),
-        "Failed to cast from UID "_sv + fromUID.ToString() + " to UID " + toUID.ToString()
+        [&](){return "Failed to cast from UID "_sv + fromUID.ToString() + " to UID " + toUID.ToString();}
     );
 
     return static_cast<TO&>(aFrom);

@@ -6,14 +6,20 @@
 
 namespace GPlatform {
 
-
 void    GpTaskFiberBarrier::Release (void)
 {
-    const intmax_t cnt = iCounter.fetch_sub(1, std::memory_order_release);
+    std::scoped_lock lock(iWakeupLock);
 
-    if (cnt == 1)
+    if (iCounter > 1_cnt)
     {
+        iCounter--;
+    } else if (iCounter == 1_cnt)
+    {
+        iCounter--;
         WakeupAll();
+    } else
+    {
+        THROW_GPE("iCounter == 0"_sv);
     }
 }
 
@@ -23,7 +29,7 @@ void    GpTaskFiberBarrier::Wait (GpTaskFiber::SP aTask)
     {
         std::scoped_lock lock(iWakeupLock);
 
-        if (iCounter.load(std::memory_order_acquire) <= 0)
+        if (iCounter == 0_cnt)
         {
             return;
         }
@@ -32,16 +38,25 @@ void    GpTaskFiberBarrier::Wait (GpTaskFiber::SP aTask)
     }
 
     //Wait
-    while (iCounter.load(std::memory_order_acquire) > 0)
+    while (true)
     {
+        //Check counter
+        {
+            std::scoped_lock lock(iWakeupLock);
+
+            if (iCounter == 0_cnt)
+            {
+                return;
+            }
+        }
+
+        //Wait
         GpTaskFiberCtx::SYeld(GpTask::ResT::WAITING);
     }
 }
 
 void    GpTaskFiberBarrier::WakeupAll (void)
 {
-    std::scoped_lock lock(iWakeupLock);
-
     for (GpTaskFiber::SP& t: iWakeupOnAllReleasedTasks)
     {
         t.Vn().MoveToReady();

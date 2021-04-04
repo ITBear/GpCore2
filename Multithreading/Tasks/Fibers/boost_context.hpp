@@ -1,13 +1,25 @@
 #pragma once
 
+#include "../../../Utils/Pragma/GpPragmaUtils.hpp"
+
+#undef BOOST_USE_ASAN
+
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE(shadow)
+
 #include <boost/context/fiber.hpp>
 #include <boost/context/stack_context.hpp>
+
+GP_WARNING_POP()
+
 #include "GpFixedSizeStack.hpp"
 
 #include "../GpTask.hpp"
 #include "../../Threads/GpThreadStopToken.hpp"
 
 namespace GPlatform {
+
+class GpTaskFiberStack;
 
 class GpFiberStackSizePolicyT
 {

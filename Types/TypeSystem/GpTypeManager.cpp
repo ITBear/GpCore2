@@ -22,11 +22,6 @@ GpTypeManager&  GpTypeManager::S (void) noexcept
 
 size_t  GpTypeManager::Register (const GpTypeStructInfo& aTypeInfo)
 {
-    //std::string s = aTypeInfo.UID().ToString();
-    //printf("[GpTypeManager::Register]: aTypeInfo.UID() = ");
-    //printf(s.data());
-    //printf("\n");
-
     iElements.Register(aTypeInfo.UID(), aTypeInfo);
 
     return 0;
@@ -42,7 +37,11 @@ GpTypeStructInfo::C::Opt::CRef  GpTypeManager::Find (const GpUUID& aTypeUID) con
     return iElements.Find(aTypeUID);
 }
 
-bool    GpTypeManager::IsBaseOf (const GpUUID& aBaseTypeUID, const GpUUID& aDerivedTypeUID) const noexcept
+bool    GpTypeManager::IsBaseOf
+(
+    const GpUUID& aBaseTypeUID,
+    const GpUUID& aDerivedTypeUID
+) const noexcept
 {
     if (   aBaseTypeUID.IsZero()
         || aDerivedTypeUID.IsZero())

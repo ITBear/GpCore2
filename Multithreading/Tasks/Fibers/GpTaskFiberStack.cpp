@@ -19,7 +19,8 @@ GpTaskFiberStack::~GpTaskFiberStack (void) noexcept
 void    GpTaskFiberStack::Init (const size_byte_t aSize)
 {
     Clear();
-    iStack = GpMemOps::SNew<GpFiberStackT>(aSize.As<size_t>());
+    iStack  = GpMemOps::SNew<GpFiberStackT>(aSize.As<size_t>());
+    iSize   = aSize;
 }
 
 void    GpTaskFiberStack::Clear (void) noexcept
@@ -28,7 +29,8 @@ void    GpTaskFiberStack::Clear (void) noexcept
     {
         GpFiberStackT* stack = reinterpret_cast<GpFiberStackT*>(iStack);
         GpMemOps::SDelete(stack);
-        iStack = nullptr;
+        iStack  = nullptr;
+        iSize   = 0_byte;
     }
 }
 
