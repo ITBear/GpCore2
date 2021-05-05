@@ -41,13 +41,13 @@ void    GpTaskFiberBase::FiberFn (GpThreadStopToken aStopToken)
 
         if (stepRes == GpTask::ResT::READY_TO_EXEC)
         {
-            GpTaskFiberCtx::SYeld(GpTask::ResT::READY_TO_EXEC);
+            GpTaskFiber::SYield(GpTask::ResT::READY_TO_EXEC);
         } else if (stepRes == GpTask::ResT::WAITING)
         {
             event = PopNextEvent();
             if (event.IsNULL())
             {
-                GpTaskFiberCtx::SYeld(GpTask::ResT::WAITING);
+                GpTaskFiber::SYield(GpTask::ResT::WAITING);
             }
         } else if (stepRes == GpTask::ResT::DONE)
         {
@@ -56,7 +56,7 @@ void    GpTaskFiberBase::FiberFn (GpThreadStopToken aStopToken)
         }
     }
 
-    //GpTaskFiberCtx::SYeld(GpTask::ResT::DONE);
+    //GpTaskFiber::SYield(GpTask::ResT::DONE);
 }
 
 }//namespace GPlatform

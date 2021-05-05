@@ -44,7 +44,7 @@ void    GpTaskExecutor::Run (GpThreadStopToken aStopToken) noexcept
 
     if (currentTask.IsNotNULL())
     {
-        currentTaskExecRes = currentTask.Vn().Do(aStopToken);
+        currentTask.Vn().Do(aStopToken);
     }
 
     GpTaskScheduler::SSetCurrentScheduler(std::nullopt);

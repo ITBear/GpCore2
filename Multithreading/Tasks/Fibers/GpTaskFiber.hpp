@@ -6,10 +6,11 @@
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
 #include "../GpTask.hpp"
-#include "GpTaskFiberCtx.hpp"
 #include "GpTaskFiberStage.hpp"
 
 namespace GPlatform {
+
+class GpTaskFiberCtx;
 
 class GPCORE_API GpTaskFiber: public GpTask
 {   
@@ -20,19 +21,22 @@ public:
     using StageT = GpTaskFiberStage;
 
 public:
-                            GpTaskFiber         (void) noexcept;
-    virtual                 ~GpTaskFiber        (void) noexcept override;
+                                GpTaskFiber         (void) noexcept;
+    virtual                     ~GpTaskFiber        (void) noexcept override;
 
-    virtual ResT            Do                  (GpThreadStopToken aStopToken) noexcept override final;
-    virtual void            Terminate           (void) noexcept override final;
+    virtual ResT                Do                  (GpThreadStopToken aStopToken) noexcept override final;
+    virtual void                Terminate           (void) noexcept override final;
 
-protected:
-    virtual void            FiberFn             (GpThreadStopToken aStopToken) = 0;
-    GpTaskFiber::WP         GetWeakPtr          (void) const noexcept {return GpTask::GetWeakPtr().As<GpTaskFiber::WP>();}
+    virtual void                FiberFn             (GpThreadStopToken aStopToken) = 0;
+    GpTaskFiber::WP             GetWeakPtr          (void) const noexcept {return GpTask::GetWeakPtr().As<GpTaskFiber::WP>();}
+
+    static void                 SYield              (const GpTask::ResT aRes);
+    static GpWP<GpTaskFiber>    SCurrentTask        (void);
+    static bool                 SIsIntoFiber        (void) noexcept;
 
 private:
-    GpTaskFiberCtx::SP      iCtx;
-    StageT                  iStage = StageT::NOT_RUN;
+    GpSP<GpTaskFiberCtx>        iCtx;
+    StageT                      iStage = StageT::NOT_RUN;
 };
 
 }//GPlatform

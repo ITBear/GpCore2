@@ -5,6 +5,8 @@
 #include "../Numerics/GpNumericOps.hpp"
 #include "../Bits/GpBitOps.hpp"
 
+#include <sstream>
+
 namespace GPlatform {
 
 GpVector<GpRawPtrCharR> GpStringOps::SSplit
@@ -696,6 +698,13 @@ bool    GpStringOps::SContainsOnly
     }
 
     return true;
+}
+
+std::string GpStringOps::SToString (const std::thread::id aThreadId)
+{
+    std::ostringstream ss;
+    ss << aThreadId;
+    return  ss.str();
 }
 
 void    GpStringOps::_SFromUI64

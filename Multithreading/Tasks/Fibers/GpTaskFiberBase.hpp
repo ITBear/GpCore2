@@ -21,9 +21,9 @@ protected:
                             GpTaskFiberBase         (void) noexcept;
     virtual                 ~GpTaskFiberBase        (void) noexcept override;
 
-protected:
     virtual void            FiberFn                 (GpThreadStopToken aStopToken) override final;
 
+protected:
     virtual void            OnStart                 (void) = 0;
     virtual GpTask::ResT    OnStep                  (EventOptRefT aEvent) = 0;
     virtual void            OnStop                  (void) noexcept = 0;

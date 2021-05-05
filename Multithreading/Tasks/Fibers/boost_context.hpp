@@ -2,8 +2,6 @@
 
 #include "../../../Utils/Pragma/GpPragmaUtils.hpp"
 
-#undef BOOST_USE_ASAN
-
 GP_WARNING_PUSH()
 GP_WARNING_DISABLE(shadow)
 
@@ -14,8 +12,8 @@ GP_WARNING_POP()
 
 #include "GpFixedSizeStack.hpp"
 
-#include "../GpTask.hpp"
 #include "../../Threads/GpThreadStopToken.hpp"
+#include "GpTaskFiber.hpp"
 
 namespace GPlatform {
 
@@ -34,14 +32,6 @@ using FiberStackContextT    = boost::context::stack_context;
 using FiberRunFnT           = std::function<void(GpThreadStopToken)>;
 using FiberT                = boost::context::fiber;
 using FiberPreallocatedT    = boost::context::preallocated;
-using FiberArgsT            = GpTuple</*0*/std::optional<FiberT>,
-                                      /*1*/std::optional<FiberRunFnT>,
-                                      /*2*/std::optional<GpThreadStopToken>,
-                                      /*3*/GpTask::ResT,
-                                      /*4*/std::optional<std::exception_ptr>,
-                                      /*5*/GpTask::WP>;
-
-//using BasicProtectedFixedSizeStackT   = boost::context::basic_protected_fixedsize_stack<StackSizePolicyT>;
 
 class GpFiberStackWrapperT
 {

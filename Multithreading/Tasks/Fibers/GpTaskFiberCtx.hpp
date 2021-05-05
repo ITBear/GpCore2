@@ -8,36 +8,50 @@
 #include "GpTaskFiberStack.hpp"
 #include "../../Threads/GpThreadStopToken.hpp"
 #include "../GpTask.hpp"
+#include "boost_context.hpp"
 #include <cstddef>
 #include <functional>
 
 namespace GPlatform {
 
+class GpTaskFiber;
+
 class GPCORE_API GpTaskFiberCtx
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFiberCtx)
+    CLASS_REMOVE_CTRS(GpTaskFiberCtx)
     CLASS_DECLARE_DEFAULTS(GpTaskFiberCtx)
 
-    using FiberRunFnT   = std::function<void(GpThreadStopToken)>;
-
 public:
-                                GpTaskFiberCtx      (void) noexcept;
-                                ~GpTaskFiberCtx     (void) noexcept;
+                                        GpTaskFiberCtx      (GpWP<GpTaskFiber> aTask) noexcept;
+                                        ~GpTaskFiberCtx     (void) noexcept;
 
-    void                        Init                (void);
-    void                        Clear               (void) noexcept;
-    GpTask::ResT                Enter               (GpThreadStopToken  aStopToken,
-                                                     GpTask::WP         aTask,
-                                                     FiberRunFnT        aRunFn);
-    static void                 SYeld               (const GpTask::ResT aRes);
-    static GpTask::WP           SCurrentTask        (void);
-    static bool                 SIsIntoFiber        (void) noexcept;
+    GpTask::ResT                        Enter               (GpThreadStopToken aStopToken);
+    void                                Yield               (const GpTask::ResT aRes);
+    GpWP<GpTaskFiber>                   Task                (void) {return iTask;}
+
+    static GpTaskFiberCtx::C::Opt::Ref  SCurrentCtx         (void) noexcept;
 
 private:
-    alignas(alignof(std::max_align_t)) std::array<std::byte, 32>    iFiberStorage;
-    void*                                                           iFiberPtr = nullptr;
-    GpTaskFiberStack::SP                                            iFiberStack;
+    void                                Clear               (void) noexcept;
+    void                                InitIfNot           (void);
+
+    static void                         SSetCurrentCtx      (GpTaskFiberCtx::C::Opt::Ref aCtx) noexcept;
+
+    static FiberT                       SFiberFn            (FiberT&& aFiber);
+    FiberT                              FiberFn             (FiberT&& aFiber);
+
+private:
+    std::unique_ptr<FiberT>             iFiberOuter;
+    FiberT                              iFiberInner;
+    GpTaskFiberStack::SP                iFiberStack;
+
+    GpThreadStopToken                   iStopToken;
+    GpWP<GpTaskFiber>                   iTask;
+    GpTask::ResT                        iYieldRes       = GpTask::ResT::DONE;
+    std::optional<std::exception_ptr>   iException;
+
+    static GpElementsCatalog<std::thread::id, GpTaskFiberCtx::C::Opt::Ref>  sFiberArgs;
 };
 
 }//namespace GPlatform

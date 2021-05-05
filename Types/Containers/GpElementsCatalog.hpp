@@ -24,14 +24,20 @@ class GpElementsCatalog
     CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpElementsCatalog)
 
 public:
-    using this_type         = GpElementsCatalog<KeyT, ValueT>;
-    using key_type          = KeyT;
-    using value_type        = ValueT;
-    using container_type    = GpMap<KeyT, ValueT, std::less<>>;
-    using ValueRefOptT      = std::optional<std::reference_wrapper<ValueT>>;
-    using ValueCRefOptT     = std::optional<std::reference_wrapper<const ValueT>>;
-    using ValueOptT         = std::optional<ValueT>;
-    using ValueCOptT        = std::optional<const ValueT>;
+    using this_type             = GpElementsCatalog<KeyT, ValueT>;
+    using key_type              = KeyT;
+    using value_type            = ValueT;
+    using container_type        = GpMap<KeyT, ValueT, std::less<>>;
+    using ValueRefOptT          = std::optional<std::reference_wrapper<ValueT>>;
+    using ValueCRefOptT         = std::optional<std::reference_wrapper<const ValueT>>;
+    using ValueOptT             = std::optional<ValueT>;
+    using ValueCOptT            = std::optional<const ValueT>;
+
+    template<typename T>
+    struct IsReferenceWrapper : std::false_type {};
+
+    template<typename T>
+    struct IsReferenceWrapper<std::reference_wrapper<T>> : std::true_type{};
 
     CLASS_TAG(THREAD_SAFE)
 
@@ -240,7 +246,13 @@ auto    GpElementsCatalog<KeyT, ValueT>::TryFind (K&& aKey) const noexcept -> Va
 
     if (iter != iElements.end())
     {
-        return std::cref(iter->second);
+        if constexpr (IsReferenceWrapper<ValueT>::value)
+        {
+            return iter->second;
+        } else
+        {
+            return std::cref(iter->second);
+        }
     } else
     {
         return std::nullopt;

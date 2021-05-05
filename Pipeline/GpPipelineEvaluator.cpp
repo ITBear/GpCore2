@@ -29,11 +29,11 @@ void    GpPipelineEvaluator::FiberFn (GpThreadStopToken aStopToken)
             for (const GpPipelineNode::CSP& n: readyNodes)
             {
                 GpPipelineEvaluateCtx::SP evaluateCtx = n.VCn().NewEvaluateCtx();
-                //GpTaskFiberCtx::S
+                //GpTaskFiber::S
             }
 
             readyNodes.clear();
-            GpTaskFiberCtx::SYeld(GpTask::ResT::WAITING);
+            GpTaskFiber::SYield(GpTask::ResT::WAITING);
         } else
         {
             //if (nextNodes.size() > )
@@ -41,7 +41,7 @@ void    GpPipelineEvaluator::FiberFn (GpThreadStopToken aStopToken)
         }
     }
 
-    //GpTaskFiberCtx::SYeld(GpTask::Res::DONE);
+    //GpTaskFiber::SYield(GpTask::Res::DONE);
 }
 
 void    GpPipelineEvaluator::ProcessEvents (GpPipelineNode::C::Set::CSP& aReadyNodesOut)

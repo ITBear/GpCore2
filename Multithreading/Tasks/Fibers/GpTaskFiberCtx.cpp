@@ -7,58 +7,21 @@
 #include "GpTaskFiberManager.hpp"
 #include "GpTaskFiber.hpp"
 #include "GpTaskFiberStopEx.hpp"
-#include "boost_context.hpp"
 #include "../../../Utils/RAII/GpRAIIonDestruct.hpp"
+#include "../../../Types/Containers/GpElementsCatalog.hpp"
+#include "../../../Types/Strings/GpStringOps.hpp"
+#include "GpTaskFiber.hpp"
 
-//#include <iostream>
-
-/*#if defined(USE_ASAN)
-#   include <sanitizer/common_interface_defs.h>
-#endif*/
+#include <iostream>
 
 namespace GPlatform {
 
-static thread_local FiberArgsT sFiberArgsTLS;
+//static thread_local FiberArgs sFiberArgsTLS;
+GpElementsCatalog<std::thread::id, GpTaskFiberCtx::C::Opt::Ref> GpTaskFiberCtx::sFiberArgs;
 
-static FiberT _FiberFn (FiberT&& aOuterFiber)
+GpTaskFiberCtx::GpTaskFiberCtx (GpWP<GpTaskFiber> aTask) noexcept:
+iTask(std::move(aTask))
 {
-    //After IN
-    {
-        // Call actual fn
-        try
-        {
-            FiberArgsT& fiberArgs = sFiberArgsTLS;
-
-            std::get<0>(fiberArgs) = std::move(aOuterFiber);
-            std::get<1>(fiberArgs).value()(std::get<2>(fiberArgs).value());
-        } catch (const boost::context::detail::forced_unwind&)
-        {
-            throw;
-        } catch (...)
-        {
-            FiberArgsT& fiberArgs = sFiberArgsTLS;
-
-            std::get<3>(fiberArgs) = GpTask::ResT::DONE;
-            std::get<4>(fiberArgs) = std::current_exception();
-
-            return std::move(std::get<0>(fiberArgs).value());
-        }
-    }
-
-    //Before OUT
-    {
-        FiberArgsT& fiberArgs = sFiberArgsTLS;
-
-        std::get<3>(fiberArgs) = GpTask::ResT::DONE;
-        std::get<4>(fiberArgs).reset();
-
-        return std::move(std::get<0>(fiberArgs).value());
-    }
-}
-
-GpTaskFiberCtx::GpTaskFiberCtx (void) noexcept
-{
-    static_assert(sizeof(iFiberStorage) >= sizeof(FiberT));
 }
 
 GpTaskFiberCtx::~GpTaskFiberCtx (void) noexcept
@@ -66,9 +29,76 @@ GpTaskFiberCtx::~GpTaskFiberCtx (void) noexcept
     Clear();
 }
 
-void    GpTaskFiberCtx::Init (void)
+GpTask::ResT    GpTaskFiberCtx::Enter (GpThreadStopToken aStopToken)
 {
-    Clear();
+    InitIfNot();
+    SSetCurrentCtx(*this);
+
+    iStopToken  = std::move(aStopToken);
+    iYieldRes   = GpTask::ResT::DONE;
+
+    try
+    {
+        *iFiberOuter.get() = std::move(*iFiberOuter.get()).resume();
+
+        iStopToken = GpThreadStopToken();
+
+        if (iException.has_value())
+        {
+            auto ex = std::move(iException.value());
+            iException.reset();
+            iYieldRes = GpTask::ResT::DONE;
+
+            SSetCurrentCtx(std::nullopt);
+
+            std::rethrow_exception(ex);
+        }
+    } catch (...)
+    {
+        iStopToken  = GpThreadStopToken();
+        iYieldRes   = GpTask::ResT::DONE;
+        iException.reset();
+
+        throw;
+    }
+
+    return iYieldRes;
+}
+
+void    GpTaskFiberCtx::Yield (const GpTask::ResT aRes)
+{
+    iYieldRes = aRes;
+    iFiberInner = std::move(iFiberInner).resume();
+}
+
+void    GpTaskFiberCtx::Clear (void) noexcept
+{
+    if (iFiberOuter)
+    {
+        //iForceUnwind = true;
+
+        //try
+        //{
+        //  Enter(iStopToken);
+            iFiberOuter.reset();
+        //} catch (...)
+        //{
+        //  int d = 0;
+        //}
+    }
+
+    if (iFiberStack.IsNotNULL())
+    {
+        GpTaskFiberManager::S().StackPool().Release(std::move(iFiberStack));
+    }
+}
+
+void    GpTaskFiberCtx::InitIfNot (void)
+{
+    if (iFiberOuter)
+    {
+        return;
+    }
 
     //Get stack from pool
     const auto res = GpTaskFiberManager::S().StackPool().Acquire();
@@ -84,108 +114,66 @@ void    GpTaskFiberCtx::Init (void)
     GpFiberStackT& fiberStack = *reinterpret_cast<GpFiberStackT*>(iFiberStack.Vn().Stack());
     //boost::context::stack_context stackCtx = fiberStack.NewCtx();
 
-    iFiberPtr = GpMemOps::SEmplace<FiberT>
+    iFiberOuter = std::make_unique<FiberT>
     (
-        iFiberStorage.data(),
         std::allocator_arg,
         //FiberPreallocatedT(stackCtx.sp, stackCtx.size, stackCtx),
         GpFiberStackWrapperT(fiberStack),
-        _FiberFn
+        SFiberFn
     );
 }
 
-void    GpTaskFiberCtx::Clear (void) noexcept
+GpTaskFiberCtx::C::Opt::Ref GpTaskFiberCtx::SCurrentCtx (void) noexcept
 {
-    if (iFiberPtr != nullptr)
+    const auto threadId = std::this_thread::get_id();
+    auto res = sFiberArgs.TryFind(threadId);
+
+    if (res.has_value())
     {
-        FiberT* fiber = reinterpret_cast<FiberT*>(iFiberPtr);
-        fiber->~FiberT();
-        iFiberPtr = nullptr;
-    }
-
-    if (iFiberStack.IsNotNULL())
+        return res.value().get();
+    } else
     {
-        GpTaskFiberManager::S().StackPool().Release(std::move(iFiberStack));
-    }
-}
-
-GpTask::ResT    GpTaskFiberCtx::Enter
-(
-    GpThreadStopToken   aStopToken,
-    GpTask::WP          aTask,
-    FiberRunFnT         aRunFn
-)
-{
-    //IN
-    {
-        FiberArgsT& fiberArgs = sFiberArgsTLS;
-
-        std::get<1>(fiberArgs) = aRunFn;
-        std::get<2>(fiberArgs) = std::move(aStopToken);
-        std::get<3>(fiberArgs) = GpTask::ResT::DONE;
-        //std::get<4>(fiberArgs) = task res
-        std::get<5>(fiberArgs) = std::move(aTask);
-
-        FiberT& fiber = *reinterpret_cast<FiberT*>(iFiberPtr);
-
-        fiber = std::move(fiber).resume();
-    }
-
-    //OUT
-    {
-        FiberArgsT& fiberArgs = sFiberArgsTLS;
-
-        std::get<5>(fiberArgs).Clear();
-
-        auto& ex = std::get<4>(fiberArgs);
-        if (ex.has_value())
-        {
-             std::rethrow_exception(ex.value());
-        }
-
-        GpTask::ResT res = std::get<3>(fiberArgs);
-        return res;
+        return std::nullopt;
     }
 }
 
-void    GpTaskFiberCtx::SYeld (const GpTask::ResT aRes)
+void    GpTaskFiberCtx::SSetCurrentCtx (GpTaskFiberCtx::C::Opt::Ref aCtx) noexcept
 {
-    //Before OUT
-    FiberArgsT& fiberArgsBeforeOut  = sFiberArgsTLS;
+    const auto threadId = std::this_thread::get_id();
+    auto& res = sFiberArgs.FindOrRegister(threadId, [](){return std::nullopt;});
 
-    std::get<3>(fiberArgsBeforeOut) = aRes;
-    std::get<4>(fiberArgsBeforeOut).reset();
+    res = aCtx;
+}
 
-    //std::cout << "[GpTaskFiberCtx::SYeld]: Before OUT "_sv << "thread: "_sv << std::this_thread::get_id() <<std::endl;
+FiberT  GpTaskFiberCtx::SFiberFn (FiberT&& aFiber)
+{
+    const auto threadId = std::this_thread::get_id();
+    auto res = sFiberArgs.TryFind(threadId);
 
-    FiberT fiberAfterIn = std::move(std::get<0>(fiberArgsBeforeOut).value()).resume();
+    return res.value().get().value().get().FiberFn(std::move(aFiber));
+}
 
-    //std::cout << "[GpTaskFiberCtx::SYeld]: After IN "_sv << "thread: "_sv << std::this_thread::get_id() <<std::endl;
+FiberT  GpTaskFiberCtx::FiberFn (FiberT&& aFiber)
+{
+    iFiberInner = std::move(aFiber);
 
-    //After IN
+    try
     {
-        FiberArgsT& fiberArgsAfterIn = sFiberArgsTLS;
-
-        std::get<0>(fiberArgsAfterIn) = std::move(fiberAfterIn);
-
-        if (std::get<2>(fiberArgsAfterIn)->stop_requested())
-        {
-            //throw boost::context::detail::forced_unwind();
-            throw GpTaskFiberStopEx("Stop GpTaskFiber by force"_sv);
-        }
+        iYieldRes = GpTask::ResT::DONE;
+        iTask->FiberFn(iStopToken);
+    } catch (const boost::context::detail::forced_unwind&)
+    {
+        iYieldRes = GpTask::ResT::DONE;
+        std::cout << "[GpTaskFiberCtx::FiberFn]: boost::context::detail::forced_unwind"_sv << std::endl;
+        throw;
+    } catch (...)
+    {
+        iYieldRes = GpTask::ResT::DONE;
+        iException = std::current_exception();
+        std::cout << "[GpTaskFiberCtx::FiberFn]: forward exception"_sv << std::endl;
     }
-}
 
-GpTask::WP  GpTaskFiberCtx::SCurrentTask (void)
-{
-    FiberArgsT& fiberArgs = sFiberArgsTLS;
-    return std::get<5>(fiberArgs);
-}
-
-bool    GpTaskFiberCtx::SIsIntoFiber (void) noexcept
-{
-    FiberArgsT& fiberArgs = sFiberArgsTLS;
-    return std::get<0>(fiberArgs).has_value();
+    return std::move(iFiberInner);
 }
 
 }//namespace GPlatform

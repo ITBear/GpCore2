@@ -5,8 +5,7 @@
 
 #include "../../../Exceptions/GpExceptionsSink.hpp"
 #include "GpTaskFiberStopEx.hpp"
-#include "boost_context.hpp"
-#include <iostream>
+#include "GpTaskFiberCtx.hpp"
 
 namespace GPlatform {
 
@@ -25,21 +24,15 @@ GpTask::ResT    GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
     try
     {
         switch (iStage.Value())
-        {
+        {           
             case StageT::NOT_RUN:
             {
-                iCtx = MakeSP<GpTaskFiberCtx>();
-                iCtx.Vn().Init();
-                iStage = StageT::RUN;
+                iCtx    = MakeSP<GpTaskFiberCtx>(GetWeakPtr());
+                iStage  = StageT::RUN;
             } [[fallthrough]];
             case StageT::RUN:
             {
-                taskRes = iCtx.Vn().Enter
-                (
-                    aStopToken,
-                    GetWeakPtr(),
-                    std::bind(&GpTaskFiber::FiberFn, this, std::placeholders::_1)
-                );
+                taskRes = iCtx.Vn().Enter(aStopToken);
             } break;
             case StageT::FINISHED: [[fallthrough]];
             default:
@@ -47,13 +40,13 @@ GpTask::ResT    GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
                 //NOP
             } break;
         }
-    } /*catch (const boost::context::detail::forced_unwind& e)
+    } catch (const boost::context::detail::forced_unwind& e)
     {
         iCtx.Clear();
         iStage = StageT::FINISHED;
-        GpExceptionsSink::SSink(e);
-        throw;
-    }*/ catch (const GpTaskFiberStopEx&)
+        GpExceptionsSink::SSink("boost::context::detail::forced_unwind"_sv);
+        //throw;
+    } catch (const GpTaskFiberStopEx&)
     {
         iCtx.Clear();
         iStage = StageT::FINISHED;
@@ -90,6 +83,28 @@ void    GpTaskFiber::Terminate (void) noexcept
     stopSource.request_stop();
 
     Do(stopToken);
+}
+
+void    GpTaskFiber::SYield (const GpTask::ResT aRes)
+{
+    auto ctx = GpTaskFiberCtx::SCurrentCtx();
+    THROW_GPE_COND(ctx.has_value(), "Call outside of fiber"_sv);
+
+    ctx.value().get().Yield(aRes);
+}
+
+GpWP<GpTaskFiber>   GpTaskFiber::SCurrentTask (void)
+{
+    auto ctx = GpTaskFiberCtx::SCurrentCtx();
+    THROW_GPE_COND(ctx.has_value(), "Call outside of fiber"_sv);
+
+    return ctx.value().get().Task();
+}
+
+bool    GpTaskFiber::SIsIntoFiber (void) noexcept
+{
+    auto ctx = GpTaskFiberCtx::SCurrentCtx();
+    return ctx.has_value();
 }
 
 }//GPlatform

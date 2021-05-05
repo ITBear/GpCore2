@@ -51,7 +51,7 @@ void    GpTaskFiberBarrier::Wait (GpTaskFiber::SP aTask)
         }
 
         //Wait
-        GpTaskFiberCtx::SYeld(GpTask::ResT::WAITING);
+        GpTaskFiber::SYield(GpTask::ResT::WAITING);
     }
 }
 

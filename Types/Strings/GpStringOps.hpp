@@ -15,6 +15,7 @@
 #include "../UIDs/GpUUID.hpp"
 
 #include <variant>
+#include <thread>
 
 namespace GPlatform {
 
@@ -101,6 +102,7 @@ public:
     static std::string                      SToString       (const GpUUID& aValue) {return aValue.ToString();}
     static std::string                      SToString       (float aValue) {return SFromDouble(double(aValue));}
     static std::string                      SToString       (double aValue) {return SFromDouble(aValue);}
+    static std::string                      SToString       (const std::thread::id aThreadId);
 
     template<typename T, typename _D = void, typename = std::enable_if_t<std::is_integral_v<T>, _D>>
     static std::string                      SToString       (T aValue)

@@ -17,6 +17,8 @@ private:
 public:
     static void     SSink               (const std::exception&  aException,
                                          const SourceLocationT& aLocation = SourceLocationT::current()) noexcept;
+    static void     SSink               (std::string_view aMsg,
+                                         const SourceLocationT& aLocation = SourceLocationT::current()) noexcept;
     static void     SSinkUnknown        (const SourceLocationT& aLocation = SourceLocationT::current()) noexcept;
 };
 

@@ -34,7 +34,7 @@ void    GpTypeManager::Unregister (const GpUUID& aTypeUID)
 
 GpTypeStructInfo::C::Opt::CRef  GpTypeManager::Find (const GpUUID& aTypeUID) const noexcept
 {
-    return iElements.Find(aTypeUID);
+    return iElements.TryFind(aTypeUID);
 }
 
 bool    GpTypeManager::IsBaseOf
