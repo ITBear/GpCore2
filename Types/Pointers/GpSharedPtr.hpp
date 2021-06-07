@@ -542,6 +542,12 @@ template<typename T, typename... Ts>
     return T::SP::SNew(std::forward<Ts>(aArgs)...);
 }
 
+template<typename T, typename... Ts>
+[[nodiscard]] typename T::CSP   MakeCSP (Ts&&... aArgs)
+{
+    return T::CSP::SNew(std::forward<Ts>(aArgs)...);
+}
+
 }//namespace GPlatform
 
 //********************** Hash *********************

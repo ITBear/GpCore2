@@ -45,12 +45,8 @@ private:
 
 private:
     mutable GpSpinlock          iLock;
-    //mutable GpSpinlock        iReadyLock;
     GpTask::C::Queue::SP        iReadyTasks;
-
-    //mutable GpSpinlock            iWaitingLock;
     GpTask::C::Set::SP          iWaitingTasks;
-
     GpTaskExecutorsPool         iExecutorsPool;
 };
 

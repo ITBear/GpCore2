@@ -22,3 +22,4 @@
 #define GP_USE_BASE64
 #define GP_USE_BASE58
 #define GP_USE_GNU_GMP
+#define GP_USE_TIMERS

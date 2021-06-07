@@ -1,6 +1,5 @@
 #include "GpTaskScheduler.hpp"
 #include "GpTaskAccessor.hpp"
-#include <iostream>
 
 #if defined(GP_USE_MULTITHREADING)
 
@@ -21,12 +20,9 @@ GpTaskScheduler::~GpTaskScheduler (void) noexcept
 
     std::scoped_lock lock(iLock);
 
-    std::cout << "[GpTaskScheduler::~GpTaskScheduler]:..." << std::endl;
-
     //Terminate ready tasks
     bool isEmpty = false;
 
-    //std::cout << "[GpTaskScheduler::~GpTaskScheduler]:...: 1" << std::endl;
     while (!isEmpty)
     {
         GpTask::SP task;
@@ -47,8 +43,6 @@ GpTaskScheduler::~GpTaskScheduler (void) noexcept
             task.Vn().Terminate();
         }
     }
-
-    std::cout << "[GpTaskScheduler::~GpTaskScheduler]:...: 2" << std::endl;
 
     //Terminate waiting tasks
     isEmpty = false;
@@ -73,8 +67,6 @@ GpTaskScheduler::~GpTaskScheduler (void) noexcept
             task.Vn().Terminate();
         }
     }
-
-    std::cout << "[GpTaskScheduler::~GpTaskScheduler]:...: 3" << std::endl;
 }
 
 void    GpTaskScheduler::Start

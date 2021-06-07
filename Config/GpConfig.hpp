@@ -44,12 +44,3 @@
 #else
 #   error Current OS is not supported yet.
 #endif
-
-//******************* Diagnostics *****************
-//#if defined(GP_COMPILER_GCC) || defined(GP_COMPILER_CLANG)
-//# pragma GCC diagnostic ignored "-Wpragmas"
-//# pragma GCC diagnostic ignored "-Wcovered-switch-default"
-//# pragma GCC diagnostic ignored "-Wweak-vtables"
-//# pragma GCC diagnostic ignored "-Wunreachable-code-break"
-//# pragma GCC diagnostic ignored "-Wgnu-string-literal-operator-template"
-//#endif

@@ -2,16 +2,17 @@
 
 #if defined(GP_USE_DATE_TIME)
 
-#include <chrono>
 #include <date/date.h> //TODO: remove with c++20
 
 namespace GPlatform {
 
 const GpArray<std::string, GpDateTimeFormat::SCount().As<size_t>()> GpDateTimeOps::sFormats =
 {
-    "%FT%X+00:00",                      //ISO_8601:         2021-01-11T20:15:31+00:00
-    "%a, %d %b %Y %X +0000",            //RFC_2822:         Mon, 11 Jan 2021 20:15:31 +0000
-    "%F %X"                             //STD_DATE_TIME:    2021-01-11 20:15:31
+    "%FT%X+00:00",              //ISO_8601:         2021-01-11T20:15:31+00:00
+    "%a, %d %b %Y %X +0000",    //RFC_2822:         Mon, 11 Jan 2021 20:15:31 +0000
+    "%F %X",                    //STD_DATE_TIME:    2021-01-11 20:15:31
+    "%F",                       //STD_DATE:         2021-01-11
+    "%X"                        //STD_TIME:         20:15:31
 };
 
 unix_ts_ms_t    GpDateTimeOps::SUnixTS_ms (void) noexcept
@@ -114,6 +115,19 @@ unix_ts_s_t GpDateTimeOps::SUnixTsFromStr_s
 {
     return SUnixTsFromStr_ms(aStr, sFormats.at(aFormat));
 }
+
+/*std::chrono::hh_mm_ss GpDateTimeOps::SUnixTsToHH_MM_SS (const unix_ts_ms_t aTs) noexcept
+{
+    ?
+}*/
+
+/*hours_t       GpDateTimeOps::SUnixTsToHH (const unix_ts_ms_t aTs) noexcept
+{
+    date::sys_time<std::chrono::milliseconds> tp(std::chrono::milliseconds(aTs.Value()));
+    date::hh_mm_ss h(tp.time_since_epoch());
+
+    return hours_t::SMake(h.hours().count());
+}*/
 
 milliseconds_t  GpDateTimeOps::SSteadyTS_ms (void) noexcept
 {

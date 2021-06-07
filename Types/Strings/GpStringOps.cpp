@@ -707,6 +707,13 @@ std::string GpStringOps::SToString (const std::thread::id aThreadId)
     return  ss.str();
 }
 
+std::string GpStringOps::SToString (const void* aPtr)
+{
+    std::ostringstream ss;
+    ss << aPtr;
+    return  ss.str();
+}
+
 void    GpStringOps::_SFromUI64
 (
     const u_int_64  aValue,

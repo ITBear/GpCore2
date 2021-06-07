@@ -75,16 +75,7 @@ void    GpTaskFiberCtx::Clear (void) noexcept
 {
     if (iFiberOuter)
     {
-        //iForceUnwind = true;
-
-        //try
-        //{
-        //  Enter(iStopToken);
-            iFiberOuter.reset();
-        //} catch (...)
-        //{
-        //  int d = 0;
-        //}
+        iFiberOuter.reset();
     }
 
     if (iFiberStack.IsNotNULL())

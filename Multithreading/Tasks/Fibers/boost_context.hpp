@@ -2,6 +2,9 @@
 
 #include "../../../Utils/Pragma/GpPragmaUtils.hpp"
 
+#if defined(GP_USE_MULTITHREADING)
+#if defined(GP_USE_MULTITHREADING_FIBERS)
+
 GP_WARNING_PUSH()
 GP_WARNING_DISABLE(shadow)
 
@@ -29,7 +32,6 @@ public:
 using GpFiberStackT = GpFixedSizeStack<GpFiberStackSizePolicyT>;
 
 using FiberStackContextT    = boost::context::stack_context;
-using FiberRunFnT           = std::function<void(GpThreadStopToken)>;
 using FiberT                = boost::context::fiber;
 using FiberPreallocatedT    = boost::context::preallocated;
 
@@ -52,3 +54,6 @@ private:
 };
 
 }//namespace GPlatform
+
+#endif//#if defined(GP_USE_MULTITHREADING_FIBERS)
+#endif//#if defined(GP_USE_MULTITHREADING)

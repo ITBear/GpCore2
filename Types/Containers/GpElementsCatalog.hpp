@@ -78,6 +78,7 @@ public:
     ValueOptT               TryFindRetCopy          (K&& aKey) const;
 
     void                    Process                 (std::function<void(container_type&)> aFn);
+    void                    Apply                   (std::function<void(ValueT&)> aFn);
 
 private:
     template<typename K>
@@ -299,6 +300,18 @@ void    GpElementsCatalog<KeyT, ValueT>::Process (std::function<void(container_t
 {
     std::scoped_lock lock(iLock);
     aFn(iElements);
+}
+
+template<typename KeyT,
+         typename ValueT>
+void    GpElementsCatalog<KeyT, ValueT>::Apply (std::function<void(ValueT&)> aFn)
+{
+    std::shared_lock lock(iLock);
+
+    for (auto& e: iElements)
+    {
+        aFn(e.second);
+    }
 }
 
 template<typename KeyT,

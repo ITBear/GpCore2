@@ -64,7 +64,7 @@ HEADERS += \
 	Constexpr/GpConstexprIterator.hpp \
 	Constexpr/GpConstexprUtils.hpp \
 	EventBus/GpEvent.hpp \
-	EventBus/GpEventBus.hpp \
+	EventBus/GpEventPublisher.hpp \
 	EventBus/GpEventSubscriber.hpp \
 	Exceptions/GpCeExceptions.hpp \
 	Exceptions/GpException.hpp \
@@ -218,6 +218,8 @@ HEADERS += \
 	Utils/Encoders/GpEncoders.hpp \
 	Utils/Errno/GpErrno.hpp \
 	Utils/File/GpFileUtils.hpp \
+	Utils/Fn/GpFn.hpp \
+	Utils/Fn/GpHysteresis.hpp \
 	Utils/GpUtils.hpp \
 	Utils/Pragma/GpPragmaUtils.hpp \
 	Utils/RAII/GpOnThrowStackUnwindFn.hpp \
@@ -235,11 +237,16 @@ HEADERS += \
 	Utils/Streams/GpByteWriterStorage.hpp \
 	Utils/Streams/GpByteWriterStorageByteArray.hpp \
 	Utils/Streams/GpByteWriterStorageFixedSize.hpp \
-	Utils/Streams/GpStreams.hpp
+	Utils/Streams/GpStreams.hpp \
+	Utils/Timers/GpTimer.hpp \
+	Utils/Timers/GpTimerShotEvent.hpp \
+	Utils/Timers/GpTimerShotEventFactory.hpp \
+	Utils/Timers/GpTimers.hpp \
+	Utils/Timers/GpTimersManager.hpp
 
 SOURCES += \
 	EventBus/GpEvent.cpp \
-	EventBus/GpEventBus.cpp \
+	EventBus/GpEventPublisher.cpp \
 	EventBus/GpEventSubscriber.cpp \
 	Exceptions/GpException.cpp \
 	Exceptions/GpExceptionDesc.cpp \
@@ -316,4 +323,8 @@ SOURCES += \
 	Utils/Streams/GpByteWriter.cpp \
 	Utils/Streams/GpByteWriterStorage.cpp \
 	Utils/Streams/GpByteWriterStorageByteArray.cpp \
-	Utils/Streams/GpByteWriterStorageFixedSize.cpp
+	Utils/Streams/GpByteWriterStorageFixedSize.cpp \
+	Utils/Timers/GpTimer.cpp \
+	Utils/Timers/GpTimerShotEvent.cpp \
+	Utils/Timers/GpTimerShotEventFactory.cpp \
+	Utils/Timers/GpTimersManager.cpp

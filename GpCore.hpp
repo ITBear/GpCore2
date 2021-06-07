@@ -9,7 +9,7 @@
 #include "RandomGenerators/GpRandomGenerators.hpp"
 #include "Types/GpTypes.hpp"
 #include "Multithreading/GpMultithreading.hpp"
-#include "EventBus/GpEventBus.hpp"
+#include "EventBus/GpEventPublisher.hpp"
 #include "Pipeline/GpPipelineManager.hpp"
 #include "Utils/GpUtils.hpp"
 #include "UnitTests/GpUnitTests.hpp"

@@ -2,8 +2,6 @@
 
 #if defined (GP_USE_EVENT_BUS)
 
-#include "GpEventBus.hpp"
-
 namespace GPlatform {
 
 GpEventSubscriber::GpEventSubscriber (void) noexcept
