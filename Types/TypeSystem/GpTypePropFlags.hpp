@@ -12,7 +12,8 @@ namespace GPlatform {
 GP_ENUM(GPCORE_API, GpTypePropFlag,
     UNWRAP_CONTAINER,
     UNWRAP_CONTAINER_KEY,
-    CONTAINER_ELEMENT_NAME
+    CONTAINER_ELEMENT_NAME,
+    AS_TUPLE
 );
 
 using GpTypePropFlags = GpMap<GpTypePropFlag, std::string>;

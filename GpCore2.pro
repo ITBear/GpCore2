@@ -62,6 +62,7 @@ HEADERS += \
 	Constexpr/GpConstexprArray.hpp \
 	Constexpr/GpConstexprFalse.hpp \
 	Constexpr/GpConstexprIterator.hpp \
+	Constexpr/GpConstexprTuple.hpp \
 	Constexpr/GpConstexprUtils.hpp \
 	EventBus/GpEvent.hpp \
 	EventBus/GpEventPublisher.hpp \
