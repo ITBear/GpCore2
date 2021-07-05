@@ -7,6 +7,7 @@
 
 #include "GpTaskFiber.hpp"
 #include "../../SyncPrimitives/GpSpinlock.hpp"
+#include <any>
 
 namespace GPlatform {
 
@@ -16,20 +17,23 @@ public:
     CLASS_REMOVE_CTRS(GpTaskFiberBarrier)
     CLASS_DECLARE_DEFAULTS(GpTaskFiberBarrier)
 
+    using ResultT = GpVector<std::optional<std::any>>;
+
 public:
-                                GpTaskFiberBarrier      (count_t aCounter) noexcept:iCounter(aCounter) {}
-                                ~GpTaskFiberBarrier     (void) noexcept {}
+                                    GpTaskFiberBarrier      (count_t aCounter) noexcept;
+                                    ~GpTaskFiberBarrier     (void) noexcept;
 
-    void                        Release                 (void);
-    void                        Wait                    (GpTaskFiber::SP aTask);
-
-private:
-    void                        WakeupAll               (void);
+    void                            Release                 (std::optional<std::any>&& aResult) noexcept;
+    const ResultT&                  Wait                    (void);
 
 private:
-    count_t                     iCounter = 0_cnt;
-    GpSpinlock                  iWakeupLock;
-    GpTaskFiber::C::Vec::SP     iWakeupOnAllReleasedTasks;  
+    void                            WakeupAll               (void);
+
+private:
+    count_t                         iCounter = 0_cnt;
+    GpSpinlock                      iWakeupLock;
+    GpTaskFiber::C::Vec::SP         iWakeupOnAllReleasedTasks;
+    ResultT                         iResult;
 };
 
 }//GPlatform

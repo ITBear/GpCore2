@@ -96,8 +96,8 @@ consteval GpType::EnumT GpTypeUtils::SDetectType (void)
     else if constexpr (std::is_same_v<VT, std::string_view>) return GpType::STRING;
     else if constexpr (std::is_same_v<VT, GpBytesArray>) return GpType::BLOB;
     else if constexpr (std::is_base_of_v<GpTypeStructBase, VT>) return GpType::STRUCT;
-    else if constexpr (GpTypeStructBase::SP::SHasTag_GpSharedPtr<VT>()) return GpType::STRUCT_SP;
-    else if constexpr (GpUnitUtils::SHasTag_GpUnit<VT>())
+    else if constexpr (GpTypeStructBase::SP::SHasTag_GpSharedPtrBase<VT>()) return GpType::STRUCT_SP;
+    else if constexpr (GpUnitUtils::SHasTag_GpUnit<VT>())                
     {
         if constexpr (std::is_same_v<typename VT::unit_type, GpUnitType_UNIX_TIMESTAMP>)
         {

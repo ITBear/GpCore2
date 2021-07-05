@@ -16,17 +16,24 @@
 
 namespace GPlatform {
 
+static int _GpTaskFiberCtx_counter = 0;
+
 //static thread_local FiberArgs sFiberArgsTLS;
 GpElementsCatalog<std::thread::id, GpTaskFiberCtx::C::Opt::Ref> GpTaskFiberCtx::sFiberArgs;
 
 GpTaskFiberCtx::GpTaskFiberCtx (GpWP<GpTaskFiber> aTask) noexcept:
 iTask(std::move(aTask))
 {
+    _GpTaskFiberCtx_counter++;
+    std::cout << "[GpTaskFiberCtx::GpTaskFiberCtx]: counter = " << _GpTaskFiberCtx_counter << std::endl;
 }
 
 GpTaskFiberCtx::~GpTaskFiberCtx (void) noexcept
 {
     Clear();
+
+    _GpTaskFiberCtx_counter--;
+    std::cout << "[GpTaskFiberCtx::~GpTaskFiberCtx]: counter = " << _GpTaskFiberCtx_counter << std::endl;
 }
 
 GpTask::ResT    GpTaskFiberCtx::Enter (GpThreadStopToken aStopToken)

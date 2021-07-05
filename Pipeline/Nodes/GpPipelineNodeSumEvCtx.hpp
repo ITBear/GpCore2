@@ -8,15 +8,15 @@
 
 namespace GPlatform {
 
-class GPCORE_API GpPipelineNodeSumEvCtx: public GpPipelineEvaluateCtx
+class GPCORE_API GpPipelineNodeSumEvCtx final: public GpPipelineEvaluateCtx
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpPipelineNodeSumEvCtx)
+    CLASS_REMOVE_CTRS(GpPipelineNodeSumEvCtx)
     CLASS_DECLARE_DEFAULTS(GpPipelineNodeSumEvCtx)
 
 public:
-                                        GpPipelineNodeSumEvCtx  (void) noexcept = default;
-    virtual                             ~GpPipelineNodeSumEvCtx (void) noexcept override final = default;
+                                        GpPipelineNodeSumEvCtx  (std::string_view aName);
+    virtual                             ~GpPipelineNodeSumEvCtx (void) noexcept override final;
 };
 
 }//GPlatform

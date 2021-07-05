@@ -17,21 +17,21 @@ public:
     CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpEventSubscriber)
 
 protected:
-                            GpEventSubscriber   (void) noexcept;
+                            GpEventSubscriber               (void) noexcept;
 
 public:
-    virtual                 ~GpEventSubscriber  (void) noexcept;
+    virtual                 ~GpEventSubscriber              (void) noexcept;
 
-    void                    PushEvent           (GpEvent::SP aEvent);
-    GpEvent::SP             PopNextEvent        (void);
-    bool                    HasEvents           (void) const noexcept {std::scoped_lock lock(iEventsLock); return !iEvents.empty();}
+    void                    PushEvent                       (GpEvent::SP aEvent);
+    GpEvent::SP             PopNextEvent                    (void);
+    bool                    HasEvents                       (void) const noexcept {std::scoped_lock lock(iEventsLock); return !iEvents.empty();}
 
-    GpSpinlock&             EventsLock          (void) const noexcept {return iEventsLock;}
-    bool                    HasEventsNoLock     (void) const noexcept {return !iEvents.empty();}
+    GpSpinlock&             EventsLock                      (void) const noexcept {return iEventsLock;}
+    bool                    HasEventsNoLock                 (void) const noexcept {return !iEvents.empty();}
 
 protected:  
-    void                    ClearEventsQueue    (void);
-    virtual void            OnPushEvent         (void) = 0;
+    void                    ClearEventsQueue                (void);
+    virtual void            OnPushEvent                     (void) = 0;
 
 private:
     mutable GpSpinlock      iEventsLock;

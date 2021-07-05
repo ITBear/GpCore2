@@ -6,9 +6,17 @@
 
 namespace GPlatform {
 
-GpPipelineEvaluateCtx::SP   GpPipelineNodeSum::NewEvaluateCtx (void) const
+GpPipelineNodeSum::GpPipelineNodeSum (void) noexcept
 {
-    return MakeSP<GpPipelineNodeSumEvCtx>();
+}
+
+GpPipelineNodeSum::~GpPipelineNodeSum (void) noexcept
+{
+}
+
+GpPipelineEvaluateCtx::SP   GpPipelineNodeSum::NewEvaluateCtx (std::string_view aName) const
+{
+    return MakeSP<GpPipelineNodeSumEvCtx>(aName);
 }
 
 }//GPlatform

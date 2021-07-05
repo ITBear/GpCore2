@@ -88,13 +88,16 @@ bool    GpRandom::Bool (void)
     return Next<UInt64>(0_u_int_64, 1_u_int_64) == 0_u_int_64;
 }
 
-std::string     GpRandom::String (const GpRandomStrMode::EnumT  aMode,
-                                  const count_t                 aLength)
+std::string     GpRandom::String
+(
+    const GpRandomStrMode::EnumT    aMode,
+    const count_t                   aLength
+)
 {
-    const size_t            size        = aLength.As<size_t>();
-    const std::string_view  srcStr      = sStrs.at(size_t(aMode));
-    const UInt8             srcStrMaxId = UInt8::SMake(srcStr.size()) - 1_u_int_8;
-    std::string     res;
+    const size_t        size        = aLength.As<size_t>();
+    std::string_view    srcStr      = sStrs.at(size_t(aMode));
+    const UInt8         srcStrMaxId = UInt8::SMake(srcStr.size()) - 1_u_int_8;
+    std::string         res;
 
     res.resize(size);
     char* strData = res.data();

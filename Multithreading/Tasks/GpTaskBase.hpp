@@ -11,13 +11,13 @@ namespace GPlatform {
 class GPCORE_API GpTaskBase: public GpTask
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskBase)
+    CLASS_REMOVE_CTRS(GpTaskBase)
     CLASS_DECLARE_DEFAULTS(GpTaskBase)
 
     using EventOptRefT  = std::optional<std::reference_wrapper<GpEvent>>;
 
 protected:
-                            GpTaskBase      (void) noexcept;
+                            GpTaskBase      (std::string_view aName);
     virtual                 ~GpTaskBase     (void) noexcept override;
 
     virtual ResT            Do              (GpThreadStopToken aStopToken) noexcept override final;

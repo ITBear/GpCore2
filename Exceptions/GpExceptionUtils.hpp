@@ -23,9 +23,12 @@ public:
 };
 
 template<typename ExpectexExT>
-void    GpExceptionUtils::SExpectThrow (std::function<void()>                       aThrowableFn,
-                                        std::function<bool(const ExpectexExT& aEx)> aCatchFn,
-                                        std::function<void()>                       aThrowFn)
+void    GpExceptionUtils::SExpectThrow
+(
+    std::function<void()>                       aThrowableFn,
+    std::function<bool(const ExpectexExT& aEx)> aCatchFn,
+    std::function<void()>                       aThrowFn
+)
 {
     bool isCatch = false;
 

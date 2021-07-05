@@ -13,14 +13,14 @@ namespace GPlatform {
 class GPCORE_API GpPipelineEvaluateCtx: public GpTaskFiber
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpPipelineEvaluateCtx)
+    CLASS_REMOVE_CTRS(GpPipelineEvaluateCtx)
     CLASS_DECLARE_DEFAULTS(GpPipelineEvaluateCtx)
 
 protected:
-                        GpPipelineEvaluateCtx   (void) noexcept = default;
+                        GpPipelineEvaluateCtx   (std::string_view aName);
 
 public:
-    virtual             ~GpPipelineEvaluateCtx  (void) noexcept override = default;
+    virtual             ~GpPipelineEvaluateCtx  (void) noexcept override;
 
 protected:
     virtual void        FiberFn                 (GpThreadStopToken aStopToken) override final;

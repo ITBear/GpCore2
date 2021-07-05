@@ -3,11 +3,12 @@
 #include "../../Config/GpConfig.hpp"
 #include "../Classes/GpClassesDefines.hpp"
 #include "../Numerics/GpNumericTypes.hpp"
-#include "../Containers/GpContainersT.hpp"
 #include "../../Exceptions/GpCeExceptions.hpp"
 #include "GpBitCast.hpp"
 
 #include <bitset>
+#include <limits>
+#include <tuple>
 
 #if defined(GP_CPU_USE_BMI2)
 #   include <immintrin.h>
@@ -167,46 +168,46 @@ public:
 
     //------------------------------------ Deinterleave16_16(Morton Codes) ------------------------------------
     template<u_int_32 Value> [[nodiscard]] static constexpr
-    GpTuple<u_int_16/*left*/,
-            u_int_16/*right*/>  Deinterleave16_16       (void) noexcept
+    std::tuple<u_int_16/*left*/,
+               u_int_16/*right*/>   Deinterleave16_16       (void) noexcept
     {
         return Deinterleave16_16_std(Value);
     }
 
     [[nodiscard]] static inline
-    GpTuple<u_int_16/*left*/,
-            u_int_16/*right*/>  Deinterleave16_16       (const u_int_32 aValue) noexcept;
+    std::tuple<u_int_16/*left*/,
+               u_int_16/*right*/>   Deinterleave16_16       (const u_int_32 aValue) noexcept;
 
     [[nodiscard]] static constexpr inline
-    GpTuple<u_int_16/*left*/,
-            u_int_16/*right*/>  Deinterleave16_16_std   (const u_int_32 aValue) noexcept;
+    std::tuple<u_int_16/*left*/,
+               u_int_16/*right*/>   Deinterleave16_16_std   (const u_int_32 aValue) noexcept;
 
 #if defined(GP_CPU_USE_BMI2)
     [[nodiscard]] static inline
-    GpTuple<u_int_16/*left*/,
-            u_int_16/*right*/>  Deinterleave16_16_bmi   (const u_int_32 aValue) noexcept;
+    std::tuple<u_int_16/*left*/,
+               u_int_16/*right*/>   Deinterleave16_16_bmi   (const u_int_32 aValue) noexcept;
 #endif//GP_CPU_USE_BMI2
 
     //------------------------------------ Deinterleave32_32(Morton Codes) ------------------------------------
     template<u_int_64 Value> [[nodiscard]] static constexpr
-    GpTuple<u_int_32/*left*/,
-            u_int_32/*right*/>  Deinterleave32_32       (void) noexcept
+    std::tuple<u_int_32/*left*/,
+               u_int_32/*right*/>   Deinterleave32_32       (void) noexcept
     {
         return Deinterleave32_32_std(Value);
     }
 
     [[nodiscard]] static inline
-    GpTuple<u_int_32/*left*/,
-            u_int_32/*right*/>  Deinterleave32_32       (const u_int_64 aValue) noexcept;
+    std::tuple<u_int_32/*left*/,
+               u_int_32/*right*/>   Deinterleave32_32       (const u_int_64 aValue) noexcept;
 
     [[nodiscard]] static constexpr inline
-    GpTuple<u_int_32/*left*/,
-            u_int_32/*right*/>  Deinterleave32_32_std   (const u_int_64 aValue) noexcept;
+    std::tuple<u_int_32/*left*/,
+               u_int_32/*right*/>   Deinterleave32_32_std   (const u_int_64 aValue) noexcept;
 
 #if defined(GP_CPU_USE_BMI2)
     [[nodiscard]] static inline
-    GpTuple<u_int_32/*left*/,
-            u_int_32/*right*/>  Deinterleave32_32_bmi   (const u_int_64 aValue) noexcept;
+    std::tuple<u_int_32/*left*/,
+               u_int_32/*right*/>   Deinterleave32_32_bmi   (const u_int_64 aValue) noexcept;
 #endif//GP_CPU_USE_BMI2
 
     //----------------------------- Determine if a word has a byte = 0 -------------------------
@@ -296,7 +297,7 @@ public:
     }
 
     template<typename T> [[nodiscard]] static constexpr
-    count_t                         LeadingZeroCount    (T aValue) noexcept
+    size_t                          LeadingZeroCount    (T aValue) noexcept
     {
         using UT = typename std::make_unsigned<T>::type;
 
@@ -308,23 +309,23 @@ public:
 
         if (v == UT(0))
         {
-            return count_t::SMake(sizeof(UT) * 8);
+            return size_t(sizeof(UT) * 8);
         }
 
         if constexpr (std::is_same<UT, u_int_8>::value)
         {
-            return count_t::SMake(size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_8))*8);
+            return size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_8))*8;
         } else if constexpr (std::is_same<UT, u_int_16>::value)
         {
             if constexpr (sizeof(unsigned int) >= sizeof(u_int_16))
             {
-                return count_t::SMake(size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_16))*8);
+                return size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_16))*8;
             } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_16))
             {
-                return count_t::SMake(size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_16))*8);
+                return size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_16))*8;
             } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_16))
             {
-                return count_t::SMake(size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_16))*8);
+                return size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_16))*8;
             } else
             {
                 GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -333,13 +334,13 @@ public:
         {
             if constexpr (sizeof(unsigned int) >= sizeof(u_int_32))
             {
-                return count_t::SMake(size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_32))*8);
+                return size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_32))*8;
             } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_32))
             {
-                return count_t::SMake(size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_32))*8);
+                return size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_32))*8;
             } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_32))
             {
-                return count_t::SMake(size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_32))*8);
+                return size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_32))*8;
             } else
             {
                 GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -348,13 +349,13 @@ public:
         {
             if constexpr (sizeof(unsigned int) >= sizeof(u_int_64))
             {
-                return count_t::SMake(size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_64))*8);
+                return size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_64))*8;
             } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_64))
             {
-                return count_t::SMake(size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_64))*8);
+                return size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_64))*8;
             } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_64))
             {
-                return count_t::SMake(size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_64))*8);
+                return size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_64))*8;
             } else
             {
                 GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -366,7 +367,7 @@ public:
     }
 
     template<typename T> [[nodiscard]] static constexpr
-    count_t                     TrailingZeroCount   (T aValue) noexcept
+    size_t                      TrailingZeroCount   (T aValue) noexcept
     {
         using UT = typename std::make_unsigned<T>::type;
 
@@ -378,23 +379,23 @@ public:
 
         if (v == UT(0))
         {
-            return count_t::SMake(sizeof(UT)*8);
+            return size_t(sizeof(UT)*8);
         }
 
         if constexpr (std::is_same<UT, u_int_8>::value)
         {
-            return count_t::SMake(size_t(__builtin_ctz(static_cast<unsigned int>(v))));
+            return size_t(__builtin_ctz(static_cast<unsigned int>(v)));
         } else if constexpr (std::is_same<UT, u_int_16>::value)
         {
             if constexpr (sizeof(unsigned int) >= sizeof(u_int_16))
             {
-                return count_t::SMake(size_t(__builtin_ctz(static_cast<unsigned int>(v))));
+                return size_t(__builtin_ctz(static_cast<unsigned int>(v)));
             } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_16))
             {
-                return count_t::SMake(size_t(__builtin_ctzl(static_cast<unsigned long>(v))));
+                return size_t(__builtin_ctzl(static_cast<unsigned long>(v)));
             } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_16))
             {
-                return count_t::SMake(size_t(__builtin_ctzll(static_cast<unsigned long long>(v))));
+                return size_t(__builtin_ctzll(static_cast<unsigned long long>(v)));
             } else
             {
                 GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -403,13 +404,13 @@ public:
         {
             if constexpr (sizeof(unsigned int) >= sizeof(u_int_32))
             {
-                return count_t::SMake(size_t(__builtin_ctz(static_cast<unsigned int>(v))));
+                return size_t(__builtin_ctz(static_cast<unsigned int>(v)));
             } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_32))
             {
-                return count_t::SMake(size_t(__builtin_ctzl(static_cast<unsigned long>(v))));
+                return size_t(__builtin_ctzl(static_cast<unsigned long>(v)));
             } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_32))
             {
-                return count_t::SMake(size_t(__builtin_ctzll(static_cast<unsigned long long>(v))));
+                return size_t(__builtin_ctzll(static_cast<unsigned long long>(v)));
             } else
             {
                 GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -418,13 +419,13 @@ public:
         {
             if constexpr (sizeof(unsigned int) >= sizeof(u_int_64))
             {
-                return count_t::SMake(size_t(__builtin_ctz(static_cast<unsigned int>(v))));
+                return size_t(__builtin_ctz(static_cast<unsigned int>(v)));
             } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_64))
             {
-                return count_t::SMake(size_t(__builtin_ctzl(static_cast<unsigned long>(v))));
+                return size_t(__builtin_ctzl(static_cast<unsigned long>(v)));
             } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_64))
             {
-                return count_t::SMake(size_t(__builtin_ctzll(static_cast<unsigned long long>(v))));
+                return size_t(__builtin_ctzll(static_cast<unsigned long long>(v)));
             } else
             {
                 GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -436,7 +437,7 @@ public:
     }
 
     template<typename T> [[nodiscard]] static constexpr
-    count_t                     PopCount    (T aValue) noexcept
+    size_t                      PopCount    (T aValue) noexcept
     {
         using UT = typename std::make_unsigned<T>::type;
 
@@ -448,18 +449,18 @@ public:
 
         if constexpr (std::is_same<UT, u_int_8>::value)
         {
-            return count_t::SMake(size_t(__builtin_popcount(static_cast<unsigned int>(v))));
+            return size_t(__builtin_popcount(static_cast<unsigned int>(v)));
         } else if constexpr (std::is_same<UT, u_int_16>::value)
         {
             if constexpr (sizeof(unsigned int) >= sizeof(u_int_16))
             {
-                return count_t::SMake(size_t(__builtin_popcount(static_cast<unsigned int>(v))));
+                return size_t(__builtin_popcount(static_cast<unsigned int>(v)));
             } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_16))
             {
-                return count_t::SMake(size_t(__builtin_popcountl(static_cast<unsigned long>(v))));
+                return size_t(__builtin_popcountl(static_cast<unsigned long>(v)));
             } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_16))
             {
-                return count_t::SMake(size_t(__builtin_popcountll(static_cast<unsigned long long>(v))));
+                return size_t(__builtin_popcountll(static_cast<unsigned long long>(v)));
             } else
             {
                 GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -468,13 +469,13 @@ public:
         {
             if constexpr (sizeof(unsigned int) >= sizeof(u_int_32))
             {
-                return count_t::SMake(size_t(__builtin_popcount(static_cast<unsigned int>(v))));
+                return size_t(__builtin_popcount(static_cast<unsigned int>(v)));
             } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_32))
             {
-                return count_t::SMake(size_t(__builtin_popcountl(static_cast<unsigned long>(v))));
+                return size_t(__builtin_popcountl(static_cast<unsigned long>(v)));
             } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_32))
             {
-                return count_t::SMake(size_t(__builtin_popcountll(static_cast<unsigned long long>(v))));
+                return size_t(__builtin_popcountll(static_cast<unsigned long long>(v)));
             } else
             {
                 GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -483,13 +484,13 @@ public:
         {
             if constexpr (sizeof(unsigned int) >= sizeof(u_int_64))
             {
-                return count_t::SMake(size_t(__builtin_popcount(static_cast<unsigned int>(v))));
+                return size_t(__builtin_popcount(static_cast<unsigned int>(v)));
             } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_64))
             {
-                return count_t::SMake(size_t(__builtin_popcountl(static_cast<unsigned long>(v))));
+                return size_t(__builtin_popcountl(static_cast<unsigned long>(v)));
             } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_64))
             {
-                return count_t::SMake(size_t(__builtin_popcountll(static_cast<unsigned long long>(v))));
+                return size_t(__builtin_popcountll(static_cast<unsigned long long>(v)));
             } else
             {
                 GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -504,7 +505,7 @@ public:
      * Returns one plus the index of the least significant 1-bit of aValue, or if aValue is zero, returns zero.
      */
     template<typename T> [[nodiscard]] static constexpr
-    count_t                     LeastSignificantBit (T aValue) noexcept
+    size_t                      LeastSignificantBit (T aValue) noexcept
     {
         using UT = typename std::make_unsigned<T>::type;
 
@@ -516,18 +517,18 @@ public:
 
         if constexpr (std::is_same<UT, u_int_8>::value)
         {
-            return count_t::SMake(size_t(__builtin_ffs(static_cast<unsigned int>(v))));
+            return size_t(__builtin_ffs(static_cast<unsigned int>(v)));
         } else if constexpr (std::is_same<UT, u_int_16>::value)
         {
             if constexpr (sizeof(unsigned int) >= sizeof(u_int_16))
             {
-                return count_t::SMake(size_t(__builtin_ffs(static_cast<unsigned int>(v))));
+                return size_t(__builtin_ffs(static_cast<unsigned int>(v)));
             } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_16))
             {
-                return count_t::SMake(size_t(__builtin_ffsl(static_cast<unsigned long>(v))));
+                return size_t(__builtin_ffsl(static_cast<unsigned long>(v)));
             } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_16))
             {
-                return count_t::SMake(size_t(__builtin_ffsll(static_cast<unsigned long long>(v))));
+                return size_t(__builtin_ffsll(static_cast<unsigned long long>(v)));
             } else
             {
                 GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -536,13 +537,13 @@ public:
         {
             if constexpr (sizeof(unsigned int) >= sizeof(u_int_32))
             {
-                return count_t::SMake(size_t(__builtin_ffs(static_cast<unsigned int>(v))));
+                return size_t(__builtin_ffs(static_cast<unsigned int>(v)));
             } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_32))
             {
-                return count_t::SMake(size_t(__builtin_ffsl(static_cast<unsigned long>(v))));
+                return size_t(__builtin_ffsl(static_cast<unsigned long>(v)));
             } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_32))
             {
-                return count_t::SMake(size_t(__builtin_ffsll(static_cast<unsigned long long>(v))));
+                return size_t(__builtin_ffsll(static_cast<unsigned long long>(v)));
             } else
             {
                 GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -551,13 +552,13 @@ public:
         {
             if constexpr (sizeof(unsigned int) >= sizeof(u_int_64))
             {
-                return count_t::SMake(size_t(__builtin_ffs(static_cast<unsigned int>(v))));
+                return size_t(__builtin_ffs(static_cast<unsigned int>(v)));
             } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_64))
             {
-                return count_t::SMake(size_t(__builtin_ffsl(static_cast<unsigned long>(v))));
+                return size_t(__builtin_ffsl(static_cast<unsigned long>(v)));
             } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_64))
             {
-                return count_t::SMake(size_t(__builtin_ffsll(static_cast<unsigned long long>(v))));
+                return size_t(__builtin_ffsll(static_cast<unsigned long long>(v)));
             } else
             {
                 GP_TEMPLATE_THROW(T, "Unsupported type");
@@ -572,10 +573,16 @@ public:
      * Returns one plus the index of the most significant 1-bit of aValue, or if aValue is zero, returns zero.
      */
     template<typename T> [[nodiscard]] static constexpr
-    count_t                     MostSignificantBit  (T aValue) noexcept
+    size_t                      MostSignificantBit  (T aValue) noexcept
     {
-        return count_t::SMake(sizeof(T)*8) - LeadingZeroCount(aValue);
+        return size_t(sizeof(T)*8) - LeadingZeroCount(aValue);
     }
+
+    template<typename T> [[nodiscard]] static constexpr
+    T               MakeMaskHI          (void);
+
+    template<typename T> [[nodiscard]] static constexpr
+    T               MakeMaskLO          (void);
 };
 
 [[nodiscard]] u_int_32  GpBitOperations::Interleave16_16 (const u_int_16 aLeft, const u_int_16 aRight) noexcept
@@ -668,8 +675,8 @@ u_int_64    GpBitOperations::Interleave32_32_std (const u_int_32 aLeft, const u_
 #endif//GP_CPU_USE_BMI2
 
 [[nodiscard]]
-GpTuple<u_int_16/*left*/,
-        u_int_16/*right*/>  GpBitOperations::Deinterleave16_16 (const u_int_32 aValue) noexcept
+std::tuple<u_int_16/*left*/,
+           u_int_16/*right*/>   GpBitOperations::Deinterleave16_16 (const u_int_32 aValue) noexcept
 {
 #if defined(GP_CPU_USE_BMI2)
     return Deinterleave16_16_bmi(aValue);
@@ -679,8 +686,8 @@ GpTuple<u_int_16/*left*/,
 }
 
 [[nodiscard]] constexpr
-GpTuple<u_int_16/*left*/,
-        u_int_16/*right*/>  GpBitOperations::Deinterleave16_16_std  (const u_int_32 aValue) noexcept
+std::tuple<u_int_16/*left*/,
+           u_int_16/*right*/>   GpBitOperations::Deinterleave16_16_std  (const u_int_32 aValue) noexcept
 {
 #if defined(GP_ENVIRONMENT_32)
     u_int_32 r = aValue;
@@ -715,8 +722,8 @@ GpTuple<u_int_16/*left*/,
 
 #if defined(GP_CPU_USE_BMI2)
     [[nodiscard]]
-    GpTuple<u_int_16/*left*/,
-            u_int_16/*right*/>  GpBitOperations::Deinterleave16_16_bmi  (const u_int_32 aValue) noexcept
+    std::tuple<u_int_16/*left*/,
+               u_int_16/*right*/>   GpBitOperations::Deinterleave16_16_bmi  (const u_int_32 aValue) noexcept
     {
 #   if defined(GP_ENVIRONMENT_32)
         return {u_int_16(_pext_u32(aValue, u_int_32(0xAAAAAAAA))),
@@ -731,8 +738,8 @@ GpTuple<u_int_16/*left*/,
 #endif//GP_CPU_USE_BMI2
 
 [[nodiscard]]
-GpTuple<u_int_32/*left*/,
-        u_int_32/*right*/>  GpBitOperations::Deinterleave32_32 (const u_int_64 aValue) noexcept
+std::tuple<u_int_32/*left*/,
+           u_int_32/*right*/>   GpBitOperations::Deinterleave32_32 (const u_int_64 aValue) noexcept
 {
 #if defined(GP_CPU_USE_BMI2)
     return Deinterleave32_32_bmi(aValue);
@@ -742,8 +749,8 @@ GpTuple<u_int_32/*left*/,
 }
 
 [[nodiscard]] constexpr
-GpTuple<u_int_32/*left*/,
-        u_int_32/*right*/>  GpBitOperations::Deinterleave32_32_std (const u_int_64 aValue) noexcept
+std::tuple<u_int_32/*left*/,
+           u_int_32/*right*/>   GpBitOperations::Deinterleave32_32_std (const u_int_64 aValue) noexcept
 {
     const u_int_32 lo   = u_int_32((aValue >> 0) & 0xFFFFFFFF);
     const u_int_32 hi   = u_int_32((aValue >> 32));
@@ -757,8 +764,8 @@ GpTuple<u_int_32/*left*/,
 
 #if defined(GP_CPU_USE_BMI2)
     [[nodiscard]]
-    GpTuple<u_int_32/*left*/,
-            u_int_32/*right*/>  GpBitOperations::Deinterleave32_32_bmi (const u_int_64 aValue) noexcept
+    std::tuple<u_int_32/*left*/,
+               u_int_32/*right*/>   GpBitOperations::Deinterleave32_32_bmi (const u_int_64 aValue) noexcept
     {
         return {u_int_32(_pext_u64(aValue, u_int_64(0xAAAAAAAAAAAAAAAA))),
                 u_int_32(_pext_u64(aValue, u_int_64(0x5555555555555555)))};
@@ -789,6 +796,24 @@ constexpr bool  GpBitOperations::HasSpecificByteIn64 (const u_int_64 aValue,
                                                       const u_int_8  aSpecific) noexcept
 {
     return HasZeroByteIn64(aValue ^ (~u_int_64(0)/u_int_64(255) * aSpecific));
+}
+
+template<typename T> [[nodiscard]] constexpr
+T   GpBitOperations::MakeMaskHI (void)
+{
+    static_assert(std::is_unsigned_v<T>);
+
+    constexpr T hi = MakeMaskLO<T>() << ((sizeof(T) * 8 / 2));
+    return hi;
+}
+
+template<typename T> [[nodiscard]] constexpr
+T   GpBitOperations::MakeMaskLO (void)
+{
+    static_assert(std::is_unsigned_v<T>);
+
+    constexpr T lo = (T(1) << ((sizeof(T) * 8 / 2))) - T(1);
+    return lo;
 }
 
 using BitOps = GpBitOperations;

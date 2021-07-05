@@ -5,15 +5,24 @@
 
 #include "boost_context.hpp"
 
+#include <iostream>
+
 namespace GPlatform {
+
+static int _GpTaskFiberStack_counter = 0;
 
 GpTaskFiberStack::GpTaskFiberStack (void) noexcept
 {
+    _GpTaskFiberStack_counter++;
+    std::cout << "[GpTaskFiberStack::GpTaskFiberStack]: counter = " << _GpTaskFiberStack_counter << std::endl;
 }
 
 GpTaskFiberStack::~GpTaskFiberStack (void) noexcept
 {
     Clear();
+
+    _GpTaskFiberStack_counter--;
+    std::cout << "[GpTaskFiberStack::~GpTaskFiberStack]: counter = " << _GpTaskFiberStack_counter << std::endl;
 }
 
 void    GpTaskFiberStack::Init (const size_byte_t aSize)

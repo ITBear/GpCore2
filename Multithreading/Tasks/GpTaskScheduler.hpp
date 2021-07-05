@@ -30,6 +30,7 @@ public:
                                                          const count_t          aExecutorsCount);
     void                        RequestStop             (void) noexcept;
     void                        Join                    (void) noexcept;
+    void                        AfterJoin               (void) noexcept;
 
     GpTask::SP                  Reshedule               (GpTask::SP         aLastTask,
                                                          const GpTask::ResT aLastTaskExecRes) noexcept;

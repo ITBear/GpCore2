@@ -82,11 +82,13 @@ HEADERS += \
 	Multithreading/SyncPrimitives/GpRWLock.hpp \
 	Multithreading/SyncPrimitives/GpSpinlock.hpp \
 	Multithreading/SyncPrimitives/GpSyncPrimitives.hpp \
+	Multithreading/SyncPrimitives/GpUnlockGuard.hpp \
 	Multithreading/Tasks/Fibers/GpFixedSizeStack.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiber.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberBarrier.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberBase.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberCtx.hpp \
+	Multithreading/Tasks/Fibers/GpTaskFiberLambda.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberManager.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberStack.hpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberStackPool.hpp \
@@ -100,6 +102,7 @@ HEADERS += \
 	Multithreading/Tasks/GpTaskExecutor.hpp \
 	Multithreading/Tasks/GpTaskExecutorsPool.hpp \
 	Multithreading/Tasks/GpTaskFactory.hpp \
+	Multithreading/Tasks/GpTaskLambda.hpp \
 	Multithreading/Tasks/GpTaskScheduler.hpp \
 	Multithreading/Tasks/GpTaskSchedulerAccessor.hpp \
 	Multithreading/Tasks/GpTaskState.hpp \
@@ -257,6 +260,7 @@ SOURCES += \
 	Multithreading/Tasks/Fibers/GpTaskFiberBarrier.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberBase.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberCtx.cpp \
+	Multithreading/Tasks/Fibers/GpTaskFiberLambda.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberManager.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberStack.cpp \
 	Multithreading/Tasks/Fibers/GpTaskFiberStackPool.cpp \
@@ -266,6 +270,7 @@ SOURCES += \
 	Multithreading/Tasks/GpTaskBase.cpp \
 	Multithreading/Tasks/GpTaskExecutor.cpp \
 	Multithreading/Tasks/GpTaskExecutorsPool.cpp \
+	Multithreading/Tasks/GpTaskLambda.cpp \
 	Multithreading/Tasks/GpTaskScheduler.cpp \
 	Multithreading/Tasks/GpTaskState.cpp \
 	Multithreading/Threads/GpRunnable.cpp \

@@ -1,40 +1,72 @@
 #include "GpTaskFiberBarrier.hpp"
-#include <mutex>
 
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
+#include <mutex>
+#include <iostream>
+
 namespace GPlatform {
 
-void    GpTaskFiberBarrier::Release (void)
-{
-    std::scoped_lock lock(iWakeupLock);
+static int _GpTaskFiberBarrier_counter = 0;
 
-    if (iCounter > 1_cnt)
+GpTaskFiberBarrier::GpTaskFiberBarrier (count_t aCounter) noexcept:
+iCounter(aCounter)
+{
+    _GpTaskFiberBarrier_counter++;
+    std::cout << "[GpTaskFiberBarrier::GpTaskFiberBarrier]: counter = " << _GpTaskFiberBarrier_counter << std::endl;
+}
+
+GpTaskFiberBarrier::~GpTaskFiberBarrier (void) noexcept
+{
+    _GpTaskFiberBarrier_counter--;
+    std::cout << "[GpTaskFiberBarrier::~GpTaskFiberBarrier]: counter = " << _GpTaskFiberBarrier_counter << std::endl;
+}
+
+void    GpTaskFiberBarrier::Release (std::optional<std::any>&& aResult) noexcept
+{
+    try
     {
-        iCounter--;
-    } else if (iCounter == 1_cnt)
+        std::scoped_lock lock(iWakeupLock);
+
+        iResult.emplace_back(std::move(aResult));
+
+        if (iCounter > 1_cnt)
+        {
+            iCounter--;
+        } else if (iCounter == 1_cnt)
+        {
+
+            iCounter--;
+            WakeupAll();
+        } else
+        {
+            THROW_GPE("iCounter == 0"_sv);
+        }
+    } catch (const std::exception& e)
     {
-        iCounter--;
-        WakeupAll();
-    } else
+        GpExceptionsSink::SSink(e);
+    } catch (...)
     {
-        THROW_GPE("iCounter == 0"_sv);
+        GpExceptionsSink::SSinkUnknown();
     }
 }
 
-void    GpTaskFiberBarrier::Wait (GpTaskFiber::SP aTask)
+const GpTaskFiberBarrier::ResultT&  GpTaskFiberBarrier::Wait (void)
 {
+    //Get current task
+    GpTaskFiber::WP currentTask = GpTaskFiber::SCurrentTask();
+
     //Subscribe
     {
         std::scoped_lock lock(iWakeupLock);
 
         if (iCounter == 0_cnt)
         {
-            return;
+            return iResult;
         }
 
-        iWakeupOnAllReleasedTasks.emplace_back(std::move(aTask));
+        iWakeupOnAllReleasedTasks.emplace_back(std::move(currentTask));
     }
 
     //Wait
@@ -46,7 +78,7 @@ void    GpTaskFiberBarrier::Wait (GpTaskFiber::SP aTask)
 
             if (iCounter == 0_cnt)
             {
-                return;
+                return iResult;
             }
         }
 

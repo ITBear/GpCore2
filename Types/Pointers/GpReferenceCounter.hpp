@@ -9,6 +9,8 @@
 
 #include "../Classes/GpClassesDefines.hpp"
 #include "../Units/Other/count_t.hpp"
+#include "../Containers/GpContainersT.hpp"
+#include "../Bits/GpBitOps.hpp"
 
 namespace GPlatform {
 
@@ -17,109 +19,170 @@ class GpReferenceCounter
     CLASS_REMOVE_CTRS(GpReferenceCounter)
 
 protected:
-    inline          GpReferenceCounter  (const count_t aCounterValue, void* aValuePtr) noexcept;
+    inline              GpReferenceCounter  (void* aValuePtr) noexcept;
 
 public:
-    virtual         ~GpReferenceCounter (void) noexcept = default;
+    virtual             ~GpReferenceCounter (void) noexcept = default;
 
 public:
-    inline count_t  Count               (void) const noexcept;
+    inline count_t      CountStrong         (void) const noexcept;
+    inline count_t      CountWeak           (void) const noexcept;
 
     template<bool IsWeak>
-    count_t         Acquire             (void) const noexcept;
+    void                Acquire             (void) const noexcept;
 
     template<bool IsWeak>
-    count_t         Release             (void) noexcept;
+    void                Release             (void) noexcept;
 
     template<typename T>
-    T&              Value               (void) noexcept;
+    T*                  ValuePtr            (void) noexcept;
 
     template<typename T>
-    const T&        Value               (void) const noexcept;
-
-    template<typename T>
-    T*              Ptr                 (void) noexcept;
-
-    template<typename T>
-    const T*        Ptr                 (void) const noexcept;
+    const T*            ValuePtr            (void) const noexcept;
 
 protected:
-    virtual void    Clear               (void) noexcept = 0;
+    virtual void        DeleteValue         (void) noexcept = 0;
+    virtual void        DeleteSelf          (void) noexcept = 0;
 
 private:
-    mutable std::atomic_size_t  iCounter;
+    template<size_t StrongSubV, size_t WeakSubV>
+    inline std::array<size_t, 2>
+                        Counters            (const size_t aCountersValue) const noexcept;
+
+    inline std::array<size_t, 2>
+                        Counters            (void) const noexcept;
+
+    inline void         CounterStrongInc    (void) const noexcept;
+    inline void         CounterWeakInc      (void) const noexcept;
+
+    inline std::array<size_t, 2>
+                        CounterStrongDec    (void) noexcept;
+    inline std::array<size_t, 2>
+                        CounterWeakDec      (void) noexcept;
+
+private:
+    mutable std::atomic_size_t  iCounters   = 0;
     void*                       iValuePtr   = nullptr;
 };
 
-GpReferenceCounter::GpReferenceCounter (const count_t aCounterValue, void* aValuePtr) noexcept:
-iCounter(aCounterValue.As<size_t>()),
+GpReferenceCounter::GpReferenceCounter (void* aValuePtr) noexcept:
+iCounters(1),
 iValuePtr(aValuePtr)
 {
 }
 
-count_t GpReferenceCounter::Count (void) const noexcept
+count_t GpReferenceCounter::CountStrong (void) const noexcept
 {
-    const size_t cnt = iCounter.load(std::memory_order_acquire);
-    return count_t::SMake(cnt);
+    return count_t::SMake(Counters().at(0));
+}
+
+count_t GpReferenceCounter::CountWeak (void) const noexcept
+{
+    return count_t::SMake(Counters().at(1));
 }
 
 template<bool IsWeak>
-count_t GpReferenceCounter::Acquire (void) const noexcept
+void    GpReferenceCounter::Acquire (void) const noexcept
 {
     if constexpr(IsWeak)
     {
-        return Count();
+        CounterWeakInc();
     } else
     {
-        const size_t cnt = iCounter.fetch_add(1, std::memory_order_release);
-        return count_t::SMake(cnt) + 1_cnt;
+        CounterStrongInc();
     }
 }
 
 template<bool IsWeak>
-count_t GpReferenceCounter::Release (void) noexcept
+void    GpReferenceCounter::Release (void) noexcept
 {
     if constexpr(IsWeak)
     {
-        return Count();
+        CounterWeakDec();
+
+        /*const std::array<size_t, 2> counters = CounterWeakDec();
+
+        if (counters.at(1) == 0)
+        {
+            if (counters.at(0) == 0)
+            {
+                DeleteSelf();
+            }
+        }*/
     } else
     {
-        const size_t cnt = iCounter.fetch_sub(1, std::memory_order_release);
+        const std::array<size_t, 2> counters = CounterStrongDec();
 
-        if (cnt <= 1)
+        if (counters.at(0) == 0)
         {
+            DeleteValue();
             iValuePtr = nullptr;
-            Clear();
-            return 0_cnt;
-        } else
-        {
-            return count_t::SMake(cnt - 1);
+
+            if (CountWeak() == 0_cnt)
+            {
+                DeleteSelf();
+            }
+
+            /*if (counters.at(1) > 0)
+            {
+                DeleteValue();
+            } else
+            {
+                DeleteSelf();
+            }*/
         }
     }
 }
 
 template<typename T>
-T&  GpReferenceCounter::Value (void) noexcept
-{
-    return *Ptr<T>();
-}
-
-template<typename T>
-const T&    GpReferenceCounter::Value (void) const noexcept
-{
-    return *Ptr<T>();
-}
-
-template<typename T>
-T*  GpReferenceCounter::Ptr (void) noexcept
+T*  GpReferenceCounter::ValuePtr (void) noexcept
 {
     return reinterpret_cast<T*>(iValuePtr);
 }
 
 template<typename T>
-const T*    GpReferenceCounter::Ptr (void) const noexcept
+const T*    GpReferenceCounter::ValuePtr (void) const noexcept
 {
     return reinterpret_cast<const T*>(iValuePtr);
+}
+
+template<size_t StrongSubV, size_t WeakSubV>
+std::array<size_t, 2>   GpReferenceCounter::Counters (const size_t aCountersValue) const noexcept
+{
+    constexpr const size_t  maskStrong  = BitOps::MakeMaskLO<size_t>();
+    constexpr const size_t  maskWeak    = BitOps::MakeMaskHI<size_t>();
+
+    return {((aCountersValue & maskStrong) >> (                 0)) - StrongSubV,
+            ((aCountersValue & maskWeak  ) >> (sizeof(size_t)*8/2)) - WeakSubV};
+}
+
+std::array<size_t, 2>   GpReferenceCounter::Counters (void) const noexcept
+{
+    return Counters<0, 0>(iCounters.load(std::memory_order_acquire));
+}
+
+void    GpReferenceCounter::CounterStrongInc (void) const noexcept
+{
+    constexpr const size_t val = size_t(1) << 0;
+    iCounters.fetch_add(val, std::memory_order_release);
+}
+
+void    GpReferenceCounter::CounterWeakInc (void) const noexcept
+{
+    constexpr const size_t val = size_t(1) << (sizeof(size_t)*8/2);
+    iCounters.fetch_add(val, std::memory_order_release);
+}
+
+std::array<size_t, 2>   GpReferenceCounter::CounterStrongDec (void) noexcept
+{
+    constexpr const size_t val = size_t(1) << 0;
+    return Counters<1, 0>(iCounters.fetch_sub(val, std::memory_order_release));
+}
+
+std::array<size_t, 2>   GpReferenceCounter::CounterWeakDec (void) noexcept
+{
+    constexpr const size_t val = size_t(1) << (sizeof(size_t)*8/2);
+    return Counters<0, 1>(iCounters.fetch_sub(val, std::memory_order_release));
 }
 
 }//namespace GPlatform

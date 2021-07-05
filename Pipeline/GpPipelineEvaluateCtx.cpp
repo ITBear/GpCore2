@@ -4,9 +4,18 @@
 
 namespace GPlatform {
 
+GpPipelineEvaluateCtx::GpPipelineEvaluateCtx (std::string_view aName):
+GpTaskFiber(aName)
+{
+}
+
+GpPipelineEvaluateCtx::~GpPipelineEvaluateCtx (void) noexcept
+{
+}
+
 void    GpPipelineEvaluateCtx::FiberFn (GpThreadStopToken /*aStopToken*/)
 {
-
+    //NOP
 }
 
 }//GPlatform

@@ -7,6 +7,24 @@
 
 namespace GPlatform {
 
+GpTask::GpTask (std::string_view aName):
+iName(aName)
+{
+}
+
+GpTask::~GpTask (void) noexcept
+{
+    iThisWeakPtr.Clear();
+}
+
+void    GpTask::JoinForState (StateTE aStateTE) const
+{
+    while (State() != aStateTE)
+    {
+        GP_ASM_SPIN_PAUSE();
+    }
+}
+
 void    GpTask::MoveToReady (void)
 {
     THROW_GPE_COND

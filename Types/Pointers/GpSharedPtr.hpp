@@ -8,7 +8,6 @@
 
 #include "GpReferenceStorage.hpp"
 #include "../../Exceptions/GpException.hpp"
-#include "../../Memory/GpMemOps.hpp"
 #include "../Strings/GpStringLiterals.hpp"
 
 namespace GPlatform {
@@ -22,8 +21,8 @@ public:
     using this_type     = GpSharedPtrBase<T, RefPtrT, _IsWeak>;
     using value_type    = T;
 
-    CLASS_TAG(GpSharedPtr)
-    CLASS_TAG_DETECTOR(GpSharedPtr)
+    CLASS_TAG(GpSharedPtrBase)
+    CLASS_TAG_DETECTOR(GpSharedPtrBase)
 
     static constexpr bool SIsWeak   (void) noexcept {return _IsWeak;}
     static constexpr bool SIsConst  (void) noexcept {return std::is_const_v<RefPtrT>;}
@@ -70,8 +69,15 @@ public:
     [[nodiscard]] static
     this_type           SNew (Ts&&... aArgs)
     {
-        RefPtrT refCounter = MemOps::SNew<GpReferenceStorage<value_type,
-                                                             MemOps::NewDeleter>>(std::forward<Ts>(aArgs)...);
+        RefPtrT refCounter = MemOps::SNew
+        <
+            GpReferenceStorage
+            <
+                value_type,
+                MemOps::NewDeleter
+            >
+        >(std::forward<Ts>(aArgs)...);
+
         this_type res(refCounter);
 
         return res;
@@ -81,8 +87,15 @@ public:
     [[nodiscard]] static
     this_type           SEmplace (void* aPtrToPlace, Ts&&... aArgs)
     {
-        RefPtrT refCounter = GpMemOps::SEmplace<GpReferenceStorage<value_type,
-                                                GpMemOps::EmplaceDeleter>>(aPtrToPlace, std::forward<Ts>(aArgs)...);
+        RefPtrT refCounter = GpMemOps::SEmplace
+        <
+            GpReferenceStorage
+            <
+                value_type,
+                GpMemOps::EmplaceDeleter
+            >
+        >(aPtrToPlace, std::forward<Ts>(aArgs)...);
+
         return this_type(refCounter);
     }
 
@@ -162,7 +175,6 @@ public:
         }
     }
 
-    [[nodiscard]] count_t           Count           (void) const noexcept;
     [[nodiscard]] bool              IsNULL          (void) const noexcept;
     [[nodiscard]] bool              IsNotNULL       (void) const noexcept;
 
@@ -296,27 +308,6 @@ void    GpSharedPtrBase<T, RefPtrT, _IsWeak>::Clear (void) noexcept
     }
 }
 
-/*template <typename T, typename RefPtrT, bool _IsWeak>
-typename GpSharedPtrBase<T, RefPtrT, _IsWeak>::this_type    GpSharedPtrBase<T, RefPtrT, _IsWeak>::Clone (void) const
-{
-    if (IsNotNULL())
-    {
-        if constexpr (std::is_base_of<GpReflectable, T>())
-        {
-            auto        c = VCn().DeepCopy();
-            this_type   t(c._RefCounter());
-            c._ClearRefCounter();
-            return t;
-        } else
-        {
-            return SNew(VC());
-        }
-    } else
-    {
-        return SNull();
-    }
-}*/
-
 template <typename T, typename RefPtrT, bool _IsWeak>
 void    GpSharedPtrBase<T, RefPtrT, _IsWeak>::Set (const this_type& aSharedPtr) noexcept
 {
@@ -347,18 +338,6 @@ void    GpSharedPtrBase<T, RefPtrT, _IsWeak>::Set (this_type&& aSharedPtr) noexc
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
-count_t GpSharedPtrBase<T, RefPtrT, _IsWeak>::Count (void) const noexcept
-{
-    if (iRefCounter != nullptr)
-    {
-        return iRefCounter->Count();
-    } else
-    {
-        return 0_cnt;
-    }
-}
-
-template <typename T, typename RefPtrT, bool _IsWeak>
 bool    GpSharedPtrBase<T, RefPtrT, _IsWeak>::IsNULL (void) const noexcept
 {
     return iRefCounter == nullptr;
@@ -373,27 +352,13 @@ bool    GpSharedPtrBase<T, RefPtrT, _IsWeak>::IsNotNULL (void) const noexcept
 template <typename T, typename RefPtrT, bool _IsWeak>
 T&  GpSharedPtrBase<T, RefPtrT, _IsWeak>::V (void)
 {
-    THROW_GPE_COND
-    (
-        iRefCounter != nullptr,
-        "Shared pointer is empty"_sv
-    );
-
-    if constexpr(_IsWeak)
-    {
-        if (iRefCounter->Count() == 0_cnt)
-        {
-            THROW_GPE("Weak shared pointer counter is 0"_sv);
-        }
-    }
-
-    return iRefCounter->template Value<T>();
+    return *P();
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
 T&  GpSharedPtrBase<T, RefPtrT, _IsWeak>::Vn (void) noexcept
 {
-    return iRefCounter->template Value<T>();
+    return *Pn();
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
@@ -405,47 +370,33 @@ T*  GpSharedPtrBase<T, RefPtrT, _IsWeak>::P (void)
         "Shared pointer is empty"_sv
     );
 
-    if constexpr(_IsWeak)
-    {
-        if (iRefCounter->Count() == 0_cnt)
-        {
-            THROW_GPE("Weak shared pointer counter is 0"_sv);
-        }
-    }
+    T* ptr = Pn();
 
-    return iRefCounter->template Ptr<T>();
+    THROW_GPE_COND
+    (
+        ptr != nullptr,
+        "Shared shared pointer value is null"_sv
+    );
+
+    return ptr;
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
 T*  GpSharedPtrBase<T, RefPtrT, _IsWeak>::Pn (void) noexcept
 {
-    return iRefCounter->template Ptr<T>();
+    return iRefCounter->template ValuePtr<T>();
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
 const T&    GpSharedPtrBase<T, RefPtrT, _IsWeak>::VC (void) const
 {
-    THROW_GPE_COND
-    (
-        iRefCounter != nullptr,
-        "Shared pointer is empty"_sv
-    );
-
-    if constexpr(_IsWeak)
-    {
-        if (iRefCounter->Count() == 0_cnt)
-        {
-            THROW_GPE("Weak shared pointer counter is 0"_sv);
-        }
-    }
-
-    return iRefCounter->template Value<T>();
+    return *PC();
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
 const T&    GpSharedPtrBase<T, RefPtrT, _IsWeak>::VCn (void) const noexcept
 {
-    return iRefCounter->template Value<T>();
+    return *PCn();
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
@@ -457,21 +408,21 @@ const T*    GpSharedPtrBase<T, RefPtrT, _IsWeak>::PC (void) const
         "Shared pointer is empty"_sv
     );
 
-    if constexpr(_IsWeak)
-    {
-        if (iRefCounter->Count() == 0_cnt)
-        {
-            THROW_GPE("Weak shared pointer counter is 0"_sv);
-        }
-    }
+    const T* ptr = PCn();
 
-    return iRefCounter->template Ptr<T>();
+    THROW_GPE_COND
+    (
+        ptr != nullptr,
+        "Shared shared pointer value is null"_sv
+    );
+
+    return ptr;
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
 const T*    GpSharedPtrBase<T, RefPtrT, _IsWeak>::PCn (void) const noexcept
 {
-    return iRefCounter->template Ptr<T>();
+    return iRefCounter->template ValuePtr<T>();
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>

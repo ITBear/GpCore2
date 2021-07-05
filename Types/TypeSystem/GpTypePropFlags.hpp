@@ -13,7 +13,8 @@ GP_ENUM(GPCORE_API, GpTypePropFlag,
     UNWRAP_CONTAINER,
     UNWRAP_CONTAINER_KEY,
     CONTAINER_ELEMENT_NAME,
-    AS_TUPLE
+    AS_TUPLE,
+    NAME
 );
 
 using GpTypePropFlags = GpMap<GpTypePropFlag, std::string>;

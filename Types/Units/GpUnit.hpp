@@ -65,7 +65,7 @@ public:
         return GpStringTemplateArgHolder<UNIT_NAME>::SAsStringView();
     }
 
-    [[nodiscard]] const std::string_view    Name (void) const noexcept
+    [[nodiscard]] std::string_view  Name (void) const noexcept
     {
         return SName();
     }

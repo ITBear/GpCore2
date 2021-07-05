@@ -4,7 +4,8 @@
 
 namespace GPlatform {
 
-GpTaskBase::GpTaskBase (void) noexcept
+GpTaskBase::GpTaskBase (std::string_view aName):
+GpTask(aName)
 {
 }
 

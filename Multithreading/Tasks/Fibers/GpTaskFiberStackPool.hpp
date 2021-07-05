@@ -10,7 +10,7 @@
 
 namespace GPlatform {
 
-class GPCORE_API GpTaskFiberStackPool: public GpElementsPool<GpTaskFiberStack::SP>
+class GPCORE_API GpTaskFiberStackPool final: public GpElementsPool<GpTaskFiberStack::SP>
 {
 public:
                             GpTaskFiberStackPool    (void) noexcept;
@@ -20,7 +20,7 @@ public:
 
 protected:
     virtual void            PreInit                 (const count_t aCount) override final;
-    virtual value_type      NewElement              (void) override final;
+    virtual value_type      NewElement              (GpSpinlock& aLocked) override final;
     virtual void            OnClear                 (void) noexcept override final;
 
 private:

@@ -18,7 +18,7 @@ void    GpTaskFiberStackPool::PreInit (const count_t /*aCount*/)
     //NOP
 }
 
-GpTaskFiberStackPool::value_type    GpTaskFiberStackPool::NewElement (void)
+GpTaskFiberStackPool::value_type    GpTaskFiberStackPool::NewElement (GpSpinlock& /*aLocked*/)
 {
     auto s = MakeSP<GpTaskFiberStack>();
     s.Vn().Init(iStackSize);

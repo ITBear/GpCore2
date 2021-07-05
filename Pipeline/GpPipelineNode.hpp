@@ -32,7 +32,7 @@ public:
     void                                BreakInputConnections   (void);
     void                                BreakOutputConnections  (void);
 
-    virtual GpPipelineEvaluateCtx::SP   NewEvaluateCtx          (void) const = 0;
+    virtual GpPipelineEvaluateCtx::SP   NewEvaluateCtx          (std::string_view aName) const = 0;
 
 private:
     static void                         _SBreakConnections      (SocketT::C::Vec::SP& aSockets);

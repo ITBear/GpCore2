@@ -9,14 +9,15 @@
 
 namespace GPlatform {
 
-class GPCORE_API GpPipelineEvaluator: public GpTaskFiber
+class GPCORE_API GpPipelineEvaluator final: public GpTaskFiber
 {
 public:
     CLASS_REMOVE_CTRS(GpPipelineEvaluator)
     CLASS_DECLARE_DEFAULTS(GpPipelineEvaluator)
 
 public:
-                        GpPipelineEvaluator     (GpPipeline::CSP aPipeline) noexcept;
+                        GpPipelineEvaluator     (std::string_view   aName,
+                                                 GpPipeline::CSP    aPipeline);
                         ~GpPipelineEvaluator    (void) noexcept override final;
 
 protected:

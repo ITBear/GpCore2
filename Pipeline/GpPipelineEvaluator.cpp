@@ -4,7 +4,12 @@
 
 namespace GPlatform {
 
-GpPipelineEvaluator::GpPipelineEvaluator (GpPipeline::CSP aPipeline) noexcept:
+GpPipelineEvaluator::GpPipelineEvaluator
+(
+    std::string_view    aName,
+    GpPipeline::CSP     aPipeline
+):
+GpTaskFiber(aName),
 iPipeline(std::move(aPipeline))
 {
 }
@@ -28,7 +33,7 @@ void    GpPipelineEvaluator::FiberFn (GpThreadStopToken aStopToken)
         {
             for (const GpPipelineNode::CSP& n: readyNodes)
             {
-                GpPipelineEvaluateCtx::SP evaluateCtx = n.VCn().NewEvaluateCtx();
+                GpPipelineEvaluateCtx::SP evaluateCtx = n.VCn().NewEvaluateCtx("GpPipelineEvaluateCtx"_sv);
                 //GpTaskFiber::S
             }
 

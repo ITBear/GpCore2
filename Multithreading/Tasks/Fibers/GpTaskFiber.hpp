@@ -15,13 +15,13 @@ class GpTaskFiberCtx;
 class GPCORE_API GpTaskFiber: public GpTask
 {   
 public: 
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFiber)
+    CLASS_REMOVE_CTRS(GpTaskFiber)
     CLASS_DECLARE_DEFAULTS(GpTaskFiber)
 
     using StageT = GpTaskFiberStage;
 
 public:
-                                GpTaskFiber         (void) noexcept;
+                                GpTaskFiber         (std::string_view aName);
     virtual                     ~GpTaskFiber        (void) noexcept override;
 
     virtual ResT                Do                  (GpThreadStopToken aStopToken) noexcept override final;

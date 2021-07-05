@@ -24,37 +24,49 @@ public:
 
     CLASS_TAG(THREAD_SAFE)
 
+    enum class ReleaseAct
+    {
+        PUSH_TO_ELEMENTS,
+        ACQUIRED
+    };
+
 public:
-                                GpElementsPool  (void) noexcept;
-    virtual                     ~GpElementsPool (void) noexcept;
+                                        GpElementsPool          (void) noexcept;
+    virtual                             ~GpElementsPool         (void) noexcept;
 
-    count_t                     MaxCount        (void) const noexcept {return iMaxCount;}
+    count_t                             MaxCount                (void) const noexcept {return iMaxCount;}
 
-    void                        Init            (const count_t aInitCount,
-                                                 const count_t aMaxCount);
-    void                        Clear           (void) noexcept;
+    void                                Init                    (const count_t aInitCount,
+                                                                 const count_t aMaxCount);
+    void                                Clear                   (void) noexcept;
 
-    std::optional<value_type>   Acquire         (void);
-    void                        Release         (value_type aElement);
-
-protected:
-    virtual void                PreInit         (const count_t aCount);
-    virtual value_type          NewElement      (void);
-    virtual void                OnClear         (void) noexcept;
-    virtual bool                Validate        (value_type aElement) noexcept;
-
-private:
-    void                        _Clear          (bool aIsDestructorCall) noexcept;
+    std::optional<value_type>           Acquire                 (void);
+    void                                Release                 (value_type aElement);
 
 protected:
-    mutable GpSpinlock          iLock;
+    virtual void                        PreInit                 (const count_t aCount);
+    virtual value_type                  NewElement              (GpSpinlock& aLocked);
+    virtual void                        OnClear                 (void) noexcept;
+    virtual bool                        Validate                (value_type aElement) noexcept;
+
+    virtual void                        OnAcquire               (value_type& aValue,
+                                                                 GpSpinlock& aLocked);
+    virtual ReleaseAct                  OnRelease               (value_type& aValue,
+                                                                 GpSpinlock& aLocked);
+    virtual std::optional<value_type>   OnAcquireNoElementsLeft (GpSpinlock& aLocked);
 
 private:
-    QueueT                      iElements;
-    count_t                     iInitCount      = 0_cnt;
-    count_t                     iMaxCount       = 0_cnt;
-    count_t                     iAcquiredCount  = 0_cnt;
-    bool                        iIsInit         = false;
+    void                                _Clear                  (bool aIsDestructorCall) noexcept;
+
+protected:
+    mutable GpSpinlock                  iLock;
+
+private:
+    QueueT                              iElements;
+    count_t                             iInitCount      = 0_cnt;
+    count_t                             iMaxCount       = 0_cnt;
+    count_t                             iAcquiredCount  = 0_cnt;
+    bool                                iIsInit         = false;
 };
 
 template<typename T>
@@ -92,7 +104,7 @@ void    GpElementsPool<T>::Init
 
     for (count_t i = 0_cnt; i < aInitCount; i++)
     {
-        iElements.push(NewElement());
+        iElements.push(NewElement(iLock));
     }
 
     iInitCount      = aInitCount;
@@ -116,20 +128,31 @@ typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T
     {
         if (iAcquiredCount < iMaxCount)
         {
-            value_type e = NewElement();
+            value_type e = NewElement(iLock);
+            OnAcquire(e, iLock);
             iAcquiredCount++;
             return e;
         } else
         {
-            return std::nullopt;
+            std::optional<value_type> op_e = OnAcquireNoElementsLeft(iLock);
+
+            if (op_e.has_value())
+            {
+                OnAcquire(op_e.value(), iLock);
+                iAcquiredCount++;
+            }
+
+            return op_e;
         }
+    } else
+    {
+        value_type e = iElements.front();
+        iElements.pop();
+        OnAcquire(e, iLock);
+        iAcquiredCount++;
+
+        return e;
     }
-
-    value_type e = iElements.front();
-    iElements.pop();
-    iAcquiredCount++;
-
-    return e;
 }
 
 template<typename T>
@@ -143,12 +166,15 @@ void    GpElementsPool<T>::Release (value_type aElement)
         "Release without acquire"_sv
     );
 
+    iAcquiredCount--;
+
     if (Validate(aElement))
     {
-        iElements.push(aElement);
+        if (OnRelease(aElement, iLock) == ReleaseAct::PUSH_TO_ELEMENTS)
+        {
+            iElements.push(aElement);
+        }
     }
-
-    iAcquiredCount--;
 }
 
 template<typename T>
@@ -158,7 +184,7 @@ void    GpElementsPool<T>::PreInit (const count_t /*aCount*/)
 }
 
 template<typename T>
-typename GpElementsPool<T>::value_type  GpElementsPool<T>::NewElement (void)
+typename GpElementsPool<T>::value_type  GpElementsPool<T>::NewElement (GpSpinlock& /*aLocked*/)
 {
     return T();
 }
@@ -173,6 +199,32 @@ template<typename T>
 bool    GpElementsPool<T>::Validate (value_type /*aElement*/) noexcept
 {
     return true;
+}
+
+template<typename T>
+void    GpElementsPool<T>::OnAcquire
+(
+    value_type& /*aValue*/,
+    GpSpinlock& /*aLocked*/
+)
+{
+    //NOP
+}
+
+template<typename T>
+typename GpElementsPool<T>::ReleaseAct  GpElementsPool<T>::OnRelease
+(
+    value_type& /*aValue*/,
+    GpSpinlock& /*aLocked*/
+)
+{
+    return ReleaseAct::PUSH_TO_ELEMENTS;
+}
+
+template<typename T>
+typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T>::OnAcquireNoElementsLeft (GpSpinlock& /*aLocked*/)
+{
+    return std::nullopt;
 }
 
 template<typename T>

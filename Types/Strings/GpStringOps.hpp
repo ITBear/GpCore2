@@ -134,6 +134,9 @@ public:
                                                              std::function<E(typename T::const_iterator&)>  aGetterFn,
                                                              std::string_view                               aSeparator);
 
+    static std::string_view                 SLimitSize      (std::string_view   aStr,
+                                                             const count_t      aLimitSize);
+
 private:
     static void                             _SFromUI64      (const u_int_64 aValue,
                                                              GpRawPtrCharRW aStrOut);

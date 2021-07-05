@@ -72,7 +72,7 @@ void    GpTaskExecutorsPool::PreInit (const count_t aCount)
     iExecutorsLeft = aCount;
 }
 
-GpTaskExecutorsPool::value_type GpTaskExecutorsPool::NewElement (void)
+GpTaskExecutorsPool::value_type GpTaskExecutorsPool::NewElement (GpSpinlock& /*aLocked*/)
 {
     THROW_GPE_COND(iExecutorsLeft > 0_cnt, "iExecutorsLeft > 0_cnt"_sv);
 

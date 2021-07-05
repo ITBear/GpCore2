@@ -20,7 +20,7 @@ class GPCORE_API GpTask: public GpEventSubscriber
     friend class GpTaskAccessor;
 
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTask)
+    CLASS_REMOVE_CTRS(GpTask)
     CLASS_DECLARE_DEFAULTS(GpTask)
 
     enum class ResT
@@ -35,14 +35,18 @@ public:
     using SchedulerRefT = std::optional<std::reference_wrapper<GpTaskScheduler>>;
 
 protected:
-                            GpTask          (void) noexcept = default;
+                            GpTask          (std::string_view aName);
 
 public:
-    virtual                 ~GpTask         (void) noexcept override = default;
+    virtual                 ~GpTask         (void) noexcept override;
+
+    std::string_view        Name            (void) const noexcept {return iName;}
 
     void                    MoveToReady     (void);
     virtual ResT            Do              (GpThreadStopToken aStopToken) noexcept = 0;
     virtual void            Terminate       (void) noexcept = 0;
+
+    void                    JoinForState    (StateTE aStateTE) const;
 
 protected:
     virtual void            OnPushEvent     (void) override final;
@@ -55,6 +59,7 @@ private:
     void                    SetWeakPtr      (WP&& aWeakPtr) noexcept {iThisWeakPtr = std::move(aWeakPtr);}
 
 private:
+    const std::string       iName;
     StateTE                 iState = StateTE::NOT_ASSIGNED_TO_SCHEDULER;
     SchedulerRefT           iScheduler;
     WP                      iThisWeakPtr;

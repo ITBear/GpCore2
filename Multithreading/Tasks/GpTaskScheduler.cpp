@@ -1,6 +1,8 @@
 #include "GpTaskScheduler.hpp"
 #include "GpTaskAccessor.hpp"
 
+#include <iostream>
+
 #if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
@@ -13,9 +15,36 @@ GpTaskScheduler::GpTaskScheduler (void) noexcept
 
 GpTaskScheduler::~GpTaskScheduler (void) noexcept
 {
-    RequestStop();
-    Join();
+}
 
+void    GpTaskScheduler::Start
+(
+    GpTaskScheduler::WP aSelfWP,
+    const count_t       aExecutorsCount
+)
+{
+    THROW_GPE_COND
+    (
+        aExecutorsCount >= 1_cnt,
+        "Executors count must be >= 1"_sv
+    );
+
+    iExecutorsPool.SetScheduler(aSelfWP);
+    iExecutorsPool.Init(aExecutorsCount, aExecutorsCount);
+}
+
+void    GpTaskScheduler::RequestStop (void) noexcept
+{
+    iExecutorsPool.RequestStop();
+}
+
+void    GpTaskScheduler::Join (void) noexcept
+{
+    iExecutorsPool.Join();
+}
+
+void    GpTaskScheduler::AfterJoin (void) noexcept
+{
     iExecutorsPool.Clear();
 
     std::scoped_lock lock(iLock);
@@ -67,32 +96,11 @@ GpTaskScheduler::~GpTaskScheduler (void) noexcept
             task.Vn().Terminate();
         }
     }
-}
 
-void    GpTaskScheduler::Start
-(
-    GpTaskScheduler::WP aSelfWP,
-    const count_t       aExecutorsCount
-)
-{
-    THROW_GPE_COND
-    (
-        aExecutorsCount >= 1_cnt,
-        "Executors count must be >= 1"_sv
-    );
+    std::cout << "!![GpTaskScheduler::AfterJoin]: iReadyTasks.size()   = " << iReadyTasks.size() << std::endl;
+    std::cout << "!![GpTaskScheduler::AfterJoin]: iWaitingTasks.size() = " << iWaitingTasks.size() << std::endl;
 
-    iExecutorsPool.SetScheduler(aSelfWP);
-    iExecutorsPool.Init(aExecutorsCount, aExecutorsCount);
-}
-
-void    GpTaskScheduler::RequestStop (void) noexcept
-{
-    iExecutorsPool.RequestStop();
-}
-
-void    GpTaskScheduler::Join (void) noexcept
-{
-    iExecutorsPool.Join();
+    std::cout << "!![GpTaskScheduler::AfterJoin]: Done!" << std::endl;
 }
 
 GpTask::SP  GpTaskScheduler::Reshedule
@@ -253,3 +261,41 @@ void    GpTaskScheduler::MoveToReady (GpTask::SP aTask)
 }//GPlatform
 
 #endif//#if defined(GP_USE_MULTITHREADING)
+
+/*
+[GpTaskFiber::GpTaskFiber]: 'Proxy App (main service task)' counter = 1
+[GpTaskFiber::GpTaskFiber]: 'db' counter = 2
+[GpTaskFiber::GpTaskFiber]: 'http' counter = 3
+[GpTaskFiber::GpTaskFiber]: '' counter = 4
+[GpTaskFiber::GpTaskFiber]: 'EVA proxy HTTP server' counter = 5
+[GpTaskFiber::~GpTaskFiber]: '' counter = 4
+[GpTaskFiber::GpTaskFiber]: 'EVA proxy HTTP server: TCP server task' counter = 5
+[GpTaskFiber::GpTaskFiber]: 'EVA proxy HTTP server: TCP server task: socket 6' counter = 6
+[GpTaskFiber::GpTaskFiber]: 'EVA proxy HTTP server: TCP server task: socket 6: http socket task' counter = 7
+[GpTaskFiber::GpTaskFiber]: 'postgresql: connection to DB' counter = 8
+[GpTaskFiber::~GpTaskFiber]: 'postgresql: connection to DB' counter = 7
+[GpTaskFiber::GpTaskFiber]: 'SQL async query' counter = 8
+[GpTaskFiber::~GpTaskFiber]: 'SQL async query' counter = 7
+[GpTaskFiber::GpTaskFiber]: 'SQL async query' counter = 8
+[GpTaskFiber::~GpTaskFiber]: 'SQL async query' counter = 7
+[GpTaskFiber::GpTaskFiber]: 'SQL async query' counter = 8
+[GpTaskFiber::~GpTaskFiber]: 'SQL async query' counter = 7
+[GpTaskFiber::GpTaskFiber]: 'SQL async query' counter = 8
+[GpTaskFiber::~GpTaskFiber]: 'SQL async query' counter = 7
+[GpTaskFiber::GpTaskFiber]: 'SQL async query' counter = 8
+[GpTaskFiber::~GpTaskFiber]: 'SQL async query' counter = 7
+[GpTaskFiber::~GpTaskFiber]: 'EVA proxy HTTP server: TCP server task: socket 6: http socket task' counter = 6
+[GpTaskFiber::~GpTaskFiber]: 'EVA proxy HTTP server: TCP server task: socket 6' counter = 5
+[GpTaskFiber::~GpTaskFiber]: 'Proxy App (main service task)' counter = 4
+[GpTaskFiber::~GpTaskFiber]: 'EVA proxy HTTP server: TCP server task' counter = 3
+[GpTaskFiber::~GpTaskFiber]: 'http' counter = 2
+[GpTaskFiber::~GpTaskFiber]: 'EVA proxy HTTP server' counter = 1
+
+
+
+
+
+[GpTaskFiber::GpTaskFiber]: 'db' counter = 2
+*/
+
+

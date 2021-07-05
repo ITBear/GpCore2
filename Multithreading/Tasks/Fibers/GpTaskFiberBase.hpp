@@ -12,13 +12,13 @@ namespace GPlatform {
 class GPCORE_API GpTaskFiberBase: public GpTaskFiber
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFiberBase)
+    CLASS_REMOVE_CTRS(GpTaskFiberBase)
     CLASS_DECLARE_DEFAULTS(GpTaskFiberBase)
 
     using EventOptRefT  = std::optional<std::reference_wrapper<GpEvent>>;
 
 protected:
-                            GpTaskFiberBase         (void) noexcept;
+                            GpTaskFiberBase         (std::string_view aName);
     virtual                 ~GpTaskFiberBase        (void) noexcept override;
 
     virtual void            FiberFn                 (GpThreadStopToken aStopToken) override final;

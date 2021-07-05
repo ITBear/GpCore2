@@ -7,7 +7,8 @@
 
 namespace GPlatform {
 
-GpTaskFiberBase::GpTaskFiberBase (void) noexcept
+GpTaskFiberBase::GpTaskFiberBase (std::string_view aName):
+GpTaskFiber(aName)
 {   
 }
 
@@ -51,12 +52,12 @@ void    GpTaskFiberBase::FiberFn (GpThreadStopToken aStopToken)
             }
         } else if (stepRes == GpTask::ResT::DONE)
         {
-            //break;
+            ClearEventsQueue();
             return;
         }
     }
 
-    //GpTaskFiber::SYield(GpTask::ResT::DONE);
+    ClearEventsQueue();
 }
 
 }//namespace GPlatform

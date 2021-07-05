@@ -8,3 +8,4 @@
 #include "GpTaskScheduler.hpp"
 #include "GpTaskSchedulerAccessor.hpp"
 #include "GpTaskFactory.hpp"
+#include "GpTaskLambda.hpp"

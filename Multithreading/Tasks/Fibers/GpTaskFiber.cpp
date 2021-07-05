@@ -7,14 +7,23 @@
 #include "GpTaskFiberStopEx.hpp"
 #include "GpTaskFiberCtx.hpp"
 
+#include <iostream>
+
 namespace GPlatform {
 
-GpTaskFiber::GpTaskFiber (void) noexcept
+static int _GpTaskFiber_counter = 0;
+
+GpTaskFiber::GpTaskFiber (std::string_view aName):
+GpTask(aName)
 {
+    _GpTaskFiber_counter++;
+    std::cout << "[GpTaskFiber::GpTaskFiber]: '" << Name() << "' counter = " << _GpTaskFiber_counter << std::endl;
 }
 
 GpTaskFiber::~GpTaskFiber (void) noexcept
 {
+    _GpTaskFiber_counter--;
+    std::cout << "[GpTaskFiber::~GpTaskFiber]: '" << Name() << "' counter = " << _GpTaskFiber_counter << std::endl;
 }
 
 GpTask::ResT    GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
@@ -81,6 +90,8 @@ void    GpTaskFiber::Terminate (void) noexcept
     GpThreadStopSource  stopSource;
     GpThreadStopToken   stopToken = stopSource.get_token();
     stopSource.request_stop();
+
+    ClearEventsQueue();
 
     Do(stopToken);
 }

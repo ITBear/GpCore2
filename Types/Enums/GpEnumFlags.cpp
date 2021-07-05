@@ -54,7 +54,7 @@ void    GpEnumFlags::FromStringViewArray (const GpVector<std::string_view>& aArr
 {
     Clear();
 
-    for (const std::string_view s: aArray)
+    for (std::string_view s: aArray)
     {
         Set(s);
     }

@@ -714,6 +714,21 @@ std::string GpStringOps::SToString (const void* aPtr)
     return  ss.str();
 }
 
+std::string_view    GpStringOps::SLimitSize
+(
+    std::string_view    aStr,
+    const count_t       aLimitSize
+)
+{
+    if (aStr.length() > aLimitSize.As<size_t>())
+    {
+        return aStr.substr(0, aLimitSize.As<size_t>());
+    } else
+    {
+        return aStr;
+    }
+}
+
 void    GpStringOps::_SFromUI64
 (
     const u_int_64  aValue,

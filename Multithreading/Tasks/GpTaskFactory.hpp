@@ -20,7 +20,7 @@ protected:
 public:
     virtual                     ~GpTaskFactory  (void) noexcept {}
 
-    virtual GpTask::SP          NewInstance     (void) const = 0;
+    virtual GpTask::SP          NewInstance     (std::string_view aTaskName) const = 0;
 };
 
 }//namespace GPlatform

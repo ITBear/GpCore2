@@ -4,6 +4,15 @@
 
 namespace GPlatform {
 
+GpPipelineNodeSumEvCtx::GpPipelineNodeSumEvCtx (std::string_view aName):
+GpPipelineEvaluateCtx(aName)
+{
+}
+
+GpPipelineNodeSumEvCtx::~GpPipelineNodeSumEvCtx (void) noexcept
+{
+}
+
 /*void  GpPipelineNodeSumEvCtx::DoCalc (void) const
 {
     // Read inputs
