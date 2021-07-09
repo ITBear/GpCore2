@@ -10,7 +10,7 @@ namespace GPlatform {
 
 class GpTaskSchedulerAccessor
 {
-    CLASS_REMOVE_CTRS(GpTaskSchedulerAccessor)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskSchedulerAccessor)
 
 public:
     static void         SMoveToReady        (GpTaskScheduler& aScheduler, GpTask::SP aTask)

@@ -15,7 +15,7 @@ class GpTaskFiberCtx;
 class GPCORE_API GpTaskFiber: public GpTask
 {   
 public: 
-    CLASS_REMOVE_CTRS(GpTaskFiber)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskFiber)
     CLASS_DECLARE_DEFAULTS(GpTaskFiber)
 
     using StageT = GpTaskFiberStage;

@@ -15,7 +15,7 @@ class GpTypeStructBase;
 class GpTypeStructFactory
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTypeStructFactory)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpTypeStructFactory)
     CLASS_DECLARE_DEFAULTS(GpTypeStructFactory)
 
 protected:

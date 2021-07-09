@@ -15,7 +15,7 @@ class GPCORE_API GpGraphNode
     friend class GpGraph;
 
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpGraphNode)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpGraphNode)
     CLASS_DECLARE_DEFAULTS(GpGraphNode)
 
     using GraphRefT = std::optional<std::reference_wrapper<GpGraph>>;

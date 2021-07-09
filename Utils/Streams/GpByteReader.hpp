@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCORE_API GpByteReader
 {
-    CLASS_REMOVE_CTRS(GpByteReader)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpByteReader)
 
 public:
                             GpByteReader    (GpByteReaderStorage& aStorage) noexcept: iStorage(aStorage){}

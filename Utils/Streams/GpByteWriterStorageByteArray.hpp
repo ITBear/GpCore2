@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCORE_API GpByteWriterStorageByteArray final: public GpByteWriterStorage
 {
-    CLASS_REMOVE_CTRS(GpByteWriterStorageByteArray)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpByteWriterStorageByteArray)
 
 public:
     inline                  GpByteWriterStorageByteArray    (GpBytesArray& aOut) noexcept;

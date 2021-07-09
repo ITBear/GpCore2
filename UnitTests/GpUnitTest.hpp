@@ -12,7 +12,7 @@ namespace GPlatform {
 
 class GPCORE_API GpUnitTest
 {
-    CLASS_REMOVE_CTRS(GpUnitTest)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpUnitTest)
 
 public:
     //https://github.com/google/googletest/blob/master/googletest/docs/primer.md

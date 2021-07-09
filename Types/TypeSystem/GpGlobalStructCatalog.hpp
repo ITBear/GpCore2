@@ -11,7 +11,7 @@ namespace GPlatform {
 class GPCORE_API GpGlobalStructCatalog
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpGlobalStructCatalog)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpGlobalStructCatalog)
 
     using CatalogT  = GpElementsCatalog<std::string, GpTypeStructBase::SP>;
 

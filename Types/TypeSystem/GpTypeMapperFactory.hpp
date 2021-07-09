@@ -11,7 +11,7 @@ namespace GPlatform {
 class GpTypeMapperFactory
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTypeMapperFactory)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpTypeMapperFactory)
     CLASS_DECLARE_DEFAULTS(GpTypeMapperFactory)
 
 protected:

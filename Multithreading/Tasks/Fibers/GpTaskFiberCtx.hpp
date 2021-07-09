@@ -16,10 +16,10 @@ namespace GPlatform {
 
 class GpTaskFiber;
 
-class GPCORE_API GpTaskFiberCtx
+class GpTaskFiberCtx
 {
 public:
-    CLASS_REMOVE_CTRS(GpTaskFiberCtx)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskFiberCtx)
     CLASS_DECLARE_DEFAULTS(GpTaskFiberCtx)
 
 public:

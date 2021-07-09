@@ -11,7 +11,7 @@ namespace GPlatform {
 class GPCORE_API GpPipelineNodeSum final: public GpPipelineNode
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpPipelineNodeSum)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpPipelineNodeSum)
     CLASS_DECLARE_DEFAULTS(GpPipelineNodeSum)
 
 public:

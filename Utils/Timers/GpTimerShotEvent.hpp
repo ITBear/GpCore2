@@ -11,7 +11,7 @@ namespace GPlatform {
 class GPCORE_API GpTimerShotEvent: public GpEvent
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTimerShotEvent)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpTimerShotEvent)
     CLASS_DECLARE_DEFAULTS(GpTimerShotEvent)
     TYPE_STRUCT_DECLARE("0730c19d-9c0e-4cc8-ad89-747ee22eb7e2"_sv)
 

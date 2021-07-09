@@ -13,7 +13,7 @@ class GPCORE_API GpEventPublisher
 {
 public:
     CLASS_DECLARE_DEFAULTS(GpEventPublisher)
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpEventPublisher)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpEventPublisher)
 
     CLASS_TAG(THREAD_SAFE)
 

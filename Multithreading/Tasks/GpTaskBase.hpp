@@ -11,7 +11,7 @@ namespace GPlatform {
 class GPCORE_API GpTaskBase: public GpTask
 {
 public:
-    CLASS_REMOVE_CTRS(GpTaskBase)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskBase)
     CLASS_DECLARE_DEFAULTS(GpTaskBase)
 
     using EventOptRefT  = std::optional<std::reference_wrapper<GpEvent>>;

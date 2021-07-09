@@ -16,7 +16,7 @@ namespace GPlatform {
 
 class GpReferenceCounter
 {
-    CLASS_REMOVE_CTRS(GpReferenceCounter)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpReferenceCounter)
 
 protected:
     inline              GpReferenceCounter  (void* aValuePtr) noexcept;

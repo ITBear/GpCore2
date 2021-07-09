@@ -10,7 +10,7 @@ namespace GPlatform {
 
 class GpTypeUtils
 {
-    CLASS_REMOVE_CTRS(GpTypeUtils);
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTypeUtils);
 
 public:
     template<typename T> [[nodiscard]] static
@@ -137,7 +137,7 @@ consteval std::tuple<GpType::EnumT, GpType::EnumT, GpTypeContainer::EnumT>  GpTy
         } else if constexpr (std::is_same_v<T, GpSet<typename T::value_type>>)
         {
             return {SDetectType<typename T::value_type>(), GpType::NOT_SET, GpTypeContainer::SET};
-        } else if constexpr (std::is_same_v<T, GpMap<typename T::key_type, typename T::mapped_type>>)
+        } else if constexpr (std::is_same_v<T, GpMap<typename T::key_type, typename T::mapped_type, std::less<>>>)
         {
             return {SDetectType<typename T::mapped_type>(),
                     SDetectType<typename T::key_type>(),
@@ -190,7 +190,7 @@ GpUUID  GpTypeUtils::SDetectTypeUID (void)
         {
             constexpr GpType::EnumT et = SDetectType<typename T::value_type>();
             return SGetTypeUID<typename T::value_type, et>();
-        } else if constexpr (std::is_same_v<T, GpMap<typename T::key_type, typename T::mapped_type>>)
+        } else if constexpr (std::is_same_v<T, GpMap<typename T::key_type, typename T::mapped_type, std::less<>>>)
         {
             constexpr GpType::EnumT et = SDetectType<typename T::mapped_type>();
             return SGetTypeUID<typename T::mapped_type, et>();

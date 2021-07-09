@@ -15,7 +15,7 @@ class GpPipelineNode;
 class GPCORE_API GpPipelineNodeSocket
 {
 public:
-    CLASS_REMOVE_CTRS(GpPipelineNodeSocket)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpPipelineNodeSocket)
     CLASS_DECLARE_DEFAULTS(GpPipelineNodeSocket)
 
     using ConnectorT    = GpPipelineNodeConnector;

@@ -13,7 +13,7 @@ namespace GPlatform {
 class GPCORE_API GpPipelineEvaluateCtx: public GpTaskFiber
 {
 public:
-    CLASS_REMOVE_CTRS(GpPipelineEvaluateCtx)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpPipelineEvaluateCtx)
     CLASS_DECLARE_DEFAULTS(GpPipelineEvaluateCtx)
 
 protected:

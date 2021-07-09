@@ -21,7 +21,7 @@ template<typename KeyT,
          typename ValueT>
 class GpElementsCatalog
 {
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpElementsCatalog)
+    CLASS_REMOVE_CTRS_COPY(GpElementsCatalog)
 
 public:
     using this_type             = GpElementsCatalog<KeyT, ValueT>;
@@ -40,6 +40,9 @@ public:
     struct IsReferenceWrapper<std::reference_wrapper<T>> : std::true_type{};
 
     CLASS_TAG(THREAD_SAFE)
+
+private:
+                            GpElementsCatalog       (GpElementsCatalog&& aCatalog) noexcept;
 
 public:
                             GpElementsCatalog       (void) noexcept = default;
@@ -61,6 +64,11 @@ public:
 
     template<typename K>
     ValueT                  Unregister              (K&& aKey);
+
+    template<typename K>
+    ValueOptT               TryUnregister           (K&& aKey);
+
+    this_type               UnregisterAll           (void);
 
     template<typename K>
     const ValueT&           Find                    (K&& aKey) const;
@@ -88,6 +96,15 @@ private:
     mutable GpRWLock        iLock;
     container_type          iElements;
 };
+
+template<typename KeyT,
+         typename ValueT>
+GpElementsCatalog<KeyT, ValueT>::GpElementsCatalog (GpElementsCatalog&& aCatalog) noexcept
+{
+    std::scoped_lock lock(aCatalog.iLock);
+
+    iElements = std::move(aCatalog.iElements);
+}
 
 template<typename KeyT,
          typename ValueT>
@@ -208,6 +225,32 @@ ValueT  GpElementsCatalog<KeyT, ValueT>::Unregister (K&& aKey)
     ValueT v = std::move(iter->second);
     iElements.erase(iter);
     return v;
+}
+
+template<typename KeyT,
+         typename ValueT>
+template<typename K>
+auto    GpElementsCatalog<KeyT, ValueT>::TryUnregister (K&& aKey) -> ValueOptT
+{
+    std::scoped_lock lock(iLock);
+
+    auto iter = iElements.find(std::forward<K>(aKey));
+
+    if (iter == iElements.end())
+    {
+        return std::nullopt;
+    }
+
+    ValueT v = std::move(iter->second);
+    iElements.erase(iter);
+    return v;
+}
+
+template<typename KeyT,
+         typename ValueT>
+auto    GpElementsCatalog<KeyT, ValueT>::UnregisterAll (void) -> this_type
+{
+    return this_type(std::move(*this));
 }
 
 template<typename KeyT,

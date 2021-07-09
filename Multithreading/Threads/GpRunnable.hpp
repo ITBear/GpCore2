@@ -12,7 +12,7 @@ namespace GPlatform {
 class GPCORE_API GpRunnable
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpRunnable)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpRunnable)
     CLASS_DECLARE_DEFAULTS(GpRunnable)
 
 protected:

@@ -16,7 +16,7 @@ namespace GPlatform {
 class GPCORE_API GpConditionVar
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpConditionVar)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpConditionVar)
     CLASS_DECLARE_DEFAULTS(GpConditionVar)
 
     CLASS_TAG(THREAD_SAFE)

@@ -11,7 +11,7 @@ namespace GPlatform {
 class GPCORE_API GpUnitTestStreamOutCtx final: public GpUnitTestLayeredCtx
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpUnitTestStreamOutCtx)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpUnitTestStreamOutCtx)
     CLASS_DECLARE_DEFAULTS(GpUnitTestStreamOutCtx)
 
 public:

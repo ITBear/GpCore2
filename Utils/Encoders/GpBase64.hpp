@@ -11,7 +11,7 @@ namespace GPlatform {
 
 class GPCORE_API GpBase64
 {
-    CLASS_REMOVE_CTRS(GpBase64)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpBase64)
 
 public:
     static void             SEncode             (GpRawPtrByteR  aData,

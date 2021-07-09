@@ -12,7 +12,7 @@ namespace GPlatform {
 class GPCORE_API GpPipelineEvaluator final: public GpTaskFiber
 {
 public:
-    CLASS_REMOVE_CTRS(GpPipelineEvaluator)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpPipelineEvaluator)
     CLASS_DECLARE_DEFAULTS(GpPipelineEvaluator)
 
 public:

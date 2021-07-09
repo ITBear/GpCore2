@@ -94,7 +94,7 @@ public:
     using Queue         = GpDeclContainerT<GpQueue, this_type>;
     using Stack         = GpDeclContainerT<GpStack, this_type>;
 
-    using MapStr        = GpDeclContainerMapT<GpMap, std::string, this_type>;
+    using MapStr        = GpDeclContainerMapT<GpMap, std::string, this_type, std::less<>>;
     using MapSv         = GpDeclContainerMapT<GpMap, std::string_view, this_type>;
     using MapUuid       = GpDeclContainerMapT<GpMap, GpUUID, this_type>;
     using MapSi64       = GpDeclContainerMapT<GpMap, SInt64, this_type>;

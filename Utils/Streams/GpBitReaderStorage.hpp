@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCORE_API GpBitReaderStorage
 {
-    CLASS_REMOVE_CTRS_EXCEPT_MOVE(GpBitReaderStorage)
+    CLASS_REMOVE_CTRS_DEFAULT_COPY(GpBitReaderStorage)
 
 public:
     inline                  GpBitReaderStorage  (GpBitReaderStorage&& aStorage) noexcept;

@@ -12,7 +12,7 @@ namespace GPlatform {
 class GPCORE_API GpTaskFiberLambda final: public GpTaskFiberBase
 {
 public:
-    CLASS_REMOVE_CTRS(GpTaskFiberLambda)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskFiberLambda)
     CLASS_DECLARE_DEFAULTS(GpTaskFiberLambda)
 
     using OnStartFn = std::function<void()>;

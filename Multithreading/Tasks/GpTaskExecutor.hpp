@@ -14,7 +14,7 @@ class GpTaskScheduler;
 class GPCORE_API GpTaskExecutor final: public GpRunnable
 {
 public:
-    CLASS_REMOVE_CTRS(GpTaskExecutor)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskExecutor)
     CLASS_DECLARE_DEFAULTS(GpTaskExecutor)
 
 public:

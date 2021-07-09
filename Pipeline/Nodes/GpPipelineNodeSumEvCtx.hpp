@@ -11,7 +11,7 @@ namespace GPlatform {
 class GPCORE_API GpPipelineNodeSumEvCtx final: public GpPipelineEvaluateCtx
 {
 public:
-    CLASS_REMOVE_CTRS(GpPipelineNodeSumEvCtx)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpPipelineNodeSumEvCtx)
     CLASS_DECLARE_DEFAULTS(GpPipelineNodeSumEvCtx)
 
 public:

@@ -13,7 +13,7 @@ namespace GPlatform {
 class GPCORE_API GpTaskExecutorsPool final: public GpElementsPool<GpTaskExecutor*>
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskExecutorsPool)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskExecutorsPool)
     CLASS_DECLARE_DEFAULTS(GpTaskExecutorsPool)
 
     using ExecutorT = GpTaskExecutor;

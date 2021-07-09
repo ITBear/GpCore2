@@ -11,7 +11,7 @@ namespace GPlatform {
 
 class GPCORE_API GpTaskFiberManager
 {
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFiberManager)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskFiberManager)
 
 private:
                                 GpTaskFiberManager  (void) noexcept;

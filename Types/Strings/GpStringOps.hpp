@@ -21,7 +21,7 @@ namespace GPlatform {
 
 class GPCORE_API GpStringOps
 {
-    CLASS_REMOVE_CTRS(GpStringOps)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpStringOps)
 
 public:
     static GpVector<GpRawPtrCharR>          SSplit          (GpRawPtrCharR          aSourceStr,

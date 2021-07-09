@@ -14,7 +14,7 @@ namespace GPlatform {
 class GPCORE_API GpTaskFiberBarrier
 {
 public:
-    CLASS_REMOVE_CTRS(GpTaskFiberBarrier)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskFiberBarrier)
     CLASS_DECLARE_DEFAULTS(GpTaskFiberBarrier)
 
     using ResultT = GpVector<std::optional<std::any>>;

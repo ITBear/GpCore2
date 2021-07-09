@@ -17,7 +17,7 @@ GP_ENUM(GPCORE_API, GpBase58Alphabet,
 
 class GPCORE_API GpBase58
 {
-    CLASS_REMOVE_CTRS(GpBase58)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpBase58)
 
 public:
     using AlphabetT     = GpBase58Alphabet;

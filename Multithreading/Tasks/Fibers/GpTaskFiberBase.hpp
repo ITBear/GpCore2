@@ -12,7 +12,7 @@ namespace GPlatform {
 class GPCORE_API GpTaskFiberBase: public GpTaskFiber
 {
 public:
-    CLASS_REMOVE_CTRS(GpTaskFiberBase)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskFiberBase)
     CLASS_DECLARE_DEFAULTS(GpTaskFiberBase)
 
     using EventOptRefT  = std::optional<std::reference_wrapper<GpEvent>>;

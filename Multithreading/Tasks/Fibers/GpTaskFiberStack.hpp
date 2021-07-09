@@ -16,7 +16,7 @@ namespace GPlatform {
 class GPCORE_API GpTaskFiberStack
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFiberStack)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskFiberStack)
     CLASS_DECLARE_DEFAULTS(GpTaskFiberStack)
 
 public:

@@ -11,7 +11,7 @@ namespace GPlatform {
 class GPCORE_API GpTaskLambda final: public GpTaskBase
 {
 public:
-    CLASS_REMOVE_CTRS(GpTaskLambda)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskLambda)
     CLASS_DECLARE_DEFAULTS(GpTaskLambda)
 
     using OnStartFn = std::function<void()>;

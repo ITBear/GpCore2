@@ -8,7 +8,7 @@ template <typename T>
 class GpHysteresis
 {
 public:
-    CLASS_REMOVE_CTRS(GpHysteresis)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpHysteresis)
 
     using value_t   = T;
     using this_type = GpHysteresis<T>;

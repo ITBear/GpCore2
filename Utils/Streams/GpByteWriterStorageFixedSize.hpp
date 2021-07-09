@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCORE_API GpByteWriterStorageFixedSize final: public GpByteWriterStorage
 {
-    CLASS_REMOVE_CTRS(GpByteWriterStorageFixedSize)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpByteWriterStorageFixedSize)
 
 public:
     inline                  GpByteWriterStorageFixedSize    (GpRawPtrByteRW aDataOut) noexcept;

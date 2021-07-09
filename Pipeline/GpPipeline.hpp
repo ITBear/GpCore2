@@ -11,7 +11,7 @@ namespace GPlatform {
 class GPCORE_API GpPipeline
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpPipeline)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpPipeline)
     CLASS_DECLARE_DEFAULTS(GpPipeline)
 
     using NodeT         = GpPipelineNode;

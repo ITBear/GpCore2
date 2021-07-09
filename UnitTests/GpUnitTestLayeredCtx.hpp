@@ -11,7 +11,7 @@ namespace GPlatform {
 class GPCORE_API GpUnitTestLayeredCtx: public GpUnitTestCtx
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpUnitTestLayeredCtx)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpUnitTestLayeredCtx)
     CLASS_DECLARE_DEFAULTS(GpUnitTestLayeredCtx)
 
 public:

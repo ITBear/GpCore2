@@ -11,7 +11,7 @@ namespace GPlatform {
 class GPCORE_API GpTaskFactory
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskFactory)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskFactory)
     CLASS_DECLARE_DEFAULTS(GpTaskFactory)
 
 protected:

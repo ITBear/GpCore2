@@ -11,7 +11,7 @@ namespace GPlatform {
 template<typename FnT>
 class GpOnThrowStackUnwindFn
 {
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpOnThrowStackUnwindFn)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpOnThrowStackUnwindFn)
 
 public:
                     GpOnThrowStackUnwindFn  (void) noexcept {}

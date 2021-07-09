@@ -7,33 +7,34 @@
 
 namespace GPlatform {
 
-#define CLASS_REMOVE_CTRS(NAME) \
-            NAME        (void) noexcept = delete;\
-            NAME        (const NAME&) noexcept = delete;\
-            NAME        (NAME&&) noexcept = delete;\
-    NAME&   operator=   (const NAME&) noexcept = delete;\
-    NAME&   operator=   (NAME&&) noexcept = delete;
-
-#define CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(NAME) \
-            NAME        (const NAME&) noexcept = delete;\
-            NAME        (NAME&&) noexcept = delete;\
-    NAME&   operator=   (const NAME&) noexcept = delete;\
-    NAME&   operator=   (NAME&&) noexcept = delete;
-
-#define CLASS_REMOVE_CTRS_EXCEPT_DEFAULT_COPY(NAME) \
-            NAME        (NAME&&) noexcept = delete;\
-    NAME&   operator=   (NAME&&) noexcept = delete;
-
-#define CLASS_REMOVE_CTRS_EXCEPT_COPY(NAME) \
+#define CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(NAME) \
             NAME        (void) noexcept = delete;\
             NAME        (NAME&&) noexcept = delete;\
-    NAME&   operator=   (NAME&&) noexcept = delete;
-
-#define CLASS_REMOVE_CTRS_EXCEPT_DEFAULT_MOVE(NAME) \
+    NAME&   operator=   (NAME&&) noexcept = delete; \
             NAME        (const NAME&) noexcept = delete;\
     NAME&   operator=   (const NAME&) noexcept = delete;
 
-#define CLASS_REMOVE_CTRS_EXCEPT_MOVE(NAME) \
+
+#define CLASS_REMOVE_CTRS_MOVE_COPY(NAME) \
+            NAME        (NAME&&) noexcept = delete;\
+    NAME&   operator=   (NAME&&) noexcept = delete; \
+            NAME        (const NAME&) noexcept = delete;\
+    NAME&   operator=   (const NAME&) noexcept = delete;
+
+#define CLASS_REMOVE_CTRS_MOVE(NAME) \
+            NAME        (NAME&&) noexcept = delete;\
+    NAME&   operator=   (NAME&&) noexcept = delete;
+
+#define CLASS_REMOVE_CTRS_DEFAULT_MOVE(NAME) \
+            NAME        (void) noexcept = delete;\
+            NAME        (NAME&&) noexcept = delete;\
+    NAME&   operator=   (NAME&&) noexcept = delete;
+
+#define CLASS_REMOVE_CTRS_COPY(NAME) \
+            NAME        (const NAME&) noexcept = delete;\
+    NAME&   operator=   (const NAME&) noexcept = delete;
+
+#define CLASS_REMOVE_CTRS_DEFAULT_COPY(NAME) \
             NAME        (void) noexcept = delete;\
             NAME        (const NAME&) noexcept = delete;\
     NAME&   operator=   (const NAME&) noexcept = delete;

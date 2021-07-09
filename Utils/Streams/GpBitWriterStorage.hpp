@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCORE_API GpBitWriterStorage
 {
-    CLASS_REMOVE_CTRS(GpBitWriterStorage)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpBitWriterStorage)
 
 protected:
     inline                  GpBitWriterStorage  (GpRawPtrByteRW     aDataOut,

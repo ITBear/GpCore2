@@ -3,7 +3,7 @@
 #if defined(GP_USE_BASE58)
 
 #if defined(GP_USE_GNU_GMP)
-#   include <gmp/gmpxx.h>
+#   include <gmpxx.h>
 #else
 #   error please use GP_USE_GNU_GMP
 #endif

@@ -17,7 +17,7 @@ namespace GPlatform {
 class GPCORE_API GpDateTimeOps
 {
 public:
-    CLASS_REMOVE_CTRS(GpDateTimeOps);
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpDateTimeOps);
 
     using FormatT   = GpDateTimeFormat;
     using FormatTE  = FormatT::EnumT;
@@ -39,6 +39,7 @@ public:
     //[[nodiscard]] static std::chrono::hh_mm_ss    SUnixTsToHH_MM_SS   (const unix_ts_ms_t aTs) noexcept;
     //[[nodiscard]] static hours_t              SUnixTsToHH         (const unix_ts_ms_t aTs) noexcept;
 
+    [[nodiscard]] static microseconds_t         SSteadyTS_us        (void) noexcept;
     [[nodiscard]] static milliseconds_t         SSteadyTS_ms        (void) noexcept;
     [[nodiscard]] static seconds_t              SSteadyTS_s         (void) noexcept;
 

@@ -14,7 +14,7 @@ namespace GPlatform {
 class GPCORE_API GpTimersManager final: public GpRunnable
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTimersManager)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpTimersManager)
     CLASS_DECLARE_DEFAULTS(GpTimersManager)
 
     using TimersT = GpElementsCatalog<const void*, GpTimer::SP>;

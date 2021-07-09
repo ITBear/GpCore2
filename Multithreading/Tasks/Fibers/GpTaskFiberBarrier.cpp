@@ -57,6 +57,12 @@ const GpTaskFiberBarrier::ResultT&  GpTaskFiberBarrier::Wait (void)
     //Get current task
     GpTaskFiber::WP currentTask = GpTaskFiber::SCurrentTask();
 
+    THROW_GPE_COND
+    (
+        currentTask.IsNotNULL(),
+        "Call outside fiber task"_sv
+    );
+
     //Subscribe
     {
         std::scoped_lock lock(iWakeupLock);

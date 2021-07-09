@@ -16,7 +16,7 @@ class GPCORE_API GpTaskScheduler
     friend class GpTaskSchedulerAccessor;
 
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpTaskScheduler)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskScheduler)
     CLASS_DECLARE_DEFAULTS(GpTaskScheduler)
 
     using ExecutorT             = GpTaskExecutor;

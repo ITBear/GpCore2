@@ -10,7 +10,7 @@ namespace GPlatform {
 template<typename FnT>
 class GpRAIIonDestruct
 {
-    CLASS_REMOVE_CTRS(GpRAIIonDestruct)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpRAIIonDestruct)
 
 public:
                 GpRAIIonDestruct    (FnT aFn) noexcept: iFn(aFn) {}

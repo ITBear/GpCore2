@@ -10,7 +10,7 @@ namespace GPlatform {
 
 class GPCORE_API GpErrno
 {
-    CLASS_REMOVE_CTRS(GpErrno)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpErrno)
 
 public:
     static std::string  SGetAndClear    (void);

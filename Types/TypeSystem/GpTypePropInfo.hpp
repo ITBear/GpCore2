@@ -200,40 +200,40 @@ public:
     //const auto&                   Value_Set_Enum      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<GpEnum>>(aStruct);}
     //auto&                         Value_Set_Enum      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<GpEnum>>(aStruct);}
 
-    template<typename Key> const auto&      Value_Map_UInt8     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, u_int_8>>(aStruct);}
-    template<typename Key> auto&            Value_Map_UInt8     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, u_int_8>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_SInt8     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, s_int_8>>(aStruct);}
-    template<typename Key> auto&            Value_Map_SInt8     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, s_int_8>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_UInt16    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, u_int_16>>(aStruct);}
-    template<typename Key> auto&            Value_Map_UInt16    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, u_int_16>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_SInt16    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, s_int_16>>(aStruct);}
-    template<typename Key> auto&            Value_Map_SInt16    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, s_int_16>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_UInt32    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, u_int_32>>(aStruct);}
-    template<typename Key> auto&            Value_Map_UInt32    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, u_int_32>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_SInt32    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, s_int_32>>(aStruct);}
-    template<typename Key> auto&            Value_Map_SInt32    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, s_int_32>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_UInt64    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, u_int_64>>(aStruct);}
-    template<typename Key> auto&            Value_Map_UInt64    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, u_int_64>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_SInt64    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, s_int_64>>(aStruct);}
-    template<typename Key> auto&            Value_Map_SInt64    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, s_int_64>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_Double    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, double>>(aStruct);}
-    template<typename Key> auto&            Value_Map_Double    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, double>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_Float     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, float>>(aStruct);}
-    template<typename Key> auto&            Value_Map_Float     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, float>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_Bool      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, bool>>(aStruct);}
-    template<typename Key> auto&            Value_Map_Bool      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, bool>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_UUID      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpUUID>>(aStruct);}
-    template<typename Key> auto&            Value_Map_UUID      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpUUID>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_String    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, std::string>>(aStruct);}
-    template<typename Key> auto&            Value_Map_String    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, std::string>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_BLOB      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpBytesArray>>(aStruct);}
-    template<typename Key> auto&            Value_Map_BLOB      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpBytesArray>>(aStruct);}
-    //template<typename Key> const auto&    Value_Map_Struct    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpTypeStructBase>>(aStruct);}
-    //template<typename Key> auto&          Value_Map_Struct    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpTypeStructBase>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_StructSP  (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpSP<GpTypeStructBase>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_StructSP  (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpSP<GpTypeStructBase>>>(aStruct);}
-    //template<typename Key> const auto&    Value_Map_Enum      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpEnum>>(aStruct);}
-    //template<typename Key> auto&          Value_Map_Enum      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpEnum>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_UInt8     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, u_int_8, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_UInt8     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, u_int_8, std::less<>>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_SInt8     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, s_int_8, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_SInt8     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, s_int_8, std::less<>>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_UInt16    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, u_int_16, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_UInt16    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, u_int_16, std::less<>>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_SInt16    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, s_int_16, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_SInt16    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, s_int_16, std::less<>>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_UInt32    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, u_int_32, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_UInt32    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, u_int_32, std::less<>>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_SInt32    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, s_int_32, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_SInt32    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, s_int_32, std::less<>>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_UInt64    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, u_int_64, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_UInt64    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, u_int_64, std::less<>>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_SInt64    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, s_int_64, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_SInt64    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, s_int_64, std::less<>>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_Double    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, double, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_Double    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, double, std::less<>>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_Float     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, float, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_Float     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, float, std::less<>>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_Bool      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, bool, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_Bool      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, bool, std::less<>>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_UUID      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpUUID, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_UUID      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpUUID, std::less<>>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_String    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, std::string, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_String    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, std::string, std::less<>>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_BLOB      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpBytesArray, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_BLOB      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpBytesArray, std::less<>>>(aStruct);}
+    //template<typename Key> const auto&    Value_Map_Struct    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpTypeStructBase, std::less<>>>(aStruct);}
+    //template<typename Key> auto&          Value_Map_Struct    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpTypeStructBase, std::less<>>>(aStruct);}
+    template<typename Key> const auto&      Value_Map_StructSP  (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpSP<GpTypeStructBase>, std::less<>>>(aStruct);}
+    template<typename Key> auto&            Value_Map_StructSP  (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpSP<GpTypeStructBase>, std::less<>>>(aStruct);}
+    //template<typename Key> const auto&    Value_Map_Enum      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpEnum>, std::less<>>(aStruct);}
+    //template<typename Key> auto&          Value_Map_Enum      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpEnum>, std::less<>>(aStruct);}
 
 private:
     template<typename T>

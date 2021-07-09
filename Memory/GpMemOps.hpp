@@ -16,7 +16,7 @@ namespace GPlatform {
 
 class GpMemOps
 {
-    CLASS_REMOVE_CTRS(GpMemOps)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpMemOps)
 
 public:
     struct VoidDeleter

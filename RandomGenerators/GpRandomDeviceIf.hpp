@@ -13,7 +13,7 @@ namespace GPlatform {
 
 class GPCORE_API GpRandomDeviceIf
 {
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpRandomDeviceIf)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpRandomDeviceIf)
 
 public:
     using result_type = std::random_device::result_type;

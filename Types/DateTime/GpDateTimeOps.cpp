@@ -129,6 +129,15 @@ unix_ts_s_t GpDateTimeOps::SUnixTsFromStr_s
     return hours_t::SMake(h.hours().count());
 }*/
 
+microseconds_t  GpDateTimeOps::SSteadyTS_us (void) noexcept
+{
+    const auto val = std::chrono::steady_clock::now().time_since_epoch();
+    const auto cnt = std::chrono::duration_cast<std::chrono::microseconds>(val).count();
+
+    return microseconds_t::SMake(microseconds_t::value_type(cnt));
+}
+
+
 milliseconds_t  GpDateTimeOps::SSteadyTS_ms (void) noexcept
 {
     const auto val = std::chrono::steady_clock::now().time_since_epoch();

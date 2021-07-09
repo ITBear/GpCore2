@@ -15,7 +15,7 @@ namespace GPlatform {
 template<typename T>
 class GpElementsPool
 {
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpElementsPool)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpElementsPool)
 
 public:
     using this_type     = GpElementsPool<T>;

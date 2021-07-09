@@ -14,7 +14,7 @@ namespace GPlatform {
 class GPCORE_API GpFileUtils
 {
 public:
-    CLASS_REMOVE_CTRS(GpFileUtils)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpFileUtils)
 
     static GpBytesArray     SReadAll    (const GpRawPtrCharR aFileName);
     static void             SAppend     (const GpRawPtrCharR aFileName,

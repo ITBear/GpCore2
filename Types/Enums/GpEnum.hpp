@@ -15,7 +15,7 @@ namespace GPlatform {
 class GPCORE_API GpEnum
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT_COPY(GpEnum)
+    CLASS_REMOVE_CTRS_MOVE(GpEnum)
     CLASS_DECLARE_DEFAULTS(GpEnum)
     CLASS_TAG(GpEnum)
     CLASS_TAG_DETECTOR(GpEnum)

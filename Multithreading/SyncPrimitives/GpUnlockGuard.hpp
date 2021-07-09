@@ -10,7 +10,7 @@ namespace GPlatform{
 
 template<typename T> class GpUnlockGuard
 {
-    CLASS_REMOVE_CTRS(GpUnlockGuard)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpUnlockGuard)
 
 public:
                             GpUnlockGuard       (T& aLock) noexcept;

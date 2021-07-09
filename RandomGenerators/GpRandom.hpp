@@ -24,7 +24,7 @@ namespace GPlatform {
 
 class GPCORE_API GpRandom
 {
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpRandom)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpRandom)
 
 public:
                                 GpRandom        (void) noexcept;

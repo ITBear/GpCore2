@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCORE_API GpBitReader
 {
-    CLASS_REMOVE_CTRS(GpBitReader)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpBitReader)
 
 public:
                             GpBitReader     (GpBitReaderStorage&& aStorage) noexcept: iStorage(std::move(aStorage)){}

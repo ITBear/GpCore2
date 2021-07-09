@@ -13,7 +13,7 @@ template <typename  T,
           typename  DeleterT>
 class GpReferenceStorage final: public GpReferenceCounter
 {
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpReferenceStorage)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpReferenceStorage)
 
 public:
     using this_type     = GpReferenceStorage<T, DeleterT>;

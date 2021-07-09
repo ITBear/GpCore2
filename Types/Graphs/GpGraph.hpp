@@ -12,7 +12,7 @@ namespace GPlatform {
 class GPCORE_API GpGraph
 {
 public:
-    CLASS_REMOVE_CTRS_EXCEPT_DEFAULT(GpGraph)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpGraph)
     CLASS_DECLARE_DEFAULTS(GpGraph)
 
 public:

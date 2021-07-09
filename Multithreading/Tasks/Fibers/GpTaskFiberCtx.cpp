@@ -66,6 +66,8 @@ GpTask::ResT    GpTaskFiberCtx::Enter (GpThreadStopToken aStopToken)
         iYieldRes   = GpTask::ResT::DONE;
         iException.reset();
 
+        SSetCurrentCtx(std::nullopt);
+
         throw;
     }
 

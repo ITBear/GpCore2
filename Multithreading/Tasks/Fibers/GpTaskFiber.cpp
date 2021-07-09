@@ -107,9 +107,14 @@ void    GpTaskFiber::SYield (const GpTask::ResT aRes)
 GpWP<GpTaskFiber>   GpTaskFiber::SCurrentTask (void)
 {
     auto ctx = GpTaskFiberCtx::SCurrentCtx();
-    THROW_GPE_COND(ctx.has_value(), "Call outside of fiber"_sv);
 
-    return ctx.value().get().Task();
+    if (ctx.has_value())
+    {
+        return ctx.value().get().Task();
+    } else
+    {
+        return GpTaskFiber::SP::SNull();
+    }
 }
 
 bool    GpTaskFiber::SIsIntoFiber (void) noexcept

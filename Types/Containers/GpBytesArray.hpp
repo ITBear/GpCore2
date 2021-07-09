@@ -14,7 +14,7 @@ using GpBytesArray = GpVector<std::byte>;
 
 class GpBytesArrayUtils
 {
-    CLASS_REMOVE_CTRS(GpBytesArrayUtils)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpBytesArrayUtils)
 
 public:
     template<typename FROM, typename = std::enable_if_t<has_random_access_iter_v<FROM>, FROM>>

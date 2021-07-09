@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCORE_API GpBitWriterStorageFixedSize final: public GpBitWriterStorage
 {
-    CLASS_REMOVE_CTRS(GpBitWriterStorageFixedSize)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpBitWriterStorageFixedSize)
 
 public:
     inline                  GpBitWriterStorageFixedSize     (GpRawPtrByteRW     aDataOut,

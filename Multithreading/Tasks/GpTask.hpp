@@ -20,7 +20,7 @@ class GPCORE_API GpTask: public GpEventSubscriber
     friend class GpTaskAccessor;
 
 public:
-    CLASS_REMOVE_CTRS(GpTask)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTask)
     CLASS_DECLARE_DEFAULTS(GpTask)
 
     enum class ResT
@@ -56,13 +56,13 @@ private:
     StateTE                 State           (void) const noexcept {return iState;}
     void                    UpdateState     (StateTE aNewState) noexcept {iState = aNewState;}
     void                    SetScheduler    (GpTaskScheduler& aScheduler) noexcept {iScheduler = aScheduler;}
-    void                    SetWeakPtr      (WP&& aWeakPtr) noexcept {iThisWeakPtr = std::move(aWeakPtr);}
+    void                    SetWeakPtr      (GpTask::WP aWeakPtr) noexcept {iThisWeakPtr = std::move(aWeakPtr);}
 
 private:
     const std::string       iName;
     StateTE                 iState = StateTE::NOT_ASSIGNED_TO_SCHEDULER;
     SchedulerRefT           iScheduler;
-    WP                      iThisWeakPtr;
+    GpTask::WP              iThisWeakPtr;
 };
 
 }//GPlatform

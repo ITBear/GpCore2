@@ -6,7 +6,7 @@ namespace GPlatform {
 
 class GPCORE_API GpBitWriter
 {
-    CLASS_REMOVE_CTRS(GpBitWriter)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpBitWriter)
 
 public:
                             GpBitWriter     (GpBitWriterStorage& aStorage) noexcept: iStorage(aStorage) {}
