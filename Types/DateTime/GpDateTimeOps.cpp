@@ -11,6 +11,7 @@ const GpArray<std::string, GpDateTimeFormat::SCount().As<size_t>()> GpDateTimeOp
     "%FT%X+00:00",              //ISO_8601:         2021-01-11T20:15:31+00:00
     "%a, %d %b %Y %X +0000",    //RFC_2822:         Mon, 11 Jan 2021 20:15:31 +0000
     "%F %X",                    //STD_DATE_TIME:    2021-01-11 20:15:31
+    "%FT%X",                    //STD_DATE_TIME_T,//2021-01-11T20:15:31
     "%F",                       //STD_DATE:         2021-01-11
     "%X"                        //STD_TIME:         20:15:31
 };
@@ -26,50 +27,6 @@ unix_ts_ms_t    GpDateTimeOps::SUnixTS_ms (void) noexcept
 unix_ts_s_t GpDateTimeOps::SUnixTS_s (void) noexcept
 {
     return SUnixTS_ms();
-}
-
-std::string GpDateTimeOps::SUnixTsToStr
-(
-    const unix_ts_ms_t  aTs,
-    std::string_view    aFormat
-)
-{
-    std::ostringstream out;
-
-    //https://howardhinnant.github.io/date/date.html
-    //https://gitter.im/HowardHinnant/date?at=5e404b1fb612cc7bb1588132
-
-    date::sys_time<std::chrono::milliseconds> tp(std::chrono::milliseconds(aTs.Value()));
-    out << date::format(std::string(aFormat), tp);
-
-    return out.str();
-}
-
-std::string GpDateTimeOps::SUnixTsToStr
-(
-    const unix_ts_s_t   aTs,
-    std::string_view    aFormat
-)
-{
-    return SUnixTsToStr(aTs.As<unix_ts_ms_t>(), aFormat);
-}
-
-std::string GpDateTimeOps::SUnixTsToStr
-(
-    const unix_ts_ms_t  aTs,
-    const FormatTE      aFormat
-)
-{
-    return SUnixTsToStr(aTs, sFormats.at(aFormat));
-}
-
-std::string GpDateTimeOps::SUnixTsToStr
-(
-    const unix_ts_s_t   aTs,
-    const FormatTE      aFormat
-)
-{
-    return SUnixTsToStr(aTs.As<unix_ts_ms_t>(), sFormats.at(aFormat));
 }
 
 unix_ts_ms_t    GpDateTimeOps::SUnixTsFromStr_ms
@@ -157,6 +114,50 @@ microseconds_t  GpDateTimeOps::SHighResTS_us (void) noexcept
     const auto cnt = std::chrono::duration_cast<std::chrono::microseconds>(val).count();
 
     return microseconds_t::SMake(microseconds_t::value_type(cnt));
+}
+
+std::string GpDateTimeOps::SUnixTsToStr
+(
+    const unix_ts_ms_t  aTs,
+    std::string_view    aFormat
+)
+{
+    std::ostringstream out;
+
+    //https://howardhinnant.github.io/date/date.html
+    //https://gitter.im/HowardHinnant/date?at=5e404b1fb612cc7bb1588132
+
+    date::sys_time<std::chrono::milliseconds> tp(std::chrono::milliseconds(aTs.Value()));
+    out << date::format(std::string(aFormat), tp);
+
+    return out.str();
+}
+
+std::string GpDateTimeOps::SUnixTsToStr
+(
+    const unix_ts_s_t   aTs,
+    std::string_view    aFormat
+)
+{
+    return SUnixTsToStr(aTs.As<unix_ts_ms_t>(), aFormat);
+}
+
+std::string GpDateTimeOps::SUnixTsToStr
+(
+    const unix_ts_ms_t  aTs,
+    const FormatTE      aFormat
+)
+{
+    return SUnixTsToStr(aTs, sFormats.at(aFormat));
+}
+
+std::string GpDateTimeOps::SUnixTsToStr
+(
+    const unix_ts_s_t   aTs,
+    const FormatTE      aFormat
+)
+{
+    return SUnixTsToStr(aTs.As<unix_ts_ms_t>(), sFormats.at(aFormat));
 }
 
 }//GPlatform

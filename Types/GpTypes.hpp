@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Bool/GpBool.hpp"
 #include "Numerics/GpNumerics.hpp"
 #include "Units/GpUnits.hpp"
 #include "Strings/GpStrings.hpp"

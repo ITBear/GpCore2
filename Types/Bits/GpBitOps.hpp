@@ -14,6 +14,8 @@
 #   include <immintrin.h>
 #endif
 
+//TODO: implement with https://en.cppreference.com/w/cpp/header/bit
+
 namespace GPlatform {
 
 #if defined(GP_COMPILER_GCC) || defined(GP_COMPILER_CLANG)

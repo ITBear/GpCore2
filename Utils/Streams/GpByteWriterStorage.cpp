@@ -17,6 +17,11 @@ void    GpByteWriterStorage::OffsetAdd (const size_byte_t aOffset)
     iDataOut.OffsetAdd(aOffset.As<count_t>());
 }
 
+void    GpByteWriterStorage::OffsetToEnd (void)
+{
+    iDataOut.OffsetAdd(iDataOut.CountLeft());
+}
+
 void    GpByteWriterStorage::AllocateNext (const size_byte_t aSize)
 {
     THROW_GPE_COND

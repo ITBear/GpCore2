@@ -31,6 +31,7 @@ public:
     GpWP<GpTaskFiber>                   Task                (void) {return iTask;}
 
     static GpTaskFiberCtx::C::Opt::Ref  SCurrentCtx         (void) noexcept;
+    static void                         SClearCurrentCtx    (void) noexcept;
 
 private:
     void                                Clear               (void) noexcept;

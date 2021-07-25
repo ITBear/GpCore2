@@ -12,11 +12,7 @@
 #include "../../../Types/Strings/GpStringOps.hpp"
 #include "GpTaskFiber.hpp"
 
-#include <iostream>
-
 namespace GPlatform {
-
-static int _GpTaskFiberCtx_counter = 0;
 
 //static thread_local FiberArgs sFiberArgsTLS;
 GpElementsCatalog<std::thread::id, GpTaskFiberCtx::C::Opt::Ref> GpTaskFiberCtx::sFiberArgs;
@@ -24,16 +20,11 @@ GpElementsCatalog<std::thread::id, GpTaskFiberCtx::C::Opt::Ref> GpTaskFiberCtx::
 GpTaskFiberCtx::GpTaskFiberCtx (GpWP<GpTaskFiber> aTask) noexcept:
 iTask(std::move(aTask))
 {
-    _GpTaskFiberCtx_counter++;
-    std::cout << "[GpTaskFiberCtx::GpTaskFiberCtx]: counter = " << _GpTaskFiberCtx_counter << std::endl;
 }
 
 GpTaskFiberCtx::~GpTaskFiberCtx (void) noexcept
 {
     Clear();
-
-    _GpTaskFiberCtx_counter--;
-    std::cout << "[GpTaskFiberCtx::~GpTaskFiberCtx]: counter = " << _GpTaskFiberCtx_counter << std::endl;
 }
 
 GpTask::ResT    GpTaskFiberCtx::Enter (GpThreadStopToken aStopToken)
@@ -135,6 +126,11 @@ GpTaskFiberCtx::C::Opt::Ref GpTaskFiberCtx::SCurrentCtx (void) noexcept
     {
         return std::nullopt;
     }
+}
+
+void    GpTaskFiberCtx::SClearCurrentCtx (void) noexcept
+{
+    SSetCurrentCtx(std::nullopt);
 }
 
 void    GpTaskFiberCtx::SSetCurrentCtx (GpTaskFiberCtx::C::Opt::Ref aCtx) noexcept

@@ -162,6 +162,15 @@ public:
     }
 
     template<typename T>
+    [[nodiscard]] static constexpr bool SIsBetween (const T a, const T aMin, const T aMax)
+    {
+        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
+
+        return    SIsGreaterOrEqual(a, aMin)
+               && SIsLessOrEqual(a, aMax);
+    }
+
+    template<typename T>
     [[nodiscard]] static constexpr T SAdd (const T a, const T b)
     {
         static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");

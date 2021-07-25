@@ -11,19 +11,13 @@
 
 namespace GPlatform {
 
-static int _GpTaskFiber_counter = 0;
-
 GpTaskFiber::GpTaskFiber (std::string_view aName):
 GpTask(aName)
 {
-    _GpTaskFiber_counter++;
-    std::cout << "[GpTaskFiber::GpTaskFiber]: '" << Name() << "' counter = " << _GpTaskFiber_counter << std::endl;
 }
 
 GpTaskFiber::~GpTaskFiber (void) noexcept
 {
-    _GpTaskFiber_counter--;
-    std::cout << "[GpTaskFiber::~GpTaskFiber]: '" << Name() << "' counter = " << _GpTaskFiber_counter << std::endl;
 }
 
 GpTask::ResT    GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
@@ -121,6 +115,11 @@ bool    GpTaskFiber::SIsIntoFiber (void) noexcept
 {
     auto ctx = GpTaskFiberCtx::SCurrentCtx();
     return ctx.has_value();
+}
+
+void    GpTaskFiber::SClearCurrentCtx (void) noexcept
+{
+    GpTaskFiberCtx::SClearCurrentCtx();
 }
 
 }//GPlatform

@@ -33,6 +33,7 @@ public:
     static void                 SYield              (const GpTask::ResT aRes);
     static GpWP<GpTaskFiber>    SCurrentTask        (void);
     static bool                 SIsIntoFiber        (void) noexcept;
+    static void                 SClearCurrentCtx    (void) noexcept;
 
 private:
     GpSP<GpTaskFiberCtx>        iCtx;

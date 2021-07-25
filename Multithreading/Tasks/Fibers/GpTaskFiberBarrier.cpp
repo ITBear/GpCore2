@@ -8,19 +8,13 @@
 
 namespace GPlatform {
 
-static int _GpTaskFiberBarrier_counter = 0;
-
 GpTaskFiberBarrier::GpTaskFiberBarrier (count_t aCounter) noexcept:
 iCounter(aCounter)
 {
-    _GpTaskFiberBarrier_counter++;
-    std::cout << "[GpTaskFiberBarrier::GpTaskFiberBarrier]: counter = " << _GpTaskFiberBarrier_counter << std::endl;
 }
 
 GpTaskFiberBarrier::~GpTaskFiberBarrier (void) noexcept
 {
-    _GpTaskFiberBarrier_counter--;
-    std::cout << "[GpTaskFiberBarrier::~GpTaskFiberBarrier]: counter = " << _GpTaskFiberBarrier_counter << std::endl;
 }
 
 void    GpTaskFiberBarrier::Release (std::optional<std::any>&& aResult) noexcept

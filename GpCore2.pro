@@ -132,6 +132,7 @@ HEADERS += \
 	Types/Bits/GpBitOps.hpp \
 	Types/Bits/GpBits.hpp \
 	Types/Bits/GpBitset.hpp \
+	Types/Bool/GpBool.hpp \
 	Types/Classes/GpClasses.hpp \
 	Types/Classes/GpClassesDefines.hpp \
 	Types/Containers/GpBytesArray.hpp \

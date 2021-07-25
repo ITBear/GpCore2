@@ -47,8 +47,11 @@ void    GpExceptionUtils::SExpectThrow
 }
 
 template<typename ExpectexExT>
-void    GpExceptionUtils::SCatch (std::function<void()>                         aThrowableFn,
-                                  std::function<void(const ExpectexExT& aEx)>   aCatchFn)
+void    GpExceptionUtils::SCatch
+(
+    std::function<void()>                       aThrowableFn,
+    std::function<void(const ExpectexExT& aEx)> aCatchFn
+)
 {
     try
     {
