@@ -1,4 +1,7 @@
 #include "GpTimer.hpp"
+#include "GpTimersManager.hpp"
+
+#include <iostream>
 
 #if defined(GP_USE_TIMERS)
 
@@ -16,6 +19,7 @@ iIsShotsLimited(false),
 iPeriod(aPeriod),
 iDelayBeforeFirstShot(0.0_si_ms)
 {
+    std::cout << "[GpTimer::GpTimer]: construct..."_sv << std::endl;
 }
 
 GpTimer::GpTimer
@@ -29,6 +33,7 @@ iIsShotsLimited(false),
 iPeriod(aPeriod),
 iDelayBeforeFirstShot(aDelayBeforeFirstShot)
 {
+    std::cout << "[GpTimer::GpTimer]: construct..."_sv << std::endl;
 }
 
 GpTimer::GpTimer
@@ -43,6 +48,7 @@ iShotsMaxCount(aShotsMaxCount),
 iPeriod(aPeriod),
 iDelayBeforeFirstShot(0.0_si_ms)
 {
+    std::cout << "[GpTimer::GpTimer]: construct..."_sv << std::endl;
 }
 
 GpTimer::GpTimer
@@ -58,10 +64,31 @@ iShotsMaxCount(aShotsMaxCount),
 iPeriod(aPeriod),
 iDelayBeforeFirstShot(aDelayBeforeFirstShot)
 {
+    std::cout << "[GpTimer::GpTimer]: construct..."_sv << std::endl;
 }
 
 GpTimer::~GpTimer (void) noexcept
 {
+    std::cout << "[GpTimer::~GpTimer]: destruct..."_sv << std::endl;
+}
+
+void    GpTimer::SSingleShot
+(
+    GpEventSubscriber::SP   aSubscriber,
+    const milliseconds_t    aDelayBeforeShot
+)
+{
+    GpTimer::SP timer = MakeSP<GpTimer>
+    (
+        MakeSP<GpTimerShotEventFactory>(),
+        0.0_si_s,
+        aDelayBeforeShot,
+        1
+    );
+
+    timer->Subscribe(aSubscriber);
+    GpTimersManager::SManager().AddTimer(timer);
+    timer->Start();
 }
 
 void    GpTimer::Start (void)

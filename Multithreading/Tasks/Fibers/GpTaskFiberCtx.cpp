@@ -14,6 +14,8 @@
 
 namespace GPlatform {
 
+static std::atomic_int64_t sGpTaskFiberCtx_acquire_count = 0;
+
 //static thread_local FiberArgs sFiberArgsTLS;
 GpElementsCatalog<std::thread::id, GpTaskFiberCtx::C::Opt::Ref> GpTaskFiberCtx::sFiberArgs;
 
@@ -80,7 +82,13 @@ void    GpTaskFiberCtx::Clear (void) noexcept
 
     if (iFiberStack.IsNotNULL())
     {
+        std::cout << "[GpTaskFiberCtx::Clear]: pre release..."_sv << std::endl;
+
         GpTaskFiberManager::S().StackPool().Release(std::move(iFiberStack));
+
+        sGpTaskFiberCtx_acquire_count--;
+
+        std::cout << "[GpTaskFiberCtx::Clear]: release done: "_sv << sGpTaskFiberCtx_acquire_count << std::endl;
     }
 }
 
@@ -92,14 +100,23 @@ void    GpTaskFiberCtx::InitIfNot (void)
     }
 
     //Get stack from pool
-    const auto res = GpTaskFiberManager::S().StackPool().Acquire();
+    std::cout << "[GpTaskFiberCtx::Clear]: pre accuire..."_sv << std::endl;
+
+    auto res = GpTaskFiberManager::S().StackPool().Acquire();
+
+
+
     THROW_GPE_COND
     (
         res.has_value(),
         "Failed to get fiber stack from pool"_sv
     );
 
-    iFiberStack = res.value();
+    iFiberStack = std::move(res.value());
+
+    sGpTaskFiberCtx_acquire_count++;
+
+    std::cout << "[GpTaskFiberCtx::Clear]: accuire done: "_sv << sGpTaskFiberCtx_acquire_count << std::endl;
 
     //Create fiber
     GpFiberStackT& fiberStack = *reinterpret_cast<GpFiberStackT*>(iFiberStack.Vn().Stack());

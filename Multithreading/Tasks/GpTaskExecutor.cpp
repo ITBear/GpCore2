@@ -37,7 +37,7 @@ void    GpTaskExecutor::Run (GpThreadStopToken aStopToken) noexcept
             currentTaskExecRes = currentTask.Vn().Do(aStopToken);
         } else
         {
-            WaitForWakeup(4.0_si_s);
+            WaitForWakeup(/*4.0_si_s*/);
             currentTaskExecRes = GpTask::ResT::DONE;
         }
     }

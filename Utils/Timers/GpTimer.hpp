@@ -24,19 +24,22 @@ public:
     using TestRes = std::tuple<ShotRes, bool>;
 
 public:
-                                GpTimer         (GpTimerShotEventFactory::SP    aFactory,
-                                                 const milliseconds_t           aPeriod) noexcept;
-                                GpTimer         (GpTimerShotEventFactory::SP    aFactory,
-                                                 const milliseconds_t           aPeriod,
-                                                 const milliseconds_t           aDelayBeforeFirstShot) noexcept;
-                                GpTimer         (GpTimerShotEventFactory::SP    aFactory,
-                                                 const milliseconds_t           aPeriod,
-                                                 const u_int_64                 aShotsMaxCount) noexcept;
-                                GpTimer         (GpTimerShotEventFactory::SP    aFactory,
-                                                 const milliseconds_t           aPeriod,
-                                                 const milliseconds_t           aDelayBeforeFirstShot,
-                                                 const u_int_64                 aShotsMaxCount) noexcept;
-    virtual                     ~GpTimer        (void) noexcept override final;
+                                GpTimer             (GpTimerShotEventFactory::SP    aFactory,
+                                                     const milliseconds_t           aPeriod) noexcept;
+                                GpTimer             (GpTimerShotEventFactory::SP    aFactory,
+                                                     const milliseconds_t           aPeriod,
+                                                     const milliseconds_t           aDelayBeforeFirstShot) noexcept;
+                                GpTimer             (GpTimerShotEventFactory::SP    aFactory,
+                                                     const milliseconds_t           aPeriod,
+                                                     const u_int_64                 aShotsMaxCount) noexcept;
+                                GpTimer             (GpTimerShotEventFactory::SP    aFactory,
+                                                     const milliseconds_t           aPeriod,
+                                                     const milliseconds_t           aDelayBeforeFirstShot,
+                                                     const u_int_64                 aShotsMaxCount) noexcept;
+    virtual                     ~GpTimer            (void) noexcept override final;
+
+    static void                 SSingleShot         (GpEventSubscriber::SP  aSubscriber,
+                                                     const milliseconds_t   aDelayBeforeShot);
 
     using GpEventPublisher::Subscribe;
     using GpEventPublisher::Unsubscribe;
