@@ -58,8 +58,7 @@ void    GpTimersManager::Run (GpThreadStopToken aStopToken) noexcept
             }
         });
 
-        //WaitForWakeup(iStep);
-        std::this_thread::sleep_for(std::chrono::milliseconds(iStep.As<ssize_t>()));
+        WaitForWakeup(iStep);
     }
 }
 

@@ -1,8 +1,6 @@
 #include "GpTimer.hpp"
 #include "GpTimersManager.hpp"
 
-#include <iostream>
-
 #if defined(GP_USE_TIMERS)
 
 #include "../../Types/DateTime/GpDateTimeOps.hpp"
@@ -19,7 +17,6 @@ iIsShotsLimited(false),
 iPeriod(aPeriod),
 iDelayBeforeFirstShot(0.0_si_ms)
 {
-    std::cout << "[GpTimer::GpTimer]: construct..."_sv << std::endl;
 }
 
 GpTimer::GpTimer
@@ -33,7 +30,6 @@ iIsShotsLimited(false),
 iPeriod(aPeriod),
 iDelayBeforeFirstShot(aDelayBeforeFirstShot)
 {
-    std::cout << "[GpTimer::GpTimer]: construct..."_sv << std::endl;
 }
 
 GpTimer::GpTimer
@@ -48,7 +44,6 @@ iShotsMaxCount(aShotsMaxCount),
 iPeriod(aPeriod),
 iDelayBeforeFirstShot(0.0_si_ms)
 {
-    std::cout << "[GpTimer::GpTimer]: construct..."_sv << std::endl;
 }
 
 GpTimer::GpTimer
@@ -64,12 +59,10 @@ iShotsMaxCount(aShotsMaxCount),
 iPeriod(aPeriod),
 iDelayBeforeFirstShot(aDelayBeforeFirstShot)
 {
-    std::cout << "[GpTimer::GpTimer]: construct..."_sv << std::endl;
 }
 
 GpTimer::~GpTimer (void) noexcept
 {
-    std::cout << "[GpTimer::~GpTimer]: destruct..."_sv << std::endl;
 }
 
 void    GpTimer::SSingleShot

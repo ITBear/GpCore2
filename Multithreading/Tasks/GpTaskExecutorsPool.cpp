@@ -9,7 +9,7 @@ GpTaskExecutorsPool::GpTaskExecutorsPool (void) noexcept
 }
 
 GpTaskExecutorsPool::~GpTaskExecutorsPool (void) noexcept
-{   
+{
 }
 
 void    GpTaskExecutorsPool::SetScheduler (GpWP<GpTaskScheduler> aScheduler) noexcept
@@ -55,7 +55,7 @@ void    GpTaskExecutorsPool::PreInit (const count_t aCount)
     // Create threads
     for (count_t id = 0_cnt; id < aCount; ++id)
     {
-        GpThread t;     
+        GpThread t;
         iThreads.emplace_back(std::move(t));
     }
 

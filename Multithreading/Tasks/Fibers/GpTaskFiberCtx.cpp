@@ -104,8 +104,6 @@ void    GpTaskFiberCtx::InitIfNot (void)
 
     auto res = GpTaskFiberManager::S().StackPool().Acquire();
 
-
-
     THROW_GPE_COND
     (
         res.has_value(),

@@ -17,7 +17,7 @@ void    GpConditionVar::WakeupAll (void) noexcept
 {
     {
         std::scoped_lock lock(iWakeupMutex);
-        iNeedToWakeUp = true;
+        iWakeUpState = WakeUpState::ALL;
     }
 
     iWakeupCV.notify_all();
@@ -27,7 +27,7 @@ void    GpConditionVar::WakeupOne (void) noexcept
 {
     {
         std::scoped_lock lock(iWakeupMutex);
-        iNeedToWakeUp = true;
+        iWakeUpState = WakeUpState::ONE;
     }
 
     iWakeupCV.notify_one();
@@ -52,14 +52,40 @@ void    GpConditionVar::WaitForWakeup (const milliseconds_t aTimeout) noexcept
             (
                 lock,
                 std::chrono::milliseconds(aTimeout.As<ssize_t>()),
-                [&]{return iNeedToWakeUp;}
+                [&]
+                {
+                    if (iWakeUpState == WakeUpState::ONE)
+                    {
+                        iWakeUpState = WakeUpState::WAIT;
+                        return true;
+                    } else if (iWakeUpState == WakeUpState::ALL)
+                    {
+                        return true;
+                    } else
+                    {
+                        return false;
+                    }
+                }
             );
         } else
         {
             iWakeupCV.wait
             (
                 lock,
-                [&]{return iNeedToWakeUp;}
+                [&]
+                {
+                    if (iWakeUpState == WakeUpState::ONE)
+                    {
+                        iWakeUpState = WakeUpState::WAIT;
+                        return true;
+                    } else if (iWakeUpState == WakeUpState::ALL)
+                    {
+                        return true;
+                    } else
+                    {
+                        return false;
+                    }
+                }
             );
         }
     } catch (const std::exception& e)
@@ -74,7 +100,7 @@ void    GpConditionVar::WaitForWakeup (const milliseconds_t aTimeout) noexcept
 
     if (iWaitCounter == 0_cnt)
     {
-        iNeedToWakeUp = false;
+        iWakeUpState = WakeUpState::WAIT;
     }
 }
 

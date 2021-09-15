@@ -1,5 +1,6 @@
 #include "GpTaskScheduler.hpp"
 #include "GpTaskAccessor.hpp"
+#include "../../Utils/RAII/GpRAIIonDestruct.hpp"
 
 #include <iostream>
 

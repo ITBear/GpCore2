@@ -16,6 +16,14 @@ namespace GPlatform {
 class GPCORE_API GpConditionVar
 {
 public:
+    enum class WakeUpState
+    {
+        WAIT,
+        ONE,
+        ALL
+    };
+
+public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpConditionVar)
     CLASS_DECLARE_DEFAULTS(GpConditionVar)
 
@@ -32,8 +40,8 @@ public:
 private:
     mutable std::mutex      iWakeupMutex;
     std::condition_variable iWakeupCV;
+    WakeUpState             iWakeUpState    = WakeUpState::WAIT;
     count_t                 iWaitCounter    = 0_cnt;
-    bool                    iNeedToWakeUp   = false;
 };
 
 }//GPlatform
