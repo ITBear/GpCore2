@@ -7,8 +7,6 @@
 #include "GpTaskFiberStopEx.hpp"
 #include "GpTaskFiberCtx.hpp"
 
-#include <iostream>
-
 namespace GPlatform {
 
 GpTaskFiber::GpTaskFiber (std::string_view aName):
@@ -27,7 +25,7 @@ GpTask::ResT    GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
     try
     {
         switch (iStage.Value())
-        {           
+        {
             case StageT::NOT_RUN:
             {
                 iCtx    = MakeSP<GpTaskFiberCtx>(GetWeakPtr());
@@ -68,7 +66,7 @@ GpTask::ResT    GpTaskFiber::Do (GpThreadStopToken aStopToken) noexcept
     if (taskRes == ResT::DONE)
     {
         iCtx.Clear();
-        iStage = StageT::FINISHED;      
+        iStage = StageT::FINISHED;
     }
 
     return taskRes;

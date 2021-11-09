@@ -2,8 +2,6 @@
 #include "GpTaskAccessor.hpp"
 #include "../../Utils/RAII/GpRAIIonDestruct.hpp"
 
-#include <iostream>
-
 #if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
@@ -97,11 +95,6 @@ void    GpTaskScheduler::AfterJoin (void) noexcept
             task.Vn().Terminate();
         }
     }
-
-    std::cout << "!![GpTaskScheduler::AfterJoin]: iReadyTasks.size()   = " << iReadyTasks.size() << std::endl;
-    std::cout << "!![GpTaskScheduler::AfterJoin]: iWaitingTasks.size() = " << iWaitingTasks.size() << std::endl;
-
-    std::cout << "!![GpTaskScheduler::AfterJoin]: Done!" << std::endl;
 }
 
 GpTask::SP  GpTaskScheduler::Reshedule
@@ -262,41 +255,4 @@ void    GpTaskScheduler::MoveToReady (GpTask::SP aTask)
 }//GPlatform
 
 #endif//#if defined(GP_USE_MULTITHREADING)
-
-/*
-[GpTaskFiber::GpTaskFiber]: 'Proxy App (main service task)' counter = 1
-[GpTaskFiber::GpTaskFiber]: 'db' counter = 2
-[GpTaskFiber::GpTaskFiber]: 'http' counter = 3
-[GpTaskFiber::GpTaskFiber]: '' counter = 4
-[GpTaskFiber::GpTaskFiber]: 'EVA proxy HTTP server' counter = 5
-[GpTaskFiber::~GpTaskFiber]: '' counter = 4
-[GpTaskFiber::GpTaskFiber]: 'EVA proxy HTTP server: TCP server task' counter = 5
-[GpTaskFiber::GpTaskFiber]: 'EVA proxy HTTP server: TCP server task: socket 6' counter = 6
-[GpTaskFiber::GpTaskFiber]: 'EVA proxy HTTP server: TCP server task: socket 6: http socket task' counter = 7
-[GpTaskFiber::GpTaskFiber]: 'postgresql: connection to DB' counter = 8
-[GpTaskFiber::~GpTaskFiber]: 'postgresql: connection to DB' counter = 7
-[GpTaskFiber::GpTaskFiber]: 'SQL async query' counter = 8
-[GpTaskFiber::~GpTaskFiber]: 'SQL async query' counter = 7
-[GpTaskFiber::GpTaskFiber]: 'SQL async query' counter = 8
-[GpTaskFiber::~GpTaskFiber]: 'SQL async query' counter = 7
-[GpTaskFiber::GpTaskFiber]: 'SQL async query' counter = 8
-[GpTaskFiber::~GpTaskFiber]: 'SQL async query' counter = 7
-[GpTaskFiber::GpTaskFiber]: 'SQL async query' counter = 8
-[GpTaskFiber::~GpTaskFiber]: 'SQL async query' counter = 7
-[GpTaskFiber::GpTaskFiber]: 'SQL async query' counter = 8
-[GpTaskFiber::~GpTaskFiber]: 'SQL async query' counter = 7
-[GpTaskFiber::~GpTaskFiber]: 'EVA proxy HTTP server: TCP server task: socket 6: http socket task' counter = 6
-[GpTaskFiber::~GpTaskFiber]: 'EVA proxy HTTP server: TCP server task: socket 6' counter = 5
-[GpTaskFiber::~GpTaskFiber]: 'Proxy App (main service task)' counter = 4
-[GpTaskFiber::~GpTaskFiber]: 'EVA proxy HTTP server: TCP server task' counter = 3
-[GpTaskFiber::~GpTaskFiber]: 'http' counter = 2
-[GpTaskFiber::~GpTaskFiber]: 'EVA proxy HTTP server' counter = 1
-
-
-
-
-
-[GpTaskFiber::GpTaskFiber]: 'db' counter = 2
-*/
-
 

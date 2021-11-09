@@ -17,8 +17,11 @@ GpUnitTestLayeredCtx::~GpUnitTestLayeredCtx (void) noexcept
 {
 }
 
-void    GpUnitTestLayeredCtx::OnTestFailure (std::string_view           aTestName,
-                                             const GpUnitTestException& aTestEx)
+void    GpUnitTestLayeredCtx::OnTestFailure
+(
+    std::string_view            aTestName,
+    const GpUnitTestException&  aTestEx
+)
 {
     if (iSublayerCtx.IsNotNULL())
     {
@@ -26,8 +29,11 @@ void    GpUnitTestLayeredCtx::OnTestFailure (std::string_view           aTestNam
     }
 }
 
-void    GpUnitTestLayeredCtx::OnException (std::string_view aTestName,
-                                           std::exception&  aEx)
+void    GpUnitTestLayeredCtx::OnException
+(
+    std::string_view    aTestName,
+    std::exception&     aEx
+)
 {
     if (iSublayerCtx.IsNotNULL())
     {

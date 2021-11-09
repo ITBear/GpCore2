@@ -1,5 +1,4 @@
 #include "GpTypeManager.hpp"
-#include <iostream>
 
 #if defined(GP_USE_TYPE_SYSTEM)
 

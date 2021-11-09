@@ -17,8 +17,8 @@ public:
                             GpTypeShell     (void) noexcept = default;
                             GpTypeShell     (const GpTypeShell& aShell);
                             GpTypeShell     (GpTypeShell&& aShell) noexcept;
-                            GpTypeShell     (const T& aValue);
-                            GpTypeShell     (T&& aValue) noexcept;
+    explicit                GpTypeShell     (const T& aValue);
+    explicit                GpTypeShell     (T&& aValue) noexcept;
                             ~GpTypeShell    (void) noexcept = default;
 
     T*                      operator ->     (void) noexcept {return &iValue;}

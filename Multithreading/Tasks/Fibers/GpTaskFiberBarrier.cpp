@@ -4,7 +4,6 @@
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
 #include <mutex>
-#include <iostream>
 
 namespace GPlatform {
 

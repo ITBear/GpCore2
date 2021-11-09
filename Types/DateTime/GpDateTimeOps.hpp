@@ -35,6 +35,8 @@ public:
     [[nodiscard]] static milliseconds_t         SSteadyTS_ms        (void) noexcept;
     [[nodiscard]] static seconds_t              SSteadyTS_s         (void) noexcept;
 
+    [[nodiscard]] static microseconds_t         SSteadyTS_us_AtAppStart (void) noexcept {return sStartSteadyTS;}
+
     [[nodiscard]] static microseconds_t         SHighResTS_us       (void) noexcept;
 
     [[nodiscard]] static std::string            SUnixTsToStr        (const unix_ts_ms_t aTs, std::string_view aFormat);
@@ -43,6 +45,7 @@ public:
     [[nodiscard]] static std::string            SUnixTsToStr        (const unix_ts_s_t aTs, const FormatTE aFormat);
 
 private:
+    static const microseconds_t                                                 sStartSteadyTS;
     static const GpArray<std::string, GpDateTimeFormat::SCount().As<size_t>()>  sFormats;
 };
 

@@ -13,3 +13,6 @@
 #include "GpByteWriterStorage.hpp"
 #include "GpByteWriterStorageFixedSize.hpp"
 #include "GpByteWriterStorageByteArray.hpp"
+
+#include "GpByteSerializer.hpp"
+#include "GpByteSerializerFactory.hpp"

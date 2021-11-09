@@ -5,8 +5,6 @@
 
 #include "boost_context.hpp"
 
-#include <iostream>
-
 namespace GPlatform {
 
 GpTaskFiberStack::GpTaskFiberStack (void) noexcept

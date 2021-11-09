@@ -238,11 +238,15 @@ HEADERS += \
 	Utils/Streams/GpBitWriterStorageFixedSize.hpp \
 	Utils/Streams/GpByteReader.hpp \
 	Utils/Streams/GpByteReaderStorage.hpp \
+	Utils/Streams/GpByteSerializer.hpp \
+	Utils/Streams/GpByteSerializerFactory.hpp \
 	Utils/Streams/GpByteWriter.hpp \
 	Utils/Streams/GpByteWriterStorage.hpp \
 	Utils/Streams/GpByteWriterStorageByteArray.hpp \
 	Utils/Streams/GpByteWriterStorageFixedSize.hpp \
 	Utils/Streams/GpStreams.hpp \
+	Utils/Timers/GpMarkTS.hpp \
+	Utils/Timers/GpMarkTraceTS.hpp \
 	Utils/Timers/GpTimer.hpp \
 	Utils/Timers/GpTimerShotEvent.hpp \
 	Utils/Timers/GpTimerShotEventFactory.hpp \
@@ -331,6 +335,8 @@ SOURCES += \
 	Utils/Streams/GpByteWriterStorage.cpp \
 	Utils/Streams/GpByteWriterStorageByteArray.cpp \
 	Utils/Streams/GpByteWriterStorageFixedSize.cpp \
+	Utils/Timers/GpMarkTS.cpp \
+	Utils/Timers/GpMarkTraceTS.cpp \
 	Utils/Timers/GpTimer.cpp \
 	Utils/Timers/GpTimerShotEvent.cpp \
 	Utils/Timers/GpTimerShotEventFactory.cpp \

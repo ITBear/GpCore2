@@ -19,8 +19,11 @@ GpUnitTestStreamOutCtx::~GpUnitTestStreamOutCtx (void) noexcept
 {
 }
 
-void    GpUnitTestStreamOutCtx::OnTestFailure (std::string_view             aTestName,
-                                               const GpUnitTestException&   aTestEx)
+void    GpUnitTestStreamOutCtx::OnTestFailure
+(
+    std::string_view            aTestName,
+    const GpUnitTestException&  aTestEx
+)
 {
     const SourceLocationT& sourceLocation = aTestEx.SourceLocation();
 
@@ -36,8 +39,11 @@ void    GpUnitTestStreamOutCtx::OnTestFailure (std::string_view             aTes
     GpUnitTestLayeredCtx::OnTestFailure(aTestName, aTestEx);
 }
 
-void    GpUnitTestStreamOutCtx::OnException (std::string_view   aTestName,
-                                             std::exception&    aEx)
+void    GpUnitTestStreamOutCtx::OnException
+(
+    std::string_view    aTestName,
+    std::exception&     aEx
+)
 {
     std::cout << "TEST '"_sv << aTestName << "' failed, unexpected exception was caught:\n"_sv
               << aEx.what()

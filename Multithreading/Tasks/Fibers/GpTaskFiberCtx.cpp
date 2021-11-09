@@ -3,6 +3,8 @@
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
+//#include <iostream>
+
 #include "../../../Exceptions/GpExceptionsSink.hpp"
 #include "GpTaskFiberManager.hpp"
 #include "GpTaskFiber.hpp"
@@ -14,9 +16,8 @@
 
 namespace GPlatform {
 
-static std::atomic_int64_t sGpTaskFiberCtx_acquire_count = 0;
+//static std::atomic_int64_t sGpTaskFiberManager_count = 0;
 
-//static thread_local FiberArgs sFiberArgsTLS;
 GpElementsCatalog<std::thread::id, GpTaskFiberCtx::C::Opt::Ref> GpTaskFiberCtx::sFiberArgs;
 
 GpTaskFiberCtx::GpTaskFiberCtx (GpWP<GpTaskFiber> aTask) noexcept:
@@ -60,6 +61,7 @@ GpTask::ResT    GpTaskFiberCtx::Enter (GpThreadStopToken aStopToken)
         iException.reset();
 
         SSetCurrentCtx(std::nullopt);
+        Clear();
 
         throw;
     }
@@ -82,13 +84,11 @@ void    GpTaskFiberCtx::Clear (void) noexcept
 
     if (iFiberStack.IsNotNULL())
     {
-        std::cout << "[GpTaskFiberCtx::Clear]: pre release..."_sv << std::endl;
+        //sGpTaskFiberManager_count--;
 
         GpTaskFiberManager::S().StackPool().Release(std::move(iFiberStack));
 
-        sGpTaskFiberCtx_acquire_count--;
-
-        std::cout << "[GpTaskFiberCtx::Clear]: release done: "_sv << sGpTaskFiberCtx_acquire_count << std::endl;
+        //std::cout << "[GpTaskFiberCtx::Clear]: sGpTaskFiberManager_count = "_sv << sGpTaskFiberManager_count << std::endl;
     }
 }
 
@@ -100,9 +100,11 @@ void    GpTaskFiberCtx::InitIfNot (void)
     }
 
     //Get stack from pool
-    std::cout << "[GpTaskFiberCtx::Clear]: pre accuire..."_sv << std::endl;
+    //sGpTaskFiberManager_count++;
 
     auto res = GpTaskFiberManager::S().StackPool().Acquire();
+
+    //std::cout << "[GpTaskFiberCtx::Clear]: sGpTaskFiberManager_count = "_sv << sGpTaskFiberManager_count << std::endl;
 
     THROW_GPE_COND
     (
@@ -112,18 +114,12 @@ void    GpTaskFiberCtx::InitIfNot (void)
 
     iFiberStack = std::move(res.value());
 
-    sGpTaskFiberCtx_acquire_count++;
-
-    std::cout << "[GpTaskFiberCtx::Clear]: accuire done: "_sv << sGpTaskFiberCtx_acquire_count << std::endl;
-
     //Create fiber
     GpFiberStackT& fiberStack = *reinterpret_cast<GpFiberStackT*>(iFiberStack.Vn().Stack());
-    //boost::context::stack_context stackCtx = fiberStack.NewCtx();
 
     iFiberOuter = std::make_unique<FiberT>
     (
         std::allocator_arg,
-        //FiberPreallocatedT(stackCtx.sp, stackCtx.size, stackCtx),
         GpFiberStackWrapperT(fiberStack),
         SFiberFn
     );
@@ -175,13 +171,11 @@ FiberT  GpTaskFiberCtx::FiberFn (FiberT&& aFiber)
     } catch (const boost::context::detail::forced_unwind&)
     {
         iYieldRes = GpTask::ResT::DONE;
-        std::cout << "[GpTaskFiberCtx::FiberFn]: boost::context::detail::forced_unwind"_sv << std::endl;
         throw;
     } catch (...)
     {
         iYieldRes = GpTask::ResT::DONE;
         iException = std::current_exception();
-        std::cout << "[GpTaskFiberCtx::FiberFn]: forward exception"_sv << std::endl;
     }
 
     return std::move(iFiberInner);

@@ -7,8 +7,6 @@
 
 #include "../../../Types/Numerics/GpNumericOps.hpp"
 
-#include <iostream>
-
 extern "C"
 {
 #   include <fcntl.h>
@@ -132,8 +130,6 @@ void    GpFixedSizeStack<TraitsT>::MemAlloc (void)
 
     //iMemPtr = std::aligned_alloc(4096, sizeToAllocate);
     //iAllocatedSize = sizeToAllocate;
-
-    //std::cout << iMemPtr << std::endl;
 
 #if defined(BOOST_CONTEXT_USE_MAP_STACK)
     iMemPtr = ::mmap(0, sizeToAllocate, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON | MAP_STACK, -1, 0);
