@@ -120,6 +120,14 @@ void    GpTaskFiber::SClearCurrentCtx (void) noexcept
     GpTaskFiberCtx::SClearCurrentCtx();
 }
 
+GpUUID  GpTaskFiber::SGuid (void)
+{
+    auto ctx = GpTaskFiberCtx::SCurrentCtx();
+    THROW_GPE_COND(ctx.has_value(), "Call outside of fiber"_sv);
+
+    return ctx.value().get().Guid();
+}
+
 }//GPlatform
 
 #endif//#if defined(GP_USE_MULTITHREADING_FIBERS)

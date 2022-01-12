@@ -3,8 +3,6 @@
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
-//#include <iostream>
-
 #include "../../../Exceptions/GpExceptionsSink.hpp"
 #include "GpTaskFiberManager.hpp"
 #include "GpTaskFiber.hpp"
@@ -15,8 +13,6 @@
 #include "GpTaskFiber.hpp"
 
 namespace GPlatform {
-
-//static std::atomic_int64_t sGpTaskFiberManager_count = 0;
 
 GpElementsCatalog<std::thread::id, GpTaskFiberCtx::C::Opt::Ref> GpTaskFiberCtx::sFiberArgs;
 
@@ -84,11 +80,7 @@ void    GpTaskFiberCtx::Clear (void) noexcept
 
     if (iFiberStack.IsNotNULL())
     {
-        //sGpTaskFiberManager_count--;
-
         GpTaskFiberManager::S().StackPool().Release(std::move(iFiberStack));
-
-        //std::cout << "[GpTaskFiberCtx::Clear]: sGpTaskFiberManager_count = "_sv << sGpTaskFiberManager_count << std::endl;
     }
 }
 
@@ -99,12 +91,11 @@ void    GpTaskFiberCtx::InitIfNot (void)
         return;
     }
 
+    //
+    GuidGen();
+
     //Get stack from pool
-    //sGpTaskFiberManager_count++;
-
     auto res = GpTaskFiberManager::S().StackPool().Acquire();
-
-    //std::cout << "[GpTaskFiberCtx::Clear]: sGpTaskFiberManager_count = "_sv << sGpTaskFiberManager_count << std::endl;
 
     THROW_GPE_COND
     (
@@ -123,6 +114,12 @@ void    GpTaskFiberCtx::InitIfNot (void)
         GpFiberStackWrapperT(fiberStack),
         SFiberFn
     );
+}
+
+GpUUID  GpTaskFiberCtx::GuidGen (void)
+{
+    iGuid = GpUUID::SGenRandom();
+    return iGuid;
 }
 
 GpTaskFiberCtx::C::Opt::Ref GpTaskFiberCtx::SCurrentCtx (void) noexcept

@@ -3,8 +3,35 @@
 #if defined(GP_USE_EXCEPTIONS)
 
 #include <iostream>
+#include <mutex>
 
 namespace GPlatform{
+
+std::shared_mutex       GpExceptionsSink::sExceptionsSinkMutex;
+GpExceptionsSink        GpExceptionsSink::sDefaultExceptionsSink;
+GpExceptionsSink::RefT  GpExceptionsSink::sExceptionsSink = GpExceptionsSink::sDefaultExceptionsSink;
+
+void    GpExceptionsSink::OnSink
+(
+    std::string_view        aMsg,
+    const SourceLocationT&  aLocation
+) noexcept
+{
+    SourceLocationT l = aLocation;
+
+    std::cout << "[GpExceptionsSink::SSink]:"_sv
+              << " what '" << aMsg << "'"
+              << ", sinked in file '" << l.file_name() << "'"
+              << ", line " << l.line()
+              << ", function " << l.function_name()
+              << std::endl;
+}
+
+void    GpExceptionsSink::SSetGlobalSink (GpExceptionsSink& sSink) noexcept
+{
+    std::scoped_lock lock(sExceptionsSinkMutex);
+    sExceptionsSink = sSink;
+}
 
 void    GpExceptionsSink::SSink
 (
@@ -12,14 +39,7 @@ void    GpExceptionsSink::SSink
     const SourceLocationT&  aLocation
 ) noexcept
 {
-    SourceLocationT l = aLocation;
-
-    std::cout << "[GpExceptionsSink::SSink]: std::exception"_sv
-              << ", what '" << aException.what() << "'"
-              << ", sinked in file '" << l.file_name() << "'"
-              << ", line " << l.line()
-              << ", function " << l.function_name()
-              << std::endl;
+    SSink(aException.what(), aLocation);
 }
 
 void    GpExceptionsSink::SSink
@@ -28,14 +48,8 @@ void    GpExceptionsSink::SSink
     const SourceLocationT&  aLocation
 ) noexcept
 {
-    SourceLocationT l = aLocation;
-
-    std::cout << "[GpExceptionsSink::SSink]: "_sv
-              << aMsg
-              << ", sinked in file '" << l.file_name() << "'"
-              << ", line " << l.line()
-              << ", function " << l.function_name()
-              << std::endl;
+    std::shared_lock lock(sExceptionsSinkMutex);
+    sDefaultExceptionsSink.OnSink(aMsg, aLocation);
 }
 
 void    GpExceptionsSink::SSinkUnknown (const SourceLocationT& aLocation) noexcept

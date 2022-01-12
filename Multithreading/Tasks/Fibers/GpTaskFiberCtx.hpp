@@ -29,6 +29,7 @@ public:
     GpTask::ResT                        Enter               (GpThreadStopToken aStopToken);
     void                                Yield               (const GpTask::ResT aRes);
     GpWP<GpTaskFiber>                   Task                (void) {return iTask;}
+    GpUUID                              Guid                (void) const noexcept {return iGuid;}
 
     static GpTaskFiberCtx::C::Opt::Ref  SCurrentCtx         (void) noexcept;
     static void                         SClearCurrentCtx    (void) noexcept;
@@ -36,6 +37,7 @@ public:
 private:
     void                                Clear               (void) noexcept;
     void                                InitIfNot           (void);
+    GpUUID                              GuidGen             (void);
 
     static void                         SSetCurrentCtx      (GpTaskFiberCtx::C::Opt::Ref aCtx) noexcept;
 
@@ -51,6 +53,7 @@ private:
     GpWP<GpTaskFiber>                   iTask;
     GpTask::ResT                        iYieldRes       = GpTask::ResT::DONE;
     std::optional<std::exception_ptr>   iException;
+    GpUUID                              iGuid;
 
     static GpElementsCatalog<std::thread::id, GpTaskFiberCtx::C::Opt::Ref>  sFiberArgs;
 };

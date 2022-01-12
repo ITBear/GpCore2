@@ -14,20 +14,19 @@ public:
     using this_type = GpHysteresis<T>;
 
 public:
-                GpHysteresis    (const T    aUpLevel,
-                                 const T    aDownLevel) noexcept;
-                GpHysteresis    (const T    aUpLevel,
-                                 const T    aDownLevel,
+                GpHysteresis    (const T    aDownLevel,
+                                 const T    aUpLevel) noexcept;
+                GpHysteresis    (const T    aDownLevel,
+                                 const T    aUpLevel,
                                  const T    aValue) noexcept;
-                ~GpHysteresis   (void) noexcept;
+                ~GpHysteresis   (void) noexcept {}
 
     bool        Update          (const T    aValue) noexcept;
     bool        SwitchState     (void) const noexcept;
 
-
 private:
-    value_t     iUpLevel        = T();
     value_t     iDownLevel      = T();
+    value_t     iUpLevel        = T();
     value_t     iValue          = T();
     bool        iSwitchState    = false;
 };
@@ -35,23 +34,23 @@ private:
 template <typename T>
 GpHysteresis<T>::GpHysteresis
 (
-    const T aUpLevel,
-    const T aDownLevel
+    const T aDownLevel,
+    const T aUpLevel
 ) noexcept:
-iUpLevel(aUpLevel),
-iDownLevel(aDownLevel)
+iDownLevel(aDownLevel),
+iUpLevel(aUpLevel)
 {
 }
 
 template <typename T>
 GpHysteresis<T>::GpHysteresis
 (
-    const T aUpLevel,
     const T aDownLevel,
+    const T aUpLevel,
     const T aValue
 ) noexcept:
-iUpLevel(aUpLevel),
 iDownLevel(aDownLevel),
+iUpLevel(aUpLevel),
 iValue(aValue)
 {
 }

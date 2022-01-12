@@ -13,8 +13,8 @@ namespace GPlatform {
 class GpTaskFiberCtx;
 
 class GPCORE_API GpTaskFiber: public GpTask
-{   
-public: 
+{
+public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskFiber)
     CLASS_DECLARE_DEFAULTS(GpTaskFiber)
 
@@ -34,6 +34,8 @@ public:
     static GpWP<GpTaskFiber>    SCurrentTask        (void);
     static bool                 SIsIntoFiber        (void) noexcept;
     static void                 SClearCurrentCtx    (void) noexcept;
+
+    static GpUUID               SGuid               (void);
 
 private:
     GpSP<GpTaskFiberCtx>        iCtx;
