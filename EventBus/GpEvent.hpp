@@ -14,13 +14,14 @@ namespace GPlatform {
 class GPCORE_API GpEvent: public GpTypeStructBase
 {
 public:
-    CLASS_REMOVE_CTRS_MOVE_COPY(GpEvent)    
     CLASS_DECLARE_DEFAULTS(GpEvent)
     TYPE_STRUCT_DECLARE("72fee390-068b-41eb-a32f-7eef3173fad7"_sv)
 
 public:
-                        GpEvent     (void) noexcept;
-    virtual             ~GpEvent    (void) noexcept;
+                        GpEvent     (void) noexcept {}
+    explicit            GpEvent     (const GpEvent& aEvent) noexcept:GpTypeStructBase(aEvent) {}
+    explicit            GpEvent     (GpEvent&& aEvent) noexcept:GpTypeStructBase(std::move(aEvent)) {}
+    virtual             ~GpEvent    (void) noexcept {}
 };
 
 }//GPlatform

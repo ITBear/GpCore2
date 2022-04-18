@@ -18,13 +18,15 @@ public:
     using PropsT        = PropT::C::Vec::Val;
 
 public:
-                                GpTypeStructInfo    (void) noexcept {}
+                                GpTypeStructInfo    (void) noexcept = delete;
                                 GpTypeStructInfo    (const GpUUID&              aUID,
                                                      const GpUUID&              aBaseUID,
                                                      std::string&&              aName,
                                                      PropsT&&                   aProps,
                                                      const GpUUID&              aGroupID,
-                                                     GpTypeStructFactory::SP    aFactory) noexcept;
+                                                     GpTypeStructFactory::SP    aFactory,
+                                                     const size_t               aAlign,
+                                                     const size_t               aSize) noexcept;
                                 GpTypeStructInfo    (const GpTypeStructInfo& aTypeInfo);
                                 GpTypeStructInfo    (GpTypeStructInfo&& aTypeInfo) noexcept;
                                 ~GpTypeStructInfo   (void) noexcept;
@@ -36,21 +38,17 @@ public:
     const GpUUID&               BaseUID             (void) const noexcept {return iBaseUID;}
     std::string_view            Name                (void) const noexcept {return iName;}
     const PropsT&               Props               (void) const noexcept {return iProps;}
+    const GpTypePropInfo&       Prop                (const size_t aId) const {return iProps.at(aId);}
+    const GpTypePropInfo&       Prop                (std::string_view aName) const;
     const GpUUID&               GroupID             (void) const noexcept {return iGroupID;}
+    size_t                      Align               (void) const noexcept {return iAlign;}
+    size_t                      Size                (void) const noexcept {return iSize;}
+    size_t                      SizeOfProps         (void) const;
 
     GpTypeStructFactory::SP     Factory             (void) const noexcept {return iFactory;}
-    GpSP<GpTypeStructBase>      NewInstance         (void) const {return iFactory.VCn().NewInstance();}
-
-    static std::string          SEcho               (const GpTypeStructBase& aStruct);
-
-private:
-    static void                 _SEcho              (const GpTypeStructBase&    aStruct,
-                                                     std::string&               aStrOut,
-                                                     const size_t               aLevel);
-    static void                 _SEchoValue         (const GpTypeStructBase&    aStruct,
-                                                     std::string&               aStrOut,
-                                                     const GpTypePropInfo&      aPropInfo,
-                                                     const size_t               aLevel);
+    GpSP<GpTypeStructBase>      NewInstance         (void) const {return iFactory.VCn().NewInstance(*this);}
+    void                        ConstructStruct     (void* aStructDataPtr) const {iFactory.VCn().ConstructStruct(aStructDataPtr);}
+    void                        DestructStruct      (void* aStructDataPtr) const {iFactory.VCn().DestructStruct(aStructDataPtr);}
 
 private:
     GpUUID                      iUID;
@@ -59,6 +57,9 @@ private:
     PropsT                      iProps;
     GpUUID                      iGroupID;
     GpTypeStructFactory::SP     iFactory;
+    size_t                      iAlign;
+    size_t                      iSize;
+    mutable size_t              iSizeOfProps = 0;
 };
 
 }//GPlatform

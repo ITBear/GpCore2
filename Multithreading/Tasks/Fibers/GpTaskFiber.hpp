@@ -42,6 +42,21 @@ private:
     StageT                      iStage = StageT::NOT_RUN;
 };
 
+inline void YELD (const GpTask::ResT aRes)
+{
+    GpTaskFiber::SYield(aRes);
+}
+
+inline void YELD_READY (void)
+{
+    GpTaskFiber::SYield(GpTask::ResT::READY_TO_EXEC);
+}
+
+inline void YELD_WAITING (void)
+{
+    GpTaskFiber::SYield(GpTask::ResT::WAITING);
+}
+
 }//GPlatform
 
 #endif//#if defined(GP_USE_MULTITHREADING_FIBERS)

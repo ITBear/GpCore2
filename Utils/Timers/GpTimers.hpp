@@ -5,3 +5,4 @@
 #include "GpTimerShotEventFactory.hpp"
 #include "GpTimersManager.hpp"
 #include "GpMarkTraceTS.hpp"
+#include "GpDoOnceInPeriod.hpp"

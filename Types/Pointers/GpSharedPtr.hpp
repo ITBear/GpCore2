@@ -12,6 +12,8 @@
 
 namespace GPlatform {
 
+class GpTypeStructBase;
+
 template <typename  T,
           typename  RefPtrT,
           bool      _IsWeak>
@@ -139,8 +141,6 @@ public:
     }*/
 
     void                            Clear           (void) noexcept;
-    //[[nodiscard]] this_type           Clone           (void) const;   //Create copy of the T object (copy constructor) and place to new SP
-
     void                            Set             (const this_type& aSharedPtr) noexcept;
     void                            Set             (this_type&& aSharedPtr) noexcept;
 
@@ -189,8 +189,11 @@ public:
     [[nodiscard]] const value_type* PCn             (void) const noexcept;
 
     //----------------- operators -------------------------
-    [[nodiscard]] value_type*       operator->      (void);
-    [[nodiscard]] const value_type* operator->      (void) const;
+    template<class Q = RefPtrT>
+    [[nodiscard]] typename std::enable_if_t<!std::is_const_v<RefPtrT>, value_type*>
+                                    operator->      (void) {return P();}
+
+    [[nodiscard]] const value_type* operator->      (void) const {return PC();}
 
     [[nodiscard]] bool              operator!=      (const this_type& aSharedPtr) const noexcept;
     [[nodiscard]] bool              operator==      (const this_type& aSharedPtr) const noexcept;
@@ -259,6 +262,21 @@ public:
         }
 
         return this_type(aRefCounter);
+    }
+
+    template<class Q = value_type>
+    [[nodiscard]] typename std::enable_if_t<std::is_base_of_v<GpTypeStructBase, Q>, GpSharedPtrBase<value_type, GpReferenceCounter*, false>>
+                        Clone (void) const
+    {
+        auto newSP      = VC().Clone();
+        auto refCounter = newSP._RefCounter();
+
+        if (refCounter)
+        {
+            refCounter->template Acquire<_IsWeak>();
+        }
+
+        return GpSharedPtrBase<T, GpReferenceCounter*, false>::_SConstructFromRefCounter(refCounter);
     }
 
 private:
@@ -426,18 +444,6 @@ const T*    GpSharedPtrBase<T, RefPtrT, _IsWeak>::PCn (void) const noexcept
 }
 
 template <typename T, typename RefPtrT, bool _IsWeak>
-T*  GpSharedPtrBase<T, RefPtrT, _IsWeak>::operator-> (void)
-{
-    return P();
-}
-
-template <typename T, typename RefPtrT, bool _IsWeak>
-const T*    GpSharedPtrBase<T, RefPtrT, _IsWeak>::operator-> (void) const
-{
-    return PC();
-}
-
-template <typename T, typename RefPtrT, bool _IsWeak>
 bool    GpSharedPtrBase<T, RefPtrT, _IsWeak>::operator!= (const this_type& aSharedPtr) const noexcept
 {
     return iRefCounter != aSharedPtr.iRefCounter;
@@ -497,6 +503,18 @@ template<typename T, typename... Ts>
 [[nodiscard]] typename T::CSP   MakeCSP (Ts&&... aArgs)
 {
     return T::CSP::SNew(std::forward<Ts>(aArgs)...);
+}
+
+template<typename T, typename... Ts>
+[[nodiscard]] typename T::SP    EmplaceSP (void* aPtrToPlace, Ts&&... aArgs)
+{
+    return T::SP::SEmplace(aPtrToPlace, std::forward<Ts>(aArgs)...);
+}
+
+template<typename T, typename... Ts>
+[[nodiscard]] typename T::CSP   EmplaceCSP (void* aPtrToPlace, Ts&&... aArgs)
+{
+    return T::CSP::SEmplace(aPtrToPlace, std::forward<Ts>(aArgs)...);
 }
 
 }//namespace GPlatform

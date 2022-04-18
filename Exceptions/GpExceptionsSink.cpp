@@ -49,7 +49,7 @@ void    GpExceptionsSink::SSink
 ) noexcept
 {
     std::shared_lock lock(sExceptionsSinkMutex);
-    sDefaultExceptionsSink.OnSink(aMsg, aLocation);
+    sExceptionsSink.get().OnSink(aMsg, aLocation);
 }
 
 void    GpExceptionsSink::SSinkUnknown (const SourceLocationT& aLocation) noexcept

@@ -6,18 +6,25 @@
 
 namespace GPlatform {
 
-GpTypeStructInfo::GpTypeStructInfo (const GpUUID&           aUID,
-                                    const GpUUID&           aBaseUID,
-                                    std::string&&           aName,
-                                    PropsT&&                aProps,
-                                    const GpUUID&           aGroupID,
-                                    GpTypeStructFactory::SP aFactory) noexcept:
+GpTypeStructInfo::GpTypeStructInfo
+(
+    const GpUUID&           aUID,
+    const GpUUID&           aBaseUID,
+    std::string&&           aName,
+    PropsT&&                aProps,
+    const GpUUID&           aGroupID,
+    GpTypeStructFactory::SP aFactory,
+    const size_t            aAlign,
+    const size_t            aSize
+) noexcept:
 iUID(aUID),
 iBaseUID(aBaseUID),
 iName(std::move(aName)),
 iProps(std::move(aProps)),
 iGroupID(aGroupID),
-iFactory(std::move(aFactory))
+iFactory(std::move(aFactory)),
+iAlign(aAlign),
+iSize(aSize)
 {
 }
 
@@ -27,7 +34,10 @@ iBaseUID(aTypeInfo.iBaseUID),
 iName(aTypeInfo.iName),
 iProps(aTypeInfo.iProps),
 iGroupID(aTypeInfo.iGroupID),
-iFactory(aTypeInfo.iFactory)
+iFactory(aTypeInfo.iFactory),
+iAlign(aTypeInfo.iAlign),
+iSize(aTypeInfo.iSize),
+iSizeOfProps(aTypeInfo.iSizeOfProps)
 {
 }
 
@@ -37,7 +47,10 @@ iBaseUID(std::move(aTypeInfo.iBaseUID)),
 iName(std::move(aTypeInfo.iName)),
 iProps(std::move(aTypeInfo.iProps)),
 iGroupID(std::move(aTypeInfo.iGroupID)),
-iFactory(std::move(aTypeInfo.iFactory))
+iFactory(std::move(aTypeInfo.iFactory)),
+iAlign(std::move(aTypeInfo.iAlign)),
+iSize(std::move(aTypeInfo.iSize)),
+iSizeOfProps(std::move(aTypeInfo.iSizeOfProps))
 {
 }
 
@@ -53,6 +66,9 @@ GpTypeStructInfo&   GpTypeStructInfo::operator= (const GpTypeStructInfo& aTypeIn
     iProps      = aTypeInfo.iProps;
     iFactory    = aTypeInfo.iFactory;
     iGroupID    = aTypeInfo.iGroupID;
+    iAlign      = aTypeInfo.iAlign;
+    iSize       = aTypeInfo.iSize;
+    iSizeOfProps= aTypeInfo.iSizeOfProps;
 
     return *this;
 }
@@ -65,11 +81,55 @@ GpTypeStructInfo&   GpTypeStructInfo::operator= (GpTypeStructInfo&& aTypeInfo) n
     iProps      = std::move(aTypeInfo.iProps);
     iFactory    = std::move(aTypeInfo.iFactory);
     iGroupID    = std::move(aTypeInfo.iGroupID);
+    iAlign      = std::move(aTypeInfo.iAlign);
+    iSize       = std::move(aTypeInfo.iSize);
+    iSizeOfProps= std::move(aTypeInfo.iSizeOfProps);
 
     return *this;
 }
 
-std::string GpTypeStructInfo::SEcho (const GpTypeStructBase& aStruct)
+const GpTypePropInfo&   GpTypeStructInfo::Prop (std::string_view aName) const
+{
+    //TODO: implement with map
+
+    for (const GpTypePropInfo& propInfo: iProps)
+    {
+        if (propInfo.Name() == aName)
+        {
+            return propInfo;
+        }
+    }
+
+    THROW_GPE("Property was not found by name '"_sv + aName + "'"_sv);
+}
+
+size_t  GpTypeStructInfo::SizeOfProps (void) const
+{
+    if (iSizeOfProps > 0)
+    {
+        return iSizeOfProps;
+    }
+
+    size_t maxOffset            = 0;
+    size_t maxOffsetPropSize    = 0;
+
+    for (const GpTypePropInfo& p: Props())
+    {
+        const size_t offset = p.Offset();
+
+        if (offset > maxOffset)
+        {
+            maxOffset           = offset;
+            maxOffsetPropSize   = p.Size();
+        }
+    }
+
+    iSizeOfProps = maxOffset + maxOffsetPropSize;
+
+    return iSizeOfProps;
+}
+
+/*std::string   GpTypeStructInfo::SEcho (const GpTypeStructBase& aStruct)
 {
     std::string res;
     res.reserve(1024);
@@ -79,9 +139,12 @@ std::string GpTypeStructInfo::SEcho (const GpTypeStructBase& aStruct)
     return res;
 }
 
-void    GpTypeStructInfo::_SEcho (const GpTypeStructBase&   aStruct,
-                                  std::string&              aStrOut,
-                                  const size_t              aLevel)
+void    GpTypeStructInfo::_SEcho
+(
+    const GpTypeStructBase& aStruct,
+    std::string&            aStrOut,
+    const size_t            aLevel
+)
 {
     const GpTypeStructInfo& typeInfo = aStruct.TypeInfo();
 
@@ -109,7 +172,7 @@ void    GpTypeStructInfo::_SEcho (const GpTypeStructBase&   aStruct,
         if (containerType == GpTypeContainer::NO)
         {
             aStrOut.append("["_sv).append(GpType::SToString(propInfo.Type())).append("] = "_sv);
-            _SEchoValue(aStruct, aStrOut, propInfo, aLevel);
+            _SEchoValue(aStruct.DataPtr(), aStrOut, propInfo, aLevel);
         } else if (containerType == GpTypeContainer::VECTOR)
         {
             aStrOut.append("[Vector<"_sv).append(GpType::SToString(propInfo.Type())).append(">] = "_sv);
@@ -129,78 +192,81 @@ void    GpTypeStructInfo::_SEcho (const GpTypeStructBase&   aStruct,
     }
 }
 
-void    GpTypeStructInfo::_SEchoValue (const GpTypeStructBase&  aStruct,
-                                       std::string&             aStrOut,
-                                       const GpTypePropInfo&    aPropInfo,
-                                       const size_t             aLevel)
+void    GpTypeStructInfo::_SEchoValue
+(
+    const void*             aStructDataPtr,
+    std::string&            aStrOut,
+    const GpTypePropInfo&   aPropInfo,
+    const size_t            aLevel
+)
 {
     switch (aPropInfo.Type())
     {
         case GpType::U_INT_8:
         {
-            aStrOut.append(StrOps::SFromUI64(aPropInfo.Value_UInt8(aStruct)));
+            aStrOut.append(StrOps::SFromUI64(aPropInfo.Value_UInt8(aStructDataPtr)));
         } break;
         case GpType::S_INT_8:
         {
-            aStrOut.append(StrOps::SFromSI64(aPropInfo.Value_SInt8(aStruct)));
+            aStrOut.append(StrOps::SFromSI64(aPropInfo.Value_SInt8(aStructDataPtr)));
         } break;
         case GpType::U_INT_16:
         {
-            aStrOut.append(StrOps::SFromUI64(aPropInfo.Value_UInt16(aStruct)));
+            aStrOut.append(StrOps::SFromUI64(aPropInfo.Value_UInt16(aStructDataPtr)));
         } break;
         case GpType::S_INT_16:
         {
-            aStrOut.append(StrOps::SFromSI64(aPropInfo.Value_SInt16(aStruct)));
+            aStrOut.append(StrOps::SFromSI64(aPropInfo.Value_SInt16(aStructDataPtr)));
         } break;
         case GpType::U_INT_32:
         {
-            aStrOut.append(StrOps::SFromUI64(aPropInfo.Value_UInt32(aStruct)));
+            aStrOut.append(StrOps::SFromUI64(aPropInfo.Value_UInt32(aStructDataPtr)));
         } break;
         case GpType::S_INT_32:
         {
-            aStrOut.append(StrOps::SFromSI64(aPropInfo.Value_SInt32(aStruct)));
+            aStrOut.append(StrOps::SFromSI64(aPropInfo.Value_SInt32(aStructDataPtr)));
         } break;
         case GpType::U_INT_64:
         {
-            aStrOut.append(StrOps::SFromUI64(aPropInfo.Value_UInt64(aStruct)));
+            aStrOut.append(StrOps::SFromUI64(aPropInfo.Value_UInt64(aStructDataPtr)));
         } break;
         case GpType::S_INT_64:   [[fallthrough]];
         case GpType::UNIX_TS_S:  [[fallthrough]];
         case GpType::UNIX_TS_MS:
         {
-            aStrOut.append(StrOps::SFromSI64(aPropInfo.Value_SInt64(aStruct)));
+            aStrOut.append(StrOps::SFromSI64(aPropInfo.Value_SInt64(aStructDataPtr)));
         } break;
         case GpType::DOUBLE:
         {
-            aStrOut.append(StrOps::SFromDouble(aPropInfo.Value_Double(aStruct)));
+            aStrOut.append(StrOps::SFromDouble(aPropInfo.Value_Double(aStructDataPtr)));
         } break;
         case GpType::FLOAT:
         {
-            aStrOut.append(StrOps::SFromDouble(double(aPropInfo.Value_Float(aStruct))));
+            aStrOut.append(StrOps::SFromDouble(double(aPropInfo.Value_Float(aStructDataPtr))));
         } break;
         case GpType::BOOLEAN:
         {
-            aStrOut.append(aPropInfo.Value_Bool(aStruct) ? "true"_sv : "false"_sv);
+            aStrOut.append(aPropInfo.Value_Bool(aStructDataPtr) ? "true"_sv : "false"_sv);
         } break;
         case GpType::UUID:
         {
-            aStrOut.append(aPropInfo.Value_UUID(aStruct).ToString());
+            aStrOut.append(aPropInfo.Value_UUID(aStructDataPtr).ToString());
         } break;
         case GpType::STRING:
         {
-            aStrOut.append(aPropInfo.Value_String(aStruct));
+            aStrOut.append(aPropInfo.Value_String(aStructDataPtr));
         } break;
         case GpType::BLOB:
         {
-            aStrOut.append(StrOps::SFromBytesHex(aPropInfo.Value_BLOB(aStruct)));
+            aStrOut.append(StrOps::SFromBytesHex(aPropInfo.Value_BLOB(aStructDataPtr)));
         } break;
         case GpType::STRUCT:
         {
-            _SEcho(aPropInfo.Value_Struct(aStruct), aStrOut, aLevel + 1);
+            _SEcho(aPropInfo.Value_Struct(aStructDataPtr), aStrOut, aLevel + 1);
         } break;
         case GpType::STRUCT_SP:
         {
-            const GpTypeStructBase::SP& structSP = aPropInfo.Value_StructSP(aStruct);
+            const GpTypeStructBase::SP& structSP = aPropInfo.Value_StructSP(aStructDataPtr);
             if (structSP.IsNotNULL())
             {
                 _SEcho(structSP.VCn(), aStrOut, aLevel + 1);
@@ -211,11 +277,11 @@ void    GpTypeStructInfo::_SEchoValue (const GpTypeStructBase&  aStruct,
         } break;
         case GpType::ENUM:
         {
-            aStrOut.append(aPropInfo.Value_Enum(aStruct).ToString());
+            aStrOut.append(aPropInfo.Value_Enum(aStructDataPtr).ToString());
         } break;
         case GpType::ENUM_FLAGS:
         {
-            aStrOut.append(aPropInfo.Value_EnumFlags(aStruct).Echo());
+            aStrOut.append(aPropInfo.Value_EnumFlags(aStructDataPtr).Echo());
         } break;
         case GpType::NOT_SET:
         {
@@ -226,7 +292,7 @@ void    GpTypeStructInfo::_SEchoValue (const GpTypeStructBase&  aStruct,
             THROW_GPE("Unsupported type "_sv + GpType::SToString(aPropInfo.Type()));
         }
     }
-}
+}*/
 
 }//GPlatform
 

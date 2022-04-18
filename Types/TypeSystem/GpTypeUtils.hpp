@@ -8,19 +8,19 @@
 
 namespace GPlatform {
 
-class GpTypeUtils
+class GPCORE_API GpTypeUtils
 {
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTypeUtils);
 
 public:
     template<typename T> [[nodiscard]] static
-    constexpr std::string_view                          STypeName               (void) noexcept;
+    constexpr std::string_view                          STypeName       (void) noexcept;
 
     template<typename StructT, typename ValT> [[nodiscard]] static
-    constexpr std::ptrdiff_t                            SOffsetOf               (ValT StructT::*element);
+    constexpr std::ptrdiff_t                            SOffsetOf       (ValT StructT::*element);
 
     template<typename T> [[nodiscard]] static
-    consteval GpType::EnumT                             SDetectType             (void);
+    consteval GpType::EnumT                             SDetectType     (void);
 
     template<typename T> [[nodiscard]] static
     consteval std::tuple<GpType::EnumT, GpType::EnumT, GpTypeContainer::EnumT>
@@ -97,7 +97,7 @@ consteval GpType::EnumT GpTypeUtils::SDetectType (void)
     else if constexpr (std::is_same_v<VT, GpBytesArray>) return GpType::BLOB;
     else if constexpr (std::is_base_of_v<GpTypeStructBase, VT>) return GpType::STRUCT;
     else if constexpr (GpTypeStructBase::SP::SHasTag_GpSharedPtrBase<VT>()) return GpType::STRUCT_SP;
-    else if constexpr (GpUnitUtils::SHasTag_GpUnit<VT>())                
+    else if constexpr (GpUnitUtils::SHasTag_GpUnit<VT>())
     {
         if constexpr (std::is_same_v<typename VT::unit_type, GpUnitType_UNIX_TIMESTAMP>)
         {
@@ -217,6 +217,32 @@ void    GpTypeUtils::SAddProp
     constexpr const size_t  align   = alignof(T);
     constexpr const size_t  size    = sizeof(T);
 
+    GpTypePropInfo::ProcessCustomFnOpt  constructCustomFn;
+    GpTypePropInfo::ProcessCustomFnOpt  destructCustomFn;
+
+    if constexpr (   ((std::get<0>(types) == GpType::ENUM) || (std::get<0>(types) == GpType::ENUM_FLAGS))
+                  && (std::get<1>(types) == GpType::NOT_SET)
+                  && (std::get<2>(types) == GpTypeContainer::NO))
+    {
+        constructCustomFn = [](void* aPropPtr)
+        {
+            MemOps::SConstruct<T>
+            (
+                static_cast<T*>(aPropPtr),
+                1_cnt
+            );
+        };
+
+        destructCustomFn = [](void* aPropPtr)
+        {
+            MemOps::SDestruct<T>
+            (
+                static_cast<T*>(aPropPtr),
+                1_cnt
+            );
+        };
+    }
+
     aPropsOut.emplace_back
     (
         GpTypePropInfo
@@ -229,7 +255,9 @@ void    GpTypeUtils::SAddProp
             align,
             size,
             aOffset,
-            aFlags
+            aFlags,
+            constructCustomFn,
+            destructCustomFn
         )
     );
 }

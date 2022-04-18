@@ -23,7 +23,7 @@ public:
     using value_type_t              = std::remove_cvref_t<std::remove_pointer_t<P>>;
 
     template<typename P>
-    static consteval bool is_ptr_v  =     std::is_pointer_v<P>
+    static constexpr bool is_ptr_v  =     std::is_pointer_v<P>
                                       && !std::is_pointer_v<std::remove_pointer_t<P>>;
 
     static_assert(is_ptr_v<T>, "T must be pointer to value");
@@ -65,22 +65,22 @@ public:
     */
 
     template<typename P>
-    static consteval bool is_const_v                =   std::is_const_v<std::remove_pointer_t<P>>;
+    static constexpr bool is_const_v                =   std::is_const_v<std::remove_pointer_t<P>>;
 
     template<typename FROM, typename TO>
-    static consteval bool is_same_const_v           =    std::is_same_v<TO, const char*>
+    static constexpr bool is_same_const_v           =    std::is_same_v<TO, const char*>
                                                       || std::is_same_v<TO, const unsigned char*>
                                                       || std::is_same_v<TO, const std::byte*>
                                                       || std::is_same_v<TO, const value_type_t<FROM>*>;
 
     template<typename FROM, typename TO>
-    static consteval bool is_same_v                 =    std::is_same_v<TO, char*>
+    static constexpr bool is_same_v                 =    std::is_same_v<TO, char*>
                                                       || std::is_same_v<TO, unsigned char*>
                                                       || std::is_same_v<TO, std::byte*>
                                                       || std::is_same_v<TO, value_type_t<FROM>*>;
 
     template<typename FROM, typename TO>
-    static consteval bool is_convertable_ptr_v      =    is_ptr_v<FROM>
+    static constexpr bool is_convertable_ptr_v      =    is_ptr_v<FROM>
                                                       && is_ptr_v<TO>
                                                       && (   (   is_const_v<FROM>
                                                               && is_const_v<TO>
@@ -94,7 +94,7 @@ public:
                                                          );
 
     template<typename FROM, typename TO>
-    static consteval bool is_reinterpretable_ptr_v  =    is_ptr_v<FROM>
+    static constexpr bool is_reinterpretable_ptr_v  =    is_ptr_v<FROM>
                                                       && is_ptr_v<TO>
                                                       && (   (   is_const_v<FROM>
                                                               && is_const_v<TO>
@@ -108,7 +108,7 @@ public:
                                                          );
 
     template<typename FROM, typename TO>
-    static consteval bool is_countable_ptr_v        =    is_ptr_v<FROM>
+    static constexpr bool is_countable_ptr_v        =    is_ptr_v<FROM>
                                                       && is_ptr_v<TO>
                                                       && (   is_same_const_v<FROM, TO>
                                                           || is_same_v<FROM, TO>
@@ -121,12 +121,12 @@ public:
     using pointer_type_t                            = std::experimental::detected_or_t<void, has_pointer_type_v, C>;
 
     template<typename FROM, typename TO>
-    static consteval bool is_convertable_raw_v      =    SHasTag_GpRawPtr<FROM>()
+    static constexpr bool is_convertable_raw_v      =    SHasTag_GpRawPtr<FROM>()
                                                       && SHasTag_GpRawPtr<TO>()
                                                       && is_convertable_ptr_v<pointer_type_t<FROM>, pointer_type_t<TO>>;
 
     template<typename FROM, typename TO>
-    static consteval bool is_reinterpretable_raw_v  =    SHasTag_GpRawPtr<FROM>()
+    static constexpr bool is_reinterpretable_raw_v  =    SHasTag_GpRawPtr<FROM>()
                                                       && SHasTag_GpRawPtr<TO>()
                                                       && is_reinterpretable_ptr_v<pointer_type_t<FROM>, pointer_type_t<TO>>;
 

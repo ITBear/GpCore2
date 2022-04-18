@@ -7,6 +7,7 @@
 #include "../Numerics/GpNumerics.hpp"
 #include "../Containers/GpContainersT.hpp"
 #include "../Containers/GpRawPtrByte.hpp"
+#include "../Units/Other/unix_ts_t.hpp"
 #include "../../Exceptions/GpCeExceptions.hpp"
 
 namespace GPlatform {
@@ -22,6 +23,7 @@ public:
 
 public:
     constexpr                           GpUUID          (void) noexcept:iData(CE_Zero()) {}
+    constexpr                           GpUUID          (const u_int_128 aRaw) noexcept:iData(std::bit_cast<DataT>(aRaw)) {}
     constexpr                           GpUUID          (const DataT& aData) noexcept:iData(aData) {}
     constexpr                           GpUUID          (const GpUUID& aUUID) noexcept:iData(aUUID.iData) {}
     constexpr                           GpUUID          (GpUUID&& aUUID) noexcept:iData(std::move(aUUID.iData)) {}
@@ -61,11 +63,13 @@ public:
     void                                FromRandom      (GpRandom& aRandom);
 
     static GpUUID                       SGenRandom      (void);
+    static GpUUID                       SGenRandomV7    (void);
+    static GpUUID                       SGenRandomV7    (const unix_ts_ms_t aUnixTS);
     static GpUUID                       SFromString     (GpRawPtrCharR aStr);
 
     inline static consteval DataT       CE_FromString   (std::string_view aStr);
     inline static consteval std::byte   SToByte         (GpArray<char,2> aStr);
-    inline static consteval DataT       CE_Zero         (void);
+    inline static constexpr DataT       CE_Zero         (void) noexcept;
 
 private:
     DataT                               iData;
@@ -239,7 +243,7 @@ consteval std::byte GpUUID::SToByte (GpArray<char,2> aStr)
     return std::byte(u_int_8(valHi << 4) | u_int_8(valLo));
 }
 
-consteval GpUUID::DataT GpUUID::CE_Zero (void)
+constexpr GpUUID::DataT GpUUID::CE_Zero (void) noexcept
 {
     return DataT {std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0),
                   std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0)};
@@ -256,5 +260,12 @@ inline string to_string(const GPlatform::GpUUID& aUUID)
 }
 
 }//std
+
+using namespace std::literals::string_literals;
+
+inline ::GPlatform::GpUUID operator"" _uuid (const char* aStr, const size_t aLen)
+{
+    return ::GPlatform::GpUUID::SFromString(std::string_view(aStr, aLen));
+}
 
 #endif//#if defined(GP_USE_UUID)

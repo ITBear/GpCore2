@@ -9,15 +9,19 @@ GpTypePropInfo::GpTypePropInfo (void) noexcept
 {
 }
 
-GpTypePropInfo::GpTypePropInfo (const TypeTE            aType,
-                                const GpUUID            aTypeUID,
-                                const ContainerTE       aContainer,
-                                const TypeTE            aContainerKeyType,
-                                std::string_view        aName,
-                                const size_t            aAlign,
-                                const size_t            aSize,
-                                const std::ptrdiff_t    aOffset,
-                                const GpTypePropFlags&  aFlags):
+GpTypePropInfo::GpTypePropInfo
+(
+    const TypeTE            aType,
+    const GpUUID            aTypeUID,
+    const ContainerTE       aContainer,
+    const TypeTE            aContainerKeyType,
+    std::string_view        aName,
+    const size_t            aAlign,
+    const size_t            aSize,
+    const std::ptrdiff_t    aOffset,
+    const GpTypePropFlags&  aFlags,
+    ProcessCustomFnOpt      aConstructCustomFn,
+    ProcessCustomFnOpt      aDestructCustomFn):
 iType(aType),
 iTypeUID(aTypeUID),
 iContainer(aContainer),
@@ -26,7 +30,9 @@ iName(aName),
 iAlign(aAlign),
 iSize(aSize),
 iOffset(aOffset),
-iFlags(aFlags)
+iFlags(aFlags),
+iConstructCustomFn(aConstructCustomFn),
+iDestructCustomFn(aDestructCustomFn)
 {
 }
 
@@ -39,7 +45,9 @@ iName(aPropInfo.iName),
 iAlign(aPropInfo.iAlign),
 iSize(aPropInfo.iSize),
 iOffset(aPropInfo.iOffset),
-iFlags(aPropInfo.iFlags)
+iFlags(aPropInfo.iFlags),
+iConstructCustomFn(aPropInfo.iConstructCustomFn),
+iDestructCustomFn(aPropInfo.iDestructCustomFn)
 {
 }
 
@@ -52,12 +60,14 @@ iName(std::move(aPropInfo.iName)),
 iAlign(std::move(aPropInfo.iAlign)),
 iSize(std::move(aPropInfo.iSize)),
 iOffset(std::move(aPropInfo.iOffset)),
-iFlags(std::move(aPropInfo.iFlags))
+iFlags(std::move(aPropInfo.iFlags)),
+iConstructCustomFn(std::move(aPropInfo.iConstructCustomFn)),
+iDestructCustomFn(std::move(aPropInfo.iDestructCustomFn))
 {
 }
 
 GpTypePropInfo::~GpTypePropInfo (void) noexcept
-{   
+{
 }
 
 GpTypePropInfo& GpTypePropInfo::operator= (const GpTypePropInfo& aPropInfo)
@@ -71,6 +81,8 @@ GpTypePropInfo& GpTypePropInfo::operator= (const GpTypePropInfo& aPropInfo)
     iSize               = aPropInfo.iSize;
     iOffset             = aPropInfo.iOffset;
     iFlags              = aPropInfo.iFlags;
+    iConstructCustomFn  = aPropInfo.iConstructCustomFn;
+    iDestructCustomFn   = aPropInfo.iDestructCustomFn;
 
     return *this;
 }
@@ -86,6 +98,8 @@ GpTypePropInfo& GpTypePropInfo::operator= (GpTypePropInfo&& aPropInfo) noexcept
     iSize               = std::move(aPropInfo.iSize);
     iOffset             = std::move(aPropInfo.iOffset);
     iFlags              = std::move(aPropInfo.iFlags);
+    iConstructCustomFn  = std::move(aPropInfo.iConstructCustomFn);
+    iDestructCustomFn   = std::move(aPropInfo.iDestructCustomFn);
 
     return *this;
 }
@@ -140,6 +154,28 @@ const GpTypePropInfo&   GpTypePropInfo::UnwrapContainerKeyProp (void) const
     }
 
     THROW_GPE("No prop info with flag UNWRAP_CONTAINER_KEY was found for type UID"_sv + TypeUID().ToString());
+}
+
+void    GpTypePropInfo::ConstructCustom (void* aDataPtr) const
+{
+    if (iConstructCustomFn.has_value())
+    {
+        iConstructCustomFn.value()(PropPtr(aDataPtr));
+    } else
+    {
+        THROW_GPE("There are no custom construct function was set"_sv);
+    }
+}
+
+void    GpTypePropInfo::DestructCustom (void* aDataPtr) const
+{
+    if (iDestructCustomFn.has_value())
+    {
+        iDestructCustomFn.value()(PropPtr(aDataPtr));
+    } else
+    {
+        THROW_GPE("There are no custom destruct function was set"_sv);
+    }
 }
 
 }//GPlatform

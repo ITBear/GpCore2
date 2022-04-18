@@ -3,6 +3,8 @@
 #if defined(GP_USE_DATE_TIME)
 
 #include <date/date.h> //TODO: remove with c++20
+#include <sstream>
+#include <chrono>
 
 namespace GPlatform {
 
@@ -39,8 +41,8 @@ unix_ts_ms_t    GpDateTimeOps::SUnixTsFromStr_ms
 {
     std::istringstream in{std::string(aStr.AsStringView())};
 
-    date::sys_time<std::chrono::milliseconds> tp;
-    in >> date::parse(std::string(aFormat), tp);
+    std::chrono::sys_time<std::chrono::milliseconds> tp;
+    in >> date::parse(std::string(aFormat), tp);//TODO replace with std::chrono::parse
 
     const auto val = tp.time_since_epoch();
     const auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(val).count();
@@ -82,8 +84,8 @@ unix_ts_s_t GpDateTimeOps::SUnixTsFromStr_s
 
 /*hours_t       GpDateTimeOps::SUnixTsToHH (const unix_ts_ms_t aTs) noexcept
 {
-    date::sys_time<std::chrono::milliseconds> tp(std::chrono::milliseconds(aTs.Value()));
-    date::hh_mm_ss h(tp.time_since_epoch());
+    std::chrono::sys_time<std::chrono::milliseconds> tp(std::chrono::milliseconds(aTs.Value()));
+    std::chrono::hh_mm_ss h(tp.time_since_epoch());
 
     return hours_t::SMake(h.hours().count());
 }*/
@@ -129,7 +131,7 @@ std::string GpDateTimeOps::SUnixTsToStr
     //https://howardhinnant.github.io/date/date.html
     //https://gitter.im/HowardHinnant/date?at=5e404b1fb612cc7bb1588132
 
-    date::sys_time<std::chrono::milliseconds> tp(std::chrono::milliseconds(aTs.Value()));
+    std::chrono::sys_time<std::chrono::milliseconds> tp(std::chrono::milliseconds(aTs.Value()));
     out << date::format(std::string(aFormat), tp);
 
     return out.str();

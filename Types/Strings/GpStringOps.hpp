@@ -197,7 +197,7 @@ constexpr std::byte GpStringOps::SToByteHex (GpArray<char,2> aStr)
 }
 
 constexpr count_t   GpStringOps::SCountChars (std::string_view aStr, const char aChar) noexcept
-{   
+{
     size_t          count       = 0;
     const char* _R_ data        = aStr.data();
     const size_t    countLeft   = aStr.size();

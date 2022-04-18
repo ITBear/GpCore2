@@ -11,6 +11,26 @@ GpExceptionDesc::GpExceptionDesc (void) noexcept
 {
 }
 
+GpExceptionDesc::GpExceptionDesc (const GpExceptionDesc& aDesc):
+GpTypeStructBase(aDesc),
+message(aDesc.message),
+line(aDesc.line),
+column(aDesc.column),
+file_name(aDesc.file_name),
+function_name(aDesc.function_name)
+{
+}
+
+GpExceptionDesc::GpExceptionDesc (GpExceptionDesc&& aDesc) noexcept:
+GpTypeStructBase(std::move(aDesc)),
+message(std::move(aDesc.message)),
+line(std::move(aDesc.line)),
+column(std::move(aDesc.column)),
+file_name(std::move(aDesc.file_name)),
+function_name(std::move(aDesc.function_name))
+{
+}
+
 GpExceptionDesc::~GpExceptionDesc (void) noexcept
 {
 }

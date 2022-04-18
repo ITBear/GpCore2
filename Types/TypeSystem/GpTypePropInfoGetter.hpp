@@ -9,371 +9,371 @@ namespace GPlatform {
 class GpTypePropInfoGetter_Val
 {
 public:
-    static const auto&      UInt8       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_UInt8(aStruct);}
-    static auto&            UInt8       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_UInt8(aStruct);}
-    static const auto&      SInt8       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_SInt8(aStruct);}
-    static auto&            SInt8       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_SInt8(aStruct);}
-    static const auto&      UInt16      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_UInt16(aStruct);}
-    static auto&            UInt16      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_UInt16(aStruct);}
-    static const auto&      SInt16      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_SInt16(aStruct);}
-    static auto&            SInt16      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_SInt16(aStruct);}
-    static const auto&      UInt32      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_UInt32(aStruct);}
-    static auto&            UInt32      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_UInt32(aStruct);}
-    static const auto&      SInt32      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_SInt32(aStruct);}
-    static auto&            SInt32      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_SInt32(aStruct);}
-    static const auto&      UInt64      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_UInt64(aStruct);}
-    static auto&            UInt64      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_UInt64(aStruct);}
-    static const auto&      SInt64      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_SInt64(aStruct);}
-    static auto&            SInt64      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_SInt64(aStruct);}
-    static const auto&      Double      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Double(aStruct);}
-    static auto&            Double      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Double(aStruct);}
-    static const auto&      Float       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Float(aStruct);}
-    static auto&            Float       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Float(aStruct);}
-    static const auto&      Bool        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Bool(aStruct);}
-    static auto&            Bool        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Bool(aStruct);}
-    static const auto&      UUID        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_UUID(aStruct);}
-    static auto&            UUID        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_UUID(aStruct);}
-    static const auto&      String      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_String(aStruct);}
-    static auto&            String      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_String(aStruct);}
-    static const auto&      BLOB        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_BLOB(aStruct);}
-    static auto&            BLOB        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_BLOB(aStruct);}
-    static const auto&      Struct      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Struct(aStruct);}
-    static auto&            Struct      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Struct(aStruct);}
-    static const auto&      StructSP    (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_StructSP(aStruct);}
-    static auto&            StructSP    (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_StructSP(aStruct);}
-    static const auto&      Enum        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Enum(aStruct);}
-    static auto&            Enum        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Enum(aStruct);}
-    static const auto&      EnumFlags   (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_EnumFlags(aStruct);}
-    static auto&            EnumFlags   (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_EnumFlags(aStruct);}
+    static const auto&      UInt8       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_UInt8(aDataPtr);}
+    static auto&            UInt8       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_UInt8(aDataPtr);}
+    static const auto&      SInt8       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_SInt8(aDataPtr);}
+    static auto&            SInt8       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_SInt8(aDataPtr);}
+    static const auto&      UInt16      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_UInt16(aDataPtr);}
+    static auto&            UInt16      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_UInt16(aDataPtr);}
+    static const auto&      SInt16      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_SInt16(aDataPtr);}
+    static auto&            SInt16      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_SInt16(aDataPtr);}
+    static const auto&      UInt32      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_UInt32(aDataPtr);}
+    static auto&            UInt32      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_UInt32(aDataPtr);}
+    static const auto&      SInt32      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_SInt32(aDataPtr);}
+    static auto&            SInt32      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_SInt32(aDataPtr);}
+    static const auto&      UInt64      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_UInt64(aDataPtr);}
+    static auto&            UInt64      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_UInt64(aDataPtr);}
+    static const auto&      SInt64      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_SInt64(aDataPtr);}
+    static auto&            SInt64      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_SInt64(aDataPtr);}
+    static const auto&      Double      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_Double(aDataPtr);}
+    static auto&            Double      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_Double(aDataPtr);}
+    static const auto&      Float       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_Float(aDataPtr);}
+    static auto&            Float       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_Float(aDataPtr);}
+    static const auto&      Bool        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_Bool(aDataPtr);}
+    static auto&            Bool        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_Bool(aDataPtr);}
+    static const auto&      UUID        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_UUID(aDataPtr);}
+    static auto&            UUID        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_UUID(aDataPtr);}
+    static const auto&      String      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_String(aDataPtr);}
+    static auto&            String      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_String(aDataPtr);}
+    static const auto&      BLOB        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_BLOB(aDataPtr);}
+    static auto&            BLOB        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_BLOB(aDataPtr);}
+    static const auto&      Struct      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_Struct(aDataPtr);}
+    static auto&            Struct      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_Struct(aDataPtr);}
+    static const auto&      StructSP    (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_StructSP(aDataPtr);}
+    static auto&            StructSP    (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_StructSP(aDataPtr);}
+    static const auto&      Enum        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_Enum(aDataPtr);}
+    static auto&            Enum        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_Enum(aDataPtr);}
+    static const auto&      EnumFlags   (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_EnumFlags(aDataPtr);}
+    static auto&            EnumFlags   (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Value_EnumFlags(aDataPtr);}
 };
 
 class GpTypePropInfoGetter_Vec
 {
 public:
-    static const auto&      UInt8       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_UInt8(aStruct);}
-    static auto&            UInt8       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_UInt8(aStruct);}
-    static const auto&      SInt8       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_SInt8(aStruct);}
-    static auto&            SInt8       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_SInt8(aStruct);}
-    static const auto&      UInt16      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_UInt16(aStruct);}
-    static auto&            UInt16      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_UInt16(aStruct);}
-    static const auto&      SInt16      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_SInt16(aStruct);}
-    static auto&            SInt16      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_SInt16(aStruct);}
-    static const auto&      UInt32      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_UInt32(aStruct);}
-    static auto&            UInt32      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_UInt32(aStruct);}
-    static const auto&      SInt32      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_SInt32(aStruct);}
-    static auto&            SInt32      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_SInt32(aStruct);}
-    static const auto&      UInt64      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_UInt64(aStruct);}
-    static auto&            UInt64      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_UInt64(aStruct);}
-    static const auto&      SInt64      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_SInt64(aStruct);}
-    static auto&            SInt64      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_SInt64(aStruct);}
-    static const auto&      Double      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_Double(aStruct);}
-    static auto&            Double      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_Double(aStruct);}
-    static const auto&      Float       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_Float(aStruct);}
-    static auto&            Float       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_Float(aStruct);}
-    static const auto&      Bool        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_Bool(aStruct);}
-    static auto&            Bool        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_Bool(aStruct);}
-    static const auto&      UUID        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_UUID(aStruct);}
-    static auto&            UUID        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_UUID(aStruct);}
-    static const auto&      String      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_String(aStruct);}
-    static auto&            String      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_String(aStruct);}
-    static const auto&      BLOB        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_BLOB(aStruct);}
-    static auto&            BLOB        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_BLOB(aStruct);}
-    //static const auto&    Struct      (const GpTypeStructBase&    aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_Struct(aStruct);}
-    //static auto&          Struct      (GpTypeStructBase&          aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_Struct(aStruct);}
-    static const auto&      StructSP    (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_StructSP(aStruct);}
-    static auto&            StructSP    (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_StructSP(aStruct);}
-    //static const auto&    Enum        (const GpTypeStructBase&    aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_Enum(aStruct);}
-    //static auto&          Enum        (GpTypeStructBase&          aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Vec_Enum(aStruct);}
+    static const auto&      UInt8       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_UInt8(aDataPtr);}
+    static auto&            UInt8       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_UInt8(aDataPtr);}
+    static const auto&      SInt8       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_SInt8(aDataPtr);}
+    static auto&            SInt8       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_SInt8(aDataPtr);}
+    static const auto&      UInt16      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_UInt16(aDataPtr);}
+    static auto&            UInt16      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_UInt16(aDataPtr);}
+    static const auto&      SInt16      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_SInt16(aDataPtr);}
+    static auto&            SInt16      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_SInt16(aDataPtr);}
+    static const auto&      UInt32      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_UInt32(aDataPtr);}
+    static auto&            UInt32      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_UInt32(aDataPtr);}
+    static const auto&      SInt32      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_SInt32(aDataPtr);}
+    static auto&            SInt32      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_SInt32(aDataPtr);}
+    static const auto&      UInt64      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_UInt64(aDataPtr);}
+    static auto&            UInt64      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_UInt64(aDataPtr);}
+    static const auto&      SInt64      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_SInt64(aDataPtr);}
+    static auto&            SInt64      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_SInt64(aDataPtr);}
+    static const auto&      Double      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_Double(aDataPtr);}
+    static auto&            Double      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_Double(aDataPtr);}
+    static const auto&      Float       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_Float(aDataPtr);}
+    static auto&            Float       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_Float(aDataPtr);}
+    static const auto&      Bool        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_Bool(aDataPtr);}
+    static auto&            Bool        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_Bool(aDataPtr);}
+    static const auto&      UUID        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_UUID(aDataPtr);}
+    static auto&            UUID        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_UUID(aDataPtr);}
+    static const auto&      String      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_String(aDataPtr);}
+    static auto&            String      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_String(aDataPtr);}
+    static const auto&      BLOB        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_BLOB(aDataPtr);}
+    static auto&            BLOB        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_BLOB(aDataPtr);}
+    //static const auto&    Struct      (const void*            aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_Struct(aDataPtr);}
+    //static auto&          Struct      (void*                  aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_Struct(aDataPtr);}
+    static const auto&      StructSP    (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_StructSP(aDataPtr);}
+    static auto&            StructSP    (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_StructSP(aDataPtr);}
+    //static const auto&    Enum        (const void*            aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_Enum(aDataPtr);}
+    //static auto&          Enum        (void*                  aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.Vec_Enum(aDataPtr);}
 };
 
 class GpTypePropInfoGetter_List
 {
 public:
-    static const auto&      UInt8       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_UInt8(aStruct);}
-    static auto&            UInt8       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_UInt8(aStruct);}
-    static const auto&      SInt8       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_SInt8(aStruct);}
-    static auto&            SInt8       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_SInt8(aStruct);}
-    static const auto&      UInt16      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_UInt16(aStruct);}
-    static auto&            UInt16      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_UInt16(aStruct);}
-    static const auto&      SInt16      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_SInt16(aStruct);}
-    static auto&            SInt16      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_SInt16(aStruct);}
-    static const auto&      UInt32      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_UInt32(aStruct);}
-    static auto&            UInt32      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_UInt32(aStruct);}
-    static const auto&      SInt32      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_SInt32(aStruct);}
-    static auto&            SInt32      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_SInt32(aStruct);}
-    static const auto&      UInt64      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_UInt64(aStruct);}
-    static auto&            UInt64      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_UInt64(aStruct);}
-    static const auto&      SInt64      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_SInt64(aStruct);}
-    static auto&            SInt64      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_SInt64(aStruct);}
-    static const auto&      Double      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_Double(aStruct);}
-    static auto&            Double      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_Double(aStruct);}
-    static const auto&      Float       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_Float(aStruct);}
-    static auto&            Float       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_Float(aStruct);}
-    static const auto&      Bool        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_Bool(aStruct);}
-    static auto&            Bool        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_Bool(aStruct);}
-    static const auto&      UUID        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_UUID(aStruct);}
-    static auto&            UUID        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_UUID(aStruct);}
-    static const auto&      String      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_String(aStruct);}
-    static auto&            String      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_String(aStruct);}
-    static const auto&      BLOB        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_BLOB(aStruct);}
-    static auto&            BLOB        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_BLOB(aStruct);}
-    //static const auto&    Struct      (const GpTypeStructBase&    aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_Struct(aStruct);}
-    //static auto&          Struct      (GpTypeStructBase&          aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_Struct(aStruct);}
-    static const auto&      StructSP    (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_StructSP(aStruct);}
-    static auto&            StructSP    (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_StructSP(aStruct);}
-    //static const auto&    Enum        (const GpTypeStructBase&    aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_Enum(aStruct);}
-    //static auto&          Enum        (GpTypeStructBase&          aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_List_Enum(aStruct);}
+    static const auto&      UInt8       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_UInt8(aDataPtr);}
+    static auto&            UInt8       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_UInt8(aDataPtr);}
+    static const auto&      SInt8       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_SInt8(aDataPtr);}
+    static auto&            SInt8       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_SInt8(aDataPtr);}
+    static const auto&      UInt16      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_UInt16(aDataPtr);}
+    static auto&            UInt16      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_UInt16(aDataPtr);}
+    static const auto&      SInt16      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_SInt16(aDataPtr);}
+    static auto&            SInt16      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_SInt16(aDataPtr);}
+    static const auto&      UInt32      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_UInt32(aDataPtr);}
+    static auto&            UInt32      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_UInt32(aDataPtr);}
+    static const auto&      SInt32      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_SInt32(aDataPtr);}
+    static auto&            SInt32      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_SInt32(aDataPtr);}
+    static const auto&      UInt64      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_UInt64(aDataPtr);}
+    static auto&            UInt64      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_UInt64(aDataPtr);}
+    static const auto&      SInt64      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_SInt64(aDataPtr);}
+    static auto&            SInt64      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_SInt64(aDataPtr);}
+    static const auto&      Double      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_Double(aDataPtr);}
+    static auto&            Double      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_Double(aDataPtr);}
+    static const auto&      Float       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_Float(aDataPtr);}
+    static auto&            Float       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_Float(aDataPtr);}
+    static const auto&      Bool        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_Bool(aDataPtr);}
+    static auto&            Bool        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_Bool(aDataPtr);}
+    static const auto&      UUID        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_UUID(aDataPtr);}
+    static auto&            UUID        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_UUID(aDataPtr);}
+    static const auto&      String      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_String(aDataPtr);}
+    static auto&            String      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_String(aDataPtr);}
+    static const auto&      BLOB        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_BLOB(aDataPtr);}
+    static auto&            BLOB        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_BLOB(aDataPtr);}
+    //static const auto&    Struct      (const void*            aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_Struct(aDataPtr);}
+    //static auto&          Struct      (void*                  aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_Struct(aDataPtr);}
+    static const auto&      StructSP    (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_StructSP(aDataPtr);}
+    static auto&            StructSP    (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_StructSP(aDataPtr);}
+    //static const auto&    Enum        (const void*            aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_Enum(aDataPtr);}
+    //static auto&          Enum        (void*                  aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.List_Enum(aDataPtr);}
 };
 
 class GpTypePropInfoGetter_Set
 {
 public:
-    static const auto&      UInt8       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_UInt8(aStruct);}
-    static auto&            UInt8       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_UInt8(aStruct);}
-    static const auto&      SInt8       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_SInt8(aStruct);}
-    static auto&            SInt8       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_SInt8(aStruct);}
-    static const auto&      UInt16      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_UInt16(aStruct);}
-    static auto&            UInt16      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_UInt16(aStruct);}
-    static const auto&      SInt16      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_SInt16(aStruct);}
-    static auto&            SInt16      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_SInt16(aStruct);}
-    static const auto&      UInt32      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_UInt32(aStruct);}
-    static auto&            UInt32      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_UInt32(aStruct);}
-    static const auto&      SInt32      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_SInt32(aStruct);}
-    static auto&            SInt32      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_SInt32(aStruct);}
-    static const auto&      UInt64      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_UInt64(aStruct);}
-    static auto&            UInt64      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_UInt64(aStruct);}
-    static const auto&      SInt64      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_SInt64(aStruct);}
-    static auto&            SInt64      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_SInt64(aStruct);}
-    static const auto&      Double      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_Double(aStruct);}
-    static auto&            Double      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_Double(aStruct);}
-    static const auto&      Float       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_Float(aStruct);}
-    static auto&            Float       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_Float(aStruct);}
-    static const auto&      Bool        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_Bool(aStruct);}
-    static auto&            Bool        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_Bool(aStruct);}
-    static const auto&      UUID        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_UUID(aStruct);}
-    static auto&            UUID        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_UUID(aStruct);}
-    static const auto&      String      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_String(aStruct);}
-    static auto&            String      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_String(aStruct);}
-    static const auto&      BLOB        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_BLOB(aStruct);}
-    static auto&            BLOB        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_BLOB(aStruct);}
-    //static const auto&    Struct      (const GpTypeStructBase&    aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_Struct(aStruct);}
-    //static auto&          Struct      (GpTypeStructBase&          aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_Struct(aStruct);}
-    static const auto&      StructSP    (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_StructSP(aStruct);}
-    static auto&            StructSP    (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_StructSP(aStruct);}
-    //static const auto&    Enum        (const GpTypeStructBase&    aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_Enum(aStruct);}
-    //static auto&          Enum        (GpTypeStructBase&          aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Set_Enum(aStruct);}
+    static const auto&      UInt8       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_UInt8(aDataPtr);}
+    static auto&            UInt8       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_UInt8(aDataPtr);}
+    static const auto&      SInt8       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_SInt8(aDataPtr);}
+    static auto&            SInt8       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_SInt8(aDataPtr);}
+    static const auto&      UInt16      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_UInt16(aDataPtr);}
+    static auto&            UInt16      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_UInt16(aDataPtr);}
+    static const auto&      SInt16      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_SInt16(aDataPtr);}
+    static auto&            SInt16      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_SInt16(aDataPtr);}
+    static const auto&      UInt32      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_UInt32(aDataPtr);}
+    static auto&            UInt32      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_UInt32(aDataPtr);}
+    static const auto&      SInt32      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_SInt32(aDataPtr);}
+    static auto&            SInt32      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_SInt32(aDataPtr);}
+    static const auto&      UInt64      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_UInt64(aDataPtr);}
+    static auto&            UInt64      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_UInt64(aDataPtr);}
+    static const auto&      SInt64      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_SInt64(aDataPtr);}
+    static auto&            SInt64      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_SInt64(aDataPtr);}
+    static const auto&      Double      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_Double(aDataPtr);}
+    static auto&            Double      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_Double(aDataPtr);}
+    static const auto&      Float       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_Float(aDataPtr);}
+    static auto&            Float       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_Float(aDataPtr);}
+    static const auto&      Bool        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_Bool(aDataPtr);}
+    static auto&            Bool        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_Bool(aDataPtr);}
+    static const auto&      UUID        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_UUID(aDataPtr);}
+    static auto&            UUID        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_UUID(aDataPtr);}
+    static const auto&      String      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_String(aDataPtr);}
+    static auto&            String      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_String(aDataPtr);}
+    static const auto&      BLOB        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_BLOB(aDataPtr);}
+    static auto&            BLOB        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_BLOB(aDataPtr);}
+    //static const auto&    Struct      (const void*            aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_Struct(aDataPtr);}
+    //static auto&          Struct      (void*                  aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_Struct(aDataPtr);}
+    static const auto&      StructSP    (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_StructSP(aDataPtr);}
+    static auto&            StructSP    (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_StructSP(aDataPtr);}
+    //static const auto&    Enum        (const void*            aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_Enum(aDataPtr);}
+    //static auto&          Enum        (void*                  aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.Set_Enum(aDataPtr);}
 };
 
 template<typename Key>
 class GpTypePropInfoGetter_Map
 {
 public:
-    static const auto&      UInt8       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_UInt8<Key>(aStruct);}
-    static auto&            UInt8       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_UInt8<Key>(aStruct);}
-    static const auto&      SInt8       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_SInt8<Key>(aStruct);}
-    static auto&            SInt8       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_SInt8<Key>(aStruct);}
-    static const auto&      UInt16      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_UInt16<Key>(aStruct);}
-    static auto&            UInt16      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_UInt16<Key>(aStruct);}
-    static const auto&      SInt16      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_SInt16<Key>(aStruct);}
-    static auto&            SInt16      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_SInt16<Key>(aStruct);}
-    static const auto&      UInt32      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_UInt32<Key>(aStruct);}
-    static auto&            UInt32      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_UInt32<Key>(aStruct);}
-    static const auto&      SInt32      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_SInt32<Key>(aStruct);}
-    static auto&            SInt32      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_SInt32<Key>(aStruct);}
-    static const auto&      UInt64      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_UInt64<Key>(aStruct);}
-    static auto&            UInt64      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_UInt64<Key>(aStruct);}
-    static const auto&      SInt64      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_SInt64<Key>(aStruct);}
-    static auto&            SInt64      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_SInt64<Key>(aStruct);}
-    static const auto&      Double      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_Double<Key>(aStruct);}
-    static auto&            Double      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_Double<Key>(aStruct);}
-    static const auto&      Float       (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_Float<Key>(aStruct);}
-    static auto&            Float       (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_Float<Key>(aStruct);}
-    static const auto&      Bool        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_Bool<Key>(aStruct);}
-    static auto&            Bool        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_Bool<Key>(aStruct);}
-    static const auto&      UUID        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_UUID<Key>(aStruct);}
-    static auto&            UUID        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_UUID<Key>(aStruct);}
-    static const auto&      String      (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_String<Key>(aStruct);}
-    static auto&            String      (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_String<Key>(aStruct);}
-    static const auto&      BLOB        (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_BLOB<Key>(aStruct);}
-    static auto&            BLOB        (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_BLOB<Key>(aStruct);}
-    //static const auto&    Struct      (const GpTypeStructBase&    aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_Struct<Key>(aStruct);}
-    //static auto&          Struct      (GpTypeStructBase&          aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_Struct<Key>(aStruct);}
-    static const auto&      StructSP    (const GpTypeStructBase&    aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_StructSP<Key>(aStruct);}
-    static auto&            StructSP    (GpTypeStructBase&          aStruct,
-                                         const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_StructSP<Key>(aStruct);}
-    //static const auto&    Enum        (const GpTypeStructBase&    aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_Enum<Key>(aStruct);}
-    //static auto&          Enum        (GpTypeStructBase&          aStruct,
-    //                                   const GpTypePropInfo&      aPropInfo) {return aPropInfo.Value_Map_Enum<Key>(aStruct);}
+    static const auto&      UInt8       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_UInt8<Key>(aDataPtr);}
+    static auto&            UInt8       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_UInt8<Key>(aDataPtr);}
+    static const auto&      SInt8       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_SInt8<Key>(aDataPtr);}
+    static auto&            SInt8       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_SInt8<Key>(aDataPtr);}
+    static const auto&      UInt16      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_UInt16<Key>(aDataPtr);}
+    static auto&            UInt16      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_UInt16<Key>(aDataPtr);}
+    static const auto&      SInt16      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_SInt16<Key>(aDataPtr);}
+    static auto&            SInt16      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_SInt16<Key>(aDataPtr);}
+    static const auto&      UInt32      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_UInt32<Key>(aDataPtr);}
+    static auto&            UInt32      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_UInt32<Key>(aDataPtr);}
+    static const auto&      SInt32      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_SInt32<Key>(aDataPtr);}
+    static auto&            SInt32      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_SInt32<Key>(aDataPtr);}
+    static const auto&      UInt64      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_UInt64<Key>(aDataPtr);}
+    static auto&            UInt64      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_UInt64<Key>(aDataPtr);}
+    static const auto&      SInt64      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_SInt64<Key>(aDataPtr);}
+    static auto&            SInt64      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_SInt64<Key>(aDataPtr);}
+    static const auto&      Double      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_Double<Key>(aDataPtr);}
+    static auto&            Double      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_Double<Key>(aDataPtr);}
+    static const auto&      Float       (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_Float<Key>(aDataPtr);}
+    static auto&            Float       (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_Float<Key>(aDataPtr);}
+    static const auto&      Bool        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_Bool<Key>(aDataPtr);}
+    static auto&            Bool        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_Bool<Key>(aDataPtr);}
+    static const auto&      UUID        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_UUID<Key>(aDataPtr);}
+    static auto&            UUID        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_UUID<Key>(aDataPtr);}
+    static const auto&      String      (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_String<Key>(aDataPtr);}
+    static auto&            String      (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_String<Key>(aDataPtr);}
+    static const auto&      BLOB        (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_BLOB<Key>(aDataPtr);}
+    static auto&            BLOB        (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_BLOB<Key>(aDataPtr);}
+    //static const auto&    Struct      (const void*            aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_Struct<Key>(aDataPtr);}
+    //static auto&          Struct      (void*                  aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_Struct<Key>(aDataPtr);}
+    static const auto&      StructSP    (const void*            aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_StructSP<Key>(aDataPtr);}
+    static auto&            StructSP    (void*                  aDataPtr,
+                                         const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_StructSP<Key>(aDataPtr);}
+    //static const auto&    Enum        (const void*            aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_Enum<Key>(aDataPtr);}
+    //static auto&          Enum        (void*                  aDataPtr,
+    //                                   const GpTypePropInfo&  aPropInfo) {return aPropInfo.Map_Enum<Key>(aDataPtr);}
 };
 
 }//GPlatform

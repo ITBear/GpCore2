@@ -19,6 +19,8 @@ public:
 
 public:
                             GpExceptionDesc         (void) noexcept;
+    explicit                GpExceptionDesc         (const GpExceptionDesc& aDesc);
+    explicit                GpExceptionDesc         (GpExceptionDesc&& aDesc) noexcept;
     virtual                 ~GpExceptionDesc        (void) noexcept override;
 
     void                    SetFromExceptionSTD     (const std::exception&  aException,

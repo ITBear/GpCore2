@@ -95,14 +95,14 @@ public:
     using Stack         = GpDeclContainerT<GpStack, this_type>;
 
     using MapStr        = GpDeclContainerMapT<GpMap, std::string, this_type, std::less<>>;
-    using MapSv         = GpDeclContainerMapT<GpMap, std::string_view, this_type>;
-    using MapUuid       = GpDeclContainerMapT<GpMap, GpUUID, this_type>;
-    using MapSi64       = GpDeclContainerMapT<GpMap, SInt64, this_type>;
-    using MapUi64       = GpDeclContainerMapT<GpMap, UInt64, this_type>;
-    using MapSizeT      = GpDeclContainerMapT<GpMap, USizeT, this_type>;
-    using MapSSizeT     = GpDeclContainerMapT<GpMap, SSizeT, this_type>;
-    using MapCountT     = GpDeclContainerMapT<GpMap, count_t, this_type>;
-    using MapCVoidPtr   = GpDeclContainerMapT<GpMap, const void*, this_type>;
+    using MapSv         = GpDeclContainerMapT<GpMap, std::string_view, this_type, std::less<>>;
+    using MapUuid       = GpDeclContainerMapT<GpMap, GpUUID, this_type, std::less<>>;
+    using MapSi64       = GpDeclContainerMapT<GpMap, SInt64, this_type, std::less<>>;
+    using MapUi64       = GpDeclContainerMapT<GpMap, UInt64, this_type, std::less<>>;
+    using MapSizeT      = GpDeclContainerMapT<GpMap, USizeT, this_type, std::less<>>;
+    using MapSSizeT     = GpDeclContainerMapT<GpMap, SSizeT, this_type, std::less<>>;
+    using MapCountT     = GpDeclContainerMapT<GpMap, count_t, this_type, std::less<>>;
+    using MapCVoidPtr   = GpDeclContainerMapT<GpMap, const void*, this_type, std::less<>>;
 
     using UMapStr       = GpDeclContainerMapT<GpMap, std::string, this_type>;
     using UMapSv        = GpDeclContainerMapT<GpMap, std::string_view, this_type>;

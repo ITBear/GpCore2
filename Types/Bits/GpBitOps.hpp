@@ -22,10 +22,12 @@ namespace GPlatform {
 #define BSWAP16(x)  __builtin_bswap16(x)
 #define BSWAP32(x)  __builtin_bswap32(x)
 #define BSWAP64(x)  __builtin_bswap64(x)
+#define BSWAP128(x) __builtin_bswap128(x)
 #elif defined(GP_COMPILER_MSVC)
 #define BSWAP16(x)  _byteswap_ushort(x)
 #define BSWAP32(x)  _byteswap_ulong(x)
 #define BSWAP64(x)  _byteswap_uint64(x)
+#define BSWAP128(x) _byteswap_uint128(x)
 #else
 #   error Unknown compiler
 #endif
@@ -41,10 +43,12 @@ public:
     T                               BSwap (const T aValue)
     {
         static_assert(std::is_integral<T>::value, "T must be integral");
-        static_assert((sizeof(T) == 1) ||
-                      (sizeof(T) == 2) ||
-                      (sizeof(T) == 4) ||
-                      (sizeof(T) == 8), "sizeof(T) must be 2 or 4 or 8");
+        static_assert(   (sizeof(T) == 1)
+                      || (sizeof(T) == 2)
+                      || (sizeof(T) == 4)
+                      || (sizeof(T) == 8)
+                      || (sizeof(T) == 16),
+                      "sizeof(T) must be 2, 4, 8 or 16");
 
         typename std::make_unsigned<T>::type tmpVal;
         tmpVal = std::bit_cast<decltype(tmpVal)>(aValue);
@@ -52,6 +56,7 @@ public:
         if constexpr(sizeof(T) == 2)        tmpVal = BSWAP16(tmpVal);
         else if constexpr(sizeof(T) == 4)   tmpVal = BSWAP32(tmpVal);
         else if constexpr(sizeof(T) == 8)   tmpVal = BSWAP64(tmpVal);
+        else if constexpr(sizeof(T) == 16)  tmpVal = BSWAP128(tmpVal);
 
         return std::bit_cast<T>(tmpVal);
     }

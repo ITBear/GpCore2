@@ -4,6 +4,7 @@
 
 #include "../../RandomGenerators/GpSRandom.hpp"
 #include "../Strings/GpStringOps.hpp"
+#include "../DateTime/GpDateTimeOps.hpp"
 
 namespace GPlatform {
 
@@ -25,10 +26,10 @@ std::string GpUUID::ToString (void) const
         *strPtr++ = h.at(0);
         *strPtr++ = h.at(1);
 
-        if ((id == 3) ||
-            (id == 5) ||
-            (id == 7) ||
-            (id == 9))
+        if (   (id == 3)
+            || (id == 5)
+            || (id == 7)
+            || (id == 9))
         {
             *strPtr++ = '-';
         }
@@ -56,10 +57,10 @@ void    GpUUID::FromString (GpRawPtrCharR aStr)
 
         *dataPtr++ = StrOps::SToByteHex(str);
 
-        if ((id == 3) ||
-            (id == 5) ||
-            (id == 7) ||
-            (id == 9))
+        if (   (id == 3)
+            || (id == 5)
+            || (id == 7)
+            || (id == 9))
         {
             ++strPtr;
         }
@@ -97,6 +98,51 @@ GpUUID  GpUUID::SGenRandom (void)
     std::memcpy(dataPtr, &part_1, blockSize);
 
     return GpUUID(data);
+}
+
+GpUUID  GpUUID::SGenRandomV7 (void)
+{
+    return SGenRandomV7(GpDateTimeOps::SUnixTS_ms());
+}
+
+GpUUID  GpUUID::SGenRandomV7 (const unix_ts_ms_t aUnixTS)
+{
+    //https://www.ietf.org/archive/id/draft-peabody-dispatch-new-uuid-format-03.html
+    //https://datatracker.ietf.org/doc/html/draft-peabody-dispatch-new-uuid-format-03#section-5.2
+    //https://datatracker.ietf.org/doc/html/draft-peabody-dispatch-new-uuid-format-03#appendix-B.2
+    //http://www.madore.org/~david/computers/unix-leap-seconds.html
+
+    GpUUID      uuid    = SGenRandom();
+    u_int_8*    dataPtr = reinterpret_cast<u_int_8*>(uuid.iData.data());
+
+    //48 bit big-endian unsigned number of Unix epoch timestamp (ms)
+    {
+        static_assert(std::is_same_v<s_int_64, unix_ts_ms_t::value_type>);
+
+        const s_int_64 ts = aUnixTS.Value();
+
+        THROW_GPE_COND
+        (
+            ts >= 0,
+            "Unix timestamp < 0"_sv
+        );
+
+        const u_int_64 tsn =   BitOps::Native2BigEndian(u_int_64(ts) << 16)
+                             | BitOps::Native2BigEndian(*reinterpret_cast<u_int_64*>(dataPtr) & u_int_64(0x000000000000FFFF));
+        std::memcpy(dataPtr, &tsn, sizeof(tsn));
+    }
+
+    //Variant (0b11)
+    {
+        dataPtr[8] = u_int_8(0x80) | (dataPtr[8] & u_int_8(0x3F));
+    }
+
+    //Version (0b0111)
+    {
+        dataPtr[6] = u_int_8(0x70) | (dataPtr[6] & u_int_8(0x0F));
+    }
+
+    return uuid;
 }
 
 GpUUID  GpUUID::SFromString (GpRawPtrCharR aStr)

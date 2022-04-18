@@ -31,8 +31,8 @@ try
     std::string_view    functioneName(aSourceLocation.function_name());
     std::string         line(std::to_string(aSourceLocation.line()));
 
-    fileName = fileName.substr(fileName.find_last_of('/') + 1);
-    fileName = fileName.substr(0, fileName.find_last_of('.'));
+    //fileName = fileName.substr(fileName.find_last_of('/') + 1);
+    //fileName = fileName.substr(0, fileName.find_last_of('.'));
 
     constexpr size_t plen = GpException_p1().length()
                             + 3*GpException_p2().length()

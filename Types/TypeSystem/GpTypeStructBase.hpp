@@ -26,33 +26,43 @@ public:
 
     using BaseT = std::false_type;
 
-    class StructFactory final: public GpTypeStructFactory
+    class Factory final: public GpTypeStructFactory
     {
     public:
-        virtual GpTypeStructBase::SP    NewInstance (void) const override final;
+        virtual GpTypeStructBase::SP    NewInstance     (const GpTypeStructInfo& aStructInfo) const override final;
+        virtual void                    ConstructStruct (void* aStructDataPtr) const override final;
+        virtual void                    DestructStruct  (void* aStructDataPtr) const override final;
     };
 
 public:
                                     GpTypeStructBase    (void) noexcept {}
+    explicit                        GpTypeStructBase    (const GpTypeStructBase&) noexcept {}
+    explicit                        GpTypeStructBase    (GpTypeStructBase&&) noexcept {}
     virtual                         ~GpTypeStructBase   (void) noexcept {}
 
     static const GpTypeStructInfo&  STypeInfo           (void);
     static constexpr GpUUID         STypeUID            (void) noexcept
     {
-        constexpr const GpUUID structUID = GpUUID::CE_FromString("000056df-0000-4be7-0000-97c0c4060000"_sv);
+        constexpr const GpUUID structUID = GpUUID::CE_FromString("10000000-0000-0000-0000-000000000001"_sv);
         return structUID;
     }
 
     const GpTypeStructInfo&         TypeInfo            (void) const noexcept {return _TypeInfo();}
     const GpUUID                    TypeUID             (void) const noexcept {return TypeInfo().UID();}
     GpTypeStructBase::SP            NewInstance         (void) const {return _NewInstance();}
+    GpTypeStructBase::SP            Clone               (void) const {return _Clone();}
+    const void*                     DataPtr             (void) const noexcept {return _DataPtr();}
+    void*                           DataPtr             (void) noexcept {return _DataPtr();}
 
     static size_t                   SStaticTypeReg      (void);
 
 protected:
     virtual void                    _type_id_tag_fn     (_type_id_tag_t&) const noexcept {}
     virtual const GpTypeStructInfo& _TypeInfo           (void) const noexcept;
-    virtual GpTypeStructBase::SP    _NewInstance        (void) const;   
+    virtual GpTypeStructBase::SP    _NewInstance        (void) const;
+    virtual GpTypeStructBase::SP    _Clone              (void) const;
+    virtual const void*             _DataPtr            (void) const noexcept;
+    virtual void*                   _DataPtr            (void) noexcept;
 
 private:
     static GpTypeStructInfo         _SCollectStructInfo (void);
@@ -65,10 +75,12 @@ private:
 #define TYPE_STRUCT_DECLARE(TUUID) \
     using BaseT = std::remove_reference<decltype(SGetBaseObjectType(&this_type::_type_id_tag_fn))>::type; \
 \
-    class StructFactory final: public ::GPlatform::GpTypeStructFactory \
+    class Factory final: public ::GPlatform::GpTypeStructFactory \
     { \
     public: \
-        virtual ::GPlatform::GpSP<::GPlatform::GpTypeStructBase>    NewInstance (void) const override final; \
+        virtual ::GPlatform::GpSP<::GPlatform::GpTypeStructBase>    NewInstance     (const GpTypeStructInfo& aStructInfo) const override final; \
+        virtual void                                                ConstructStruct (void* aStructDataPtr) const override final; \
+        virtual void                                                DestructStruct  (void* aStructDataPtr) const override final; \
     }; \
 \
     static const ::GPlatform::GpTypeStructInfo& STypeInfo   (void); \
@@ -84,6 +96,7 @@ protected: \
     virtual void                                    _type_id_tag_fn (_type_id_tag_t&) const noexcept override{} \
     virtual const ::GPlatform::GpTypeStructInfo&    _TypeInfo       (void) const noexcept override; \
     virtual ::GPlatform::GpTypeStructBase::SP       _NewInstance    (void) const override; \
+    virtual ::GPlatform::GpTypeStructBase::SP       _Clone          (void) const override; \
 \
 private: \
     static ::GPlatform::GpTypeStructInfo            _SCollectStructInfo (const ::GPlatform::GpTypeStructInfo* aBaseStructInfo); \
@@ -99,7 +112,11 @@ private: \
 \
     GP_TYPE_STRUCT_STATIC_TYPE_REG_IMPL(T); \
 \
-    ::GPlatform::GpSP<::GPlatform::GpTypeStructBase>    T::StructFactory::NewInstance (void) const {return MakeSP<T>();} \
+    ::GPlatform::GpSP<::GPlatform::GpTypeStructBase>    T::Factory::NewInstance (const GpTypeStructInfo& /*aStructInfo*/) const {return MakeSP<T>();} \
+\
+    void    T::Factory::ConstructStruct (void* aStructDataPtr) const {MemOps::SConstruct<T>(static_cast<T*>(aStructDataPtr), 1_cnt);} \
+\
+    void    T::Factory::DestructStruct (void* aStructDataPtr) const {MemOps::SDestruct<T>(static_cast<T*>(aStructDataPtr), 1_cnt);} \
 \
     const ::GPlatform::GpTypeStructInfo&    T::STypeInfo (void) \
     { \
@@ -122,6 +139,11 @@ private: \
         return MakeSP<T>(); \
     } \
 \
+    ::GPlatform::GpTypeStructBase::SP   T::_Clone (void) const \
+    { \
+        return MakeSP<T>(*this); \
+    } \
+\
     ::GPlatform::GpTypeStructInfo   T::_SCollectStructInfo (const ::GPlatform::GpTypeStructInfo* aBaseStructInfo) \
     { \
         ::GPlatform::GpTypePropInfo::C::Vec::Val props; \
@@ -129,7 +151,7 @@ private: \
         { \
             props = aBaseStructInfo->Props(); \
         } \
-        ::GPlatform::GpTypeStructFactory::SP factory = ::GPlatform::GpSP<StructFactory>::SNew(); \
+        ::GPlatform::GpTypeStructFactory::SP factory = ::GPlatform::GpSP<Factory>::SNew(); \
         _SCollectStructProps(props); \
         constexpr ::GPlatform::GpUUID typeUID   = T::STypeUID(); \
         constexpr ::GPlatform::GpUUID groupUID  = ::GPlatform::GpUUID::CE_FromString(std::string_view(MACRO_D_TO_STR(MODULE_UUID))); \
@@ -140,7 +162,9 @@ private: \
             std::string(::GPlatform::GpTypeUtils::STypeName<T>()), \
             std::move(props), \
             groupUID, \
-            factory \
+            factory, \
+            alignof(T), \
+            sizeof(T) \
         ); \
         return structInfo;\
     }

@@ -11,7 +11,7 @@
 #include <string>
 #include <functional>
 
-#if  __has_include(<source_location>)
+#if  __has_include(<source_location>) && __has_builtin(__builtin_source_location)
 #   include <source_location>
     namespace GPlatform{
         using SourceLocationT = std::source_location;

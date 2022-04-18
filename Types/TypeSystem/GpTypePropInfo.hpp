@@ -4,6 +4,8 @@
 
 #if defined(GP_USE_TYPE_SYSTEM)
 
+#include <functional>
+
 #include "../UIDs/GpUUID.hpp"
 #include "../Classes/GpClassesDefines.hpp"
 #include "../Containers/GpContainersT.hpp"
@@ -20,12 +22,15 @@ class GPCORE_API GpTypePropInfo
 public:
     CLASS_DECLARE_DEFAULTS(GpTypePropInfo)
 
-    using TypeT         = GpType;
-    using TypeTE        = TypeT::EnumT;
-    using ContainerT    = GpTypeContainer;
-    using ContainerTE   = ContainerT::EnumT;
-    using FlagT         = GpTypePropFlag;
-    using FlagTE        = FlagT::EnumT;
+    using TypeT                 = GpType;
+    using TypeTE                = TypeT::EnumT;
+    using ContainerT            = GpTypeContainer;
+    using ContainerTE           = ContainerT::EnumT;
+    using FlagT                 = GpTypePropFlag;
+    using FlagTE                = FlagT::EnumT;
+
+    using ProcessCustomFn       = std::function<void(void* aPropPtr)>;
+    using ProcessCustomFnOpt    = std::optional<ProcessCustomFn>;
 
 public:
                                     GpTypePropInfo      (void) noexcept;
@@ -37,7 +42,9 @@ public:
                                                          const size_t           aAlign,
                                                          const size_t           aSize,
                                                          const std::ptrdiff_t   aOffset,
-                                                         const GpTypePropFlags& aFlags);
+                                                         const GpTypePropFlags& aFlags,
+                                                         ProcessCustomFnOpt     aConstructCustomFn,
+                                                         ProcessCustomFnOpt     aDestructCustomFn);
                                     GpTypePropInfo      (const GpTypePropInfo& aPropInfo);
                                     GpTypePropInfo      (GpTypePropInfo&& aPropInfo) noexcept;
                                     ~GpTypePropInfo     (void) noexcept;
@@ -58,189 +65,195 @@ public:
     std::optional<std::string_view> FlagArg             (const GpTypePropFlag::EnumT aFlag) const noexcept;
     const GpTypePropInfo&           UnwrapContainerKeyProp (void) const;
 
-    const u_int_8&                  Value_UInt8         (const GpTypeStructBase& aStruct) const {return CastValueAsConst<u_int_8>(aStruct);}
-    u_int_8&                        Value_UInt8         (GpTypeStructBase& aStruct) const       {return CastValueAs<u_int_8>(aStruct);}
-    const s_int_8&                  Value_SInt8         (const GpTypeStructBase& aStruct) const {return CastValueAsConst<s_int_8>(aStruct);}
-    s_int_8&                        Value_SInt8         (GpTypeStructBase& aStruct) const       {return CastValueAs<s_int_8>(aStruct);}
-    const u_int_16&                 Value_UInt16        (const GpTypeStructBase& aStruct) const {return CastValueAsConst<u_int_16>(aStruct);}
-    u_int_16&                       Value_UInt16        (GpTypeStructBase& aStruct) const       {return CastValueAs<u_int_16>(aStruct);}
-    const s_int_16&                 Value_SInt16        (const GpTypeStructBase& aStruct) const {return CastValueAsConst<s_int_16>(aStruct);}
-    s_int_16&                       Value_SInt16        (GpTypeStructBase& aStruct) const       {return CastValueAs<s_int_16>(aStruct);}
-    const u_int_32&                 Value_UInt32        (const GpTypeStructBase& aStruct) const {return CastValueAsConst<u_int_32>(aStruct);}
-    u_int_32&                       Value_UInt32        (GpTypeStructBase& aStruct) const       {return CastValueAs<u_int_32>(aStruct);}
-    const s_int_32&                 Value_SInt32        (const GpTypeStructBase& aStruct) const {return CastValueAsConst<s_int_32>(aStruct);}
-    s_int_32&                       Value_SInt32        (GpTypeStructBase& aStruct) const       {return CastValueAs<s_int_32>(aStruct);}
-    const u_int_64&                 Value_UInt64        (const GpTypeStructBase& aStruct) const {return CastValueAsConst<u_int_64>(aStruct);}
-    u_int_64&                       Value_UInt64        (GpTypeStructBase& aStruct) const       {return CastValueAs<u_int_64>(aStruct);}
-    const s_int_64&                 Value_SInt64        (const GpTypeStructBase& aStruct) const {return CastValueAsConst<s_int_64>(aStruct);}
-    s_int_64&                       Value_SInt64        (GpTypeStructBase& aStruct) const       {return CastValueAs<s_int_64>(aStruct);}
-    const double&                   Value_Double        (const GpTypeStructBase& aStruct) const {return CastValueAsConst<double>(aStruct);}
-    double&                         Value_Double        (GpTypeStructBase& aStruct) const       {return CastValueAs<double>(aStruct);}
-    const float&                    Value_Float         (const GpTypeStructBase& aStruct) const {return CastValueAsConst<float>(aStruct);}
-    float&                          Value_Float         (GpTypeStructBase& aStruct) const       {return CastValueAs<float>(aStruct);}
-    const bool&                     Value_Bool          (const GpTypeStructBase& aStruct) const {return CastValueAsConst<bool>(aStruct);}
-    bool&                           Value_Bool          (GpTypeStructBase& aStruct) const       {return CastValueAs<bool>(aStruct);}
-    const GpUUID&                   Value_UUID          (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpUUID>(aStruct);}
-    GpUUID&                         Value_UUID          (GpTypeStructBase& aStruct) const       {return CastValueAs<GpUUID>(aStruct);}
-    const std::string&              Value_String        (const GpTypeStructBase& aStruct) const {return CastValueAsConst<std::string>(aStruct);}
-    std::string&                    Value_String        (GpTypeStructBase& aStruct) const       {return CastValueAs<std::string>(aStruct);}
-    const GpBytesArray&             Value_BLOB          (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpBytesArray>(aStruct);}
-    GpBytesArray&                   Value_BLOB          (GpTypeStructBase& aStruct) const       {return CastValueAs<GpBytesArray>(aStruct);}
-    const GpTypeStructBase&         Value_Struct        (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpTypeStructBase>(aStruct);}
-    GpTypeStructBase&               Value_Struct        (GpTypeStructBase& aStruct) const       {return CastValueAs<GpTypeStructBase>(aStruct);}
-    const GpSP<GpTypeStructBase>&   Value_StructSP      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSP<GpTypeStructBase>>(aStruct);}
-    GpSP<GpTypeStructBase>&         Value_StructSP      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSP<GpTypeStructBase>>(aStruct);}
-    const GpEnum&                   Value_Enum          (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpEnum>(aStruct);}
-    GpEnum&                         Value_Enum          (GpTypeStructBase& aStruct) const       {return CastValueAs<GpEnum>(aStruct);}
-    const GpEnumFlags&              Value_EnumFlags     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpEnumFlags>(aStruct);}
-    GpEnumFlags&                    Value_EnumFlags     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpEnumFlags>(aStruct);}
+    void                            ConstructCustom     (void* aDataPtr) const;
+    void                            DestructCustom      (void* aDataPtr) const;
 
-    const auto&                     Value_Vec_UInt8     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<u_int_8>>(aStruct);}
-    auto&                           Value_Vec_UInt8     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<u_int_8>>(aStruct);}
-    const auto&                     Value_Vec_SInt8     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<s_int_8>>(aStruct);}
-    auto&                           Value_Vec_SInt8     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<s_int_8>>(aStruct);}
-    const auto&                     Value_Vec_UInt16    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<u_int_16>>(aStruct);}
-    auto&                           Value_Vec_UInt16    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<u_int_16>>(aStruct);}
-    const auto&                     Value_Vec_SInt16    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<s_int_16>>(aStruct);}
-    auto&                           Value_Vec_SInt16    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<s_int_16>>(aStruct);}
-    const auto&                     Value_Vec_UInt32    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<u_int_32>>(aStruct);}
-    auto&                           Value_Vec_UInt32    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<u_int_32>>(aStruct);}
-    const auto&                     Value_Vec_SInt32    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<s_int_32>>(aStruct);}
-    auto&                           Value_Vec_SInt32    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<s_int_32>>(aStruct);}
-    const auto&                     Value_Vec_UInt64    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<u_int_64>>(aStruct);}
-    auto&                           Value_Vec_UInt64    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<u_int_64>>(aStruct);}
-    const auto&                     Value_Vec_SInt64    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<s_int_64>>(aStruct);}
-    auto&                           Value_Vec_SInt64    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<s_int_64>>(aStruct);}
-    const auto&                     Value_Vec_Double    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<double>>(aStruct);}
-    auto&                           Value_Vec_Double    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<double>>(aStruct);}
-    const auto&                     Value_Vec_Float     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<float>>(aStruct);}
-    auto&                           Value_Vec_Float     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<float>>(aStruct);}
-    const auto&                     Value_Vec_Bool      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<bool>>(aStruct);}
-    auto&                           Value_Vec_Bool      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<bool>>(aStruct);}
-    const auto&                     Value_Vec_UUID      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<GpUUID>>(aStruct);}
-    auto&                           Value_Vec_UUID      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<GpUUID>>(aStruct);}
-    const auto&                     Value_Vec_String    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<std::string>>(aStruct);}
-    auto&                           Value_Vec_String    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<std::string>>(aStruct);}
-    const auto&                     Value_Vec_BLOB      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<GpBytesArray>>(aStruct);}
-    auto&                           Value_Vec_BLOB      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<GpBytesArray>>(aStruct);}
-    //const auto&                   Value_Vec_Struct    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<GpTypeStructBase>>(aStruct);}
-    //auto&                         Value_Vec_Struct    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<GpTypeStructBase>>(aStruct);}
-    const auto&                     Value_Vec_StructSP  (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<GpSP<GpTypeStructBase>>>(aStruct);}
-    auto&                           Value_Vec_StructSP  (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<GpSP<GpTypeStructBase>>>(aStruct);}
-    //const auto&                   Value_Vec_Enum      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpVector<GpEnum>>(aStruct);}
-    //auto&                         Value_Vec_Enum      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpVector<GpEnum>>(aStruct);}
+    const u_int_8&                  Value_UInt8         (const void* aDataPtr) const {return CastValueAsConst<u_int_8>(aDataPtr);}
+    u_int_8&                        Value_UInt8         (void* aDataPtr) const      {return CastValueAs<u_int_8>(aDataPtr);}
+    const s_int_8&                  Value_SInt8         (const void* aDataPtr) const {return CastValueAsConst<s_int_8>(aDataPtr);}
+    s_int_8&                        Value_SInt8         (void* aDataPtr) const      {return CastValueAs<s_int_8>(aDataPtr);}
+    const u_int_16&                 Value_UInt16        (const void* aDataPtr) const {return CastValueAsConst<u_int_16>(aDataPtr);}
+    u_int_16&                       Value_UInt16        (void* aDataPtr) const      {return CastValueAs<u_int_16>(aDataPtr);}
+    const s_int_16&                 Value_SInt16        (const void* aDataPtr) const {return CastValueAsConst<s_int_16>(aDataPtr);}
+    s_int_16&                       Value_SInt16        (void* aDataPtr) const      {return CastValueAs<s_int_16>(aDataPtr);}
+    const u_int_32&                 Value_UInt32        (const void* aDataPtr) const {return CastValueAsConst<u_int_32>(aDataPtr);}
+    u_int_32&                       Value_UInt32        (void* aDataPtr) const      {return CastValueAs<u_int_32>(aDataPtr);}
+    const s_int_32&                 Value_SInt32        (const void* aDataPtr) const {return CastValueAsConst<s_int_32>(aDataPtr);}
+    s_int_32&                       Value_SInt32        (void* aDataPtr) const      {return CastValueAs<s_int_32>(aDataPtr);}
+    const u_int_64&                 Value_UInt64        (const void* aDataPtr) const {return CastValueAsConst<u_int_64>(aDataPtr);}
+    u_int_64&                       Value_UInt64        (void* aDataPtr) const      {return CastValueAs<u_int_64>(aDataPtr);}
+    const s_int_64&                 Value_SInt64        (const void* aDataPtr) const {return CastValueAsConst<s_int_64>(aDataPtr);}
+    s_int_64&                       Value_SInt64        (void* aDataPtr) const      {return CastValueAs<s_int_64>(aDataPtr);}
+    const double&                   Value_Double        (const void* aDataPtr) const {return CastValueAsConst<double>(aDataPtr);}
+    double&                         Value_Double        (void* aDataPtr) const      {return CastValueAs<double>(aDataPtr);}
+    const float&                    Value_Float         (const void* aDataPtr) const {return CastValueAsConst<float>(aDataPtr);}
+    float&                          Value_Float         (void* aDataPtr) const      {return CastValueAs<float>(aDataPtr);}
+    const bool&                     Value_Bool          (const void* aDataPtr) const {return CastValueAsConst<bool>(aDataPtr);}
+    bool&                           Value_Bool          (void* aDataPtr) const      {return CastValueAs<bool>(aDataPtr);}
+    const GpUUID&                   Value_UUID          (const void* aDataPtr) const {return CastValueAsConst<GpUUID>(aDataPtr);}
+    GpUUID&                         Value_UUID          (void* aDataPtr) const      {return CastValueAs<GpUUID>(aDataPtr);}
+    const std::string&              Value_String        (const void* aDataPtr) const {return CastValueAsConst<std::string>(aDataPtr);}
+    std::string&                    Value_String        (void* aDataPtr) const      {return CastValueAs<std::string>(aDataPtr);}
+    const GpBytesArray&             Value_BLOB          (const void* aDataPtr) const {return CastValueAsConst<GpBytesArray>(aDataPtr);}
+    GpBytesArray&                   Value_BLOB          (void* aDataPtr) const      {return CastValueAs<GpBytesArray>(aDataPtr);}
+    const GpTypeStructBase&         Value_Struct        (const void* aDataPtr) const {return CastValueAsConst<GpTypeStructBase>(aDataPtr);}
+    GpTypeStructBase&               Value_Struct        (void* aDataPtr) const      {return CastValueAs<GpTypeStructBase>(aDataPtr);}
+    const GpSP<GpTypeStructBase>&   Value_StructSP      (const void* aDataPtr) const {return CastValueAsConst<GpSP<GpTypeStructBase>>(aDataPtr);}
+    GpSP<GpTypeStructBase>&         Value_StructSP      (void* aDataPtr) const      {return CastValueAs<GpSP<GpTypeStructBase>>(aDataPtr);}
+    const GpEnum&                   Value_Enum          (const void* aDataPtr) const {return CastValueAsConst<GpEnum>(aDataPtr);}
+    GpEnum&                         Value_Enum          (void* aDataPtr) const      {return CastValueAs<GpEnum>(aDataPtr);}
+    const GpEnumFlags&              Value_EnumFlags     (const void* aDataPtr) const {return CastValueAsConst<GpEnumFlags>(aDataPtr);}
+    GpEnumFlags&                    Value_EnumFlags     (void* aDataPtr) const      {return CastValueAs<GpEnumFlags>(aDataPtr);}
 
-    const auto&                     Value_List_UInt8    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<u_int_8>>(aStruct);}
-    auto&                           Value_List_UInt8    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<u_int_8>>(aStruct);}
-    const auto&                     Value_List_SInt8    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<s_int_8>>(aStruct);}
-    auto&                           Value_List_SInt8    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<s_int_8>>(aStruct);}
-    const auto&                     Value_List_UInt16   (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<u_int_16>>(aStruct);}
-    auto&                           Value_List_UInt16   (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<u_int_16>>(aStruct);}
-    const auto&                     Value_List_SInt16   (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<s_int_16>>(aStruct);}
-    auto&                           Value_List_SInt16   (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<s_int_16>>(aStruct);}
-    const auto&                     Value_List_UInt32   (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<u_int_32>>(aStruct);}
-    auto&                           Value_List_UInt32   (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<u_int_32>>(aStruct);}
-    const auto&                     Value_List_SInt32   (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<s_int_32>>(aStruct);}
-    auto&                           Value_List_SInt32   (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<s_int_32>>(aStruct);}
-    const auto&                     Value_List_UInt64   (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<u_int_64>>(aStruct);}
-    auto&                           Value_List_UInt64   (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<u_int_64>>(aStruct);}
-    const auto&                     Value_List_SInt64   (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<s_int_64>>(aStruct);}
-    auto&                           Value_List_SInt64   (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<s_int_64>>(aStruct);}
-    const auto&                     Value_List_Double   (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<double>>(aStruct);}
-    auto&                           Value_List_Double   (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<double>>(aStruct);}
-    const auto&                     Value_List_Float    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<float>>(aStruct);}
-    auto&                           Value_List_Float    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<float>>(aStruct);}
-    const auto&                     Value_List_Bool     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<bool>>(aStruct);}
-    auto&                           Value_List_Bool     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<bool>>(aStruct);}
-    const auto&                     Value_List_UUID     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<GpUUID>>(aStruct);}
-    auto&                           Value_List_UUID     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<GpUUID>>(aStruct);}
-    const auto&                     Value_List_String   (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<std::string>>(aStruct);}
-    auto&                           Value_List_String   (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<std::string>>(aStruct);}
-    const auto&                     Value_List_BLOB     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<GpBytesArray>>(aStruct);}
-    auto&                           Value_List_BLOB     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<GpBytesArray>>(aStruct);}
-    //const auto&                   Value_List_Struct   (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<GpTypeStructBase>>(aStruct);}
-    //auto&                         Value_List_Struct   (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<GpTypeStructBase>>(aStruct);}
-    const auto&                     Value_List_StructSP (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<GpSP<GpTypeStructBase>>>(aStruct);}
-    auto&                           Value_List_StructSP (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<GpSP<GpTypeStructBase>>>(aStruct);}
-    //const auto&                   Value_List_Enum     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpList<GpEnum>>(aStruct);}
-    //auto&                         Value_List_Enum     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpList<GpEnum>>(aStruct);}
+    const auto&                     Vec_UInt8           (const void* aDataPtr) const {return CastValueAsConst<GpVector<u_int_8>>(aDataPtr);}
+    auto&                           Vec_UInt8           (void* aDataPtr) const      {return CastValueAs<GpVector<u_int_8>>(aDataPtr);}
+    const auto&                     Vec_SInt8           (const void* aDataPtr) const {return CastValueAsConst<GpVector<s_int_8>>(aDataPtr);}
+    auto&                           Vec_SInt8           (void* aDataPtr) const      {return CastValueAs<GpVector<s_int_8>>(aDataPtr);}
+    const auto&                     Vec_UInt16          (const void* aDataPtr) const {return CastValueAsConst<GpVector<u_int_16>>(aDataPtr);}
+    auto&                           Vec_UInt16          (void* aDataPtr) const      {return CastValueAs<GpVector<u_int_16>>(aDataPtr);}
+    const auto&                     Vec_SInt16          (const void* aDataPtr) const {return CastValueAsConst<GpVector<s_int_16>>(aDataPtr);}
+    auto&                           Vec_SInt16          (void* aDataPtr) const      {return CastValueAs<GpVector<s_int_16>>(aDataPtr);}
+    const auto&                     Vec_UInt32          (const void* aDataPtr) const {return CastValueAsConst<GpVector<u_int_32>>(aDataPtr);}
+    auto&                           Vec_UInt32          (void* aDataPtr) const      {return CastValueAs<GpVector<u_int_32>>(aDataPtr);}
+    const auto&                     Vec_SInt32          (const void* aDataPtr) const {return CastValueAsConst<GpVector<s_int_32>>(aDataPtr);}
+    auto&                           Vec_SInt32          (void* aDataPtr) const      {return CastValueAs<GpVector<s_int_32>>(aDataPtr);}
+    const auto&                     Vec_UInt64          (const void* aDataPtr) const {return CastValueAsConst<GpVector<u_int_64>>(aDataPtr);}
+    auto&                           Vec_UInt64          (void* aDataPtr) const      {return CastValueAs<GpVector<u_int_64>>(aDataPtr);}
+    const auto&                     Vec_SInt64          (const void* aDataPtr) const {return CastValueAsConst<GpVector<s_int_64>>(aDataPtr);}
+    auto&                           Vec_SInt64          (void* aDataPtr) const      {return CastValueAs<GpVector<s_int_64>>(aDataPtr);}
+    const auto&                     Vec_Double          (const void* aDataPtr) const {return CastValueAsConst<GpVector<double>>(aDataPtr);}
+    auto&                           Vec_Double          (void* aDataPtr) const      {return CastValueAs<GpVector<double>>(aDataPtr);}
+    const auto&                     Vec_Float           (const void* aDataPtr) const {return CastValueAsConst<GpVector<float>>(aDataPtr);}
+    auto&                           Vec_Float           (void* aDataPtr) const      {return CastValueAs<GpVector<float>>(aDataPtr);}
+    const auto&                     Vec_Bool            (const void* aDataPtr) const {return CastValueAsConst<GpVector<bool>>(aDataPtr);}
+    auto&                           Vec_Bool            (void* aDataPtr) const      {return CastValueAs<GpVector<bool>>(aDataPtr);}
+    const auto&                     Vec_UUID            (const void* aDataPtr) const {return CastValueAsConst<GpVector<GpUUID>>(aDataPtr);}
+    auto&                           Vec_UUID            (void* aDataPtr) const      {return CastValueAs<GpVector<GpUUID>>(aDataPtr);}
+    const auto&                     Vec_String          (const void* aDataPtr) const {return CastValueAsConst<GpVector<std::string>>(aDataPtr);}
+    auto&                           Vec_String          (void* aDataPtr) const      {return CastValueAs<GpVector<std::string>>(aDataPtr);}
+    const auto&                     Vec_BLOB            (const void* aDataPtr) const {return CastValueAsConst<GpVector<GpBytesArray>>(aDataPtr);}
+    auto&                           Vec_BLOB            (void* aDataPtr) const      {return CastValueAs<GpVector<GpBytesArray>>(aDataPtr);}
+    //const auto&                   Vec_Struct          (const void* aDataPtr) const {return CastValueAsConst<GpVector<GpTypeStructBase>>(aDataPtr);}
+    //auto&                         Vec_Struct          (void* aDataPtr) const      {return CastValueAs<GpVector<GpTypeStructBase>>(aDataPtr);}
+    const auto&                     Vec_StructSP        (const void* aDataPtr) const {return CastValueAsConst<GpVector<GpSP<GpTypeStructBase>>>(aDataPtr);}
+    auto&                           Vec_StructSP        (void* aDataPtr) const      {return CastValueAs<GpVector<GpSP<GpTypeStructBase>>>(aDataPtr);}
+    //const auto&                   Vec_Enum            (const void* aDataPtr) const {return CastValueAsConst<GpVector<GpEnum>>(aDataPtr);}
+    //auto&                         Vec_Enum            (void* aDataPtr) const      {return CastValueAs<GpVector<GpEnum>>(aDataPtr);}
 
-    const auto&                     Value_Set_UInt8     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<u_int_8>>(aStruct);}
-    auto&                           Value_Set_UInt8     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<u_int_8>>(aStruct);}
-    const auto&                     Value_Set_SInt8     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<s_int_8>>(aStruct);}
-    auto&                           Value_Set_SInt8     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<s_int_8>>(aStruct);}
-    const auto&                     Value_Set_UInt16    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<u_int_16>>(aStruct);}
-    auto&                           Value_Set_UInt16    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<u_int_16>>(aStruct);}
-    const auto&                     Value_Set_SInt16    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<s_int_16>>(aStruct);}
-    auto&                           Value_Set_SInt16    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<s_int_16>>(aStruct);}
-    const auto&                     Value_Set_UInt32    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<u_int_32>>(aStruct);}
-    auto&                           Value_Set_UInt32    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<u_int_32>>(aStruct);}
-    const auto&                     Value_Set_SInt32    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<s_int_32>>(aStruct);}
-    auto&                           Value_Set_SInt32    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<s_int_32>>(aStruct);}
-    const auto&                     Value_Set_UInt64    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<u_int_64>>(aStruct);}
-    auto&                           Value_Set_UInt64    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<u_int_64>>(aStruct);}
-    const auto&                     Value_Set_SInt64    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<s_int_64>>(aStruct);}
-    auto&                           Value_Set_SInt64    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<s_int_64>>(aStruct);}
-    const auto&                     Value_Set_Double    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<double>>(aStruct);}
-    auto&                           Value_Set_Double    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<double>>(aStruct);}
-    const auto&                     Value_Set_Float     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<float>>(aStruct);}
-    auto&                           Value_Set_Float     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<float>>(aStruct);}
-    const auto&                     Value_Set_Bool      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<bool>>(aStruct);}
-    auto&                           Value_Set_Bool      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<bool>>(aStruct);}
-    const auto&                     Value_Set_UUID      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<GpUUID>>(aStruct);}
-    auto&                           Value_Set_UUID      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<GpUUID>>(aStruct);}
-    const auto&                     Value_Set_String    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<std::string>>(aStruct);}
-    auto&                           Value_Set_String    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<std::string>>(aStruct);}
-    const auto&                     Value_Set_BLOB      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<GpBytesArray>>(aStruct);}
-    auto&                           Value_Set_BLOB      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<GpBytesArray>>(aStruct);}
-    //const auto&                   Value_Set_Struct    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<GpTypeStructBase>>(aStruct);}
-    //auto&                         Value_Set_Struct    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<GpTypeStructBase>>(aStruct);}
-    const auto&                     Value_Set_StructSP  (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<GpSP<GpTypeStructBase>>>(aStruct);}
-    auto&                           Value_Set_StructSP  (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<GpSP<GpTypeStructBase>>>(aStruct);}
-    //const auto&                   Value_Set_Enum      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpSet<GpEnum>>(aStruct);}
-    //auto&                         Value_Set_Enum      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpSet<GpEnum>>(aStruct);}
+    const auto&                     List_UInt8          (const void* aDataPtr) const {return CastValueAsConst<GpList<u_int_8>>(aDataPtr);}
+    auto&                           List_UInt8          (void* aDataPtr) const      {return CastValueAs<GpList<u_int_8>>(aDataPtr);}
+    const auto&                     List_SInt8          (const void* aDataPtr) const {return CastValueAsConst<GpList<s_int_8>>(aDataPtr);}
+    auto&                           List_SInt8          (void* aDataPtr) const      {return CastValueAs<GpList<s_int_8>>(aDataPtr);}
+    const auto&                     List_UInt16         (const void* aDataPtr) const {return CastValueAsConst<GpList<u_int_16>>(aDataPtr);}
+    auto&                           List_UInt16         (void* aDataPtr) const      {return CastValueAs<GpList<u_int_16>>(aDataPtr);}
+    const auto&                     List_SInt16         (const void* aDataPtr) const {return CastValueAsConst<GpList<s_int_16>>(aDataPtr);}
+    auto&                           List_SInt16         (void* aDataPtr) const      {return CastValueAs<GpList<s_int_16>>(aDataPtr);}
+    const auto&                     List_UInt32         (const void* aDataPtr) const {return CastValueAsConst<GpList<u_int_32>>(aDataPtr);}
+    auto&                           List_UInt32         (void* aDataPtr) const      {return CastValueAs<GpList<u_int_32>>(aDataPtr);}
+    const auto&                     List_SInt32         (const void* aDataPtr) const {return CastValueAsConst<GpList<s_int_32>>(aDataPtr);}
+    auto&                           List_SInt32         (void* aDataPtr) const      {return CastValueAs<GpList<s_int_32>>(aDataPtr);}
+    const auto&                     List_UInt64         (const void* aDataPtr) const {return CastValueAsConst<GpList<u_int_64>>(aDataPtr);}
+    auto&                           List_UInt64         (void* aDataPtr) const      {return CastValueAs<GpList<u_int_64>>(aDataPtr);}
+    const auto&                     List_SInt64         (const void* aDataPtr) const {return CastValueAsConst<GpList<s_int_64>>(aDataPtr);}
+    auto&                           List_SInt64         (void* aDataPtr) const      {return CastValueAs<GpList<s_int_64>>(aDataPtr);}
+    const auto&                     List_Double         (const void* aDataPtr) const {return CastValueAsConst<GpList<double>>(aDataPtr);}
+    auto&                           List_Double         (void* aDataPtr) const      {return CastValueAs<GpList<double>>(aDataPtr);}
+    const auto&                     List_Float          (const void* aDataPtr) const {return CastValueAsConst<GpList<float>>(aDataPtr);}
+    auto&                           List_Float          (void* aDataPtr) const      {return CastValueAs<GpList<float>>(aDataPtr);}
+    const auto&                     List_Bool           (const void* aDataPtr) const {return CastValueAsConst<GpList<bool>>(aDataPtr);}
+    auto&                           List_Bool           (void* aDataPtr) const      {return CastValueAs<GpList<bool>>(aDataPtr);}
+    const auto&                     List_UUID           (const void* aDataPtr) const {return CastValueAsConst<GpList<GpUUID>>(aDataPtr);}
+    auto&                           List_UUID           (void* aDataPtr) const      {return CastValueAs<GpList<GpUUID>>(aDataPtr);}
+    const auto&                     List_String         (const void* aDataPtr) const {return CastValueAsConst<GpList<std::string>>(aDataPtr);}
+    auto&                           List_String         (void* aDataPtr) const      {return CastValueAs<GpList<std::string>>(aDataPtr);}
+    const auto&                     List_BLOB           (const void* aDataPtr) const {return CastValueAsConst<GpList<GpBytesArray>>(aDataPtr);}
+    auto&                           List_BLOB           (void* aDataPtr) const      {return CastValueAs<GpList<GpBytesArray>>(aDataPtr);}
+    //const auto&                   List_Struct         (const void* aDataPtr) const {return CastValueAsConst<GpList<GpTypeStructBase>>(aDataPtr);}
+    //auto&                         List_Struct         (void* aDataPtr) const      {return CastValueAs<GpList<GpTypeStructBase>>(aDataPtr);}
+    const auto&                     List_StructSP       (const void* aDataPtr) const {return CastValueAsConst<GpList<GpSP<GpTypeStructBase>>>(aDataPtr);}
+    auto&                           List_StructSP       (void* aDataPtr) const      {return CastValueAs<GpList<GpSP<GpTypeStructBase>>>(aDataPtr);}
+    //const auto&                   List_Enum           (const void* aDataPtr) const {return CastValueAsConst<GpList<GpEnum>>(aDataPtr);}
+    //auto&                         List_Enum           (void* aDataPtr) const      {return CastValueAs<GpList<GpEnum>>(aDataPtr);}
 
-    template<typename Key> const auto&      Value_Map_UInt8     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, u_int_8, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_UInt8     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, u_int_8, std::less<>>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_SInt8     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, s_int_8, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_SInt8     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, s_int_8, std::less<>>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_UInt16    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, u_int_16, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_UInt16    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, u_int_16, std::less<>>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_SInt16    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, s_int_16, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_SInt16    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, s_int_16, std::less<>>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_UInt32    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, u_int_32, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_UInt32    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, u_int_32, std::less<>>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_SInt32    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, s_int_32, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_SInt32    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, s_int_32, std::less<>>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_UInt64    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, u_int_64, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_UInt64    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, u_int_64, std::less<>>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_SInt64    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, s_int_64, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_SInt64    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, s_int_64, std::less<>>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_Double    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, double, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_Double    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, double, std::less<>>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_Float     (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, float, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_Float     (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, float, std::less<>>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_Bool      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, bool, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_Bool      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, bool, std::less<>>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_UUID      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpUUID, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_UUID      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpUUID, std::less<>>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_String    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, std::string, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_String    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, std::string, std::less<>>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_BLOB      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpBytesArray, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_BLOB      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpBytesArray, std::less<>>>(aStruct);}
-    //template<typename Key> const auto&    Value_Map_Struct    (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpTypeStructBase, std::less<>>>(aStruct);}
-    //template<typename Key> auto&          Value_Map_Struct    (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpTypeStructBase, std::less<>>>(aStruct);}
-    template<typename Key> const auto&      Value_Map_StructSP  (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpSP<GpTypeStructBase>, std::less<>>>(aStruct);}
-    template<typename Key> auto&            Value_Map_StructSP  (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpSP<GpTypeStructBase>, std::less<>>>(aStruct);}
-    //template<typename Key> const auto&    Value_Map_Enum      (const GpTypeStructBase& aStruct) const {return CastValueAsConst<GpMap<Key, GpEnum>, std::less<>>(aStruct);}
-    //template<typename Key> auto&          Value_Map_Enum      (GpTypeStructBase& aStruct) const       {return CastValueAs<GpMap<Key, GpEnum>, std::less<>>(aStruct);}
+    const auto&                     Set_UInt8           (const void* aDataPtr) const {return CastValueAsConst<GpSet<u_int_8>>(aDataPtr);}
+    auto&                           Set_UInt8           (void* aDataPtr) const      {return CastValueAs<GpSet<u_int_8>>(aDataPtr);}
+    const auto&                     Set_SInt8           (const void* aDataPtr) const {return CastValueAsConst<GpSet<s_int_8>>(aDataPtr);}
+    auto&                           Set_SInt8           (void* aDataPtr) const      {return CastValueAs<GpSet<s_int_8>>(aDataPtr);}
+    const auto&                     Set_UInt16          (const void* aDataPtr) const {return CastValueAsConst<GpSet<u_int_16>>(aDataPtr);}
+    auto&                           Set_UInt16          (void* aDataPtr) const      {return CastValueAs<GpSet<u_int_16>>(aDataPtr);}
+    const auto&                     Set_SInt16          (const void* aDataPtr) const {return CastValueAsConst<GpSet<s_int_16>>(aDataPtr);}
+    auto&                           Set_SInt16          (void* aDataPtr) const      {return CastValueAs<GpSet<s_int_16>>(aDataPtr);}
+    const auto&                     Set_UInt32          (const void* aDataPtr) const {return CastValueAsConst<GpSet<u_int_32>>(aDataPtr);}
+    auto&                           Set_UInt32          (void* aDataPtr) const      {return CastValueAs<GpSet<u_int_32>>(aDataPtr);}
+    const auto&                     Set_SInt32          (const void* aDataPtr) const {return CastValueAsConst<GpSet<s_int_32>>(aDataPtr);}
+    auto&                           Set_SInt32          (void* aDataPtr) const      {return CastValueAs<GpSet<s_int_32>>(aDataPtr);}
+    const auto&                     Set_UInt64          (const void* aDataPtr) const {return CastValueAsConst<GpSet<u_int_64>>(aDataPtr);}
+    auto&                           Set_UInt64          (void* aDataPtr) const      {return CastValueAs<GpSet<u_int_64>>(aDataPtr);}
+    const auto&                     Set_SInt64          (const void* aDataPtr) const {return CastValueAsConst<GpSet<s_int_64>>(aDataPtr);}
+    auto&                           Set_SInt64          (void* aDataPtr) const      {return CastValueAs<GpSet<s_int_64>>(aDataPtr);}
+    const auto&                     Set_Double          (const void* aDataPtr) const {return CastValueAsConst<GpSet<double>>(aDataPtr);}
+    auto&                           Set_Double          (void* aDataPtr) const      {return CastValueAs<GpSet<double>>(aDataPtr);}
+    const auto&                     Set_Float           (const void* aDataPtr) const {return CastValueAsConst<GpSet<float>>(aDataPtr);}
+    auto&                           Set_Float           (void* aDataPtr) const      {return CastValueAs<GpSet<float>>(aDataPtr);}
+    const auto&                     Set_Bool            (const void* aDataPtr) const {return CastValueAsConst<GpSet<bool>>(aDataPtr);}
+    auto&                           Set_Bool            (void* aDataPtr) const      {return CastValueAs<GpSet<bool>>(aDataPtr);}
+    const auto&                     Set_UUID            (const void* aDataPtr) const {return CastValueAsConst<GpSet<GpUUID>>(aDataPtr);}
+    auto&                           Set_UUID            (void* aDataPtr) const      {return CastValueAs<GpSet<GpUUID>>(aDataPtr);}
+    const auto&                     Set_String          (const void* aDataPtr) const {return CastValueAsConst<GpSet<std::string>>(aDataPtr);}
+    auto&                           Set_String          (void* aDataPtr) const      {return CastValueAs<GpSet<std::string>>(aDataPtr);}
+    const auto&                     Set_BLOB            (const void* aDataPtr) const {return CastValueAsConst<GpSet<GpBytesArray>>(aDataPtr);}
+    auto&                           Set_BLOB            (void* aDataPtr) const      {return CastValueAs<GpSet<GpBytesArray>>(aDataPtr);}
+    //const auto&                   Set_Struct          (const void* aDataPtr) const {return CastValueAsConst<GpSet<GpTypeStructBase>>(aDataPtr);}
+    //auto&                         Set_Struct          (void* aDataPtr) const      {return CastValueAs<GpSet<GpTypeStructBase>>(aDataPtr);}
+    const auto&                     Set_StructSP        (const void* aDataPtr) const {return CastValueAsConst<GpSet<GpSP<GpTypeStructBase>>>(aDataPtr);}
+    auto&                           Set_StructSP        (void* aDataPtr) const      {return CastValueAs<GpSet<GpSP<GpTypeStructBase>>>(aDataPtr);}
+    //const auto&                   Set_Enum            (const void* aDataPtr) const {return CastValueAsConst<GpSet<GpEnum>>(aDataPtr);}
+    //auto&                         Set_Enum            (void* aDataPtr) const      {return CastValueAs<GpSet<GpEnum>>(aDataPtr);}
+
+    template<typename Key> const auto&  Map_UInt8       (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, u_int_8, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_UInt8       (void* aDataPtr) const      {return CastValueAs<GpMap<Key, u_int_8, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_SInt8       (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, s_int_8, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_SInt8       (void* aDataPtr) const      {return CastValueAs<GpMap<Key, s_int_8, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_UInt16      (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, u_int_16, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_UInt16      (void* aDataPtr) const      {return CastValueAs<GpMap<Key, u_int_16, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_SInt16      (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, s_int_16, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_SInt16      (void* aDataPtr) const      {return CastValueAs<GpMap<Key, s_int_16, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_UInt32      (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, u_int_32, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_UInt32      (void* aDataPtr) const      {return CastValueAs<GpMap<Key, u_int_32, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_SInt32      (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, s_int_32, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_SInt32      (void* aDataPtr) const      {return CastValueAs<GpMap<Key, s_int_32, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_UInt64      (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, u_int_64, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_UInt64      (void* aDataPtr) const      {return CastValueAs<GpMap<Key, u_int_64, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_SInt64      (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, s_int_64, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_SInt64      (void* aDataPtr) const      {return CastValueAs<GpMap<Key, s_int_64, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_Double      (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, double, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_Double      (void* aDataPtr) const      {return CastValueAs<GpMap<Key, double, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_Float       (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, float, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_Float       (void* aDataPtr) const      {return CastValueAs<GpMap<Key, float, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_Bool        (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, bool, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_Bool        (void* aDataPtr) const      {return CastValueAs<GpMap<Key, bool, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_UUID        (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, GpUUID, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_UUID        (void* aDataPtr) const      {return CastValueAs<GpMap<Key, GpUUID, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_String      (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, std::string, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_String      (void* aDataPtr) const      {return CastValueAs<GpMap<Key, std::string, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_BLOB        (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, GpBytesArray, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_BLOB        (void* aDataPtr) const      {return CastValueAs<GpMap<Key, GpBytesArray, std::less<>>>(aDataPtr);}
+    //template<typename Key> const auto&Map_Struct      (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, GpTypeStructBase, std::less<>>>(aDataPtr);}
+    //template<typename Key> auto&      Map_Struct      (void* aDataPtr) const      {return CastValueAs<GpMap<Key, GpTypeStructBase, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_StructSP    (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, GpSP<GpTypeStructBase>, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_StructSP    (void* aDataPtr) const      {return CastValueAs<GpMap<Key, GpSP<GpTypeStructBase>, std::less<>>>(aDataPtr);}
+    //template<typename Key> const auto&Map_Enum        (const void* aDataPtr) const {return CastValueAsConst<GpMap<Key, GpEnum>, std::less<>>(aDataPtr);}
+    //template<typename Key> auto&      Map_Enum        (void* aDataPtr) const      {return CastValueAs<GpMap<Key, GpEnum>, std::less<>>(aDataPtr);}
 
 private:
     template<typename T>
-    const T&                        CastValueAsConst    (const GpTypeStructBase& aStruct) const;
+    const T&                            CastValueAsConst(const void* aDataPtr) const;
 
     template<typename T>
-    T&                              CastValueAs         (GpTypeStructBase& aStruct) const;
+    T&                                  CastValueAs     (void* aDataPtr) const;
+
+    inline const void*                  PropPtrConst    (const void* aDataPtr) const;
+    inline void*                        PropPtr         (void* aDataPtr) const;
 
 private:
     TypeTE                  iType;
@@ -252,18 +265,31 @@ private:
     size_t                  iSize       = 0;
     std::ptrdiff_t          iOffset     = 0;
     GpTypePropFlags         iFlags;
+
+    ProcessCustomFnOpt      iConstructCustomFn;
+    ProcessCustomFnOpt      iDestructCustomFn;
 };
 
 template<typename T>
-const T&    GpTypePropInfo::CastValueAsConst (const GpTypeStructBase& aStruct) const
+const T&    GpTypePropInfo::CastValueAsConst (const void* aDataPtr) const
 {
-    return *reinterpret_cast<const T*>(reinterpret_cast<const char*>(&aStruct) + iOffset);
+    return *reinterpret_cast<const T*>(PropPtrConst(aDataPtr));
 }
 
 template<typename T>
-T&  GpTypePropInfo::CastValueAs (GpTypeStructBase& aStruct) const
+T&  GpTypePropInfo::CastValueAs (void* aDataPtr) const
 {
-    return *reinterpret_cast<T*>(reinterpret_cast<char*>(&aStruct) + iOffset);
+    return *reinterpret_cast<T*>(PropPtr(aDataPtr));
+}
+
+const void* GpTypePropInfo::PropPtrConst (const void* aDataPtr) const
+{
+    return reinterpret_cast<const char*>(aDataPtr) + iOffset;
+}
+
+void*   GpTypePropInfo::PropPtr (void* aDataPtr) const
+{
+    return reinterpret_cast<char*>(aDataPtr) + iOffset;
 }
 
 }//GPlatform

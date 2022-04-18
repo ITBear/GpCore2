@@ -176,10 +176,17 @@ HEADERS += \
 	Types/TypeSystem/GpTypeMapperFactory.hpp \
 	Types/TypeSystem/GpTypePropFlags.hpp \
 	Types/TypeSystem/GpTypePropInfo.hpp \
+	Types/TypeSystem/GpTypePropInfoBuilder.hpp \
 	Types/TypeSystem/GpTypePropInfoGetter.hpp \
 	Types/TypeSystem/GpTypeStructBase.hpp \
+	Types/TypeSystem/GpTypeStructDynamic.hpp \
+	Types/TypeSystem/GpTypeStructDynamicBuilder.hpp \
+	Types/TypeSystem/GpTypeStructDynamicInfoDesc.hpp \
+	Types/TypeSystem/GpTypeStructDynamicPropDesc.hpp \
+	Types/TypeSystem/GpTypeStructDynamicUtils.hpp \
 	Types/TypeSystem/GpTypeStructFactory.hpp \
 	Types/TypeSystem/GpTypeStructInfo.hpp \
+	Types/TypeSystem/GpTypeStructVisitor.hpp \
 	Types/TypeSystem/GpTypeSystem.hpp \
 	Types/TypeSystem/GpTypeUtils.hpp \
 	Types/UIDs/GpUIDs.hpp \
@@ -245,6 +252,7 @@ HEADERS += \
 	Utils/Streams/GpByteWriterStorageByteArray.hpp \
 	Utils/Streams/GpByteWriterStorageFixedSize.hpp \
 	Utils/Streams/GpStreams.hpp \
+	Utils/Timers/GpDoOnceInPeriod.hpp \
 	Utils/Timers/GpMarkTS.hpp \
 	Utils/Timers/GpMarkTraceTS.hpp \
 	Utils/Timers/GpTimer.hpp \
@@ -311,7 +319,13 @@ SOURCES += \
 	Types/TypeSystem/GpTypeMapper.cpp \
 	Types/TypeSystem/GpTypePropFlags.cpp \
 	Types/TypeSystem/GpTypePropInfo.cpp \
+	Types/TypeSystem/GpTypePropInfoBuilder.cpp \
 	Types/TypeSystem/GpTypeStructBase.cpp \
+	Types/TypeSystem/GpTypeStructDynamic.cpp \
+	Types/TypeSystem/GpTypeStructDynamicBuilder.cpp \
+	Types/TypeSystem/GpTypeStructDynamicInfoDesc.cpp \
+	Types/TypeSystem/GpTypeStructDynamicPropDesc.cpp \
+	Types/TypeSystem/GpTypeStructDynamicUtils.cpp \
 	Types/TypeSystem/GpTypeStructInfo.cpp \
 	Types/UIDs/GpUUID.cpp \
 	UnitTests/GpUnitTest.cpp \
@@ -341,3 +355,6 @@ SOURCES += \
 	Utils/Timers/GpTimerShotEvent.cpp \
 	Utils/Timers/GpTimerShotEventFactory.cpp \
 	Utils/Timers/GpTimersManager.cpp
+
+DISTFILES += \
+	README.md

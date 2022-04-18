@@ -11,6 +11,7 @@
 namespace GPlatform {
 
 class GpTypeStructBase;
+class GpTypeStructInfo;
 
 class GpTypeStructFactory
 {
@@ -24,7 +25,9 @@ protected:
 public:
     virtual                         ~GpTypeStructFactory    (void) noexcept {}
 
-    virtual GpSP<GpTypeStructBase>  NewInstance             (void) const = 0;
+    virtual GpSP<GpTypeStructBase>  NewInstance             (const GpTypeStructInfo& aStructInfo) const = 0;
+    virtual void                    ConstructStruct         (void* aStructDataPtr) const = 0;
+    virtual void                    DestructStruct          (void* aStructDataPtr) const = 0;
 };
 
 }//GPlatform
