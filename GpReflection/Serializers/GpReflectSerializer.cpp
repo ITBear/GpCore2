@@ -1,0 +1,26 @@
+#include "GpReflectSerializer.hpp"
+
+#if defined(GP_USE_REFLECTION)
+
+namespace GPlatform {
+
+GpBytesArray    GpReflectSerializer::FromObject (const GpReflectObject& aObject) const
+{
+    GpBytesArray data;
+    data.resize(512);
+
+    {
+        GpByteWriterStorageByteArray    dataStorage(data);
+        GpByteWriter                    dataWriter(dataStorage);
+
+        FromObject(aObject, dataWriter);
+
+        dataWriter.ShrinkToFit();
+    }
+
+    return data;
+}
+
+}//namespace GPlatform
+
+#endif//GP_USE_REFLECTION

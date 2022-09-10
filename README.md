@@ -58,7 +58,7 @@ class MyDataStruct final: public GpTypeStructBase
 {
 public:
    CLASS_DECLARE_DEFAULTS(MyDataStruct)
-   TYPE_STRUCT_DECLARE("2bfadcf2-fe2a-4e10-a86c-78580fa1b6bb"_sv)
+   TYPE_STRUCT_DECLARE("2bfadcf2-fe2a-4e10-a86c-78580fa1b6bb"_uuid)
 
 public:           
                   MyDataStruct  (void) noexcept {}
@@ -91,7 +91,7 @@ After this you can get R/W access to fields throughout manager
 void    Foo (GpTypeStructBase& aStruct)
 {
    //Get data-model info
-   const GpTypeStructInfo& typeStructInfo = aStruct.TypeInfo();
+   const GpTypeStructInfo& typeStructInfo = aStruct.TypeStructInfo();
 
    //Get references to class fields
    auto& str     = typeStructInfo.Prop("str"_sv).Value_String(aStruct.DataPtr());
@@ -158,11 +158,11 @@ public:
                          ~MyTask (void) noexcept override final {}
 
    virtual void          OnStart (void) override final {std::cout << "Start task..." << std::endl;}
-   virtual GpTask::ResT  OnStep  (EventOptRefT /*aEvent*/) override final;
-   virtual void          OnStop  (void) noexcept override final {std::cout << "Stop task..." << std::endl;}
+   virtual GpTaskDoRes  OnStep  (EventOptRefT /*aEvent*/) override final;
+   virtual void         OnStop  (void) noexcept override final {std::cout << "Stop task..." << std::endl;}
 };
 
-GpTask::ResT    MyTask::OnStep (EventOptRefT /*aEvent*/)
+GpTaskDoRes    MyTask::OnStep (EventOptRefT /*aEvent*/)
 {
    int k = 0;
    std::cout << "Task step " << k++ << std::endl;
@@ -171,7 +171,7 @@ GpTask::ResT    MyTask::OnStep (EventOptRefT /*aEvent*/)
    YELD_READY();
    std::cout << "Task step " << k++ << std::endl;
 
-   return GpTask::ResT::DONE;
+   return GpTaskDoRes::DONE;
 }
 
 int main (int aArgc, char** aArgv)
@@ -184,7 +184,7 @@ int main (int aArgc, char** aArgv)
    taskScheduler->Start(taskScheduler, 8_cnt);
 
    //Create and add task to manager
-   taskScheduler->AddTaskToReady(MakeSP<MyTask>());
+   taskScheduler->ToReady(MakeSP<MyTask>());
 
    std::this_thread::sleep_for(std::chrono::seconds(5));
 
