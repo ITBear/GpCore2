@@ -7,4 +7,6 @@
 #include "GpFlatMap.hpp"
 #include "GpElementsCatalog.hpp"
 #include "GpElementsPool.hpp"
+#include "GpCachePool.hpp"
 #include "GpGlobalStructCatalogC.hpp"
+

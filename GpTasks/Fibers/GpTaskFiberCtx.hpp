@@ -21,7 +21,7 @@ class GpTaskFiberCtx
 {
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskFiberCtx)
-    CLASS_DECLARE_DEFAULTS(GpTaskFiberCtx)
+    CLASS_DD(GpTaskFiberCtx)
 
 public:
     inline                              GpTaskFiberCtx  (GpTaskFiber& aTaskFiber) noexcept;

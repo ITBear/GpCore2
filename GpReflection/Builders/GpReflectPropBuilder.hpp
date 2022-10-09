@@ -305,8 +305,8 @@ GpReflectPropBuilder&   GpReflectPropBuilder::AddProp (std::string_view aName)
         size    = sizeof(T);
     } else if constexpr (TC == GpReflectContainerType::VECTOR)
     {
-        align   = alignof(GpVector<T>);
-        size    = sizeof(GpVector<T>);
+        align   = alignof(std::vector<T>);
+        size    = sizeof(std::vector<T>);
     } else
     {
         GpThrowCe<std::out_of_range>("Unsupported container");
@@ -358,8 +358,8 @@ GpReflectPropBuilder&   GpReflectPropBuilder::AddProp
         size    = aModel.Size();
     } else if constexpr (TC == GpReflectContainerType::VECTOR)
     {
-        align   = alignof(GpVector<T>);
-        size    = sizeof(GpVector<T>);
+        align   = alignof(std::vector<T>);
+        size    = sizeof(std::vector<T>);
     } else
     {
         GpThrowCe<std::out_of_range>("Unsupported container");
@@ -409,68 +409,68 @@ GpReflectPropBuilder&   GpReflectPropBuilder::AddPropMap
     {
         case GpReflectType::U_INT_8:
         {
-            align   = alignof(GpMap<u_int_8, VT>);
-            size    = sizeof(GpMap<u_int_8, VT>);
+            align   = alignof(std::map<u_int_8, VT>);
+            size    = sizeof(std::map<u_int_8, VT>);
         } break;
         case GpReflectType::S_INT_8:
         {
-            align   = alignof(GpMap<s_int_8, VT>);
-            size    = sizeof(GpMap<s_int_8, VT>);
+            align   = alignof(std::map<s_int_8, VT>);
+            size    = sizeof(std::map<s_int_8, VT>);
         } break;
         case GpReflectType::U_INT_16:
         {
-            align   = alignof(GpMap<u_int_16, VT>);
-            size    = sizeof(GpMap<u_int_16, VT>);
+            align   = alignof(std::map<u_int_16, VT>);
+            size    = sizeof(std::map<u_int_16, VT>);
         } break;
         case GpReflectType::S_INT_16:
         {
-            align   = alignof(GpMap<s_int_16, VT>);
-            size    = sizeof(GpMap<s_int_16, VT>);
+            align   = alignof(std::map<s_int_16, VT>);
+            size    = sizeof(std::map<s_int_16, VT>);
         } break;
         case GpReflectType::U_INT_32:
         {
-            align   = alignof(GpMap<u_int_32, VT>);
-            size    = sizeof(GpMap<u_int_32, VT>);
+            align   = alignof(std::map<u_int_32, VT>);
+            size    = sizeof(std::map<u_int_32, VT>);
         } break;
         case GpReflectType::S_INT_32:
         {
-            align   = alignof(GpMap<s_int_32, VT>);
-            size    = sizeof(GpMap<s_int_32, VT>);
+            align   = alignof(std::map<s_int_32, VT>);
+            size    = sizeof(std::map<s_int_32, VT>);
         } break;
         case GpReflectType::U_INT_64:
         {
-            align   = alignof(GpMap<u_int_64, VT>);
-            size    = sizeof(GpMap<u_int_64, VT>);
+            align   = alignof(std::map<u_int_64, VT>);
+            size    = sizeof(std::map<u_int_64, VT>);
         } break;
         case GpReflectType::S_INT_64:
         {
-            align   = alignof(GpMap<s_int_64, VT>);
-            size    = sizeof(GpMap<s_int_64, VT>);
+            align   = alignof(std::map<s_int_64, VT>);
+            size    = sizeof(std::map<s_int_64, VT>);
         } break;
         case GpReflectType::DOUBLE:
         {
-            align   = alignof(GpMap<double, VT>);
-            size    = sizeof(GpMap<double, VT>);
+            align   = alignof(std::map<double, VT>);
+            size    = sizeof(std::map<double, VT>);
         } break;
         case GpReflectType::FLOAT:
         {
-            align   = alignof(GpMap<float, VT>);
-            size    = sizeof(GpMap<float, VT>);
+            align   = alignof(std::map<float, VT>);
+            size    = sizeof(std::map<float, VT>);
         } break;
         case GpReflectType::BOOLEAN:
         {
-            align   = alignof(GpMap<bool, VT>);
-            size    = sizeof(GpMap<bool, VT>);
+            align   = alignof(std::map<bool, VT>);
+            size    = sizeof(std::map<bool, VT>);
         } break;
         case GpReflectType::UUID:
         {
-            align   = alignof(GpMap<GpUUID, VT>);
-            size    = sizeof(GpMap<GpUUID, VT>);
+            align   = alignof(std::map<GpUUID, VT>);
+            size    = sizeof(std::map<GpUUID, VT>);
         } break;
         case GpReflectType::STRING:
         {
-            align   = alignof(GpMap<std::string, VT>);
-            size    = sizeof(GpMap<std::string, VT>);
+            align   = alignof(std::map<std::string, VT>);
+            size    = sizeof(std::map<std::string, VT>);
         } break;
         case GpReflectType::BLOB:       [[fallthrough]];
         case GpReflectType::OBJECT:     [[fallthrough]];

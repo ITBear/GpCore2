@@ -66,6 +66,29 @@ public:
     }
 
     template<typename T>
+    [[nodiscard]] static constexpr T SSign (const T aValue) noexcept
+    {
+        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
+
+        //return (T(0) < aValue) - (aValue < T(0));
+        return std::copysign(T(1), aValue);
+    }
+
+    template<typename T>
+    [[nodiscard]] static constexpr T SIsNegative (const T aValue) noexcept
+    {
+        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
+
+        return std::signbit(aValue);
+    }
+
+    template<typename T>
+    [[nodiscard]] static constexpr T SIsPositiveOrZero (const T aValue) noexcept
+    {
+        return !SIsNegative(aValue);
+    }
+
+    template<typename T>
     [[nodiscard]] static consteval T SMin (void) noexcept
     {
         static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");

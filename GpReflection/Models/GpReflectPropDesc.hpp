@@ -13,7 +13,7 @@ namespace GPlatform {
 class GP_REFLECTION_API GpReflectPropDesc final: public GpReflectObject
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpReflectPropDesc)
+    CLASS_DD(GpReflectPropDesc)
     REFLECT_DECLARE("f7a8691c-070a-4576-9e00-f4156b61758a"_uuid)
 
 public:

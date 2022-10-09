@@ -5,10 +5,10 @@
 
 namespace GPlatform {
 
-GpVector<std::string>   GpEnumFlags::ToStringArray (void) const
+std::vector<std::string>    GpEnumFlags::ToStringArray (void) const
 {
-    GpVector<std::string_view>  v_sv = ToStringViewArray();
-    GpVector<std::string>       res;
+    std::vector<std::string_view>   v_sv = ToStringViewArray();
+    std::vector<std::string>        res;
     res.reserve(v_sv.size());
 
     for (std::string_view s: v_sv)
@@ -19,9 +19,9 @@ GpVector<std::string>   GpEnumFlags::ToStringArray (void) const
     return res;
 }
 
-GpVector<std::string_view>  GpEnumFlags::ToStringViewArray (void) const
+std::vector<std::string_view>   GpEnumFlags::ToStringViewArray (void) const
 {
-    GpVector<std::string_view> res;
+    std::vector<std::string_view> res;
 
     value_type value    = iValue;
     value_type id       = 0;
@@ -40,7 +40,7 @@ GpVector<std::string_view>  GpEnumFlags::ToStringViewArray (void) const
     return res;
 }
 
-void    GpEnumFlags::FromStringArray (const GpVector<std::string>& aArray)
+void    GpEnumFlags::FromStringArray (const std::vector<std::string>& aArray)
 {
     Clear();
 
@@ -50,7 +50,7 @@ void    GpEnumFlags::FromStringArray (const GpVector<std::string>& aArray)
     }
 }
 
-void    GpEnumFlags::FromStringViewArray (const GpVector<std::string_view>& aArray)
+void    GpEnumFlags::FromStringViewArray (const std::vector<std::string_view>& aArray)
 {
     Clear();
 
@@ -62,7 +62,7 @@ void    GpEnumFlags::FromStringViewArray (const GpVector<std::string_view>& aArr
 
 std::string GpEnumFlags::Echo (void) const
 {
-    GpVector<std::string_view> v = ToStringViewArray();
+    std::vector<std::string_view> v = ToStringViewArray();
     return StrOps::SJoin<std::string_view>(v, ","_sv);
 }
 

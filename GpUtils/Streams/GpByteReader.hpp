@@ -25,11 +25,10 @@ public:
     s_int_32                SInt32          (void);
     u_int_64                UInt64          (void);
     s_int_64                SInt64          (void);
-    s_int_32                CompactSInt32   (void);
+    u_int_64                CompactUInt64   (void);
+    s_int_64                CompactSInt64   (void);
     GpSpanPtrByteR          BytesWithLen    (void);
     inline GpSpanPtrByteR   Bytes           (const size_t aSize);
-    //inline GpSpanPtrByteR TryBytes        (const size_t aSize);
-
 
 private:
     template<typename T>
@@ -71,10 +70,5 @@ GpSpanPtrByteR  GpByteReader::Bytes (const size_t aSize)
 {
     return iStorage.Read(aSize);
 }
-
-/*GpSpanPtrByteR    GpByteReader::TryBytes (const size_t aSize)
-{
-    return iStorage.TryReadAndShift(aSize);
-}*/
 
 }//GPlatform

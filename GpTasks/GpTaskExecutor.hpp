@@ -10,7 +10,7 @@ class GP_TASKS_API GpTaskExecutor final: public GpRunnable
 {
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskExecutor)
-    CLASS_DECLARE_DEFAULTS(GpTaskExecutor)
+    CLASS_DD(GpTaskExecutor)
 
 public:
     inline                  GpTaskExecutor  (GpConditionVar::SP aCondVar) noexcept;

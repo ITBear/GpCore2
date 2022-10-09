@@ -49,8 +49,8 @@ public:
                                                                  const FormatTE     aFormat);
 
 private:
-    static const microseconds_t                                     sStartSteadyTS;
-    static const GpArray<std::string, GpDateTimeFormat::SCount()>   sFormats;
+    static const microseconds_t                                         sStartSteadyTS;
+    static const std::array<std::string, GpDateTimeFormat::SCount()>    sFormats;
 };
 
 }//GPlatform

@@ -12,7 +12,7 @@ class GpReflectSerializerFactory
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpReflectSerializerFactory)
-    CLASS_DECLARE_DEFAULTS(GpReflectSerializerFactory)
+    CLASS_DD(GpReflectSerializerFactory)
 
 protected:
                                     GpReflectSerializerFactory  (void) noexcept = default;

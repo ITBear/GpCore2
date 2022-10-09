@@ -55,10 +55,10 @@ private:
     static void             SDecode             (const std::any&    aDecodePrecalc,
                                                  GpByteWriter&      aWriterData);
     static size_t           SFindChId           (const u_int_8                  aCh,
-                                                 const GpArray<u_int_8, 58>&    aAlphabet);
+                                                 const std::array<u_int_8, 58>& aAlphabet);
 
 private:
-    static GpArray<u_int_8, 58> sAlphabets[GpBase58Alphabet::SCount()];
+    static std::array<u_int_8, 58>  sAlphabets[GpBase58Alphabet::SCount()];
 };
 
 }//GPlatform

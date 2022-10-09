@@ -13,7 +13,7 @@ namespace GPlatform {
 class GP_UTILS_API GpTimerShotEvent final: public GpEvent
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpTimerShotEvent)
+    CLASS_DD(GpTimerShotEvent)
 
 public:
     inline                  GpTimerShotEvent    (void) noexcept;

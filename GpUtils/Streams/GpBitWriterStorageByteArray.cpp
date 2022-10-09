@@ -15,8 +15,9 @@ void    GpBitWriterStorageByteArray::AllocateNext (const size_bit_t aSize)
         return;
     }
 
+    size_bit_t  currentSize = size_byte_t::SMake(iOut.size());
     size_bit_t  delta       = aSize - left;
-    size_bit_t  newSize     = size_byte_t::SMake(iOut.size()) + delta;
+    size_bit_t  newSize     = currentSize + delta;
     size_bit_t  m           = newSize % 8_bit;
 
     if (m > 0_bit)

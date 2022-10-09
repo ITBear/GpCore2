@@ -18,7 +18,7 @@ namespace GPlatform {
 
 template<typename KeyT,
          typename ValueT,
-         typename UnderlyingContainerT = GpMap<KeyT, ValueT, std::less<>>>
+         typename UnderlyingContainerT = std::map<KeyT, ValueT, std::less<>>>
 class GpElementsCatalog
 {
     CLASS_REMOVE_CTRS_COPY(GpElementsCatalog)
@@ -82,7 +82,7 @@ public:
                                                  ValueGenFnT    aGenFn);
 
     template<typename K>
-    ValueT&                 RegisterOrUpdate    (K&&            aKey,
+    ValueT&                 UpdateOrRegister    (K&&            aKey,
                                                  ValueGenFnT    aGenFn,
                                                  ValueUpdateFnT aUpdateFn);
 
@@ -341,7 +341,7 @@ template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
 template<typename K>
-ValueT& GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::RegisterOrUpdate
+ValueT& GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::UpdateOrRegister
 (
     K&&             aKey,
     ValueGenFnT     aGenFn,

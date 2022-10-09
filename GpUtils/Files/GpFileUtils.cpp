@@ -1,4 +1,5 @@
 #include "GpFileUtils.hpp"
+#include "GpFile.hpp"
 #include "../Exceptions/GpException.hpp"
 #include "../Types/Strings/GpStringOps.hpp"
 
@@ -34,6 +35,18 @@ GpBytesArray    GpFileUtils::SReadAll (std::string_view aFileName)
     return data;
 }
 
+void    GpFileUtils::SWriteAll
+(
+    std::string_view    aFileName,
+    GpSpanPtrByteR      aData
+)
+{
+    GpFile  file;
+    file.Open(aFileName, {GpFileFlag::WRITE, GpFileFlag::CREATE, GpFileFlag::TRUNCATE});
+    file.Write(aData);
+    file.Close();
+}
+
 void    GpFileUtils::SAppend
 (
     const std::string_view  aFileName,
@@ -64,6 +77,11 @@ void    GpFileUtils::SCopy
 )
 {
     std::filesystem::copy(aFrom, aTo);
+}
+
+bool    GpFileUtils::SIsExists (std::string_view aFileName)
+{
+    return std::filesystem::exists(aFileName);
 }
 
 }//namespace GPlatform

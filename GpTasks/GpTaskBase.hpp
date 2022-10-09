@@ -12,7 +12,7 @@ class GP_TASKS_API GpTaskBase: public GpTask
 {
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskBase)
-    CLASS_DECLARE_DEFAULTS(GpTaskBase)
+    CLASS_DD(GpTaskBase)
 
     using EventOptRefT  = std::optional<std::reference_wrapper<GpEvent>>;
 

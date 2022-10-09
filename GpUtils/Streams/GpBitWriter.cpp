@@ -122,14 +122,14 @@ void    GpBitWriter::_Bits
         left = iStorage.Left();
     }
 
-    size_t          leftToRead      = aSize.As<size_t>();
-    const size_t    finalReadBits   = leftToRead;
+    size_t              leftToRead      = aSize.As<size_t>();
+    size_t              leftToWrite     = left.As<size_t>();
 
-    size_t          leftToWrite     = left.As<size_t>();
-    const size_t    finalWriteBits  = (iStorage.Offset() + iStorage.Size()).template As<size_t>();
+    const size_t        finalReadBits   = leftToRead;
+    const size_t        finalWriteBits  = (iStorage.Offset() + iStorage.Size()).template As<size_t>();
 
-    const std::byte*    dataIn      = aData;
-    std::byte*          dataOut     = iStorage.Data();
+    const std::byte*    dataIn          = aData;
+    std::byte*          dataOut         = iStorage.Data();
 
     while (leftToRead > 0)
     {

@@ -19,9 +19,9 @@ void    _Call
 template<typename... ArgsT>
 void    _ProcessSet
 (
-    GpVector<GpUUID>&   aTasks,
-    GpConditionVar::SP& aConditionVar,
-    ArgsT&&...          aArgs
+    std::vector<GpUUID>&    aTasks,
+    GpConditionVar::SP&     aConditionVar,
+    ArgsT&&...              aArgs
 )
 {
     //Process args

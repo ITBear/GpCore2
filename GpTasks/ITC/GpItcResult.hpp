@@ -12,7 +12,7 @@ class GpItcResult
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpItcResult)
-    CLASS_DECLARE_DEFAULTS(GpItcResult)
+    CLASS_DD(GpItcResult)
 
 public:
     inline                  GpItcResult     (void) noexcept;

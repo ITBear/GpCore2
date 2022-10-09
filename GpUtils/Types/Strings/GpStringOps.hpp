@@ -21,13 +21,13 @@ class GP_UTILS_API GpStringOps
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpStringOps)
 
 public:
-    static GpVector<std::string_view>       SSplit          (std::string_view       aSourceStr,
+    static std::vector<std::string_view>    SSplit          (std::string_view       aSourceStr,
                                                              const char             aDelim,
                                                              const size_t           aReturnPartsCountLimit,
                                                              const size_t           aDelimCountLimit,
                                                              const Algo::SplitMode  aSplitMode);
 
-    static GpVector<std::string_view>       SSplit          (std::string_view       aSourceStr,
+    static std::vector<std::string_view>    SSplit          (std::string_view       aSourceStr,
                                                              std::string_view       aDelim,
                                                              const size_t           aReturnPartsCountLimit,
                                                              const size_t           aDelimCountLimit,
@@ -67,20 +67,20 @@ public:
     static size_t                           SFromBytesHex   (GpSpanPtrByteR     aData,
                                                              GpSpanPtrCharRW    aStrOut);
     static std::string                      SFromBytesHex   (GpSpanPtrByteR     aData);
-    static inline GpArray<char,2>           SFromByteHex    (const std::byte    aData) noexcept;
+    static inline std::array<char,2>        SFromByteHex    (const std::byte    aData) noexcept;
 
     static size_byte_t                      SToBytesHex     (std::string_view   aStr,
                                                              GpSpanPtrByteRW    aDataOut);
     static GpBytesArray                     SToBytesHex     (std::string_view   aStr);
-    static constexpr std::byte              SToByteHex      (GpArray<char,2>    aStr);
+    static constexpr std::byte              SToByteHex      (std::array<char,2> aStr);
 
     static std::string                      SFromBits       (GpSpanPtrByteR     aData);
 
     //------------------------- Unicode --------------------------
-    static size_t                           SConv_UTF16_UTF8(GpArray<std::byte, 4>&         aUTF8_valueOut,
-                                                             const GpArray<std::byte, 2>    aUTF16_value);//return bytes count of aUTF8Out
-    static size_t                           SConv_UTF32_UTF8(GpArray<std::byte, 4>&         aUTF8_valueOut,
-                                                             const GpArray<std::byte, 4>    aUTF32_value);//return bytes count of aUTF8Out
+    static size_t                           SConv_UTF16_UTF8(std::array<std::byte, 4>&      aUTF8_valueOut,
+                                                             const std::array<std::byte, 2> aUTF16_value);//return bytes count of aUTF8Out
+    static size_t                           SConv_UTF32_UTF8(std::array<std::byte, 4>&      aUTF8_valueOut,
+                                                             const std::array<std::byte, 4> aUTF32_value);//return bytes count of aUTF8Out
     static size_t                           SLength_UTF8    (std::string_view aStr);
 
     //------------------------- Encode --------------------------
@@ -98,8 +98,8 @@ public:
     static size_t                           SCountCharsRange(std::string_view           aStr,
                                                              const char                 aCharFrom,
                                                              const char                 aCharTo) noexcept;
-    static bool                             SContainsOnly   (std::string_view   aStr,
-                                                             const GpSet<char>& aSet) noexcept;
+    static bool                             SContainsOnly   (std::string_view       aStr,
+                                                             const std::set<char>&  aSet) noexcept;
 
     //------------------------- Auto to string -----------------------------
     static std::string_view                 SToString       (const std::string& aValue) {return aValue;}
@@ -146,7 +146,7 @@ private:
                                                              GpSpanPtrCharRW    aStrOut);
 
 private:
-    static const GpArray<char, 201>&        SDigits         (void) noexcept;
+    static const std::array<char, 201>&     SDigits         (void) noexcept;
 };
 
 std::string_view    GpStringOps::SFromChar (const char* aStrPtr)
@@ -192,9 +192,9 @@ std::string GpStringOps::STrimRight
     return std::string();
 }
 
-GpArray<char,2> GpStringOps::SFromByteHex (const std::byte aData) noexcept
+std::array<char,2>  GpStringOps::SFromByteHex (const std::byte aData) noexcept
 {
-    constexpr GpArray<char, 16> hexToChar =
+    constexpr std::array<char, 16>  hexToChar =
     {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
@@ -203,7 +203,7 @@ GpArray<char,2> GpStringOps::SFromByteHex (const std::byte aData) noexcept
             hexToChar.data()[(size_t(aData) & size_t(0x0F)) >> 0]};
 }
 
-constexpr std::byte GpStringOps::SToByteHex (GpArray<char,2> aStr)
+constexpr std::byte GpStringOps::SToByteHex (std::array<char,2> aStr)
 {
     //--------------------------
     char    ch      = aStr.data()[0];

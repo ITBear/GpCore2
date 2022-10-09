@@ -36,8 +36,8 @@ public:
     inline GpByteWriter&    Bytes           (GpSpanPtrByteR aData);
     inline GpByteWriter&    Bytes           (const void*    aPtr,
                                              const size_t   aSize);
-    GpByteWriter&           CompactUInt32   (const u_int_32 aValue);
-    GpByteWriter&           CompactUInt16   (const u_int_16 aValue);
+    GpByteWriter&           CompactUInt64   (const u_int_64 aValue);
+    GpByteWriter&           CompactSInt64   (const s_int_64 aValue);
 
 private:
     template<typename T>

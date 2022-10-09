@@ -12,7 +12,7 @@ namespace GPlatform {
 class GpEventPublisher
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpEventPublisher)
+    CLASS_DD(GpEventPublisher)
     CLASS_REMOVE_CTRS_MOVE_COPY(GpEventPublisher)
 
     CLASS_TAG(THREAD_SAFE)

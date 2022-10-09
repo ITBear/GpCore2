@@ -13,7 +13,7 @@ namespace GPlatform {
 class GP_UTILS_API GpEventSubscriber
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpEventSubscriber)
+    CLASS_DD(GpEventSubscriber)
     CLASS_REMOVE_CTRS_MOVE_COPY(GpEventSubscriber)
 
 protected:

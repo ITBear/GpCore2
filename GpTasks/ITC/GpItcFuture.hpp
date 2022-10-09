@@ -19,7 +19,7 @@ class GP_TASKS_API GpItcFuture
 
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpItcFuture)
-    CLASS_DECLARE_DEFAULTS(GpItcFuture)
+    CLASS_DD(GpItcFuture)
 
 public:
                         GpItcFuture         (void) noexcept = default;

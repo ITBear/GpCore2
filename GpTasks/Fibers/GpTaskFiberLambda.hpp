@@ -13,7 +13,7 @@ class GP_TASKS_API GpTaskFiberLambda final: public GpTaskFiberBase
 {
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskFiberLambda)
-    CLASS_DECLARE_DEFAULTS(GpTaskFiberLambda)
+    CLASS_DD(GpTaskFiberLambda)
 
     using FnT       = std::function<void(GpTask& aTask)>;
     using OnStepFnT = std::function<GpTaskDoRes(EventOptRefT aEvent)>;

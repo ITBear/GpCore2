@@ -22,7 +22,7 @@ std::string GpUUID::ToString (void) const
 
     for (size_t id = 0; id < data.size(); ++id)
     {
-        GpArray<char,2> h = StrOps::SFromByteHex(*dataPtr++);
+        std::array<char,2> h = StrOps::SFromByteHex(*dataPtr++);
         *strPtr++ = h.at(0);
         *strPtr++ = h.at(1);
 
@@ -53,7 +53,7 @@ void    GpUUID::FromString (std::string_view aStr)
 
     for (size_t id = 0; id < data.size(); ++id)
     {
-        GpArray<char,2> str = {*strPtr++, *strPtr++};
+        std::array<char,2> str = {*strPtr++, *strPtr++};
 
         *dataPtr++ = StrOps::SToByteHex(str);
 

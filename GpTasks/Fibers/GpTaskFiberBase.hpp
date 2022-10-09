@@ -13,7 +13,7 @@ class GP_TASKS_API GpTaskFiberBase: public GpTaskFiber
 {
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskFiberBase)
-    CLASS_DECLARE_DEFAULTS(GpTaskFiberBase)
+    CLASS_DD(GpTaskFiberBase)
 
     using EventOptRefT  = std::optional<std::reference_wrapper<GpEvent>>;
 

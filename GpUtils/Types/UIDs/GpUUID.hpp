@@ -17,9 +17,9 @@ class GpRandom;
 class GP_UTILS_API GpUUID
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpUUID)
+    CLASS_DD(GpUUID)
 
-    using DataT = GpArray<std::byte, 16>;
+    using DataT = std::array<std::byte, 16>;
 
 public:
     constexpr                           GpUUID          (void) noexcept:iData(CE_Zero()) {}
@@ -68,7 +68,7 @@ public:
     static GpUUID                       SFromString     (std::string_view aStr);
 
     inline static consteval DataT       CE_FromString   (std::string_view aStr);
-    inline static consteval std::byte   SToByte         (GpArray<char,2> aStr);
+    inline static consteval std::byte   SToByte         (std::array<char,2> aStr);
     inline static constexpr DataT       CE_Zero         (void) noexcept;
 
 private:
@@ -214,7 +214,7 @@ consteval GpUUID::DataT GpUUID::CE_FromString (std::string_view aStr)
 
     for (size_t id = 0; id < data.size(); ++id)
     {
-        GpArray<char,2> str = {*strPtr++, *strPtr++};
+        std::array<char,2> str = {*strPtr++, *strPtr++};
 
         *dataPtr++ = SToByte(str);
 
@@ -230,7 +230,7 @@ consteval GpUUID::DataT GpUUID::CE_FromString (std::string_view aStr)
     return data;
 }
 
-consteval std::byte GpUUID::SToByte (GpArray<char,2> aStr)
+consteval std::byte GpUUID::SToByte (std::array<char,2> aStr)
 {
     //--------------------------
     char    ch      = aStr.data()[0];
@@ -280,6 +280,8 @@ struct hash<GPlatform::GpUUID>
 {
     std::size_t operator()(const GPlatform::GpUUID& aUuid) const noexcept
     {
+        static_assert(sizeof(std::size_t) == sizeof(u_int_64));
+
         u_int_64 p1;
         u_int_64 p2;
 

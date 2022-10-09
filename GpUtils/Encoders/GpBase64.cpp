@@ -6,7 +6,7 @@
 
 namespace GPlatform {
 
-const GpArray<std::byte, 64> GpBase64::sAlphabet =
+const std::array<std::byte, 64> GpBase64::sAlphabet =
 {
     std::byte('A'),std::byte('B'),std::byte('C'),std::byte('D'),std::byte('E'),std::byte('F'),std::byte('G'),std::byte('H'),std::byte('I'),std::byte('J'),std::byte('K'),std::byte('L'),std::byte('M'),std::byte('N'),std::byte('O'),std::byte('P'),std::byte('Q'),std::byte('R'),std::byte('S'),std::byte('T'),std::byte('U'),std::byte('V'),std::byte('W'),std::byte('X'),std::byte('Y'),std::byte('Z'),
     std::byte('a'),std::byte('b'),std::byte('c'),std::byte('d'),std::byte('e'),std::byte('f'),std::byte('g'),std::byte('h'),std::byte('i'),std::byte('j'),std::byte('k'),std::byte('l'),std::byte('m'),std::byte('n'),std::byte('o'),std::byte('p'),std::byte('q'),std::byte('r'),std::byte('s'),std::byte('t'),std::byte('u'),std::byte('v'),std::byte('w'),std::byte('x'),std::byte('y'),std::byte('z'),
@@ -152,7 +152,7 @@ void    GpBase64::SDecode
         "decodedData is nullptr"_sv
     );
 
-    GpArray<std::byte, 4>   blockBase64;
+    std::array<std::byte, 4>    blockBase64;
     size_t                  blockId = 0;
     size_t                  padding = 0;
 

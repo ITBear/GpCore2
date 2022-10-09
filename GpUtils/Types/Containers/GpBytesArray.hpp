@@ -16,7 +16,7 @@ using GpSpanPtrCharRW   = GpSpanPtr<char*>;
 using GpSpanPtrByteR    = GpSpanPtr<const std::byte*>;
 using GpSpanPtrByteRW   = GpSpanPtr<std::byte*>;
 
-using GpBytesArray      = GpVector<std::byte>;
+using GpBytesArray      = std::vector<std::byte>;
 
 class GpBytesArrayUtils
 {

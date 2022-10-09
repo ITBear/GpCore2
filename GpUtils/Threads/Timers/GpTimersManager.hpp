@@ -15,7 +15,7 @@ class GP_UTILS_API GpTimersManager final: public GpRunnable
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpTimersManager)
-    CLASS_DECLARE_DEFAULTS(GpTimersManager)
+    CLASS_DD(GpTimersManager)
 
     using TimersT = GpElementsCatalog<const void*, GpTimer::SP>;
 

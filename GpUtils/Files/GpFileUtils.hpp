@@ -14,10 +14,13 @@ public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpFileUtils)
 
     static GpBytesArray     SReadAll    (std::string_view aFileName);
+    static void             SWriteAll   (std::string_view   aFileName,
+                                         GpSpanPtrByteR     aData);
     static void             SAppend     (std::string_view   aFileName,
                                          GpSpanPtrByteR     aData);
     static void             SCopy       (std::string_view aFrom,
                                          std::string_view aTo);
+    static bool             SIsExists   (std::string_view aFileName);
 private:
 
 };

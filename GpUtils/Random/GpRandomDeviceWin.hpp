@@ -34,7 +34,7 @@ private:
     void                            Clear               (void) noexcept;
 
 private:
-    GpVector<u_int_8>               iRandomVec;
+    std::vector<u_int_8>            iRandomVec;
     size_t                          iRandomVecUnused    = 0;
 };
 

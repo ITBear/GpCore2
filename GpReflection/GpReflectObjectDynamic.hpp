@@ -11,7 +11,7 @@ namespace GPlatform {
 class GP_REFLECTION_API GpReflectObjectDynamic final: public GpReflectObject
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpReflectObjectDynamic)
+    CLASS_DD(GpReflectObjectDynamic)
 
     using BaseT = GpReflectObject;
 

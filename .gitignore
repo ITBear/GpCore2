@@ -67,6 +67,7 @@
 # Don't ignore pojects
 !.project
 !*.pro
+!*.pri
 
 # Don't ignore Qt UI
 !*.ui

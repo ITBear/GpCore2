@@ -13,7 +13,7 @@ class GpRunnable
 {
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpRunnable)
-    CLASS_DECLARE_DEFAULTS(GpRunnable)
+    CLASS_DD(GpRunnable)
 
 protected:
     inline                  GpRunnable      (GpConditionVar::SP aCondVar) noexcept;

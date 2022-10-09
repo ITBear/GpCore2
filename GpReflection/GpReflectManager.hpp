@@ -12,7 +12,7 @@ class GP_REFLECTION_API GpReflectManager
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpReflectManager)
-    CLASS_DECLARE_DEFAULTS(GpReflectManager)
+    CLASS_DD(GpReflectManager)
     CLASS_TAG(THREAD_SAFE)
 
     using ElementsT = GpElementsCatalog<GpUUID, GpReflectModel::CSP>;

@@ -386,7 +386,7 @@ public:
              typename SCALE_2,
              typename UNIT_NAME_2,
              Convertible<T_2, N_2, UNIT_TYPE_2> = 0>
-    constexpr friend const this_type operator+ (const this_type& aLeft, const GpUnit<T_2, N_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2>& aRight)
+    constexpr friend this_type operator+ (const this_type& aLeft, const GpUnit<T_2, N_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2>& aRight)
     {
         this_type res(aLeft);
         res += aRight;
@@ -399,7 +399,7 @@ public:
              typename SCALE_2,
              typename UNIT_NAME_2,
              Convertible<T_2, N_2, UNIT_TYPE_2> = 0>
-    constexpr friend const this_type operator-(const this_type& aLeft, const GpUnit<T_2, N_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2>& aRight)
+    constexpr friend this_type operator-(const this_type& aLeft, const GpUnit<T_2, N_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2>& aRight)
     {
         this_type res(aLeft);
         res -= aRight;
@@ -412,7 +412,7 @@ public:
              typename SCALE_2,
              typename UNIT_NAME_2,
              Convertible<T_2, N_2, UNIT_TYPE_2> = 0>
-    constexpr friend const this_type operator*(const this_type& aLeft, const GpUnit<T_2, N_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2>& aRight)
+    constexpr friend this_type operator*(const this_type& aLeft, const GpUnit<T_2, N_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2>& aRight)
     {
         this_type res(aLeft);
         res *= aRight;
@@ -425,7 +425,7 @@ public:
              typename SCALE_2,
              typename UNIT_NAME_2,
              Convertible<T_2, N_2, UNIT_TYPE_2> = 0>
-    constexpr friend const this_type operator/(const this_type& aLeft, const GpUnit<T_2, N_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2>& aRight)
+    constexpr friend this_type operator/(const this_type& aLeft, const GpUnit<T_2, N_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2>& aRight)
     {
         this_type res(aLeft);
         res /= aRight;
@@ -438,7 +438,7 @@ public:
              typename SCALE_2,
              typename UNIT_NAME_2,
              Convertible<T_2, N_2, UNIT_TYPE_2> = 0>
-    constexpr friend const this_type operator%(const this_type& aLeft, const GpUnit<T_2, N_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2>& aRight)
+    constexpr friend this_type operator%(const this_type& aLeft, const GpUnit<T_2, N_2, UNIT_TYPE_2, SCALE_2, UNIT_NAME_2>& aRight)
     {
         this_type res(aLeft);
         res %= aRight;

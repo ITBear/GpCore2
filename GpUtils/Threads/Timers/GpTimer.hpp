@@ -13,7 +13,7 @@ class GP_UTILS_API GpTimer final: protected GpEventPublisher
 {
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTimer)
-    CLASS_DECLARE_DEFAULTS(GpTimer)
+    CLASS_DD(GpTimer)
 
     enum class ShotRes
     {

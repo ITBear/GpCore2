@@ -24,7 +24,7 @@ public:
 
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpConditionVar)
-    CLASS_DECLARE_DEFAULTS(GpConditionVar)
+    CLASS_DD(GpConditionVar)
 
     CLASS_TAG(THREAD_SAFE)
 

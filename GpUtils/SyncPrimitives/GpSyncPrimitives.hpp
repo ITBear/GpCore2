@@ -5,3 +5,4 @@
 #include "GpRWLock.hpp"
 #include "GpSpinlock.hpp"
 #include "GpUnlockGuard.hpp"
+#include "GpTryLockGuard.hpp"

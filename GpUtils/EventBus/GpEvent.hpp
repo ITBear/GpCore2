@@ -12,7 +12,7 @@ namespace GPlatform {
 class GpEvent
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpEvent)
+    CLASS_DD(GpEvent)
 
 protected:
                             GpEvent     (void) noexcept = default;

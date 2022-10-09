@@ -271,13 +271,13 @@ public:
     std::span<value_type>                       AsStdSpan           (void) const;
     std::span<std::byte>                        AsStdSpanByte       (void) const;
     std::span<const std::byte>                  AsStdSpanConstByte  (void) const;
-    GpVector<std::byte>                         ToByteArray         (void) const;
+    std::vector<std::byte>                      ToByteArray         (void) const;
 
     template<typename SpanT>
     this_type&                                  CopyFrom            (const SpanT& aSpan);
 
-    //static_cast<GpVector<std::byte>>
-    operator                                    GpVector<std::byte>() const {return ToByteArray();}
+    //static_cast<std::vector<std::byte>>
+    operator                                    std::vector<std::byte>() const  {return ToByteArray();}
 
 private:
     template<typename PtrToT, typename PtrFromT>
@@ -542,9 +542,9 @@ std::span<const std::byte>  GpSpanPtr<T>::AsStdSpanConstByte (void) const
 }
 
 template<typename T>
-GpVector<std::byte>     GpSpanPtr<T>::ToByteArray (void) const
+std::vector<std::byte>      GpSpanPtr<T>::ToByteArray (void) const
 {
-    GpVector<std::byte> res;
+    std::vector<std::byte> res;
 
     const size_byte_t size = Size();
 

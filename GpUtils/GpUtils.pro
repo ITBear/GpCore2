@@ -27,8 +27,10 @@ SOURCES += \
     EventBus/GpEventSubscriber.cpp \
     Exceptions/GpException.cpp \
     Exceptions/GpExceptionUtils.cpp \
+    Files/GpFile.cpp \
     Files/GpFileUtils.cpp \
     Other/GpErrno.cpp \
+    Other/GpGlobals.cpp \
     Random/GpRandom.cpp \
     Random/GpRandomDeviceWin.cpp \
     Random/GpRandomStrMode.cpp \
@@ -77,13 +79,17 @@ HEADERS += \
     Exceptions/GpExceptionUtils.hpp \
     Exceptions/GpExceptions.hpp \
     Exceptions/GpOnThrowStackUnwindFn.hpp \
+    Files/GpFile.hpp \
+    Files/GpFilePosix.hpp \
     Files/GpFileUtils.hpp \
+    Files/GpFileWindows.hpp \
     Files/GpFiles.hpp \
     GpMacro.hpp \
     GpMemOps.hpp \
     GpUtils.hpp \
     GpUtils_global.hpp \
     Other/GpErrno.hpp \
+    Other/GpGlobals.hpp \
     Other/GpOther.hpp \
     Other/GpRAIIonDestruct.hpp \
     Random/GpRandom.hpp \
@@ -112,6 +118,7 @@ HEADERS += \
     SyncPrimitives/GpRWLock.hpp \
     SyncPrimitives/GpSpinlock.hpp \
     SyncPrimitives/GpSyncPrimitives.hpp \
+    SyncPrimitives/GpTryLockGuard.hpp \
     SyncPrimitives/GpUnlockGuard.hpp \
     Threads/GpRunnable.hpp \
     Threads/GpThread.hpp \
@@ -134,6 +141,7 @@ HEADERS += \
     Types/Bits/GpBitset.hpp \
     Types/Bool/GpBool.hpp \
     Types/Containers/GpBytesArray.hpp \
+    Types/Containers/GpCachePool.hpp \
     Types/Containers/GpContainers.hpp \
     Types/Containers/GpContainersT.hpp \
     Types/Containers/GpElementsCatalog.hpp \

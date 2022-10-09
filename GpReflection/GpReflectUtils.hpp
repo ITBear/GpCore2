@@ -143,7 +143,7 @@ constexpr std::tuple<GpReflectType::EnumT, GpReflectType::EnumT, GpReflectContai
         return {t, GpReflectType::NOT_SET, GpReflectContainerType::NO};
     } else
     {
-        if constexpr (std::is_same_v<T, GpVector<typename T::value_type>>)
+        if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
         {
             constexpr std::tuple<GpReflectType::EnumT, GpReflectType::EnumT, GpReflectContainerType::EnumT> res
                 = {SDetectType<typename T::value_type>(), GpReflectType::NOT_SET, GpReflectContainerType::VECTOR};
@@ -154,7 +154,7 @@ constexpr std::tuple<GpReflectType::EnumT, GpReflectType::EnumT, GpReflectContai
             }
 
             return res;
-        } else if constexpr (std::is_same_v<T, GpMap<typename T::key_type, typename T::mapped_type, std::less<>>>)
+        } else if constexpr (std::is_same_v<T, std::map<typename T::key_type, typename T::mapped_type, std::less<>>>)
         {
             constexpr std::tuple<GpReflectType::EnumT, GpReflectType::EnumT, GpReflectContainerType::EnumT> res
                 = {SDetectType<typename T::mapped_type>(),
@@ -206,11 +206,11 @@ constexpr GpUUID    GpReflectUtils::SDetectModelUid (void)
         return SGetModelUid<T, t>();
     } else
     {
-        if constexpr (std::is_same_v<T, GpVector<typename T::value_type>>)
+        if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
         {
             constexpr GpReflectType::EnumT et = SDetectType<typename T::value_type>();
             return SGetModelUid<typename T::value_type, et>();
-        } else if constexpr (std::is_same_v<T, GpMap<typename T::key_type, typename T::mapped_type, std::less<>>>)
+        } else if constexpr (std::is_same_v<T, std::map<typename T::key_type, typename T::mapped_type, std::less<>>>)
         {
             constexpr GpReflectType::EnumT et = SDetectType<typename T::mapped_type>();
             return SGetModelUid<typename T::mapped_type, et>();
@@ -319,7 +319,7 @@ T   GpReflectUtils::SCopyValue (const T& aValue)
     } else if constexpr (GpUnitUtils::SHasTag_GpUnit<VT>()) return aValue;
     else if constexpr (GpEnum::SHasTag_GpEnum<VT>()) return aValue;
     else if constexpr (GpEnumFlags::SHasTag_GpEnumFlags<VT>()) return aValue;
-    else if constexpr (std::is_same_v<T, GpVector<typename T::value_type>>)
+    else if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
     {
         if constexpr (GpReflectObject::SP::SHasTag_GpSharedPtrBase<typename T::value_type>())
         {
@@ -337,7 +337,7 @@ T   GpReflectUtils::SCopyValue (const T& aValue)
         {
             return aValue;
         }
-    } else if constexpr (std::is_same_v<T, GpMap<typename T::key_type, typename T::mapped_type, std::less<>>>)
+    } else if constexpr (std::is_same_v<T, std::map<typename T::key_type, typename T::mapped_type, std::less<>>>)
     {
         if constexpr (GpReflectObject::SP::SHasTag_GpSharedPtrBase<typename T::mapped_type>())
         {

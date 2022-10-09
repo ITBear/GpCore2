@@ -8,7 +8,7 @@ class GpItcProducerConsumer
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpItcProducerConsumer)
-    CLASS_DECLARE_DEFAULTS(GpItcProducerConsumer)
+    CLASS_DD(GpItcProducerConsumer)
 
 public:
                                                     GpItcProducerConsumer   (void) noexcept = default;

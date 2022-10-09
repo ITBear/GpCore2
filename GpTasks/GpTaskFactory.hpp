@@ -12,7 +12,7 @@ class GP_TASKS_API GpTaskFactory
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskFactory)
-    CLASS_DECLARE_DEFAULTS(GpTaskFactory)
+    CLASS_DD(GpTaskFactory)
 
 protected:
                                 GpTaskFactory   (void) noexcept {}

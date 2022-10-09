@@ -12,7 +12,7 @@ class GpReflectObjectFactory
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpReflectObjectFactory)
-    CLASS_DECLARE_DEFAULTS(GpReflectObjectFactory)
+    CLASS_DD(GpReflectObjectFactory)
 
 protected:
                                     GpReflectObjectFactory  (void) noexcept = default;

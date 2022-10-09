@@ -12,7 +12,7 @@ namespace GPlatform {
 
 GP_ENUM_IMPL(GpBase58Alphabet)
 
-GpArray<u_int_8, 58>    GpBase58::sAlphabets[GpBase58Alphabet::SCount()] =
+std::array<u_int_8, 58> GpBase58::sAlphabets[GpBase58Alphabet::SCount()] =
 {
     //NAKAMOTO
     {'1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','m','n','o','p','q','r','s','t','u','v','w','x','y','z'},
@@ -35,7 +35,7 @@ void    GpBase58::SEncode
     );
 
     //----------------- Alphabet -------------------
-    GpArray<u_int_8, 58> alphabet;
+    std::array<u_int_8, 58> alphabet;
     std::memcpy(alphabet.data(), Alphabet(aAlphabet).data(), 58);
 
     //----------------- Generate BASE58 -------------------
@@ -202,7 +202,7 @@ std::any    GpBase58::SDecodePrecalc
     );
 
     //----------------- Alphabet -------------------
-    GpArray<u_int_8, 58> alphabet;
+    std::array<u_int_8, 58> alphabet;
     std::memcpy(alphabet.data(), Alphabet(aAlphabet).data(), 58);
 
     //----------------- Decode BASE58 -------------------
@@ -242,7 +242,7 @@ void    GpBase58::SDecode
 size_t  GpBase58::SFindChId
 (
     const u_int_8               aCh,
-    const GpArray<u_int_8, 58>& aAlphabet
+    const std::array<u_int_8, 58>&  aAlphabet
 )
 {
     size_t id = 0;

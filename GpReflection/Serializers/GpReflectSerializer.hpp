@@ -13,7 +13,7 @@ class GpByteWriter;
 class GP_REFLECTION_API GpReflectSerializer
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpReflectSerializer)
+    CLASS_DD(GpReflectSerializer)
 
 public:
                                 GpReflectSerializer     (void) noexcept = default;
@@ -23,7 +23,7 @@ public:
     virtual GpReflectObject::SP ToObject                (GpSpanPtrByteR         aData,
                                                          const GpReflectModel&  aModel) const = 0;
     virtual GpReflectObject::SP ToObject                (GpSpanPtrByteR                         aData,
-                                                         const GpVector<const GpReflectModel*>& aModelVariants) const = 0;
+                                                         const std::vector<const GpReflectModel*>&  aModelVariants) const = 0;
 
     GpBytesArray                FromObject              (const GpReflectObject& aObject) const;
     virtual void                FromObject              (const GpReflectObject& aObject,

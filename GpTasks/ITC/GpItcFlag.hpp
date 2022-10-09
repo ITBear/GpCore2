@@ -14,7 +14,7 @@ class GP_TASKS_API GpItcFlag
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpItcFlag)
-    CLASS_DECLARE_DEFAULTS(GpItcFlag)
+    CLASS_DD(GpItcFlag)
 
 public:
                         GpItcFlag       (void) noexcept = default;
@@ -39,7 +39,7 @@ private:
 
 protected:
     mutable GpSpinlock  iLock;
-    GpVector<GpUUID>    iTasks;
+    std::vector<GpUUID> iTasks;
     GpConditionVar::SP  iConditionVar;
     bool                iFlag = false;
 };

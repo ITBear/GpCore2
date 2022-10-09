@@ -32,7 +32,7 @@ class GP_TASKS_API GpTask: public GpEventSubscriber
 
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTask)
-    CLASS_DECLARE_DEFAULTS(GpTask)
+    CLASS_DD(GpTask)
 
     using StateT        = GpTaskState;
     using StateTE       = StateT::EnumT;

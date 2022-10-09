@@ -71,7 +71,7 @@ GpEnum::NamesListT  GpEnum::_SParseEnumElements
     std::string_view aEnumElementsStr
 )
 {
-    GpVector<GpTuple<std::string_view, value_type>> res;
+    std::vector<std::tuple<std::string_view, value_type>> res;
 
     _SParseEnumValues(res, aEnumName, aEnumElementsStr);
 
@@ -86,7 +86,7 @@ void    GpEnum::_SParseEnumValues
 )
 {
     //Split by ','
-    const GpVector<std::string_view> elements = StrOps::SSplit
+    const std::vector<std::string_view> elements = StrOps::SSplit
     (
         aEnumElementsStr,
         ',',
@@ -103,7 +103,7 @@ void    GpEnum::_SParseEnumValues
     for (std::string_view element: elements)
     {
         //Split by ' '
-        const GpVector<std::string_view> parts = StrOps::SSplit
+        const std::vector<std::string_view> parts = StrOps::SSplit
         (
             element,
             ' ',

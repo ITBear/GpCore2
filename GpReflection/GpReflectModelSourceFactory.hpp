@@ -12,7 +12,7 @@ class GpReflectModelSourceFactory
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpReflectModelSourceFactory)
-    CLASS_DECLARE_DEFAULTS(GpReflectModelSourceFactory)
+    CLASS_DD(GpReflectModelSourceFactory)
 
 protected:
                                         GpReflectModelSourceFactory     (void) noexcept = default;

@@ -14,7 +14,7 @@ class GP_TASKS_API GpTaskExecutorsPool final: public GpElementsPool<GpTaskExecut
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskExecutorsPool)
-    CLASS_DECLARE_DEFAULTS(GpTaskExecutorsPool)
+    CLASS_DD(GpTaskExecutorsPool)
 
     using ExecutorT = GpTaskExecutor;
 

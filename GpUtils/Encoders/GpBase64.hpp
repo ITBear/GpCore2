@@ -34,7 +34,7 @@ private:
 
     static std::byte        SAlphabetToByte     (const std::byte aValue);
 
-    static const GpArray<std::byte, 64> sAlphabet;
+    static const std::array<std::byte, 64>  sAlphabet;
 };
 
 }//GPlatform

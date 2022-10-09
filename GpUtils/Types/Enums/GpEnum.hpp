@@ -13,12 +13,12 @@ class GP_UTILS_API GpEnum
 {
 public:
     CLASS_REMOVE_CTRS_MOVE(GpEnum)
-    CLASS_DECLARE_DEFAULTS(GpEnum)
+    CLASS_DD(GpEnum)
     CLASS_TAG(GpEnum)
     CLASS_TAG_DETECTOR(GpEnum)
 
     using value_type    = ssize_t;
-    using NamesListT    = GpVector<GpTuple<std::string_view, value_type>>;
+    using NamesListT    = std::vector<std::tuple<std::string_view, value_type>>;
 
 protected:
                                 GpEnum              (void) noexcept:iId(value_type()) {}
@@ -67,7 +67,7 @@ private:
 class PREFIX TYPE_NAME final: public GpEnum \
 { \
 public: \
-    CLASS_DECLARE_DEFAULTS(TYPE_NAME) \
+    CLASS_DD(TYPE_NAME) \
 \
     enum EnumT: value_type \
     { \

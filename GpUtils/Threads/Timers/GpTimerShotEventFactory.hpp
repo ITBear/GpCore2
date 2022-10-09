@@ -12,7 +12,7 @@ class GP_UTILS_API GpTimerShotEventFactory
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpTimerShotEventFactory)
-    CLASS_DECLARE_DEFAULTS(GpTimerShotEventFactory)
+    CLASS_DD(GpTimerShotEventFactory)
 
 public:
                                     GpTimerShotEventFactory     (void) noexcept = default;

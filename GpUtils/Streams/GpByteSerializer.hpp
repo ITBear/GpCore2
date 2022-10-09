@@ -9,7 +9,7 @@ class GpByteSerializer
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpByteSerializer)
-    CLASS_DECLARE_DEFAULTS(GpByteSerializer)
+    CLASS_DD(GpByteSerializer)
 
 protected:
                             GpByteSerializer    (void) noexcept = default;

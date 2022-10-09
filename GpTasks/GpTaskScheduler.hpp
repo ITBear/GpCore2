@@ -13,7 +13,7 @@ class GP_TASKS_API GpTaskScheduler
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskScheduler)
-    CLASS_DECLARE_DEFAULTS(GpTaskScheduler)
+    CLASS_DD(GpTaskScheduler)
 
     using ExecutorT             = GpTaskExecutor;
     using TaskSchedulerOptRefT  = std::optional<GpTaskScheduler::WP>;

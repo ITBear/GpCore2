@@ -19,7 +19,7 @@ class GpElementsPool
 public:
     using this_type     = GpElementsPool<T>;
     using value_type    = T;
-    using QueueT        = GpQueue<value_type>;
+    using QueueT        = std::queue<value_type>;
 
     CLASS_TAG(THREAD_SAFE)
 

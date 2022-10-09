@@ -8,7 +8,7 @@ class GpByteSerializerFactory
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpByteSerializerFactory)
-    CLASS_DECLARE_DEFAULTS(GpByteSerializerFactory)
+    CLASS_DD(GpByteSerializerFactory)
 
 public:
                                     GpByteSerializerFactory     (void) noexcept = default;

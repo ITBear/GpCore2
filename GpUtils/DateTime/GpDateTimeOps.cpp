@@ -10,7 +10,7 @@ namespace GPlatform {
 
 const microseconds_t    GpDateTimeOps::sStartSteadyTS = GpDateTimeOps::SSteadyTS_us();
 
-const GpArray<std::string, GpDateTimeFormat::SCount()>  GpDateTimeOps::sFormats =
+const std::array<std::string, GpDateTimeFormat::SCount()>   GpDateTimeOps::sFormats =
 {
     "%FT%X+00:00",              //ISO_8601:         2021-01-11T20:15:31+00:00
     "%a, %d %b %Y %X +0000",    //RFC_2822:         Mon, 11 Jan 2021 20:15:31 +0000

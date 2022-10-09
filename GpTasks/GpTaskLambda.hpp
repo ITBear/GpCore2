@@ -12,7 +12,7 @@ class GP_TASKS_API GpTaskLambda final: public GpTaskBase
 {
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskLambda)
-    CLASS_DECLARE_DEFAULTS(GpTaskLambda)
+    CLASS_DD(GpTaskLambda)
 
     using OnStartFnT    = std::function<void()>;
     using OnStepFnT     = std::function<GpTaskDoRes(EventOptRefT aEvent)>;

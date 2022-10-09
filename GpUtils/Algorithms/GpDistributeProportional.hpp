@@ -8,15 +8,15 @@ template<typename T>
 class DistributeProportional
 {
 public:
-    static GpVector<T>  SDist (const GpVector<T>&   aWeights,
-                               const T              aValueToDist);
+    static std::vector<T>   SDist   (const std::vector<T>&  aWeights,
+                                     const T                aValueToDist);
 };
 
 template<typename T>
-GpVector<T> DistributeProportional<T>::SDist
+std::vector<T>  DistributeProportional<T>::SDist
 (
-    const GpVector<T>&  aWeights,
-    const T             aValueToDist
+    const std::vector<T>&   aWeights,
+    const T                 aValueToDist
 )
 {
     using BigNumT = std::conditional_t<std::is_signed_v<T>, s_int_128, u_int_128>;
@@ -33,7 +33,7 @@ GpVector<T> DistributeProportional<T>::SDist
     }
 
     //Allocate
-    GpVector<T> res;
+    std::vector<T> res;
     res.resize(count);
 
     //Calc weights summ

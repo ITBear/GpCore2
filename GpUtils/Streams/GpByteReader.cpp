@@ -42,17 +42,17 @@ s_int_64    GpByteReader::GpByteReader::SInt64 (void)
     return ReadPOD<s_int_64>();
 }
 
-s_int_32    GpByteReader::CompactSInt32 (void)
+u_int_64    GpByteReader::CompactUInt64 (void)
 {
-    s_int_32 val = 0;
+    u_int_64 val = 0;
 
-    for (ssize_t id = 3; id >= 0; --id)
+    for (ssize_t id = (sizeof(u_int_64) + 1); id >= 0; --id)
     {
         const u_int_8 byte = UInt8();
         val = val << 7;
         val |= byte & 0b01111111;
 
-        if (byte & 0b1000000)
+        if (!(byte & u_int_8(0b10000000)))
         {
             break;
         }
@@ -61,10 +61,29 @@ s_int_32    GpByteReader::CompactSInt32 (void)
     return val;
 }
 
+s_int_64    GpByteReader::CompactSInt64 (void)
+{
+    u_int_64 value = CompactUInt64();
+
+    if (value & u_int_64(1))//Negative
+    {
+        if (value != 1)
+        {
+            return -s_int_64(value >> 1);
+        } else
+        {
+            return std::numeric_limits<s_int_64>::min();
+        }
+    } else
+    {
+        return s_int_64(value >> 1);
+    }
+}
+
 GpSpanPtrByteR  GpByteReader::BytesWithLen (void)
 {
     //Length
-    const size_t size = NumOps::SConvert<size_t>(CompactSInt32());
+    const size_t size = NumOps::SConvert<size_t>(CompactUInt64());
 
     //Data
     return Bytes(size);

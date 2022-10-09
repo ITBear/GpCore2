@@ -20,7 +20,7 @@ namespace GPlatform {
 class GP_REFLECTION_API GpReflectObject
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpReflectObject)
+    CLASS_DD(GpReflectObject)
 
     struct  _type_id_tag_t{};
     template<typename T> static T& SBaseType(void(T::*)(typename T::_type_id_tag_t&) const);

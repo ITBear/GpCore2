@@ -62,7 +62,7 @@ namespace GPlatform {
             NAME        (const NAME&) noexcept = delete;\
     NAME&   operator=   (const NAME&) noexcept = delete;
 
-#define CLASS_DECLARE_DEFAULTS(TYPENAME) \
+#define CLASS_DD(TYPENAME) \
     using this_type = TYPENAME; \
     using C         = GpDeclContainersT<this_type>; \
     using SP        = C::SP; \

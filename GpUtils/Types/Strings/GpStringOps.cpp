@@ -10,7 +10,7 @@
 
 namespace GPlatform {
 
-GpVector<std::string_view>  GpStringOps::SSplit
+std::vector<std::string_view>   GpStringOps::SSplit
 (
     std::string_view        aSourceStr,
     const char              aDelim,
@@ -19,7 +19,7 @@ GpVector<std::string_view>  GpStringOps::SSplit
     const Algo::SplitMode   aSplitMode
 )
 {
-    return Algo::Split<char, GpVector<std::string_view>>
+    return Algo::Split<char, std::vector<std::string_view>>
     (
         GpSpanPtrCharR(aSourceStr),
         GpSpanPtrCharR(&aDelim, 1),
@@ -29,7 +29,7 @@ GpVector<std::string_view>  GpStringOps::SSplit
     );
 }
 
-GpVector<std::string_view>  GpStringOps::SSplit
+std::vector<std::string_view>   GpStringOps::SSplit
 (
     std::string_view        aSourceStr,
     std::string_view        aDelim,
@@ -38,7 +38,7 @@ GpVector<std::string_view>  GpStringOps::SSplit
     const Algo::SplitMode   aSplitMode
 )
 {
-    return Algo::Split<char, GpVector<std::string_view>>
+    return Algo::Split<char, std::vector<std::string_view>>
     (
         GpSpanPtrCharR(aSourceStr),
         GpSpanPtrCharR(aDelim),
@@ -201,55 +201,16 @@ u_int_64    GpStringOps::SToUI64
         return result;
     } else if (r.ec == std::errc::invalid_argument)
     {
-        THROW_GP("Wrong string value"_sv);
+        THROW_GP("Wrong source string value '"_sv + aStr + "'"_sv);
     } else if (r.ec == std::errc::result_out_of_range)
     {
-        THROW_GP("Out of u_int_64 range"_sv);
+        THROW_GP("Out of u_int_64 range: '"_sv + aStr + "'"_sv);
     } else
     {
-        THROW_GP("std::errc() = "_sv + int(std::errc()));
+        THROW_GP("std::errc() = "_sv + int(std::errc()) + ". Source string '"_sv + aStr + "'"_sv);
     }
 
     return result;
-
-    //UInt64        res         = 0_u_int_64;
-    //const char*   str         = aStr.Ptr();
-    //size_t        len         = aStr.CountLeft().As<size_t>();
-    //size_t        readLength  = 0;
-    //
-    //THROW_COND_GP
-    //(
-    //  len > 0,
-    //  "Empty string"_sv
-    //);
-    //
-    //while (len-- > 0)
-    //{
-    //  const char ch = *str++;
-    //
-    //  if (('0' <= ch) && (ch <= '9'))
-    //  {
-    //      readLength++;
-    //      res = (res * UInt64::SMake(10)) + UInt64::SMake(u_int_64(ch) - u_int_64('0'));
-    //  } else
-    //  {
-    //      break;
-    //  }
-    //}
-    //
-    //if (aReadCountOut.has_value())
-    //{
-    //  aReadCountOut.value().get() += readLength;
-    //} else
-    //{
-    //  THROW_COND_GP
-    //  (
-    //      readLength > 0,
-    //      "Wrong string value for u_int_64"_sv
-    //  );
-    //}
-    //
-    //return res.As<u_int_64>();
 }
 
 s_int_64    GpStringOps::SToSI64
@@ -279,13 +240,13 @@ s_int_64    GpStringOps::SToSI64
         return result;
     } else if (r.ec == std::errc::invalid_argument)
     {
-        THROW_GP("Wrong string value"_sv);
+        THROW_GP("Wrong source string value '"_sv + aStr + "'"_sv);
     } else if (r.ec == std::errc::result_out_of_range)
     {
-        THROW_GP("Out of s_int_64 range"_sv);
+        THROW_GP("Out of s_int_64 range: '"_sv + aStr + "'"_sv);
     } else
     {
-        THROW_GP("std::errc() = "_sv + int(std::errc()));
+        THROW_GP("std::errc() = "_sv + int(std::errc()) + ". Source string '"_sv + aStr + "'"_sv);
     }
 
     return result;
@@ -319,13 +280,13 @@ double      GpStringOps::SToDouble
         return result;
     } else if (r.ec == std::errc::invalid_argument)
     {
-        THROW_GP("Wrong string value"_sv);
+        THROW_GP("Wrong source string value '"_sv + aStr + "'"_sv);
     } else if (r.ec == std::errc::result_out_of_range)
     {
-        THROW_GP("Out of double range"_sv);
+        THROW_GP("Out of double range: '"_sv + aStr + "'"_sv);
     } else
     {
-        THROW_GP("std::errc() = "_sv + int(std::errc()));
+        THROW_GP("std::errc() = "_sv + int(std::errc()) + ". Source string '"_sv + aStr + "'"_sv);
     }
 
     return result;
@@ -379,7 +340,7 @@ size_t  GpStringOps::SFromBytesHex
 
     size_t                  countLeft   = dataLength;
     const std::byte* _R_    dataPtr     = aData.Ptr();
-    char* _R_               strPtr          = aStrOut.Ptr();
+    char* _R_               strPtr      = aStrOut.Ptr();
 
     while (countLeft-- > 0)
     {
@@ -457,7 +418,7 @@ size_byte_t GpStringOps::SToBytesHex
     while (countLeft > 0)
     {
         countLeft -= 2;
-        GpArray<char,2> s = {*str++, *str++};
+        std::array<char,2>  s = {*str++, *str++};
         *aDataOut++ = SToByteHex(s);
     }
 
@@ -482,6 +443,12 @@ std::string GpStringOps::SFromBits (GpSpanPtrByteR aData)
     const size_t    bitsCount   = (size_bit_t::SMake(aData.Count()) * 8_bit).As<size_t>();
     const u_int_8*  data        = aData.PtrAs<const u_int_8*>();
 
+    THROW_COND_GP
+    (
+        data != nullptr,
+        "aData is nullptr"_sv
+    );
+
     res.resize(bitsCount + bytesCount + 1);
     char* str = res.data();
 
@@ -503,8 +470,8 @@ std::string GpStringOps::SFromBits (GpSpanPtrByteR aData)
 
 size_t      GpStringOps::SConv_UTF16_UTF8
 (
-    GpArray<std::byte, 4>&      aUTF8_valueOut,
-    const GpArray<std::byte, 2> aUTF16_value
+    std::array<std::byte, 4>&       aUTF8_valueOut,
+    const std::array<std::byte, 2>  aUTF16_value
 )
 {
     const u_int_16  utf16_val   = BitOps::N2H(std::bit_cast<u_int_16>(aUTF16_value));
@@ -540,8 +507,8 @@ size_t      GpStringOps::SConv_UTF16_UTF8
 
 size_t      GpStringOps::SConv_UTF32_UTF8
 (
-    GpArray<std::byte, 4>&      aUTF8_valueOut,
-    const GpArray<std::byte, 4> aUTF32_value
+    std::array<std::byte, 4>&       aUTF8_valueOut,
+    const std::array<std::byte, 4>  aUTF32_value
 )
 {
     const u_int_32  utf32_val   = BitOps::N2H(std::bit_cast<u_int_32>(aUTF32_value));
@@ -636,7 +603,7 @@ std::string GpStringOps::PercentEncode (std::string_view aSrc)
         }
 
         const auto hexStr = StrOps::SFromByteHex(std::byte(ch));
-        GpArray<char, 3> buff;
+        std::array<char, 3> buff;
         buff.at(0) = '%';
         buff.at(1) = hexStr.at(0);
         buff.at(2) = hexStr.at(1);
@@ -733,8 +700,8 @@ void    GpStringOps::SToUpper (GpRawPtrCharRW aStr)
 
 bool    GpStringOps::SContainsOnly
 (
-    std::string_view    aStr,
-    const GpSet<char>&  aSet
+    std::string_view        aStr,
+    const std::set<char>&   aSet
 ) noexcept
 {
     size_t size = aStr.size();
@@ -816,9 +783,9 @@ void    GpStringOps::_SFromUI64
     }
 }
 
-const GpArray<char, 201>&   GpStringOps::SDigits (void) noexcept
+const std::array<char, 201>&    GpStringOps::SDigits (void) noexcept
 {
-    static const GpArray<char, 201> sDigits =
+    static const std::array<char, 201> sDigits =
     {
         "0001020304050607080910111213141516171819"
         "2021222324252627282930313233343536373839"

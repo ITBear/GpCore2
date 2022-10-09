@@ -11,7 +11,7 @@ namespace GPlatform {
 class GP_UTILS_API GpEnumFlags
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpEnumFlags)
+    CLASS_DD(GpEnumFlags)
     CLASS_TAG(GpEnumFlags)
     CLASS_TAG_DETECTOR(GpEnumFlags)
 
@@ -58,10 +58,10 @@ public:
     virtual std::string_view            ToStringFlag        (const value_type aId) const = 0;
     virtual value_type                  FromStringFlag      (std::string_view aEnumName) const = 0;
 
-    GpVector<std::string>               ToStringArray       (void) const;
-    GpVector<std::string_view>          ToStringViewArray   (void) const;
-    void                                FromStringArray     (const GpVector<std::string>& aArray);
-    void                                FromStringViewArray (const GpVector<std::string_view>& aArray);
+    std::vector<std::string>            ToStringArray       (void) const;
+    std::vector<std::string_view>       ToStringViewArray   (void) const;
+    void                                FromStringArray     (const std::vector<std::string>& aArray);
+    void                                FromStringViewArray (const std::vector<std::string_view>& aArray);
 
     std::string                         Echo                (void) const;
 

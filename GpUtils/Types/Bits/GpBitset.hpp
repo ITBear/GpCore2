@@ -35,7 +35,7 @@ public:
     constexpr                           GpBitset            (const this_type& aBitset) noexcept;
     constexpr                           GpBitset            (this_type&& aBitset) noexcept;
     constexpr                           GpBitset            (const init_mask_type aMask) noexcept;
-    constexpr                           GpBitset            (const GpVector<MaskT>& aMask) noexcept;
+    constexpr                           GpBitset            (const std::vector<MaskT>& aMask) noexcept;
 
     constexpr value_type_no_volatile    Value               (void) const noexcept;
     constexpr this_type                 MakeCopy            (void) const noexcept;
@@ -76,7 +76,7 @@ public:
     value_type_no_volatile              MakeValueFromList   (const init_mask_type aMask) noexcept;
 
     static
-    value_type_no_volatile              MakeValueFromList   (const GpVector<MaskT>& aMask) noexcept;
+    value_type_no_volatile              MakeValueFromList   (const std::vector<MaskT>& aMask) noexcept;
 
     static constexpr
     this_type                           MakeFromValue       (const value_type_no_volatile aValue) noexcept;
@@ -152,7 +152,7 @@ GpBitset(MakeValueFromList(aMask))
 
 template<typename MaskT,
          typename ValueT> constexpr
-GpBitset<MaskT, ValueT>::GpBitset (const GpVector<MaskT>& aMask) noexcept:
+GpBitset<MaskT, ValueT>::GpBitset (const std::vector<MaskT>& aMask) noexcept:
 GpBitset(MakeValueFromList(aMask))
 {
     //NOP
@@ -383,7 +383,7 @@ auto GpBitset<MaskT, ValueT>::MakeValueFromList (const init_mask_type aMask) noe
 
 template<typename MaskT,
          typename ValueT>
-auto GpBitset<MaskT, ValueT>::MakeValueFromList (const GpVector<MaskT>& aMask) noexcept -> value_type_no_volatile
+auto GpBitset<MaskT, ValueT>::MakeValueFromList (const std::vector<MaskT>& aMask) noexcept -> value_type_no_volatile
 {
     size_t  bitset = size_t(0);
 

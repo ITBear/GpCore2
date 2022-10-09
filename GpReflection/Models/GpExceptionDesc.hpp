@@ -14,7 +14,7 @@ namespace GPlatform {
 class GP_REFLECTION_API GpExceptionDesc: public GpReflectObject
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpExceptionDesc)
+    CLASS_DD(GpExceptionDesc)
     REFLECT_DECLARE("eb884688-11b9-4412-9c70-7e48c3231f5f"_uuid)
 
 public:

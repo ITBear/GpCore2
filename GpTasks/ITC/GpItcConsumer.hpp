@@ -8,7 +8,7 @@ class GpItcConsumer
 {
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpItcConsumer)
-    CLASS_DECLARE_DEFAULTS(GpItcConsumer)
+    CLASS_DD(GpItcConsumer)
 
 public:
     inline                                          GpItcConsumer   (GpItcProducerConsumer::SP aProducerConsumer) noexcept;

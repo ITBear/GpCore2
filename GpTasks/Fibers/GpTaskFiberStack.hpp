@@ -13,7 +13,7 @@ class GpTaskFiberStack
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskFiberStack)
-    CLASS_DECLARE_DEFAULTS(GpTaskFiberStack)
+    CLASS_DD(GpTaskFiberStack)
 
 public:
     inline              GpTaskFiberStack    (void) noexcept;

@@ -17,7 +17,7 @@ class GP_TASKS_API GpTaskFiber: public GpTask
     friend class GpTaskFiberAccessor;
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskFiber)
-    CLASS_DECLARE_DEFAULTS(GpTaskFiber)
+    CLASS_DD(GpTaskFiber)
 
     enum class StageT
     {

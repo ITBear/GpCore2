@@ -12,7 +12,7 @@ namespace GPlatform {
 class GP_REFLECTION_API GpReflectModel
 {
 public:
-    CLASS_DECLARE_DEFAULTS(GpReflectModel)
+    CLASS_DD(GpReflectModel)
 
     using PropT     = GpReflectProp;
     using PropsT    = PropT::C::Vec::Val;
