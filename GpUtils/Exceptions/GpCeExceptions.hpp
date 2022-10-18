@@ -15,6 +15,7 @@ constexpr auto GpThrowByCondition (void) -> void
 template<typename Exception, typename... Args>
 void GpThrowCe([[maybe_unused]] Args... aArgs)
 {
+#if (__cplusplus >= 202002L)
     if (std::is_constant_evaluated())
     {
         GpThrowByCondition<true>();
@@ -22,6 +23,9 @@ void GpThrowCe([[maybe_unused]] Args... aArgs)
     {
         throw Exception(aArgs...);
     }
+#else
+    GpThrowByCondition<true>();
+#endif
 }
 
 #define GP_TEMPLATE_THROW(T, MSG) static_assert(GpConstexprFalse<T>::value, MSG)

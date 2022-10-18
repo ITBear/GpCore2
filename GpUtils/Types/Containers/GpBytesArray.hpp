@@ -13,10 +13,10 @@ namespace GPlatform {
 
 using GpSpanPtrCharR    = GpSpanPtr<const char*>;
 using GpSpanPtrCharRW   = GpSpanPtr<char*>;
-using GpSpanPtrByteR    = GpSpanPtr<const std::byte*>;
-using GpSpanPtrByteRW   = GpSpanPtr<std::byte*>;
+using GpSpanPtrByteR    = GpSpanPtr<const u_int_8*>;
+using GpSpanPtrByteRW   = GpSpanPtr<u_int_8*>;
 
-using GpBytesArray      = std::vector<std::byte>;
+using GpBytesArray      = std::vector<u_int_8>;
 
 class GpBytesArrayUtils
 {

@@ -9,4 +9,4 @@
 #include "GpElementsPool.hpp"
 #include "GpCachePool.hpp"
 #include "GpGlobalStructCatalogC.hpp"
-
+#include "GpSet.hpp"

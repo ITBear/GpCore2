@@ -47,7 +47,7 @@ public:
     std::string_view        Name            (void) const noexcept {return iName;}
     GpUUID                  Guid            (void) const noexcept {return iGuid;}
     GpTaskType              TaskType        (void) const noexcept {return iTaskType;}
-    bool                    IsStopRequested (void) const noexcept {return iIsStopRequested.test(std::memory_order_acquire);}
+    bool                    IsStopRequested (void) const noexcept {return iIsStopRequested.load(std::memory_order_acquire);}
 
     inline GpItcFuture::SP  Future          (void);
 
@@ -63,7 +63,7 @@ protected:
     GpTaskDoRes             Run             (GpThreadStopToken aStopToken) noexcept;
     virtual GpTaskDoRes     _Run            (GpThreadStopToken aStopToken) noexcept = 0;
 
-    void                    RequestStop     (void) noexcept {iIsStopRequested.test_and_set(std::memory_order_release);}
+    void                    RequestStop     (void) noexcept {iIsStopRequested.store(true, std::memory_order_release);}
 
 private:
     StateTE                 State           (void) const noexcept {return iState;}
@@ -75,7 +75,7 @@ private:
     const GpTaskType        iTaskType;
     StateTE                 iState = StateTE::NOT_ASSIGNED_TO_SCHEDULER;
     GpItcPromise            iPromise;
-    std::atomic_flag        iIsStopRequested = false;
+    std::atomic_bool        iIsStopRequested = false;
 
     static GpFlatMap<std::thread::id, GpTask*, 64>  sTasksByThreadId;
 };

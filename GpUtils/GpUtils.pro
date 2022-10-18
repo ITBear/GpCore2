@@ -148,6 +148,7 @@ HEADERS += \
     Types/Containers/GpElementsPool.hpp \
     Types/Containers/GpFlatMap.hpp \
     Types/Containers/GpGlobalStructCatalogC.hpp \
+    Types/Containers/GpSet.hpp \
     Types/Containers/GpSpanPtrNumerics.hpp \
     Types/Containers/GpTypeShell.hpp \
     Types/Enums/GpEnum.hpp \

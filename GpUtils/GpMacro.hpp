@@ -82,3 +82,4 @@ namespace GPlatform {
     static constexpr bool SHasTag_##TAG_NAME (void) {return std::experimental::is_detected_v<STAG_FN_DETECTOR__##TAG_NAME, TAGGED_TYPE>;}
 
 }//namespace GPlatform
+

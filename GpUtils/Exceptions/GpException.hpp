@@ -8,12 +8,12 @@
 #include <exception>
 #include <functional>
 
-#if  __has_include(<source_location>) && __has_builtin(__builtin_source_location)
+#if  (__cplusplus >= 202002L) && __has_include(<source_location>) && __has_builtin(__builtin_source_location)
 #   include <source_location>
     namespace GPlatform{
         using SourceLocationT = std::source_location;
     }
-#elif  __has_include(<experimental/source_location>)
+#elif  (__cplusplus >= 202002L) && __has_include(<experimental/source_location>)
 #   include <experimental/source_location>
     namespace GPlatform{
         using SourceLocationT = std::experimental::source_location;

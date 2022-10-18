@@ -8,14 +8,15 @@
 
 namespace GPlatform {
 
-const microseconds_t    GpDateTimeOps::sStartSteadyTS = GpDateTimeOps::SSteadyTS_us();
+const microseconds_t    GpDateTimeOps::sStartSteadyTSus = GpDateTimeOps::SSteadyTS_us();
+const milliseconds_t    GpDateTimeOps::sStartSteadyTSms = GpDateTimeOps::SSteadyTS_ms();
 
 const std::array<std::string, GpDateTimeFormat::SCount()>   GpDateTimeOps::sFormats =
 {
     "%FT%X+00:00",              //ISO_8601:         2021-01-11T20:15:31+00:00
     "%a, %d %b %Y %X +0000",    //RFC_2822:         Mon, 11 Jan 2021 20:15:31 +0000
     "%F %X",                    //STD_DATE_TIME:    2021-01-11 20:15:31
-    "%FT%X",                    //STD_DATE_TIME_T,//2021-01-11T20:15:31
+    "%FT%X",                    //STD_DATE_TIME_T:  2021-01-11T20:15:31
     "%F",                       //STD_DATE:         2021-01-11
     "%X"                        //STD_TIME:         20:15:31
 };
@@ -41,7 +42,8 @@ unix_ts_ms_t    GpDateTimeOps::SUnixTsFromStr_ms
 {
     std::istringstream in{std::string(aStr)};
 
-    std::chrono::sys_time<std::chrono::milliseconds> tp;
+    //std::chrono::sys_time<std::chrono::milliseconds> tp;
+    date::sys_time<std::chrono::milliseconds> tp;
     in >> date::parse(std::string(aFormat), tp);//TODO replace with std::chrono::parse
 
     const auto val = tp.time_since_epoch();
@@ -131,7 +133,8 @@ std::string GpDateTimeOps::SUnixTsToStr
     //https://howardhinnant.github.io/date/date.html
     //https://gitter.im/HowardHinnant/date?at=5e404b1fb612cc7bb1588132
 
-    std::chrono::sys_time<std::chrono::milliseconds> tp(std::chrono::milliseconds(aTs.Value()));
+    //std::chrono::sys_time<std::chrono::milliseconds> tp(std::chrono::milliseconds(aTs.Value()));
+    date::sys_time<std::chrono::milliseconds> tp(std::chrono::milliseconds(aTs.Value()));
     out << date::format(std::string(aFormat), tp);
 
     return out.str();

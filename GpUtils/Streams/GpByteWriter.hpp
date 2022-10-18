@@ -34,6 +34,8 @@ public:
     GpByteWriter&           SInt64          (const s_int_64 aValue);
     GpByteWriter&           BytesWithLen    (GpSpanPtrByteR aData);
     inline GpByteWriter&    Bytes           (GpSpanPtrByteR aData);
+    inline GpByteWriter&    Bytes           (std::string_view aData);
+    inline GpByteWriter&    Bytes           (const std::string& aData);
     inline GpByteWriter&    Bytes           (const void*    aPtr,
                                              const size_t   aSize);
     GpByteWriter&           CompactUInt64   (const u_int_64 aValue);
@@ -70,6 +72,16 @@ GpByteWriter&   GpByteWriter::Bytes (GpSpanPtrByteR aData)
 {
     iStorage.Write(aData);
     return *this;
+}
+
+GpByteWriter&   GpByteWriter::Bytes (std::string_view aData)
+{
+    return Bytes(GpSpanPtrByteR(aData.data(), aData.size()));
+}
+
+GpByteWriter&   GpByteWriter::Bytes (const std::string& aData)
+{
+    return Bytes(GpSpanPtrByteR(aData.data(), aData.size()));
 }
 
 GpByteWriter&   GpByteWriter::Bytes

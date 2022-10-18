@@ -24,7 +24,7 @@ GpBitWriterStorageByteArray::GpBitWriterStorageByteArray
     GpBytesArray&       aOut,
     const size_bit_t    aOffset
 ) noexcept:
-GpBitWriterStorage(GpSpanPtrByteRW(aOut), aOffset),
+GpBitWriterStorage(GpSpanPtrByteRW(aOut.data(), aOut.size()), aOffset),
 iOut(aOut)
 {
 }

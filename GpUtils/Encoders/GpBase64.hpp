@@ -32,9 +32,9 @@ private:
     static size_t           SDecodedSize        (std::string_view   aBase64Str);
     static size_t           SEncodedBlocksCount (GpSpanPtrByteR     aData);
 
-    static std::byte        SAlphabetToByte     (const std::byte aValue);
+    static u_int_8          SAlphabetToByte     (const u_int_8 aValue);
 
-    static const std::array<std::byte, 64>  sAlphabet;
+    static const std::array<u_int_8, 64>    sAlphabet;
 };
 
 }//GPlatform

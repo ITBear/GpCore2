@@ -36,7 +36,7 @@ public:
     size_bit_t              LeftToWite      (void) const noexcept {return iStorage.Left();}
 
 private:
-    void                    _Bits           (const std::byte*   aData,
+    void                    _Bits           (const u_int_8*     aData,
                                              const size_bit_t   aSize);
 
     template<typename T>
@@ -52,7 +52,7 @@ private:
 #if defined(GP_ORDER_BIG_ENDIAN)
         val = BitOps::BSwap(val);
 #endif
-        _Bits(reinterpret_cast<const std::byte*>(&val), aSize);
+        _Bits(reinterpret_cast<const u_int_8*>(&val), aSize);
     }
 
 private:

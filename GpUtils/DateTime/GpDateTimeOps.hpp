@@ -35,7 +35,8 @@ public:
     [[nodiscard]] static milliseconds_t     SSteadyTS_ms        (void) noexcept;
     [[nodiscard]] static seconds_t          SSteadyTS_s         (void) noexcept;
 
-    [[nodiscard]] static microseconds_t     SSteadyTS_us_AtAppStart (void) noexcept {return sStartSteadyTS;}
+    [[nodiscard]] static microseconds_t     SSteadyTS_us_AtAppStart (void) noexcept {return sStartSteadyTSus;}
+    [[nodiscard]] static microseconds_t     SSteadyTS_ms_AtAppStart (void) noexcept {return sStartSteadyTSms;}
 
     [[nodiscard]] static microseconds_t     SHighResTS_us       (void) noexcept;
 
@@ -49,7 +50,8 @@ public:
                                                                  const FormatTE     aFormat);
 
 private:
-    static const microseconds_t                                         sStartSteadyTS;
+    static const microseconds_t                                         sStartSteadyTSus;
+    static const milliseconds_t                                         sStartSteadyTSms;
     static const std::array<std::string, GpDateTimeFormat::SCount()>    sFormats;
 };
 

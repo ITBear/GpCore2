@@ -15,13 +15,13 @@ public:
 
                             ~GpBitReaderStorage (void) noexcept {}
 
-    const std::byte*        Data                (void) const noexcept {return iData;}
+    const u_int_8*          Data                (void) const noexcept {return iData;}
     size_bit_t              Size                (void) const noexcept {return iSize;}
     size_bit_t              Left                (void) const noexcept {return iLeft;}
     void                    SetLeftSub          (const size_bit_t aValue) {iLeft -= aValue;}
 
 private:
-    const std::byte*        iData = nullptr;
+    const u_int_8*          iData = nullptr;
     const size_bit_t        iSize;
     size_bit_t              iLeft;
 };

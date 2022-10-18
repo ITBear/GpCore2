@@ -7,7 +7,24 @@
 
 #include <iterator>
 #include <vector>
-#include <span>
+
+#if (__cplusplus < 202002L)
+
+namespace std {
+
+template< class T >
+struct remove_cvref {
+    typedef remove_cv_t<remove_reference_t<T>> type;
+};
+
+template< class T >
+using remove_cvref_t = typename remove_cvref<T>::type;
+
+}//namespace std
+
+#else
+#   include <span>
+#endif//#if (__cplusplus < 202002L)
 
 namespace GPlatform {
 
@@ -52,11 +69,13 @@ public:
                                                         && std::is_same_v<PureT<FROM>, PureT<TO>>)
                                                     || (   std::is_same_v<TO, const char*>              //TO is one byte type (const)
                                                         || std::is_same_v<TO, const unsigned char*>
-                                                        || std::is_same_v<TO, const std::byte*>)
+                                                        || std::is_same_v<TO, const std::byte*>
+                                                        || std::is_same_v<TO, const u_int_8*>)
                                                     || (   !std::is_const_v<std::remove_pointer_t<FROM>>//From is not const and TO is one byte type
                                                         && (   std::is_same_v<TO, char*>                //TO is one byte type (const)
                                                             || std::is_same_v<TO, unsigned char*>
-                                                            || std::is_same_v<TO, std::byte*>)
+                                                            || std::is_same_v<TO, std::byte*>
+                                                            || std::is_same_v<TO, u_int_8*>)
                                                        )
                                                     );
 
@@ -111,8 +130,11 @@ public:
                                                                     _SPtrAs<pointer>(aContainer.data()),
                                                                     _SCountAs<pointer, decltype(std::declval<ContainerT>().data())>(aContainer.size())
                                                                 ){}
-
+#if (__cplusplus >= 202002L)
     constexpr                                   ~GpSpanPtr      (void) noexcept = default;
+#else
+                                                ~GpSpanPtr      (void) noexcept = default;
+#endif
 
     constexpr void                              Clear           (void) noexcept;
     constexpr bool                              IsEmpty         (void) const noexcept;
@@ -268,16 +290,20 @@ public:
     }
 
     constexpr std::string_view                  AsStringView        (void) const;
+
+#if (__cplusplus >= 202002L)
     std::span<value_type>                       AsStdSpan           (void) const;
-    std::span<std::byte>                        AsStdSpanByte       (void) const;
-    std::span<const std::byte>                  AsStdSpanConstByte  (void) const;
-    std::vector<std::byte>                      ToByteArray         (void) const;
+    std::span<u_int_8>                          AsStdSpanByte       (void) const;
+    std::span<const u_int_8>                    AsStdSpanConstByte  (void) const;
+#endif
+
+    std::vector<u_int_8>                        ToByteArray         (void) const;
 
     template<typename SpanT>
     this_type&                                  CopyFrom            (const SpanT& aSpan);
 
-    //static_cast<std::vector<std::byte>>
-    operator                                    std::vector<std::byte>() const  {return ToByteArray();}
+    //static_cast<std::vector<u_int_8>>
+    operator                                    std::vector<u_int_8>() const    {return ToByteArray();}
 
 private:
     template<typename PtrToT, typename PtrFromT>
@@ -521,6 +547,8 @@ constexpr std::string_view  GpSpanPtr<T>::AsStringView (void) const
     return std::string_view(PtrAs<const char*>(), size.As<size_t>());
 }
 
+#if (__cplusplus >= 202002L)
+
 template<typename T>
 std::span<typename GpSpanPtr<T>::value_type>    GpSpanPtr<T>::AsStdSpan (void) const
 {
@@ -528,30 +556,32 @@ std::span<typename GpSpanPtr<T>::value_type>    GpSpanPtr<T>::AsStdSpan (void) c
 }
 
 template<typename T>
-std::span<std::byte>    GpSpanPtr<T>::AsStdSpanByte (void) const
+std::span<u_int_8>  GpSpanPtr<T>::AsStdSpanByte (void) const
 {
     const size_byte_t size = Size();
-    return std::span<std::byte>(PtrAs<std::byte*>(), size.As<size_t>());
+    return std::span<u_int_8>(PtrAs<u_int_8*>(), size.As<size_t>());
 }
 
 template<typename T>
-std::span<const std::byte>  GpSpanPtr<T>::AsStdSpanConstByte (void) const
+std::span<const u_int_8>    GpSpanPtr<T>::AsStdSpanConstByte (void) const
 {
     const size_byte_t size = Size();
-    return std::span<const std::byte>(PtrAs<const std::byte*>(), size.As<size_t>());
+    return std::span<const u_int_8>(PtrAs<const u_int_8*>(), size.As<size_t>());
 }
 
+#endif//#if (__cplusplus >= 202002L)
+
 template<typename T>
-std::vector<std::byte>      GpSpanPtr<T>::ToByteArray (void) const
+std::vector<u_int_8>        GpSpanPtr<T>::ToByteArray (void) const
 {
-    std::vector<std::byte> res;
+    std::vector<u_int_8> res;
 
     const size_byte_t size = Size();
 
     if (size > 0_byte)
     {
         res.resize(size.As<size_t>());
-        std::memcpy(res.data(), PtrAs<const std::byte*>(), size.As<size_t>());
+        std::memcpy(res.data(), PtrAs<const u_int_8*>(), size.As<size_t>());
     }
 
     return res;

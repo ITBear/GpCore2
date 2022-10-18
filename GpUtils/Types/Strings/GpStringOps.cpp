@@ -338,9 +338,9 @@ size_t  GpStringOps::SFromBytesHex
         "Out string size is too small"_sv
     );
 
-    size_t                  countLeft   = dataLength;
-    const std::byte* _R_    dataPtr     = aData.Ptr();
-    char* _R_               strPtr      = aStrOut.Ptr();
+    size_t              countLeft   = dataLength;
+    const u_int_8* _R_  dataPtr     = aData.Ptr();
+    char* _R_           strPtr      = aStrOut.Ptr();
 
     while (countLeft-- > 0)
     {
@@ -419,7 +419,7 @@ size_byte_t GpStringOps::SToBytesHex
     {
         countLeft -= 2;
         std::array<char,2>  s = {*str++, *str++};
-        *aDataOut++ = SToByteHex(s);
+        *aDataOut++ = u_int_8(SToByteHex(s));
     }
 
     return size_byte_t::SMake(outSize);
@@ -431,7 +431,7 @@ GpBytesArray    GpStringOps::SToBytesHex (std::string_view aStr)
 
     GpBytesArray res;
     res.resize(size/2);
-    res.resize(SToBytesHex(aStr, res).As<size_t>());
+    res.resize(SToBytesHex(aStr, GpSpanPtrByteRW(res.data(), res.size())).As<size_t>());
     return res;
 }
 
@@ -470,82 +470,82 @@ std::string GpStringOps::SFromBits (GpSpanPtrByteR aData)
 
 size_t      GpStringOps::SConv_UTF16_UTF8
 (
-    std::array<std::byte, 4>&       aUTF8_valueOut,
-    const std::array<std::byte, 2>  aUTF16_value
+    std::array<u_int_8, 4>&     aUTF8_valueOut,
+    const std::array<u_int_8, 2>    aUTF16_value
 )
 {
     const u_int_16  utf16_val   = BitOps::N2H(std::bit_cast<u_int_16>(aUTF16_value));
-    std::byte*      utf8_val    = aUTF8_valueOut.data();
+    u_int_8*        utf8_val    = aUTF8_valueOut.data();
 
     //Convert to UTF8
     if (size_t(utf16_val) < size_t(0x00000080ULL))//0x00000000 — 0x0000007F
     {
         //0xxxxxxx
-        *utf8_val++ = std::byte(utf16_val);
-        *utf8_val++ = std::byte(0);
-        *utf8_val++ = std::byte(0);
-        *utf8_val++ = std::byte(0);
+        *utf8_val++ = u_int_8(utf16_val);
+        *utf8_val++ = u_int_8(0);
+        *utf8_val++ = u_int_8(0);
+        *utf8_val++ = u_int_8(0);
         return 1;
     } else if (size_t(utf16_val) < size_t(0x00000800ULL))//0x00000080 — 0x000007FF
     {
         //110xxxxx 10xxxxxx
-        *utf8_val++ = std::byte(size_t(0xC0) + ((size_t(utf16_val) >> 6) & size_t(0x1F)));
-        *utf8_val++ = std::byte(size_t(0x80) + ((size_t(utf16_val) >> 0) & size_t(0x3F)));
-        *utf8_val++ = std::byte(0);
-        *utf8_val++ = std::byte(0);
+        *utf8_val++ = u_int_8(size_t(0xC0) + ((size_t(utf16_val) >> 6) & size_t(0x1F)));
+        *utf8_val++ = u_int_8(size_t(0x80) + ((size_t(utf16_val) >> 0) & size_t(0x3F)));
+        *utf8_val++ = u_int_8(0);
+        *utf8_val++ = u_int_8(0);
         return 2;
     } else
     {
         //1110xxxx 10xxxxxx 10xxxxxx
-        *utf8_val++ = std::byte(size_t(0xE0) + ((size_t(utf16_val) >> 12) & size_t(0x0F)));
-        *utf8_val++ = std::byte(size_t(0x80) + ((size_t(utf16_val) >> 6)  & size_t(0x3F)));
-        *utf8_val++ = std::byte(size_t(0x80) + ((size_t(utf16_val) >> 0)  & size_t(0x3F)));
-        *utf8_val++ = std::byte(0);
+        *utf8_val++ = u_int_8(size_t(0xE0) + ((size_t(utf16_val) >> 12) & size_t(0x0F)));
+        *utf8_val++ = u_int_8(size_t(0x80) + ((size_t(utf16_val) >> 6)  & size_t(0x3F)));
+        *utf8_val++ = u_int_8(size_t(0x80) + ((size_t(utf16_val) >> 0)  & size_t(0x3F)));
+        *utf8_val++ = u_int_8(0);
         return 3;
     }
 }
 
 size_t      GpStringOps::SConv_UTF32_UTF8
 (
-    std::array<std::byte, 4>&       aUTF8_valueOut,
-    const std::array<std::byte, 4>  aUTF32_value
+    std::array<u_int_8, 4>&         aUTF8_valueOut,
+    const std::array<u_int_8, 4>    aUTF32_value
 )
 {
     const u_int_32  utf32_val   = BitOps::N2H(std::bit_cast<u_int_32>(aUTF32_value));
-    std::byte*      utf8_val    = aUTF8_valueOut.data();
+    u_int_8*        utf8_val    = aUTF8_valueOut.data();
 
     //Convert to UTF8
     if (size_t(utf32_val) < size_t(0x00000080ULL))//0x00000000 — 0x0000007F
     {
         //0xxxxxxx
-        *utf8_val++ = std::byte(utf32_val);
-        *utf8_val++ = std::byte(0);
-        *utf8_val++ = std::byte(0);
-        *utf8_val++ = std::byte(0);
+        *utf8_val++ = u_int_8(utf32_val);
+        *utf8_val++ = u_int_8(0);
+        *utf8_val++ = u_int_8(0);
+        *utf8_val++ = u_int_8(0);
         return 1;
     } else if (size_t(utf32_val) < size_t(0x00000800ULL))//0x00000080 — 0x000007FF
     {
         //110xxxxx 10xxxxxx
-        *utf8_val++ = std::byte(size_t(0xC0) + ((size_t(utf32_val) >> 6) & size_t(0x1F)));
-        *utf8_val++ = std::byte(size_t(0x80) + ((size_t(utf32_val) >> 0) & size_t(0x3F)));
-        *utf8_val++ = std::byte(0);
-        *utf8_val++ = std::byte(0);
+        *utf8_val++ = u_int_8(size_t(0xC0) + ((size_t(utf32_val) >> 6) & size_t(0x1F)));
+        *utf8_val++ = u_int_8(size_t(0x80) + ((size_t(utf32_val) >> 0) & size_t(0x3F)));
+        *utf8_val++ = u_int_8(0);
+        *utf8_val++ = u_int_8(0);
         return 2;
     } else if (size_t(utf32_val) < size_t(0x00010000ULL))//0x00000800 — 0x0000FFFF
     {
         //1110xxxx 10xxxxxx 10xxxxxx
-        *utf8_val++ = std::byte(size_t(0xE0) + ((size_t(utf32_val) >> 12) & size_t(0x0F)));
-        *utf8_val++ = std::byte(size_t(0x80) + ((size_t(utf32_val) >> 6)  & size_t(0x3F)));
-        *utf8_val++ = std::byte(size_t(0x80) + ((size_t(utf32_val) >> 0)  & size_t(0x3F)));
-        *utf8_val++ = std::byte(0);
+        *utf8_val++ = u_int_8(size_t(0xE0) + ((size_t(utf32_val) >> 12) & size_t(0x0F)));
+        *utf8_val++ = u_int_8(size_t(0x80) + ((size_t(utf32_val) >> 6)  & size_t(0x3F)));
+        *utf8_val++ = u_int_8(size_t(0x80) + ((size_t(utf32_val) >> 0)  & size_t(0x3F)));
+        *utf8_val++ = u_int_8(0);
         return 3;
     } else if (size_t(utf32_val) < size_t(0x00200000ULL))//0x00010000 — 0x001FFFFF
     {
         //11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-        utf8_val[0] = std::byte(size_t(0xF0) + ((size_t(utf32_val) >> 18) & size_t(0x07)));
-        utf8_val[1] = std::byte(size_t(0x80) + ((size_t(utf32_val) >> 12) & size_t(0x3F)));
-        utf8_val[2] = std::byte(size_t(0x80) + ((size_t(utf32_val) >> 6)  & size_t(0x3F)));
-        utf8_val[3] = std::byte(size_t(0x80) + ((size_t(utf32_val) >> 0)  & size_t(0x3F)));
+        utf8_val[0] = u_int_8(size_t(0xF0) + ((size_t(utf32_val) >> 18) & size_t(0x07)));
+        utf8_val[1] = u_int_8(size_t(0x80) + ((size_t(utf32_val) >> 12) & size_t(0x3F)));
+        utf8_val[2] = u_int_8(size_t(0x80) + ((size_t(utf32_val) >> 6)  & size_t(0x3F)));
+        utf8_val[3] = u_int_8(size_t(0x80) + ((size_t(utf32_val) >> 0)  & size_t(0x3F)));
         return 4;
     } else
     {
@@ -555,14 +555,14 @@ size_t      GpStringOps::SConv_UTF32_UTF8
 
 size_t  GpStringOps::SLength_UTF8 (std::string_view aStr)
 {
-    size_t                  charsCount  = 0;
-    ssize_t                 bytesLeft   = NumOps::SConvert<ssize_t>(aStr.size());
-    const std::byte* _R_    utf8Str     = reinterpret_cast<const std::byte*>(aStr.data());
+    size_t              charsCount  = 0;
+    ssize_t             bytesLeft   = NumOps::SConvert<ssize_t>(aStr.size());
+    const u_int_8* _R_  utf8Str     = reinterpret_cast<const u_int_8*>(aStr.data());
 
     while (bytesLeft > 0)
     {
-        const std::byte byte        = *utf8Str;
-        const size_t    charSize    = BitOps::Leading1bitCnt(byte | std::byte(0b10000000));
+        const u_int_8   byte        = *utf8Str;
+        const size_t    charSize    = BitOps::Leading1bitCnt(byte | u_int_8(0b10000000));
 
         utf8Str     += charSize;
         bytesLeft   -= charSize;
@@ -602,7 +602,7 @@ std::string GpStringOps::PercentEncode (std::string_view aSrc)
             }
         }
 
-        const auto hexStr = StrOps::SFromByteHex(std::byte(ch));
+        const auto hexStr = StrOps::SFromByteHex(u_int_8(ch));
         std::array<char, 3> buff;
         buff.at(0) = '%';
         buff.at(1) = hexStr.at(0);

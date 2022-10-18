@@ -22,7 +22,7 @@ private:
 };
 
 GpByteWriterStorageByteArray::GpByteWriterStorageByteArray (GpBytesArray& aStorage) noexcept:
-GpByteWriterStorage(GpSpanPtrByteRW(aStorage)),
+GpByteWriterStorage(GpSpanPtrByteRW(aStorage.data(), aStorage.size())),
 iStorage(aStorage)
 {
 }

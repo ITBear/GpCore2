@@ -45,7 +45,7 @@ public:
     size_bit_t              LeftToRead      (void) const noexcept {return iStorage.Left();}
 
 private:
-    void                    _Bits           (std::byte*         aDataOut,
+    void                    _Bits           (u_int_8*           aDataOut,
                                              const size_bit_t   aSize,
                                              const size_bit_t   aOffset);
 
@@ -60,15 +60,15 @@ private:
         );
 
         T val = T();
-        _Bits(reinterpret_cast<std::byte*>(&val), aSize, aOffset);
+        _Bits(reinterpret_cast<u_int_8*>(&val), aSize, aOffset);
         val = T(BitOps::N2H(val) >> (sizeof(T)*8 - aSize.As<size_t>()));
 
         return val;
     }
 
-    void                    Copy            (std::byte*         aDst,
+    void                    Copy            (u_int_8*           aDst,
                                              const size_bit_t   aDstOffset,
-                                             const std::byte*   aSrc,
+                                             const u_int_8*     aSrc,
                                              const size_bit_t   aSrcOffset,
                                              const size_bit_t   aSize);
 

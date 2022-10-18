@@ -15,8 +15,8 @@ protected:
 public:
     virtual                 ~GpBitWriterStorage (void) noexcept;
 
-    const std::byte*        Data                (void) const noexcept {return iData;}
-    std::byte*              Data                (void) noexcept {return iData;}
+    const u_int_8*          Data                (void) const noexcept {return iData;}
+    u_int_8*                Data                (void) noexcept {return iData;}
     size_bit_t              Size                (void) const noexcept {return iSize;}
     size_bit_t              Offset              (void) const noexcept {return iOffset;}
     size_bit_t              Left                (void) const noexcept {return iLeft;}
@@ -25,12 +25,12 @@ public:
     virtual void            AllocateNext        (const size_bit_t aSize);
 
 protected:
-    void                    SetData             (std::byte*         aData) noexcept {iData = aData;}
+    void                    SetData             (u_int_8*           aData) noexcept {iData = aData;}
     void                    SetSize             (const size_bit_t   aValue)noexcept {iSize = aValue;}
     void                    SetLeft             (const size_bit_t   aValue)noexcept {iLeft = aValue;}
 
 private:
-    std::byte*              iData = nullptr;
+    u_int_8*                iData = nullptr;
     size_bit_t              iSize;
     const size_bit_t        iOffset;
     size_bit_t              iLeft;

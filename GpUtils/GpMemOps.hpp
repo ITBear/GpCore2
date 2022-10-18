@@ -183,8 +183,8 @@ public:
         const size_t    aSize
     )
     {
-        static_assert(   (std::is_same_v<T1, std::byte> || std::is_same_v<T1, char>)
-                      && (std::is_same_v<T2, std::byte> || std::is_same_v<T2, char>));
+        static_assert(   (std::is_same_v<T1, std::byte> || std::is_same_v<T1, char> || std::is_same_v<T1, u_int_8>)
+                      && (std::is_same_v<T2, std::byte> || std::is_same_v<T2, char> || std::is_same_v<T2, u_int_8>));
 
         SCopy
         (

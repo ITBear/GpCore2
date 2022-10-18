@@ -18,7 +18,7 @@ std::string GpUUID::ToString (void) const
 
     DataT data;
     MemOps::SCopy(data, iData);
-    const std::byte* _R_ dataPtr = data.data();
+    const u_int_8* _R_ dataPtr = data.data();
 
     for (size_t id = 0; id < data.size(); ++id)
     {
@@ -49,7 +49,7 @@ void    GpUUID::FromString (std::string_view aStr)
     DataT data;
 
     const char* _R_ strPtr  = aStr.data();
-    std::byte* _R_  dataPtr = data.data();
+    u_int_8* _R_    dataPtr = data.data();
 
     for (size_t id = 0; id < data.size(); ++id)
     {
@@ -78,13 +78,13 @@ GpUUID  GpUUID::SGenRandomV4 (void) noexcept
 
     DataT data;
 
-    std::byte*          dataPtr     = data.data();
+    u_int_8*            dataPtr     = data.data();
     constexpr size_t    blockSize   = sizeof(u_int_64);
 
     std::memcpy(dataPtr, &part_0, blockSize); dataPtr += blockSize;
     std::memcpy(dataPtr, &part_1, blockSize);
 
-    data[6] = (data[6] & std::byte(0x0F)) | std::byte(0x40);
+    data[6] = (data[6] & u_int_8(0x0F)) | u_int_8(0x40);
 
     return GpUUID(data);
 }

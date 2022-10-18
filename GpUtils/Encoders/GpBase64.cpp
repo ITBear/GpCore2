@@ -6,11 +6,11 @@
 
 namespace GPlatform {
 
-const std::array<std::byte, 64> GpBase64::sAlphabet =
+const std::array<u_int_8, 64> GpBase64::sAlphabet =
 {
-    std::byte('A'),std::byte('B'),std::byte('C'),std::byte('D'),std::byte('E'),std::byte('F'),std::byte('G'),std::byte('H'),std::byte('I'),std::byte('J'),std::byte('K'),std::byte('L'),std::byte('M'),std::byte('N'),std::byte('O'),std::byte('P'),std::byte('Q'),std::byte('R'),std::byte('S'),std::byte('T'),std::byte('U'),std::byte('V'),std::byte('W'),std::byte('X'),std::byte('Y'),std::byte('Z'),
-    std::byte('a'),std::byte('b'),std::byte('c'),std::byte('d'),std::byte('e'),std::byte('f'),std::byte('g'),std::byte('h'),std::byte('i'),std::byte('j'),std::byte('k'),std::byte('l'),std::byte('m'),std::byte('n'),std::byte('o'),std::byte('p'),std::byte('q'),std::byte('r'),std::byte('s'),std::byte('t'),std::byte('u'),std::byte('v'),std::byte('w'),std::byte('x'),std::byte('y'),std::byte('z'),
-    std::byte('0'),std::byte('1'),std::byte('2'),std::byte('3'),std::byte('4'),std::byte('5'),std::byte('6'),std::byte('7'),std::byte('8'),std::byte('9'),std::byte('+'),std::byte('/')
+    u_int_8('A'),u_int_8('B'),u_int_8('C'),u_int_8('D'),u_int_8('E'),u_int_8('F'),u_int_8('G'),u_int_8('H'),u_int_8('I'),u_int_8('J'),u_int_8('K'),u_int_8('L'),u_int_8('M'),u_int_8('N'),u_int_8('O'),u_int_8('P'),u_int_8('Q'),u_int_8('R'),u_int_8('S'),u_int_8('T'),u_int_8('U'),u_int_8('V'),u_int_8('W'),u_int_8('X'),u_int_8('Y'),u_int_8('Z'),
+    u_int_8('a'),u_int_8('b'),u_int_8('c'),u_int_8('d'),u_int_8('e'),u_int_8('f'),u_int_8('g'),u_int_8('h'),u_int_8('i'),u_int_8('j'),u_int_8('k'),u_int_8('l'),u_int_8('m'),u_int_8('n'),u_int_8('o'),u_int_8('p'),u_int_8('q'),u_int_8('r'),u_int_8('s'),u_int_8('t'),u_int_8('u'),u_int_8('v'),u_int_8('w'),u_int_8('x'),u_int_8('y'),u_int_8('z'),
+    u_int_8('0'),u_int_8('1'),u_int_8('2'),u_int_8('3'),u_int_8('4'),u_int_8('5'),u_int_8('6'),u_int_8('7'),u_int_8('8'),u_int_8('9'),u_int_8('+'),u_int_8('/')
 };
 
 void    GpBase64::SEncode
@@ -35,7 +35,7 @@ void    GpBase64::SEncode
     const u_int_8* _R_  data            = aData.PtrAs<const u_int_8*>();
 
     GpSpanPtrByteRW base64StrOut    = aWriterBase64Str.Offset(encodedSize);
-    std::byte*      encodedStr      = base64StrOut.Ptr();
+    u_int_8*        encodedStr      = base64StrOut.Ptr();
 
     THROW_COND_GP
     (
@@ -76,8 +76,8 @@ void    GpBase64::SEncode
             {
                 if ((charsAddedCount % aSingleLineMaxLength) == 0)
                 {
-                    *encodedStr++ = std::byte('\r');
-                    *encodedStr++ = std::byte('\n');
+                    *encodedStr++ = u_int_8('\r');
+                    *encodedStr++ = u_int_8('\n');
                 }
             }
         }
@@ -85,7 +85,7 @@ void    GpBase64::SEncode
 
     for ( ; quarterId < 4; ++quarterId)
     {
-        *encodedStr++ = std::byte('=');
+        *encodedStr++ = u_int_8('=');
     }
 }
 
@@ -139,12 +139,12 @@ void    GpBase64::SDecode
         return;
     }
 
-    const size_t            base64StrSize   = aBase64Str.size();
-    const std::byte* _R_    base64StrPtr    = reinterpret_cast<const std::byte*>(aBase64Str.data());
-    const size_t            decodedSize     = SDecodedSize(aBase64Str);
+    const size_t        base64StrSize   = aBase64Str.size();
+    const u_int_8* _R_  base64StrPtr    = reinterpret_cast<const u_int_8*>(aBase64Str.data());
+    const size_t        decodedSize     = SDecodedSize(aBase64Str);
 
     GpSpanPtrByteRW dataOut     = aWriterData.Offset(decodedSize);
-    std::byte* _R_  decodedData = dataOut.Ptr();
+    u_int_8* _R_    decodedData = dataOut.Ptr();
 
     THROW_COND_GP
     (
@@ -152,22 +152,22 @@ void    GpBase64::SDecode
         "decodedData is nullptr"_sv
     );
 
-    std::array<std::byte, 4>    blockBase64;
+    std::array<u_int_8, 4>  blockBase64;
     size_t                  blockId = 0;
     size_t                  padding = 0;
 
     for (size_t id = 0; id < base64StrSize; id++)
     {
-        const std::byte ch = *base64StrPtr++;
-        if (   ((ch >= std::byte('A')) && (ch <= std::byte('Z')))
-            || ((ch >= std::byte('a')) && (ch <= std::byte('z')))
-            || ((ch >= std::byte('0')) && (ch <= std::byte('9')))
-            ||  (ch == std::byte('+'))
-            ||  (ch == std::byte('/')))
+        const u_int_8 ch = *base64StrPtr++;
+        if (   ((ch >= u_int_8('A')) && (ch <= u_int_8('Z')))
+            || ((ch >= u_int_8('a')) && (ch <= u_int_8('z')))
+            || ((ch >= u_int_8('0')) && (ch <= u_int_8('9')))
+            ||  (ch == u_int_8('+'))
+            ||  (ch == u_int_8('/')))
         {
             blockBase64.data()[blockId] = ch;
             blockId++;
-        } else if (ch == std::byte('='))
+        } else if (ch == u_int_8('='))
         {
             blockBase64.data()[blockId] = ch;
             blockId++;
@@ -189,17 +189,17 @@ void    GpBase64::SDecode
 
             if (padding == 0)
             {
-                *decodedData++ = std::byte((blockData >> u_int_32(16)) & u_int_32(0xFF));
-                *decodedData++ = std::byte((blockData >> u_int_32( 8)) & u_int_32(0xFF));
-                *decodedData++ = std::byte((blockData >> u_int_32( 0)) & u_int_32(0xFF));
+                *decodedData++ = u_int_8((blockData >> u_int_32(16)) & u_int_32(0xFF));
+                *decodedData++ = u_int_8((blockData >> u_int_32( 8)) & u_int_32(0xFF));
+                *decodedData++ = u_int_8((blockData >> u_int_32( 0)) & u_int_32(0xFF));
             } else if (padding == 1)
             {
-                *decodedData++ = std::byte((blockData >> u_int_32(16)) & u_int_32(0xFF));
-                *decodedData++ = std::byte((blockData >> u_int_32( 8)) & u_int_32(0xFF));
+                *decodedData++ = u_int_8((blockData >> u_int_32(16)) & u_int_32(0xFF));
+                *decodedData++ = u_int_8((blockData >> u_int_32( 8)) & u_int_32(0xFF));
                 break;
             } else if (padding == 2)
             {
-                *decodedData++ = std::byte((blockData >> u_int_32(16)) & u_int_32(0xFF));
+                *decodedData++ = u_int_8((blockData >> u_int_32(16)) & u_int_32(0xFF));
                 break;
             }
 
@@ -229,7 +229,7 @@ GpBytesArray    GpBase64::SDecodeToByteArray (std::string_view aBase64Str)
     GpBytesArray    decodedBytesArray;
     decodedBytesArray.resize(decodedSize);
 
-    GpByteWriterStorageFixedSize    writerStorge(decodedBytesArray);
+    GpByteWriterStorageFixedSize    writerStorge(GpSpanPtrByteRW(decodedBytesArray.data(), decodedBytesArray.size()));
     GpByteWriter                    writer(writerStorge);
 
     SDecode(aBase64Str, writer);
@@ -270,27 +270,27 @@ size_t  GpBase64::SDecodedSize (std::string_view aBase64Str)
         return 0;
     }
 
-    const std::byte* _R_    base64Str   = reinterpret_cast<const std::byte*>(aBase64Str.data());
-    size_t                  decodedSize = 0;
-    size_t                  paddingSize = 0;
+    const u_int_8* _R_  base64Str   = reinterpret_cast<const u_int_8*>(aBase64Str.data());
+    size_t              decodedSize = 0;
+    size_t              paddingSize = 0;
 
     for (size_t id = 0; id < base64Size; id++)
     {
-        const std::byte ch = *base64Str++;
-        if (   ((ch >= std::byte('A')) && (ch <= std::byte('Z')))
-            || ((ch >= std::byte('a')) && (ch <= std::byte('z')))
-            || ((ch >= std::byte('0')) && (ch <= std::byte('9')))
-            || (ch == std::byte('+'))
-            || (ch == std::byte('/')))
+        const u_int_8 ch = *base64Str++;
+        if (   ((ch >= u_int_8('A')) && (ch <= u_int_8('Z')))
+            || ((ch >= u_int_8('a')) && (ch <= u_int_8('z')))
+            || ((ch >= u_int_8('0')) && (ch <= u_int_8('9')))
+            || (ch == u_int_8('+'))
+            || (ch == u_int_8('/')))
         {
             decodedSize++;
-        } else if (ch == std::byte('='))
+        } else if (ch == u_int_8('='))
         {
             paddingSize++;
-        } else if (   (ch == std::byte('\r'))
-                   || (ch == std::byte('\n'))
-                   || (ch == std::byte('\t'))
-                   || (ch == std::byte(' ' )))
+        } else if (   (ch == u_int_8('\r'))
+                   || (ch == u_int_8('\n'))
+                   || (ch == u_int_8('\t'))
+                   || (ch == u_int_8(' ' )))
         {
             //skip
         } else
@@ -335,34 +335,34 @@ size_t  GpBase64::SEncodedBlocksCount (GpSpanPtrByteR aData)
     return base64BlocksCount;
 }
 
-std::byte   GpBase64::SAlphabetToByte (const std::byte aValue)
+u_int_8 GpBase64::SAlphabetToByte (const u_int_8 aValue)
 {
     size_t v = 0;
     size_t s = 0;
 
-    if ((aValue >= std::byte('A')) && (aValue <= std::byte('Z')))
+    if ((aValue >= u_int_8('A')) && (aValue <= u_int_8('Z')))
     {
         v = size_t('A');
         s = 0;
-    } else if ((aValue >= std::byte('a')) && (aValue <= std::byte('z')))
+    } else if ((aValue >= u_int_8('a')) && (aValue <= u_int_8('z')))
     {
         v = size_t('a');
         s = 26;
-    } else if ((aValue >= std::byte('0')) && (aValue <= std::byte('9')))
+    } else if ((aValue >= u_int_8('0')) && (aValue <= u_int_8('9')))
     {
         v = size_t('0');
         s = 26*2;
-    } else if (aValue == std::byte('+'))
+    } else if (aValue == u_int_8('+'))
     {
         v = size_t('+');
         s = 26*2 + 10;
-    } else if (aValue == std::byte('/'))
+    } else if (aValue == u_int_8('/'))
     {
         v = size_t('/');
         s = 26*2 + 11;
     }
 
-    return std::byte((size_t(aValue) - v) + s);
+    return u_int_8((size_t(aValue) - v) + s);
 }
 
 }//GPlatform

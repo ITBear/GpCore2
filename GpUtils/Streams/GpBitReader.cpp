@@ -127,7 +127,7 @@ s_int_64    GpBitReader::SInt64
 
 void    GpBitReader::_Bits
 (
-    std::byte*          aDataOut,
+    u_int_8*            aDataOut,
     const size_bit_t    aSize,
     const size_bit_t    aOffset
 )
@@ -143,9 +143,9 @@ void    GpBitReader::_Bits
     );
 
     //Copy
-    std::byte*          dstPtr      = aDataOut;
+    u_int_8*            dstPtr      = aDataOut;
     const size_bit_t    dstOffset   = aOffset;
-    const std::byte*    srcPtr      = iStorage.Data();
+    const u_int_8*  srcPtr      = iStorage.Data();
     const size_bit_t    srcOffset   = iStorage.Size() - iStorage.Left();
 
     Copy
@@ -161,9 +161,9 @@ void    GpBitReader::_Bits
 
 void    GpBitReader::Copy
 (
-    std::byte*          aDst,
+    u_int_8*            aDst,
     const size_bit_t    aDstOffset,
-    const std::byte*    aSrc,
+    const u_int_8*  aSrc,
     const size_bit_t    aSrcOffset,
     const size_bit_t    aSize
 )
@@ -212,14 +212,14 @@ void    GpBitReader::Copy
 
     std::memcpy
     (
-        reinterpret_cast<std::byte*>(&tmpDst),
+        reinterpret_cast<u_int_8*>(&tmpDst),
         aDst,
         dstBytesIntersectCnt
     );
 
     std::memcpy
     (
-        reinterpret_cast<std::byte*>(&tmpSrc),
+        reinterpret_cast<u_int_8*>(&tmpSrc),
         aSrc,
         srcBytesIntersectCnt
     );
@@ -253,7 +253,7 @@ void    GpBitReader::Copy
     std::memcpy
     (
         aDst,
-        reinterpret_cast<std::byte*>(&tmpDst),
+        reinterpret_cast<u_int_8*>(&tmpDst),
         dstBytesIntersectCnt
     );
 }

@@ -6,7 +6,7 @@
 
 #include <thread>
 
-#if  __has_include(<stop_token>)
+#if (__cplusplus >= 202002L) && __has_include(<stop_token>)
 #   include <stop_token>
 #elif  __has_include(<jthread/source/jthread.hpp>)
 #   include <jthread/source/jthread.hpp>

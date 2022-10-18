@@ -19,7 +19,7 @@ class GP_UTILS_API GpUUID
 public:
     CLASS_DD(GpUUID)
 
-    using DataT = std::array<std::byte, 16>;
+    using DataT = std::array<u_int_8, 16>;
 
 public:
     constexpr                           GpUUID          (void) noexcept:iData(CE_Zero()) {}
@@ -68,7 +68,7 @@ public:
     static GpUUID                       SFromString     (std::string_view aStr);
 
     inline static consteval DataT       CE_FromString   (std::string_view aStr);
-    inline static consteval std::byte   SToByte         (std::array<char,2> aStr);
+    inline static consteval u_int_8     SToByte         (std::array<char,2> aStr);
     inline static constexpr DataT       CE_Zero         (void) noexcept;
 
 private:
@@ -210,7 +210,7 @@ consteval GpUUID::DataT GpUUID::CE_FromString (std::string_view aStr)
     DataT data = {};
 
     const char* _R_ strPtr  = aStr.data();
-    std::byte* _R_  dataPtr = data.data();
+    u_int_8* _R_    dataPtr = data.data();
 
     for (size_t id = 0; id < data.size(); ++id)
     {
@@ -230,7 +230,7 @@ consteval GpUUID::DataT GpUUID::CE_FromString (std::string_view aStr)
     return data;
 }
 
-consteval std::byte GpUUID::SToByte (std::array<char,2> aStr)
+consteval u_int_8   GpUUID::SToByte (std::array<char,2> aStr)
 {
     //--------------------------
     char    ch      = aStr.data()[0];
@@ -256,13 +256,12 @@ consteval std::byte GpUUID::SToByte (std::array<char,2> aStr)
 
     valLo = u_int_8(size_t(ch) - beginCh + shift);
 
-    return std::byte(u_int_8(valHi << 4) | u_int_8(valLo));
+    return u_int_8(valHi << 4) | u_int_8(valLo);
 }
 
 constexpr GpUUID::DataT GpUUID::CE_Zero (void) noexcept
 {
-    return DataT {std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0),
-                  std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0), std::byte(0)};
+    return DataT {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 }
 
 }//GPlatform

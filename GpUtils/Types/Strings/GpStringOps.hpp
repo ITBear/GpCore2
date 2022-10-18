@@ -67,20 +67,20 @@ public:
     static size_t                           SFromBytesHex   (GpSpanPtrByteR     aData,
                                                              GpSpanPtrCharRW    aStrOut);
     static std::string                      SFromBytesHex   (GpSpanPtrByteR     aData);
-    static inline std::array<char,2>        SFromByteHex    (const std::byte    aData) noexcept;
+    static inline std::array<char,2>        SFromByteHex    (const u_int_8  aData) noexcept;
 
     static size_byte_t                      SToBytesHex     (std::string_view   aStr,
                                                              GpSpanPtrByteRW    aDataOut);
     static GpBytesArray                     SToBytesHex     (std::string_view   aStr);
-    static constexpr std::byte              SToByteHex      (std::array<char,2> aStr);
+    static constexpr u_int_8                SToByteHex      (std::array<char,2> aStr);
 
     static std::string                      SFromBits       (GpSpanPtrByteR     aData);
 
     //------------------------- Unicode --------------------------
-    static size_t                           SConv_UTF16_UTF8(std::array<std::byte, 4>&      aUTF8_valueOut,
-                                                             const std::array<std::byte, 2> aUTF16_value);//return bytes count of aUTF8Out
-    static size_t                           SConv_UTF32_UTF8(std::array<std::byte, 4>&      aUTF8_valueOut,
-                                                             const std::array<std::byte, 4> aUTF32_value);//return bytes count of aUTF8Out
+    static size_t                           SConv_UTF16_UTF8(std::array<u_int_8, 4>&        aUTF8_valueOut,
+                                                             const std::array<u_int_8, 2>   aUTF16_value);//return bytes count of aUTF8Out
+    static size_t                           SConv_UTF32_UTF8(std::array<u_int_8, 4>&        aUTF8_valueOut,
+                                                             const std::array<u_int_8, 4>   aUTF32_value);//return bytes count of aUTF8Out
     static size_t                           SLength_UTF8    (std::string_view aStr);
 
     //------------------------- Encode --------------------------
@@ -104,7 +104,7 @@ public:
     //------------------------- Auto to string -----------------------------
     static std::string_view                 SToString       (const std::string& aValue) {return aValue;}
     static std::string_view                 SToString       (std::string_view aValue) {return aValue;}
-    static std::string                      SToString       (const GpBytesArray& aValue) {return SFromBytesHex(aValue);}
+    static std::string                      SToString       (const GpBytesArray& aValue) {return SFromBytesHex(GpSpanPtrByteR(aValue.data(), aValue.size()));}
     static std::string_view                 SToString       (const GpEnum& aValue) {return aValue.ToString();}
     static std::string                      SToString       (const GpUUID& aValue) {return aValue.ToString();}
     static std::string                      SToString       (float aValue) {return SFromDouble(double(aValue));}
@@ -192,7 +192,7 @@ std::string GpStringOps::STrimRight
     return std::string();
 }
 
-std::array<char,2>  GpStringOps::SFromByteHex (const std::byte aData) noexcept
+std::array<char,2>  GpStringOps::SFromByteHex (const u_int_8 aData) noexcept
 {
     constexpr std::array<char, 16>  hexToChar =
     {
@@ -203,7 +203,7 @@ std::array<char,2>  GpStringOps::SFromByteHex (const std::byte aData) noexcept
             hexToChar.data()[(size_t(aData) & size_t(0x0F)) >> 0]};
 }
 
-constexpr std::byte GpStringOps::SToByteHex (std::array<char,2> aStr)
+constexpr u_int_8   GpStringOps::SToByteHex (std::array<char,2> aStr)
 {
     //--------------------------
     char    ch      = aStr.data()[0];
@@ -229,7 +229,7 @@ constexpr std::byte GpStringOps::SToByteHex (std::array<char,2> aStr)
 
     valLo = u_int_8(size_t(ch) - beginCh + shift);
 
-    return std::byte(u_int_8(valHi << 4) | u_int_8(valLo));
+    return u_int_8(valHi << 4) | u_int_8(valLo);
 }
 
 constexpr size_t    GpStringOps::SCountChars
