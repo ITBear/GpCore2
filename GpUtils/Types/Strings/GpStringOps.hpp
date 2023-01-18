@@ -87,8 +87,8 @@ public:
     static std::string                      PercentEncode   (std::string_view aSrc);
 
     //------------------------- Register --------------------------
-    //static void                           SToLower        (GpSpanPtrCharRW    aStr);
-    //static void                           SToUpper        (GpSpanPtrCharRW    aStr);
+    static std::string                      SToLower        (GpSpanPtrCharR aStr);
+    static std::string                      SToUpper        (GpSpanPtrCharR aStr);
 
     //------------------------- Count -----------------------------
     static inline constexpr size_t          SCountChars     (std::string_view   aStr,

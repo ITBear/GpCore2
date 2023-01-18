@@ -23,7 +23,8 @@ GpReflectProp::GpReflectProp
     FlagArgsT&&             aFlagArgs,
     GenFnOptT               aGenFn,
     ProcessCustomFnOptT     aConstructCustomFn,
-    ProcessCustomFnOptT     aDestructCustomFn
+    ProcessCustomFnOptT     aDestructCustomFn,
+    FromStringFnMapT&&      aFromStringFns
 ) noexcept:
 iType(aType),
 iModelUid(aModelUid),
@@ -37,7 +38,8 @@ iFlags(std::move(aFlags)),
 iFlagArgs(aFlagArgs),
 iGenFn(aGenFn),
 iConstructCustomFn(aConstructCustomFn),
-iDestructCustomFn(aDestructCustomFn)
+iDestructCustomFn(aDestructCustomFn),
+iFromStringFns(std::move(aFromStringFns))
 {
 }
 
@@ -54,7 +56,8 @@ iFlags(aProp.iFlags),
 iFlagArgs(aProp.iFlagArgs),
 iGenFn(aProp.iGenFn),
 iConstructCustomFn(aProp.iConstructCustomFn),
-iDestructCustomFn(aProp.iDestructCustomFn)
+iDestructCustomFn(aProp.iDestructCustomFn),
+iFromStringFns(aProp.iFromStringFns)
 {
 }
 
@@ -71,7 +74,8 @@ iFlags(std::move(aProp.iFlags)),
 iFlagArgs(std::move(aProp.iFlagArgs)),
 iGenFn(std::move(aProp.iGenFn)),
 iConstructCustomFn(std::move(aProp.iConstructCustomFn)),
-iDestructCustomFn(std::move(aProp.iDestructCustomFn))
+iDestructCustomFn(std::move(aProp.iDestructCustomFn)),
+iFromStringFns(std::move(aProp.iFromStringFns))
 {
 }
 
@@ -94,6 +98,7 @@ GpReflectProp&  GpReflectProp::operator= (const GpReflectProp& aProp)
     iGenFn              = aProp.iGenFn;
     iConstructCustomFn  = aProp.iConstructCustomFn;
     iDestructCustomFn   = aProp.iDestructCustomFn;
+    iFromStringFns      = aProp.iFromStringFns;
 
     return *this;
 }
@@ -113,6 +118,7 @@ GpReflectProp&  GpReflectProp::operator= (GpReflectProp&& aProp) noexcept
     iGenFn              = std::move(aProp.iGenFn);
     iConstructCustomFn  = std::move(aProp.iConstructCustomFn);
     iDestructCustomFn   = std::move(aProp.iDestructCustomFn);
+    iFromStringFns      = std::move(aProp.iFromStringFns);
 
     return *this;
 }
@@ -165,6 +171,36 @@ bool    GpReflectProp::GenFn (void* aDataPtr) const
     }
 
     return false;
+}
+
+bool    GpReflectProp::FromStringFn
+(
+    std::string_view    aFnName,
+    void*               aDataPtr,
+    std::string_view    aStr
+) const
+{
+    auto iter = iFromStringFns.find(aFnName);
+
+    if (iter == iFromStringFns.end())
+    {
+        return false;
+    }
+
+    iter->second(*this, aDataPtr, aStr);
+
+    return true;
+}
+
+GpReflectProp&  GpReflectProp::AddFromStringFn
+(
+    std::string_view    aFnName,
+    FromStringFnT       aFn
+)
+{
+    iFromStringFns.emplace(aFnName, aFn);
+
+    return *this;
 }
 
 void    GpReflectProp::ConstructCustom (void* aDataPtr) const

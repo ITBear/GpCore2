@@ -10,6 +10,8 @@ GpTaskBase::~GpTaskBase (void) noexcept
 
 GpTaskDoRes GpTaskBase::_Run (GpThreadStopToken aStopToken) noexcept
 {
+    bool isCatchException = false;
+
     try
     {
         if (!iIsStarted)
@@ -53,17 +55,23 @@ GpTaskDoRes GpTaskBase::_Run (GpThreadStopToken aStopToken) noexcept
     } catch (const GpException& e)
     {
         CompletePromise(MakeSP<GpItcResult>(e));
+        isCatchException = true;
     } catch (const std::exception& e)
     {
         CompletePromise(MakeSP<GpItcResult>(e));
+        isCatchException = true;
     } catch (...)
     {
         CompletePromise(MakeSP<GpItcResult>(std::runtime_error("Unknown exception")));
+        isCatchException = true;
     }
 
     OnStop();
 
-    CompletePromise(MakeSP<GpItcResult>());
+    if (!isCatchException)
+    {
+        CompletePromise(MakeSP<GpItcResult>());
+    }
 
     return GpTaskDoRes::DONE;
 }

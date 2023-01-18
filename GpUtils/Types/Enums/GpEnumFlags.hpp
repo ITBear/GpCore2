@@ -47,7 +47,7 @@ public:
     constexpr void                      Clear               (void) noexcept {iValue = 0;}
 
     constexpr value_type                Value               (void) const noexcept {return iValue;}
-
+    constexpr void                      SetAllFromRaw       (const value_type aValue) noexcept{iValue = aValue;}
     constexpr void                      Set                 (const value_type aId) noexcept {iValue |=  value_type(value_type(1) << aId);}
     constexpr void                      Clear               (const value_type aId) noexcept {iValue &= ~value_type(value_type(1) << aId);}
     constexpr bool                      Test                (const value_type aId) const noexcept {return iValue & value_type(value_type(1) << aId);}

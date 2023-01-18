@@ -6,9 +6,10 @@
 
 #include "GpContainersT.hpp"
 #include "../../SyncPrimitives/GpSpinlock.hpp"
+#include "../Strings/GpStringOps.hpp"
+#include "../Strings/GpStringUtils.hpp"
 
 #include <mutex>
-#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -119,10 +120,10 @@ GpCachePoolElementGuard<ElementT, CacheT>::~GpCachePoolElementGuard (void) noexc
         }
     } catch (const std::exception& e)
     {
-        std::cerr << "[GpCachePoolElementGuard::~GpCachePoolElementGuard]: " << e.what() << std::endl;
+        GpStringUtils::SCerr("[GpCachePoolElementGuard::~GpCachePoolElementGuard]: "_sv + e.what());
     } catch (...)
     {
-        std::cerr << "[GpCachePoolElementGuard::~GpCachePoolElementGuard]: " << "unkown exception" << std::endl;
+        GpStringUtils::SCerr("[GpCachePoolElementGuard::~GpCachePoolElementGuard]: unkown exception"_sv);
     }
 }
 

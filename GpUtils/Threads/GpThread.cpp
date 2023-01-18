@@ -2,26 +2,10 @@
 
 #if defined(GP_USE_MULTITHREADING)
 
+#include "../Types/Strings/GpStringUtils.hpp"
+#include "../Types/Strings/GpStringOps.hpp"
+
 namespace GPlatform {
-
-GpThread::GpThread (void) noexcept
-{
-}
-
-GpThread::GpThread (std::string aName) noexcept:
-iName(std::move(aName))
-{
-}
-
-GpThread::GpThread (GpThread&& aThread) noexcept
-{
-    //std::scoped_lock lock(iRWLock, aThread.iRWLock);
-
-    iName       = std::move(aThread.iName);
-    iThread     = std::move(aThread.iThread);
-    iRunnable   = std::move(aThread.iRunnable);
-    iThreadId   = std::move(aThread.iThreadId);
-}
 
 GpThread::~GpThread (void) noexcept
 {
@@ -43,9 +27,9 @@ std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
     }
 
 #if defined(GP_USE_MULTITHREADING_IMPL_JTHREAD)
-    iThread = std::jthread([aRunnable](GpThreadStopToken aStopToken) noexcept
+    iThread = std::jthread([&](GpThreadStopToken aStopToken) noexcept
     {
-        GpRunnable::SP runnable = std::move(aRunnable);
+        GpRunnable::SP runnable = iRunnable;
         runnable.V().Run(aStopToken);
     });
 #else
@@ -70,14 +54,20 @@ void    GpThread::Join (void) noexcept
 
                 if (iRunnable.IsNotNULL())
                 {
-                    iRunnable.Vn().WakeupAll();
+                    iRunnable.Vn().CVF().WakeupAll();
                 }
             }
 
             iThread.join();
-        } catch (const std::system_error&)
+        } catch (const GpException& e)
         {
-            //thread was stoped between joinable() and join() calls
+            GpStringUtils::SCerr("[GpThread::Join]: "_sv + e.what() + "\n"_sv);
+        } catch (const std::exception& e)
+        {
+            GpStringUtils::SCerr("[GpThread::Join]: "_sv + e.what() + "\n"_sv);
+        } catch (...)
+        {
+            GpStringUtils::SCerr("[GpThread::Join]: Unknown exception\n"_sv);
         }
     }
 
@@ -99,7 +89,19 @@ bool    GpThread::RequestStop (void) noexcept
     {
         if (iRunnable.IsNotNULL())
         {
-            iRunnable.Vn().WakeupAll();
+            try
+            {
+                iRunnable.Vn().CVF().WakeupAll();
+            } catch (const GpException& e)
+            {
+                GpStringUtils::SCerr("[GpThread::RequestStop]: "_sv + e.what() + "\n"_sv);
+            } catch (const std::exception& e)
+            {
+                GpStringUtils::SCerr("[GpThread::RequestStop]: "_sv + e.what() + "\n"_sv);
+            } catch (...)
+            {
+                GpStringUtils::SCerr("[GpThread::RequestStop]: Unknown exception\n"_sv);
+            }
         }
     }
 

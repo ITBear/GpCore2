@@ -4,7 +4,7 @@
 
 namespace GPlatform {
 
-GP_ENUM_IMPL(GpRandomStrMode);
+GP_ENUM_IMPL(GpRandomStrMode)
 
 }//GPlatform
 

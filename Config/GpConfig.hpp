@@ -1,6 +1,5 @@
 #pragma once
 
-#include "GpEnvironmentDetector.hpp"
 #include "GpCompilerFeatures.hpp"
 
 //******************* ARCH *****************

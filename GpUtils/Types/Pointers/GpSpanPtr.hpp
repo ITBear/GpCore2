@@ -238,8 +238,7 @@ public:
 
         THROW_COND_GP
         (
-               (NumOps::SAdd(aOffset, aCount) <= cnt)
-            && (aOffset < cnt),
+            NumOps::SAdd(aOffset, aCount) <= cnt,
             "Out of range"_sv
         );
 
@@ -261,8 +260,7 @@ public:
 
         THROW_COND_GP
         (
-               (NumOps::SAdd(aOffset, aCount) <= cnt)
-            && (aOffset < cnt),
+            NumOps::SAdd(aOffset, aCount) <= cnt,
             "Out of range"_sv
         );
 
@@ -491,8 +489,7 @@ constexpr typename GpSpanPtr<T>::pointer    GpSpanPtr<T>::Ptr (const size_t aOff
 {
     THROW_COND_GP
     (
-           ((iPtr == nullptr) && (aOffset == 0))
-        || (aOffset < Count()),
+        aOffset <= Count(),
         "Out of range"_sv
     );
 

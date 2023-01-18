@@ -44,7 +44,6 @@ SOURCES += \
     Streams/GpByteWriterStorage.cpp \
     Streams/GpByteWriterStorageByteArray.cpp \
     Streams/GpByteWriterStorageFixedSize.cpp \
-    SyncPrimitives/GpConditionVar.cpp \
     Threads/GpThread.cpp \
     Threads/Timers/GpTimer.cpp \
     Threads/Timers/GpTimerShotEvent.cpp \
@@ -53,8 +52,8 @@ SOURCES += \
     Types/Containers/GpGlobalStructCatalogC.cpp \
     Types/Enums/GpEnum.cpp \
     Types/Enums/GpEnumFlags.cpp \
-    Types/Numerics/GpNumericOps.cpp \
     Types/Strings/GpStringOps.cpp \
+    Types/Strings/GpStringUtils.cpp \
     Types/UIDs/GpUUID.cpp
 
 HEADERS += \
@@ -88,6 +87,7 @@ HEADERS += \
     GpMemOps.hpp \
     GpUtils.hpp \
     GpUtils_global.hpp \
+    Other/GpCallOnce.hpp \
     Other/GpErrno.hpp \
     Other/GpGlobals.hpp \
     Other/GpOther.hpp \
@@ -115,6 +115,7 @@ HEADERS += \
     Streams/GpStreams.hpp \
     SyncPrimitives/GpAsmSpinPause.hpp \
     SyncPrimitives/GpConditionVar.hpp \
+    SyncPrimitives/GpConditionVarFlag.hpp \
     SyncPrimitives/GpRWLock.hpp \
     SyncPrimitives/GpSpinlock.hpp \
     SyncPrimitives/GpSyncPrimitives.hpp \
@@ -167,6 +168,7 @@ HEADERS += \
     Types/Strings/GpStringLiterals.hpp \
     Types/Strings/GpStringOps.hpp \
     Types/Strings/GpStringTemplateArg.hpp \
+    Types/Strings/GpStringUtils.hpp \
     Types/Strings/GpStrings.hpp \
     Types/UIDs/GpUIDs.hpp \
     Types/UIDs/GpUUID.hpp \
@@ -194,6 +196,7 @@ HEADERS += \
     Types/Units/Other/size_mebibyte_t.hpp \
     Types/Units/Other/unix_ts_t.hpp \
     Types/Units/SI/GpUnitsSI.hpp \
+    Types/Units/SI/GpUnitsSI_Angle.hpp \
     Types/Units/SI/GpUnitsSI_Frequency.hpp \
     Types/Units/SI/GpUnitsSI_Length.hpp \
     Types/Units/SI/GpUnitsSI_Time.hpp \

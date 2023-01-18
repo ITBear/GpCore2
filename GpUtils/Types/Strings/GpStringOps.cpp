@@ -221,11 +221,18 @@ s_int_64    GpStringOps::SToSI64
 {
     s_int_64    result      = 0;
     const char* strPtrBegin = aStr.data();
+    size_t      strSize     = aStr.size();
+
+    if ((strSize > 0) && (strPtrBegin != nullptr) && (*strPtrBegin == '+'))
+    {
+        strPtrBegin++;
+        strSize--;
+    }
 
     const std::from_chars_result r = std::from_chars
     (
         strPtrBegin,
-        strPtrBegin + aStr.size(),
+        strPtrBegin + strSize,
         result
     );
 
@@ -664,39 +671,51 @@ size_t  GpStringOps::SCountCharsRange
     return count;
 }
 
-/*void  GpStringOps::SToLower (GpRawPtrCharRW aStr)
+std::string GpStringOps::SToLower (GpSpanPtrCharR aStr)
 {
-    if (aStr.IsEmpty())
+    //std::transform(aStr.begin(), aStr.end(), aStr.begin(), [](unsigned char c) {return std::tolower(c);});
+
+    const size_t            size    = aStr.Count();
+    const unsigned char*    strPtr  = aStr.PtrAs<const unsigned char*>();
+
+    if (   (size == 0)
+        || (strPtr == nullptr))
     {
-        return;
+        return "";
     }
 
-    char* _R_       str     = aStr.Ptr();
-    const size_t    size    = aStr.SizeLeft().As<size_t>();
+    std::string res;
+    res.resize(size);
 
-    for (size_t id = 0; id < size; ++id)
+    for (size_t i = 0; i < size; i++)
     {
-        const char ch = *str;
-        *str++ = static_cast<char>(std::tolower(ch));
+        res[i] = char(std::tolower(int(*strPtr++)));
     }
+
+    return res;
 }
 
-void    GpStringOps::SToUpper (GpRawPtrCharRW aStr)
+std::string GpStringOps::SToUpper (GpSpanPtrCharR aStr)
 {
-    if (aStr.IsEmpty())
+    const size_t            size    = aStr.Count();
+    const unsigned char*    strPtr  = aStr.PtrAs<const unsigned char*>();
+
+    if (   (size == 0)
+        || (strPtr == nullptr))
     {
-        return;
+        return "";
     }
 
-    char* _R_       str     = aStr.Ptr();
-    const size_t    size    = aStr.SizeLeft().As<size_t>();
+    std::string res;
+    res.resize(size);
 
-    for (size_t id = 0; id < size; ++id)
+    for (size_t i = 0; i < size; i++)
     {
-        const char ch = *str;
-        *str++ = static_cast<char>(std::toupper(ch));
+        res[i] = char(std::toupper(int(*strPtr++)));
     }
-}*/
+
+    return res;
+}
 
 bool    GpStringOps::SContainsOnly
 (

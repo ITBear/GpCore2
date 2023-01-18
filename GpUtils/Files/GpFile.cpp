@@ -8,7 +8,7 @@
 
 namespace GPlatform {
 
-GP_ENUM_IMPL(GpFileFlag);
+GP_ENUM_IMPL(GpFileFlag)
 
 void    GpFile::Open
 (

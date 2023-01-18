@@ -37,12 +37,13 @@ public:
     constexpr GpUUID                SDetectModelUid         (void);
 
     template<typename T> static
-    void                            SAddProp                (std::string&&                  aPropName,
-                                                             const std::ptrdiff_t           aOffset,
-                                                             const GpReflectPropFlags       aFlags,
-                                                             GpReflectProp::FlagArgsT&&     aFlagArgs,
-                                                             GpReflectProp::GenFnOptT       aGenFn,
-                                                             GpReflectProp::C::Vec::Val&    aPropsOut);
+    GpReflectProp&                  SAddProp                (std::string&&                      aPropName,
+                                                             const std::ptrdiff_t               aOffset,
+                                                             const GpReflectPropFlags           aFlags,
+                                                             GpReflectProp::FlagArgsT&&         aFlagArgs,
+                                                             GpReflectProp::GenFnOptT           aGenFn,
+                                                             GpReflectProp::C::Vec::Val&        aPropsOut,
+                                                             GpReflectProp::FromStringFnMapT    aFromStringFns);
     template<typename T> static
     void                            SReflectModelInit       (void);
 
@@ -224,14 +225,15 @@ constexpr GpUUID    GpReflectUtils::SDetectModelUid (void)
 }
 
 template<typename T>
-void    GpReflectUtils::SAddProp
+GpReflectProp&  GpReflectUtils::SAddProp
 (
-    std::string&&               aPropName,
-    const std::ptrdiff_t        aOffset,
-    const GpReflectPropFlags    aFlags,
-    GpReflectProp::FlagArgsT&&  aFlagArgs,
-    GpReflectProp::GenFnOptT    aGenFn,
-    GpReflectProp::C::Vec::Val& aPropsOut
+    std::string&&                   aPropName,
+    const std::ptrdiff_t            aOffset,
+    const GpReflectPropFlags        aFlags,
+    GpReflectProp::FlagArgsT&&      aFlagArgs,
+    GpReflectProp::GenFnOptT        aGenFn,
+    GpReflectProp::C::Vec::Val&     aPropsOut,
+    GpReflectProp::FromStringFnMapT aFromStringFns
 )
 {
     constexpr const auto        types   = GpReflectUtils::SDetectContainerType<T>();
@@ -282,9 +284,12 @@ void    GpReflectUtils::SAddProp
             std::move(aFlagArgs),
             aGenFn,
             constructCustomFn,
-            destructCustomFn
+            destructCustomFn,
+            std::move(aFromStringFns)
         )
     );
+
+    return aPropsOut.at(aPropsOut.size() - 1);
 }
 
 constexpr bool  GpReflectUtils::SCheckContainerValueType (const GpReflectType::EnumT aType)

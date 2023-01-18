@@ -28,6 +28,9 @@ public:
     using FlagsT                = GpReflectPropFlags;
     using FlagArgsT             = std::map<GpReflectPropFlags::EnumT, std::string>;
 
+    using FromStringFnT         = std::function<void(const GpReflectProp& aProp, void* aDataPtr, std::string_view aSrc)>;
+    using FromStringFnMapT      = std::map<std::string, FromStringFnT, std::less<>>;
+
     using GenFnT                = std::function<void(const GpReflectProp& aProp, void* aDataPtr)>;
     using GenFnOptT             = std::optional<GenFnT>;
     using ProcessCustomFnT      = std::function<void(void* aPropPtr)>;
@@ -47,7 +50,8 @@ public:
                                                              FlagArgsT&&            aFlagArgs,
                                                              GenFnOptT              aGenFn,
                                                              ProcessCustomFnOptT    aConstructCustomFn,
-                                                             ProcessCustomFnOptT    aDestructCustomFn) noexcept;
+                                                             ProcessCustomFnOptT    aDestructCustomFn,
+                                                             FromStringFnMapT&&     aFromStringFns) noexcept;
                                     GpReflectProp           (const GpReflectProp& aProp);
                                     GpReflectProp           (GpReflectProp&& aProp) noexcept;
                                     ~GpReflectProp          (void) noexcept;
@@ -68,6 +72,11 @@ public:
     std::optional<std::string_view> FlagArg                 (const GpReflectPropFlag::EnumT aFlag) const noexcept;
     const GpReflectProp&            UnwrapContainerKeyProp  (void) const;
     bool                            GenFn                   (void* aDataPtr) const;
+    bool                            FromStringFn            (std::string_view   aFnName,
+                                                             void*              aDataPtr,
+                                                             std::string_view   aStr) const;
+    GpReflectProp&                  AddFromStringFn         (std::string_view   aFnName,
+                                                             FromStringFnT      aFn);
 
     void                            ConstructCustom         (void* aDataPtr) const;
     void                            DestructCustom          (void* aDataPtr) const;
@@ -220,6 +229,8 @@ private:
     GenFnOptT           iGenFn;
     ProcessCustomFnOptT iConstructCustomFn;
     ProcessCustomFnOptT iDestructCustomFn;
+
+    FromStringFnMapT    iFromStringFns;
 };
 
 template<typename T>

@@ -4,7 +4,7 @@
 
 namespace GPlatform {
 
-GP_ENUM_IMPL(GpReflectPropFlag);
+GP_ENUM_IMPL(GpReflectPropFlag)
 
 }//GPlatform
 

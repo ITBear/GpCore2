@@ -20,10 +20,10 @@ public:
     CLASS_DD(GpThread)
 
 public:
-                            GpThread    (void) noexcept;
-                            GpThread    (std::string aName) noexcept;
+                            GpThread    (void) noexcept = default;
+    inline                  GpThread    (std::string aName) noexcept;
                             GpThread    (const GpThread& aThread) = delete;
-                            GpThread    (GpThread&& aThread) noexcept;
+    inline                  GpThread    (GpThread&& aThread) noexcept;
                             ~GpThread   (void) noexcept;
 
     std::string_view        Name        (void) const noexcept {return iName;}
@@ -41,6 +41,19 @@ private:
     GpRunnable::SP          iRunnable;
     std::thread::id         iThreadId;
 };
+
+GpThread::GpThread (std::string aName) noexcept:
+iName(std::move(aName))
+{
+}
+
+GpThread::GpThread (GpThread&& aThread) noexcept
+{
+    iName       = std::move(aThread.iName);
+    iThread     = std::move(aThread.iThread);
+    iRunnable   = std::move(aThread.iRunnable);
+    iThreadId   = std::move(aThread.iThreadId);
+}
 
 std::thread::id GpThread::ThreadId (void) const noexcept
 {

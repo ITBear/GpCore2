@@ -2,7 +2,8 @@
 
 #if defined(GP_USE_TIMERS)
 
-#include <iostream>
+#include "../../Types/Strings/GpStringUtils.hpp"
+#include "../../Types/Strings/GpStringOps.hpp"
 
 namespace GPlatform {
 
@@ -28,15 +29,6 @@ void    GpTimersManager::SStop (void)
     }
 }
 
-GpTimersManager::GpTimersManager (void) noexcept:
-GpRunnable(MakeSP<GpConditionVar>())
-{
-}
-
-GpTimersManager::~GpTimersManager (void) noexcept
-{
-}
-
 void    GpTimersManager::AddTimer (GpTimer::SP aTimer)
 {
     iTimers.Register(aTimer.P(), std::move(aTimer));
@@ -44,27 +36,41 @@ void    GpTimersManager::AddTimer (GpTimer::SP aTimer)
 
 void    GpTimersManager::Run (GpThreadStopToken aStopToken) noexcept
 {
-    while (!aStopToken.stop_requested())
+    try
     {
-        iTimers.Process([](auto& aTimers)
+        while (!aStopToken.stop_requested())
         {
-            for (auto iter = aTimers.begin(); iter != aTimers.end(); )
+            iTimers.Process([](auto& aTimers)
             {
-                if (iter->second.V().TryMakeShot() == GpTimer::ShotRes::REMOVE)
+                for (auto iter = aTimers.begin(); iter != aTimers.end(); )
                 {
-                    iter = aTimers.erase(iter);
-                } else
-                {
-                    iter++;
+                    if (iter->second.V().TryMakeShot() == GpTimer::ShotRes::REMOVE)
+                    {
+                        iter = aTimers.erase(iter);
+                    } else
+                    {
+                        iter++;
+                    }
                 }
-            }
-        });
+            });
 
-        if (WaitForWakeup(iStep) == false)
-        {
-            std::cerr << "[GpTimersManager::Run]: WaitForWakeup failed..." << std::endl;
-            break;
+            if (CVF().WaitFor(iStep) == GpConditionVarFlag::WaitForResT::OK)
+            {
+                break;
+            } else //GpConditionVarFlag::WaitForResT::TIMEOUT
+            {
+                //continue;
+            }
         }
+    } catch (const GpException& e)
+    {
+        GpStringUtils::SCerr("[GpTimersManager::Run]: "_sv + e.what() + "\n"_sv);
+    } catch (const std::exception& e)
+    {
+        GpStringUtils::SCerr("[GpTimersManager::Run]: "_sv + e.what() + "\n"_sv);
+    } catch (...)
+    {
+        GpStringUtils::SCerr("[GpTimersManager::Run]: unknown\n"_sv);
     }
 }
 

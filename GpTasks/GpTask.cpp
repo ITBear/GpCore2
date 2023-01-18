@@ -4,11 +4,9 @@
 
 #include "GpTaskScheduler.hpp"
 
-#include <iostream>
-
 namespace GPlatform {
 
-GpFlatMap<std::thread::id, GpTask*, 64> GpTask::sTasksByThreadId;
+decltype(GpTask::sTasksByThreadId)  GpTask::sTasksByThreadId;
 
 GpTask::~GpTask (void) noexcept
 {
@@ -29,6 +27,17 @@ GpTaskDoRes GpTask::Run (GpThreadStopToken aStopToken) noexcept
 
     SSetCurrent(this);
     return _Run(std::move(aStopToken));
+}
+
+void    GpTask::SAddExecutorThreadId (const std::thread::id& aThreadId)
+{
+    GpTask* taskNullPtr = nullptr;
+
+    sTasksByThreadId.Insert
+    (
+        aThreadId,
+        taskNullPtr
+    );
 }
 
 }//GPlatform

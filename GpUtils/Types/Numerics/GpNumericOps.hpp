@@ -14,7 +14,7 @@ class GpNumericOps;
 
 using NumOps = GpNumericOps;
 
-class GP_UTILS_API GpNumericOps
+class GpNumericOps
 {
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpNumericOps)
 
@@ -22,10 +22,10 @@ class GP_UTILS_API GpNumericOps
     static_assert (sizeof(long long int) == sizeof(s_int_64), "sizeof(long long int) == sizeof (s_int_64)");
 
 public:
-    [[nodiscard]] static
+    [[nodiscard]] inline static
     size_t                          SDecDigsCountUI64 (const u_int_64 aValue) noexcept;
 
-    [[nodiscard]] static
+    [[nodiscard]] inline static
     size_t                          SDecDigsCountSI64 (const s_int_64 aValue) noexcept;
 
     template<typename T>
@@ -148,6 +148,23 @@ public:
         } else
         {
             return {aValueMin, aValueMax};
+        }
+    }
+
+    template<typename T>
+    [[nodiscard]] static constexpr T SClamp (const T aValueMin, const T aValueMax, const T aValue) noexcept
+    {
+        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
+
+        if (aValue < aValueMin)
+        {
+            return aValueMin;
+        } else if (aValue > aValueMax)
+        {
+            return aValueMax;
+        } else
+        {
+            return aValue;
         }
     }
 
@@ -517,6 +534,16 @@ private:
         return std::abs(a - b) <= std::numeric_limits<T>::epsilon() * std::fmax(std::abs(a), std::abs(b)) * ulp;
     }
 };
+
+size_t  GpNumericOps::SDecDigsCountUI64 (const u_int_64 aValue) noexcept
+{
+    return SDecDigsCount<u_int_64>(aValue);
+}
+
+size_t  GpNumericOps::SDecDigsCountSI64 (const s_int_64 aValue) noexcept
+{
+    return SDecDigsCount<s_int_64>(aValue);
+}
 
 template<typename T> struct NumOps_IsEqual
 {

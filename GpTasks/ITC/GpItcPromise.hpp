@@ -14,69 +14,58 @@ public:
     CLASS_REMOVE_CTRS_COPY(GpItcPromise)
 
 public:
-                            GpItcPromise    (void) noexcept = default;
+    inline                  GpItcPromise    (void);
     inline                  GpItcPromise    (GpItcPromise&& aPromise) noexcept;
     inline                  ~GpItcPromise   (void) noexcept;
 
     inline void             Complete        (GpItcResult::SP aResult) noexcept;
-
-    inline GpItcFuture::SP  Future          (void);
+    inline GpItcFuture::SP  Future          (const GpUUID& aTaskGuid);
 
 private:
-    mutable GpRWLock        iFutureLock;
     GpItcFuture::SP         iFuture;
 };
 
-inline  GpItcPromise::GpItcPromise (GpItcPromise&& aPromise) noexcept:
+GpItcPromise::GpItcPromise (void):
+iFuture(MakeSP<GpItcFuture>())
+{
+}
+
+GpItcPromise::GpItcPromise (GpItcPromise&& aPromise) noexcept:
 iFuture(std::move(aPromise.iFuture))
 {
 }
 
 GpItcPromise::~GpItcPromise (void) noexcept
 {
-    std::scoped_lock lock(iFutureLock);
-
-    if (iFuture.IsNotNULL())
-    {
-        iFuture.Vn().PromiseDestructed();
-        iFuture.Clear();
-    }
-}
-
-GpItcFuture::SP GpItcPromise::Future (void)
-{
-    //Quick check
-    {
-        std::shared_lock lock(iFutureLock);
-
-        if (iFuture.IsNotNULL())
-        {
-            return iFuture;
-        }
-    }
-
-    //Create future
-    {
-        std::scoped_lock lock(iFutureLock);
-
-        if (iFuture.IsNotNULL())
-        {
-            return iFuture;
-        }
-
-        iFuture = MakeSP<GpItcFuture>();
-        return iFuture;
-    }
+    Complete(GpItcResult::SP::SNull());
 }
 
 void    GpItcPromise::Complete (GpItcResult::SP aResult) noexcept
 {
-    std::scoped_lock lock(iFutureLock);
-
-    if (iFuture.IsNotNULL())
+    if (iFuture.IsNULL())
     {
-        iFuture.Vn().SetResult(std::move(aResult));
+        return;
     }
+
+    try
+    {
+        iFuture.Vn().SetResultOnce(std::move(aResult));
+    } catch (const GpException& e)
+    {
+        GpStringUtils::SCerr("[GpItcPromise::Complete]: exception: "_sv + e.what());
+    } catch (const std::exception& e)
+    {
+        GpStringUtils::SCerr("[GpItcPromise::Complete]: exception: "_sv + e.what());
+    } catch (...)
+    {
+        GpStringUtils::SCerr("[GpItcPromise::Complete]: unknown exception"_sv);
+    }
+}
+
+GpItcFuture::SP GpItcPromise::Future (const GpUUID& aTaskGuid)
+{
+    iFuture.V().AddTaskGuid(aTaskGuid);
+    return iFuture;
 }
 
 }//namespace GPlatform

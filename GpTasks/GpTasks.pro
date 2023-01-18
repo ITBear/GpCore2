@@ -33,8 +33,8 @@ SOURCES += \
     GpTaskLambda.cpp \
     GpTaskScheduler.cpp \
     GpTaskState.cpp \
-    ITC/GpItcFlag.cpp \
-    ITC/GpItcFuture.cpp
+    ITC/GpItcProducerConsumer.cpp \
+    ITC/GpItcSharedCondition.cpp
 
 HEADERS += \
     Fibers/GpFixedSizeStack.hpp \
@@ -63,9 +63,9 @@ HEADERS += \
     GpTasks_global.hpp \
     ITC/GpITCs.hpp \
     ITC/GpItcConsumer.hpp \
-    ITC/GpItcFlag.hpp \
     ITC/GpItcFuture.hpp \
     ITC/GpItcProducer.hpp \
     ITC/GpItcProducerConsumer.hpp \
     ITC/GpItcPromise.hpp \
-    ITC/GpItcResult.hpp
+    ITC/GpItcResult.hpp \
+    ITC/GpItcSharedCondition.hpp

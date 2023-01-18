@@ -175,7 +175,6 @@ private: \
 
 //------------------------- PROP -------------------------
 #define PROP(PROP_NAME) \
-{ \
     ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
         std::string(#PROP_NAME), \
@@ -183,12 +182,11 @@ private: \
         {}, \
         GpReflectProp::FlagArgsT(), \
         std::nullopt, \
-        aPropsOut \
-    ); \
-}
+        aPropsOut, \
+        {} \
+    )
 
 #define PROP_F(PROP_NAME, FLAGS) \
-{ \
     ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
         std::string(#PROP_NAME), \
@@ -196,12 +194,11 @@ private: \
         FLAGS, \
         GpReflectProp::FlagArgsT(), \
         std::nullopt, \
-        aPropsOut \
-    ); \
-}
+        aPropsOut, \
+        {} \
+    )
 
 #define PROP_FG(PROP_NAME, FLAGS, GEN_FN) \
-{ \
     ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
         std::string(#PROP_NAME), \
@@ -209,12 +206,11 @@ private: \
         FLAGS, \
         GpReflectProp::FlagArgsT(), \
         GEN_FN, \
-        aPropsOut \
-    ); \
-}
+        aPropsOut, \
+        {} \
+    )
 
 #define PROP_FA(PROP_NAME, FLAGS, FLAG_ARGS) \
-{ \
     ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
         std::string(#PROP_NAME), \
@@ -222,8 +218,8 @@ private: \
         FLAGS, \
         std::move(FLAG_ARGS), \
         std::nullopt, \
-        aPropsOut \
-    ); \
-}
+        aPropsOut, \
+        {} \
+    )
 
 #endif//GP_USE_REFLECTION

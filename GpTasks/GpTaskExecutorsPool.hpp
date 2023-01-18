@@ -4,49 +4,68 @@
 
 #if defined(GP_USE_MULTITHREADING)
 
+#include <bitset>
 #include "GpTaskExecutor.hpp"
 
 namespace GPlatform {
 
 class GpTask;
 
-class GP_TASKS_API GpTaskExecutorsPool final: public GpElementsPool<GpTaskExecutor*>
+class GP_TASKS_API GpTaskExecutorsPool
 {
+    friend class GpTaskExecutor;
+
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskExecutorsPool)
     CLASS_DD(GpTaskExecutorsPool)
 
-    using ExecutorT = GpTaskExecutor;
+    using ExecutorT             = GpTaskExecutor;
+    using ExecutorsContainerT   = std::array<ExecutorT::SP, GpTasksSettings::SMaxCoresCount()>;
+    using ExecutorsFreeFlagsT   = std::bitset<GpTasksSettings::SMaxCoresCount()>;
 
 public:
-                            GpTaskExecutorsPool     (void) noexcept;
-    virtual                 ~GpTaskExecutorsPool    (void) noexcept override final;
+                                GpTaskExecutorsPool     (void) noexcept = default;
+                                ~GpTaskExecutorsPool    (void) noexcept = default;
 
-    void                    RequestStop             (void) noexcept;
-    void                    Join                    (void) noexcept;
-    inline void             WakeupAll               (void) noexcept;
-    inline void             WakeupOne               (void) noexcept;
-
-protected:
-    virtual void            PreInit                 (const size_t aCount) override final;
-    virtual value_type      NewElement              (GpSpinlock& aLocked) override final;
-    virtual void            OnClear                 (void) noexcept override final;
+    void                        Start                   (const size_t aCount);
+    void                        RequestStop             (void) noexcept;
+    void                        Join                    (void) noexcept;
+    inline void                 WakeupNextIdle          (void);
 
 private:
-    GpThread::C::Vec::Val   iThreads;
-    ExecutorT::C::Vec::SP   iExecutors;
-    size_t                  iExecutorsLeft  = 0;
-    GpConditionVar::SP      iExecutorsCondVar;
+    inline void                 MarkAsBusy              (const size_t aExecutorId);
+    inline void                 MarkAsIdle              (const size_t aExecutorId);
+
+private:
+    mutable GpSpinlock          iLock;
+    size_t                      iCount = 0;
+    GpThread::C::Vec::Val       iThreads;
+    ExecutorsContainerT         iExecutors;
+    ExecutorsFreeFlagsT         iExecutorsIdleFlags;
 };
 
-void    GpTaskExecutorsPool::WakeupAll (void) noexcept
+void    GpTaskExecutorsPool::WakeupNextIdle (void)
 {
-    iExecutorsCondVar.Vn().WakeupAll();
+    std::scoped_lock lock(iLock);
+
+    const size_t id = iExecutorsIdleFlags._Find_first();
+
+    if (id < iCount)
+    {
+        iExecutors.at(id).V().CVF().WakeupOne();
+    }
 }
 
-void    GpTaskExecutorsPool::WakeupOne (void) noexcept
+void    GpTaskExecutorsPool::MarkAsBusy (const size_t aExecutorId)
 {
-    iExecutorsCondVar.Vn().WakeupOne();
+    std::scoped_lock lock(iLock);
+    iExecutorsIdleFlags.reset(aExecutorId);
+}
+
+void    GpTaskExecutorsPool::MarkAsIdle (const size_t aExecutorId)
+{
+    std::scoped_lock lock(iLock);
+    iExecutorsIdleFlags.set(aExecutorId);
 }
 
 }//GPlatform

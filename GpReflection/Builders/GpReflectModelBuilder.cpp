@@ -2,7 +2,7 @@
 
 #if defined(GP_USE_REFLECTION)
 
-#include "GpReflectObjectDynamic.hpp"
+#include "../GpReflectObjectDynamic.hpp"
 
 namespace GPlatform {
 

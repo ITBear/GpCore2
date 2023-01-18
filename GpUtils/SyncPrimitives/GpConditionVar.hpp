@@ -2,7 +2,7 @@
 
 #include "../GpMacro.hpp"
 
-#if defined(GP_USE_MULTITHREADING)
+#if defined(GP_USE_SYNC_PRIMITIVES)
 
 #include "../Types/Containers/GpContainersT.hpp"
 #include "../Types/Units/SI/GpUnitsSI_Time.hpp"
@@ -12,62 +12,99 @@
 
 namespace GPlatform {
 
-class GP_UTILS_API GpConditionVar
+class GpConditionVar
 {
-public:
-    enum class WakeUpState
-    {
-        WAIT,
-        ONE,
-        ALL
-    };
-
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpConditionVar)
     CLASS_DD(GpConditionVar)
 
     CLASS_TAG(THREAD_SAFE)
 
-                                GpConditionVar  (void) noexcept = default;
-                                ~GpConditionVar (void) noexcept = default;
+    using OnWakeupFnT   = std::function<void()>;
+    using OnCheckFnT    = std::function<bool()>;
 
-    inline void                 WakeupAll       (void) noexcept;
-    inline void                 WakeupOne       (void) noexcept;
-    [[nodiscard]] inline bool   WaitForWakeup   (void) noexcept;
-    [[nodiscard]] bool          WaitForWakeup   (const milliseconds_t aTimeout) noexcept;
+    enum class WaitForResT
+    {
+        TIMEOUT,
+        OK
+    };
+
+                                        GpConditionVar  (void) noexcept = default;
+                                        ~GpConditionVar (void) noexcept = default;
+
+    inline void                         Do              (std::function<void()> aFn) const;
+
+    inline void                         WakeupAll       (OnWakeupFnT aOnWakeupFn);
+    inline void                         WakeupOne       (OnWakeupFnT aOnWakeupFn);
+    inline void                         Wait            (OnCheckFnT             aOnCheckFn);
+    [[nodiscard]] inline WaitForResT    WaitFor         (OnCheckFnT             aOnCheckFn,
+                                                         const milliseconds_t   aTimeout);
 
 private:
-    mutable std::mutex          iWakeupMutex;
-    std::condition_variable     iWakeupCV;
-    WakeUpState                 iWakeUpState    = WakeUpState::WAIT;
-    size_t                      iWaitCounter    = 0;
+    mutable std::mutex                  iMutex;
+    std::condition_variable             iCV;
 };
 
-void    GpConditionVar::WakeupAll (void) noexcept
+void    GpConditionVar::Do (std::function<void()> aFn) const
 {
-    {
-        std::scoped_lock lock(iWakeupMutex);
-        iWakeUpState = WakeUpState::ALL;
-    }
+    std::scoped_lock lock(iMutex);
 
-    iWakeupCV.notify_all();
+    aFn();
 }
 
-void    GpConditionVar::WakeupOne (void) noexcept
+void    GpConditionVar::WakeupAll (OnWakeupFnT aOnWakeupFn)
 {
     {
-        std::scoped_lock lock(iWakeupMutex);
-        iWakeUpState = WakeUpState::ONE;
+        std::scoped_lock lock(iMutex);
+        aOnWakeupFn();
     }
 
-    iWakeupCV.notify_one();
+    iCV.notify_all();
 }
 
-bool    GpConditionVar::WaitForWakeup (void) noexcept
+void    GpConditionVar::WakeupOne (OnWakeupFnT aOnWakeupFn)
 {
-    return WaitForWakeup(0.0_si_s);
+    {
+        std::scoped_lock lock(iMutex);
+        aOnWakeupFn();
+    }
+
+    iCV.notify_one();
+}
+
+void    GpConditionVar::Wait (OnCheckFnT aOnCheckFn)
+{
+    std::unique_lock lock(iMutex);
+
+    iCV.wait
+    (
+        lock,
+        [&]
+        {
+            return aOnCheckFn();
+        }
+    );
+}
+
+GpConditionVar::WaitForResT GpConditionVar::WaitFor
+(
+    OnCheckFnT              aOnCheckFn,
+    const milliseconds_t    aTimeout
+)
+{
+    std::unique_lock lock(iMutex);
+
+    return iCV.wait_for
+    (
+        lock,
+        std::chrono::milliseconds(aTimeout.As<ssize_t>()),
+        [&]
+        {
+            return aOnCheckFn();
+        }
+    ) ? WaitForResT::OK : WaitForResT::TIMEOUT;
 }
 
 }//GPlatform
 
-#endif//#if defined(GP_USE_MULTITHREADING)
+#endif//#if defined(GP_USE_SYNC_PRIMITIVES)

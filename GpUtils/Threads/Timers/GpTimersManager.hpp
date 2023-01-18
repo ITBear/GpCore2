@@ -24,8 +24,8 @@ public:
     static void                     SStop               (void);
     static GpTimersManager&         SManager            (void) {return sTimersManager.V();}
 
-                                    GpTimersManager     (void) noexcept;
-                                    ~GpTimersManager    (void) noexcept;
+                                    GpTimersManager     (void) noexcept = default;
+                                    ~GpTimersManager    (void) noexcept final = default;
 
 public:
     void                            AddTimer            (GpTimer::SP aTimer);
@@ -33,7 +33,7 @@ public:
     virtual void                    Run                 (GpThreadStopToken aStopToken) noexcept override final;
 
 private:
-    milliseconds_t                  iStep       = 500.0_si_ms;
+    const milliseconds_t            iStep = 333.333_si_ms;
     TimersT                         iTimers;
 
     static GpTimersManager::SP      sTimersManager;

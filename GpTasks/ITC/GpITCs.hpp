@@ -2,7 +2,7 @@
 
 #include "GpItcResult.hpp"
 
-#include "GpItcFlag.hpp"
+#include "GpItcSharedCondition.hpp"
 
 #include "GpItcProducerConsumer.hpp"
 #include "GpItcProducer.hpp"

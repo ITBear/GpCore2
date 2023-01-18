@@ -221,7 +221,8 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Enum (std::string_view aName)
             {},
             std::nullopt,
             constructFn,
-            destructFn
+            destructFn,
+            {}
         )
     );
 
@@ -275,7 +276,8 @@ GpReflectPropBuilder&   GpReflectPropBuilder::EnumFlags (std::string_view aName)
             {},
             std::nullopt,
             constructFn,
-            destructFn
+            destructFn,
+            {}
         )
     );
 
@@ -330,7 +332,8 @@ GpReflectPropBuilder&   GpReflectPropBuilder::AddProp (std::string_view aName)
             {},
             std::nullopt,
             std::nullopt,
-            std::nullopt
+            std::nullopt,
+            {}
         )
     );
 
@@ -383,7 +386,8 @@ GpReflectPropBuilder&   GpReflectPropBuilder::AddProp
             {},
             std::nullopt,
             std::nullopt,
-            std::nullopt
+            std::nullopt,
+            {}
         )
     );
 
@@ -502,7 +506,8 @@ GpReflectPropBuilder&   GpReflectPropBuilder::AddPropMap
             {},
             std::nullopt,
             std::nullopt,
-            std::nullopt
+            std::nullopt,
+            {}
         )
     );
 

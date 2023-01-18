@@ -11,32 +11,39 @@ namespace GPlatform {
 class GpItcResult
 {
 public:
-    CLASS_REMOVE_CTRS_MOVE_COPY(GpItcResult)
     CLASS_DD(GpItcResult)
 
 public:
-    inline                  GpItcResult     (void) noexcept;
-    inline                  GpItcResult     (const GpException& aException);
-    inline                  GpItcResult     (const std::exception&  aException,
-                                             const SourceLocationT& aSourceLocation = SourceLocationT::current()) noexcept;
-    inline                  GpItcResult     (std::any&& aAny) noexcept;
-    virtual                 ~GpItcResult    (void) noexcept = default;
+    inline                      GpItcResult     (void) noexcept;
+                                GpItcResult     (const GpItcResult& aRes) noexcept = delete;
+    inline                      GpItcResult     (GpItcResult&& aRes) noexcept;
+    inline                      GpItcResult     (const GpException& aException);
+    inline                      GpItcResult     (const std::exception&  aException,
+                                                 const SourceLocationT& aSourceLocation = SourceLocationT::current()) noexcept;
+    inline                      GpItcResult     (std::any&& aAny) noexcept;
+    virtual                     ~GpItcResult    (void) noexcept = default;
 
-    inline bool             IsException     (void) const noexcept;
-    inline const std::any&  Value           (void) const noexcept;
-    inline std::any&        Value           (void) noexcept;
+    inline bool                 IsException     (void) const noexcept;
+    inline const std::any&      Value           (void) const noexcept;
+    inline std::any&            Value           (void) noexcept;
 
-    template<typename T, typename R>
-    static R                SExtract        (GpItcResult::SP&                   aRes,
-                                             std::function<R(T&&)>              aOnSuccessFn,
-                                             std::function<R(std::string_view)> aOnErrorFn);
+    template<typename T>
+    static void                 SExtract        (std::optional<GpItcResult::SP>&        aRes,
+                                                 std::function<void(T&&)>               aOnSuccessFn,
+                                                 std::function<void(std::string_view)>  aOnErrorFn,
+                                                 std::function<void()>                  aOnNullResFn);
 
 private:
-    std::any                iValue;
+    std::any                    iValue;
 };
 
 GpItcResult::GpItcResult (void) noexcept:
 iValue(size_t(EXIT_SUCCESS))
+{
+}
+
+GpItcResult::GpItcResult (GpItcResult&& aRes) noexcept:
+iValue (std::move(aRes.iValue))
 {
 }
 
@@ -78,20 +85,30 @@ std::any&   GpItcResult::Value (void) noexcept
     return iValue;
 }
 
-template<typename T, typename R>
-R   GpItcResult::SExtract
+template<typename T>
+void    GpItcResult::SExtract
 (
-    GpItcResult::SP&                    aRes,
-    std::function<R(T&&)>               aOnSuccessFn,
-    std::function<R(std::string_view)>  aOnErrorFn
+    std::optional<GpItcResult::SP>&         aRes,
+    std::function<void(T&&)>                aOnSuccessFn,
+    std::function<void(std::string_view)>   aOnErrorFn,
+    std::function<void()>                   aOnNullResFn
 )
 {
-    if (aRes.IsNULL())
+    if (aRes.has_value() == false)
     {
-        return aOnErrorFn("Future result is nullptr");
+        aOnNullResFn();
+        return;
     }
 
-    GpItcResult&    res     = aRes.Vn();
+    GpItcResult::SP& resSP = aRes.value();
+
+    if (resSP.IsNULL())
+    {
+        aOnNullResFn();
+        return;
+    }
+
+    GpItcResult&    res     = resSP.Vn();
     std::any&       value   = res.Value();
 
     if (value.type() == typeid(GpException))

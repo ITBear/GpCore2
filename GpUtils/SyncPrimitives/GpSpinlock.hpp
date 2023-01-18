@@ -2,7 +2,7 @@
 
 #include "../GpMacro.hpp"
 
-#if defined(GP_USE_MULTITHREADING)
+#if defined(GP_USE_SYNC_PRIMITIVES)
 
 #include <atomic>
 #include "GpAsmSpinPause.hpp"
@@ -50,4 +50,4 @@ private:
 
 }//GPlatform
 
-#endif//#if defined(GP_USE_MULTITHREADING)
+#endif//#if defined(GP_USE_SYNC_PRIMITIVES)

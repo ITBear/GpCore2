@@ -4,35 +4,73 @@
 
 #include "GpTaskScheduler.hpp"
 #include "GpTaskAccessor.hpp"
+#include "GpTaskExecutorsPool.hpp"
 
 namespace GPlatform {
 
 void    GpTaskExecutor::Run (GpThreadStopToken aStopToken) noexcept
 {
-    GpTaskScheduler& taskScheduler = GpTaskScheduler::S();
-
     GpTask::SP  currentTaskSP;
-    GpTaskDoRes currentTaskExecRes = GpTaskDoRes::DONE;
 
-    while (!aStopToken.stop_requested())
+    try
     {
-        currentTaskSP = taskScheduler._Reshedule(std::move(currentTaskSP), currentTaskExecRes);
+        iExecutorsPool.MarkAsBusy(iId);
+
+        GpTaskScheduler& taskScheduler = GpTaskScheduler::S();
+
+        GpTaskDoRes currentTaskExecRes = GpTaskDoRes::DONE;
+
+        while (!aStopToken.stop_requested())
+        {
+            currentTaskSP = taskScheduler._Reshedule(std::move(currentTaskSP), currentTaskExecRes);
+
+            if (currentTaskSP.IsNotNULL())
+            {
+                GpTask& task = currentTaskSP.Vn();
+
+                task.DownRunRequestFlag();
+                currentTaskExecRes = GpTaskAccessor::SRun(task, aStopToken);
+            } else
+            {
+                iExecutorsPool.MarkAsIdle(iId);
+                std::ignore = CVF().WaitForAndReset(0.5_si_s);
+                iExecutorsPool.MarkAsBusy(iId);
+                currentTaskExecRes = GpTaskDoRes::DONE;
+            }
+        }
 
         if (currentTaskSP.IsNotNULL())
         {
-            currentTaskExecRes = GpTaskAccessor::SRun(currentTaskSP.Vn(), aStopToken);
-        } else
-        {
-            std::ignore = WaitForWakeup(1.0_si_s);
-            currentTaskExecRes = GpTaskDoRes::DONE;
+            GpTaskScheduler::S()._DestroyTaskSP(std::move(currentTaskSP));
+            currentTaskSP.Clear();
         }
+    } catch (const GpException& e)
+    {
+        GpStringUtils::SCerr("[GpTaskExecutor::Run]: exception: "_sv + e.what());
+    } catch (const std::exception& e)
+    {
+        GpStringUtils::SCerr("[GpTaskExecutor::Run]: exception: "_sv + e.what());
+    } catch (...)
+    {
+        GpStringUtils::SCerr("[GpTaskExecutor::Run]: unknown exception"_sv);
     }
 
     if (currentTaskSP.IsNotNULL())
     {
-        //GpTaskAccessor::SRun(currentTaskSP.Vn(), aStopToken);
-        GpTaskScheduler::_SDestroyTask(currentTaskSP.Vn());
-        currentTaskSP.Clear();
+        try
+        {
+            GpTaskScheduler::S()._DestroyTaskSP(std::move(currentTaskSP));
+            currentTaskSP.Clear();
+        } catch (const GpException& e)
+        {
+            GpStringUtils::SCerr("[GpTaskExecutor::Run]: exception: "_sv + e.what());
+        } catch (const std::exception& e)
+        {
+            GpStringUtils::SCerr("[GpTaskExecutor::Run]: exception: "_sv + e.what());
+        } catch (...)
+        {
+            GpStringUtils::SCerr("[GpTaskExecutor::Run]: unknown exception"_sv);
+        }
     }
 }
 

@@ -23,7 +23,7 @@ GpTaskFiber::~GpTaskFiber (void) noexcept
 {
     if (iCtx)
     {
-        std::cerr << "[GpTaskFiber::~GpTaskFiber]: iCtx is not null!" << std::endl;
+        GpStringUtils::SCerr("[GpTaskFiber::~GpTaskFiber]: iCtx is not null!\n"_sv);
         //Yes, app will crash
         throw std::runtime_error("[GpTaskFiber::~GpTaskFiber]: iCtx is not null!");
     }
@@ -103,19 +103,19 @@ void    GpTaskFiber::ClearCtx (void) noexcept
         }
     } catch (const boost::context::detail::forced_unwind& e)
     {
-        std::cerr << "[GpTaskFiber::_Run]: boost::context::detail::forced_unwind" << std::endl;
+        GpStringUtils::SCerr("[GpTaskFiber::_Run]: boost::context::detail::forced_unwind\n"_sv);
     } catch (const GpTaskFiberStopEx& e)
     {
-        std::cerr << "[GpTaskFiber::_Run]: " << e.what() << std::endl;
+        GpStringUtils::SCerr("[GpTaskFiber::_Run]: "_sv + e.what() + "\n"_sv);
     } catch (const GpException& e)
     {
-        std::cerr << "[GpTaskFiber::_Run]: " << e.what() << std::endl;
+        GpStringUtils::SCerr("[GpTaskFiber::_Run]: "_sv + e.what() + "\n"_sv);
     } catch (const std::exception& e)
     {
-        std::cerr << "[GpTaskFiber::_Run]: " << e.what() << std::endl;
+        GpStringUtils::SCerr("[GpTaskFiber::_Run]: "_sv + e.what() + "\n"_sv);
     } catch (...)
     {
-        std::cerr << "[GpTaskFiber::_Run]: Unknown exception" << std::endl;
+        GpStringUtils::SCerr("[GpTaskFiber::_Run]: Unknown exception\n"_sv);
     }
 }
 

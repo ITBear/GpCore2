@@ -4,7 +4,7 @@
 
 namespace GPlatform {
 
-GP_ENUM_IMPL(GpReflectDemoEnum);
+GP_ENUM_IMPL(GpReflectDemoEnum)
 
 REFLECT_IMPLEMENT(GpReflectDemoDesc, GP_MODULE_UUID)
 

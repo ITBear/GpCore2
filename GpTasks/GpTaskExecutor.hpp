@@ -6,6 +6,8 @@
 
 namespace GPlatform {
 
+class GpTaskExecutorsPool;
+
 class GP_TASKS_API GpTaskExecutor final: public GpRunnable
 {
 public:
@@ -13,14 +15,24 @@ public:
     CLASS_DD(GpTaskExecutor)
 
 public:
-    inline                  GpTaskExecutor  (GpConditionVar::SP aCondVar) noexcept;
+    inline                  GpTaskExecutor  (const size_t           aId,
+                                             GpTaskExecutorsPool&   aExecutorsPool) noexcept;
     virtual                 ~GpTaskExecutor (void) noexcept override final = default;
 
     virtual void            Run             (GpThreadStopToken aStopToken) noexcept override final;
+
+private:
+    const size_t            iId;
+    GpTaskExecutorsPool&    iExecutorsPool;
 };
 
-GpTaskExecutor::GpTaskExecutor (GpConditionVar::SP aCondVar) noexcept:
-GpRunnable(std::move(aCondVar))
+GpTaskExecutor::GpTaskExecutor
+(
+    const size_t            aId,
+    GpTaskExecutorsPool&    aExecutorsPool
+) noexcept:
+iId(aId),
+iExecutorsPool(aExecutorsPool)
 {
 }
 

@@ -67,6 +67,7 @@ HEADERS += \
     Models/GpReflectModels.hpp \
     Models/GpReflectPropDesc.hpp \
     Serializers/GpReflectSerializer.hpp \
+    Serializers/GpReflectSerializerCtx.hpp \
     Serializers/GpReflectSerializerFactory.hpp \
     Serializers/GpReflectSerializers.hpp
 

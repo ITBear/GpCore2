@@ -1,0 +1,21 @@
+#pragma once
+
+#include "../../GpMacro.hpp"
+
+#if defined(GP_USE_STRINGS)
+
+#include <string_view>
+
+namespace GPlatform {
+
+class GP_UTILS_API GpStringUtils
+{
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpStringUtils)
+
+public:
+    static void             SCerr       (std::string_view   aStr);
+};
+
+}//GPlatform
+
+#endif//#if defined(GP_USE_STRINGS)

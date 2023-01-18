@@ -12,7 +12,7 @@ public:
 
 public:
     inline                                          GpItcConsumer   (GpItcProducerConsumer::SP aProducerConsumer) noexcept;
-                                                    ~GpItcConsumer  (void) noexcept = default;
+    inline                                          ~GpItcConsumer  (void) noexcept;
 
     [[nodiscard]] inline GpItcResult::C::Opt::SP    Consume         (const milliseconds_t aWaitTimeout);
 
@@ -25,9 +25,13 @@ iProducerConsumer(std::move(aProducerConsumer))
 {
 }
 
+GpItcConsumer::~GpItcConsumer (void) noexcept
+{
+}
+
 GpItcResult::C::Opt::SP GpItcConsumer::Consume (const milliseconds_t aWaitTimeout)
 {
-    return iProducerConsumer.Vn().Consume(aWaitTimeout);
+    return iProducerConsumer.V().Consume(aWaitTimeout);
 }
 
 }//namespace GPlatform

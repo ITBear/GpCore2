@@ -12,7 +12,7 @@ public:
 
 public:
     inline                      GpItcProducer   (GpItcProducerConsumer::SP aProducerConsumer) noexcept;
-                                ~GpItcProducer  (void) noexcept = default;
+    inline                      ~GpItcProducer  (void) noexcept;
 
     [[nodiscard]] inline bool   Produce         (GpItcResult::SP        aResult,
                                                  const milliseconds_t   aWaitTimeout);
@@ -23,6 +23,10 @@ private:
 
 GpItcProducer::GpItcProducer (GpItcProducerConsumer::SP aProducerConsumer) noexcept:
 iProducerConsumer(std::move(aProducerConsumer))
+{
+}
+
+GpItcProducer::~GpItcProducer (void) noexcept
 {
 }
 

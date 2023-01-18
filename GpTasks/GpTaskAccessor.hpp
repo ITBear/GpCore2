@@ -17,15 +17,15 @@ public:
     using StateTE   = StateT::EnumT;
 
 public:
-    static StateTE      SState              (GpTask& aTask) noexcept {return aTask.State();}
-    static void         SUpdateState        (GpTask& aTask,
-                                             StateTE aNewState) noexcept {aTask.UpdateState(aNewState);}
-    static GpTaskDoRes  SRun                (GpTask&            aTask,
-                                             GpThreadStopToken  aStopToken) noexcept {return aTask.Run(std::move(aStopToken));}
-    static void         SRequestStop        (GpTask& aTask) noexcept {return aTask.RequestStop();}
-
-    static GpFlatMap<std::thread::id, GpTask*, 64>&
-                        STasksByThreadId    (void) noexcept {return GpTask::sTasksByThreadId;}
+    static StateTE      SState                  (GpTask& aTask) noexcept {return aTask.State();}
+    static void         SUpdateState            (GpTask& aTask,
+                                                 StateTE aNewState) noexcept {aTask.UpdateState(aNewState);}
+    static GpTaskDoRes  SRun                    (GpTask&            aTask,
+                                                 GpThreadStopToken  aStopToken) noexcept {return aTask.Run(std::move(aStopToken));}
+    static void         SRequestStop            (GpTask& aTask) noexcept {return aTask.RequestStop();}
+    static void         SAddExecutorThreadId    (const std::thread::id& aThreadId) {GpTask::SAddExecutorThreadId(aThreadId);}
+    static void         SSetParentTask          (GpTask&    aTask,
+                                                 GpTask*    aParentTask) noexcept {aTask.SetParentTask(aParentTask);}
 };
 
 }//namespace GPlatform
