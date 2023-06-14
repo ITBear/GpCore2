@@ -1,9 +1,10 @@
 #pragma once
 
-#include "GpException.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_EXCEPTIONS)
 
+#include "GpException.hpp"
 #include "../Types/Enums/GpEnum.hpp"
 
 namespace GPlatform {
@@ -16,18 +17,18 @@ private:
 protected:
     inline explicit             GpExceptionCode     (const GpExceptionCode& aException);
     inline explicit             GpExceptionCode     (GpExceptionCode&& aException);
-    inline explicit             GpExceptionCode     (std::string_view       aMsg,
+    inline explicit             GpExceptionCode     (std::u8string_view     aMsg,
                                                      const SourceLocationT& aSourceLocation) noexcept;
 
 public:
-    virtual                     ~GpExceptionCode    (void) noexcept override = default;
+    virtual                     ~GpExceptionCode    (void) noexcept override;
 
     GpEnum::value_type          CodeId              (void) const noexcept {return _CodeId();}
-    std::string_view            CodeAsText          (void) const noexcept {return _CodeAsText();}
+    std::u8string_view          CodeAsText          (void) const noexcept {return _CodeAsText();}
 
 protected:
     virtual GpEnum::value_type  _CodeId             (void) const noexcept = 0;
-    virtual std::string_view    _CodeAsText         (void) const noexcept = 0;
+    virtual std::u8string_view  _CodeAsText         (void) const noexcept = 0;
 };
 
 GpExceptionCode::GpExceptionCode (const GpExceptionCode& aException):
@@ -42,7 +43,7 @@ GpException(std::move(aException))
 
 GpExceptionCode::GpExceptionCode
 (
-    std::string_view        aMsg,
+    std::u8string_view      aMsg,
     const SourceLocationT&  aSourceLocation
 ) noexcept:
 GpException(aMsg, aSourceLocation)
@@ -63,7 +64,7 @@ public: \
     inline                      NAME        (const NAME&    aException); \
     inline                      NAME        (NAME&&         aException); \
     inline                      NAME        (CodeTE                 aCode, \
-                                             std::string_view       aMsg, \
+                                             std::u8string_view     aMsg, \
                                              const SourceLocationT& aSourceLocation = SourceLocationT::current()) noexcept; \
     virtual                     ~NAME       (void) noexcept override final; \
  \
@@ -71,7 +72,7 @@ public: \
  \
 protected: \
     virtual GpEnum::value_type  _CodeId     (void) const noexcept override final; \
-    virtual std::string_view    _CodeAsText (void) const noexcept override final; \
+    virtual std::u8string_view  _CodeAsText (void) const noexcept override final; \
  \
 private: \
     const CodeTE                iCode; \
@@ -92,7 +93,7 @@ iCode(std::move(aException.iCode)) \
 NAME::NAME \
 ( \
     CodeTE                  aCode, \
-    std::string_view        aMsg, \
+    std::u8string_view      aMsg, \
     const SourceLocationT&  aSourceLocation \
 ) noexcept: \
 GpExceptionCode(aMsg, aSourceLocation), \
@@ -103,18 +104,28 @@ iCode(aCode) \
 [[noreturn]] inline void THROW_##SHORT_NAME \
 ( \
     const NAME##Code::EnumT aCode, \
-    std::string_view        aMsg, \
+    std::u8string_view      aMsg, \
     const SourceLocationT&  aSourceLocation = SourceLocationT::current() \
 ) \
 { \
     throw NAME(aCode, aMsg, aSourceLocation); \
 } \
  \
+[[noreturn]] inline void THROW_##SHORT_NAME \
+( \
+    const NAME##Code::EnumT aCode, \
+    std::string_view        aMsg, \
+    const SourceLocationT&  aSourceLocation = SourceLocationT::current() \
+) \
+{ \
+    throw NAME(aCode, ::GPlatform::GpUTF::S_STR_To_UTF8(aMsg), aSourceLocation); \
+} \
+ \
 inline void THROW_COND_##SHORT_NAME \
 ( \
     const bool              aCondition, \
     const NAME##Code::EnumT aCode, \
-    std::string_view        aMsg, \
+    std::u8string_view      aMsg, \
     const SourceLocationT&  aSourceLocation = SourceLocationT::current() \
 ) \
 { \
@@ -128,13 +139,42 @@ inline void THROW_COND_##SHORT_NAME \
 ( \
     const bool              aCondition, \
     const NAME##Code::EnumT aCode, \
-    ThrowMsgGenT            aMsgGenFn, \
+    std::string_view        aMsg, \
     const SourceLocationT&  aSourceLocation = SourceLocationT::current() \
 ) \
 { \
     if (!aCondition) \
     { \
+        throw NAME(aCode, ::GPlatform::GpUTF::S_STR_To_UTF8(aMsg), aSourceLocation); \
+    } \
+} \
+ \
+inline void THROW_COND_##SHORT_NAME \
+( \
+    const bool                      aCondition, \
+    const NAME##Code::EnumT         aCode, \
+    std::function<std::u8string()>  aMsgGenFn, \
+    const SourceLocationT&          aSourceLocation = SourceLocationT::current() \
+) \
+{ \
+    if (!aCondition) \
+    { \
         throw NAME(aCode, aMsgGenFn(), aSourceLocation); \
+    } \
+} \
+ \
+inline void THROW_COND_##SHORT_NAME \
+( \
+    const bool                      aCondition, \
+    const NAME##Code::EnumT         aCode, \
+    std::function<std::string()>    aMsgGenFn, \
+    const SourceLocationT&          aSourceLocation = SourceLocationT::current() \
+) \
+{ \
+    if (!aCondition) \
+    { \
+        const auto msg = aMsgGenFn(); \
+        throw NAME(aCode, GpUTF::S_STR_To_UTF8(msg), aSourceLocation); \
     } \
 } \
  \
@@ -147,7 +187,7 @@ inline void THROW_COND_##SHORT_NAME \
 { \
     if (!aCondition) \
     { \
-        throw NAME(aCode, "", aSourceLocation); \
+        throw NAME(aCode, u8"", aSourceLocation); \
     } \
 }
 
@@ -163,7 +203,7 @@ GpEnum::value_type  NAME::_CodeId (void) const noexcept \
     return GpEnum::value_type(iCode); \
 } \
  \
-std::string_view    NAME::_CodeAsText (void) const noexcept \
+std::u8string_view  NAME::_CodeAsText (void) const noexcept \
 { \
     return CodeT::SToString(iCode); \
 }

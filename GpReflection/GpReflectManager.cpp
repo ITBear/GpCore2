@@ -6,7 +6,7 @@
 
 namespace GPlatform {
 
-GpReflectManager&   GpReflectManager::sReflectManager = GpReflectManager::_S_();
+GpReflectManager&   GpReflectManager::sInstance = GpReflectManager::_S_();
 
 GpReflectManager::GpReflectManager (void) noexcept
 {
@@ -35,14 +35,14 @@ const GpReflectModel&   GpReflectManager::Register (const GpReflectModel& aModel
     GpReflectModel::CSP     modelCSP = MakeCSP<GpReflectModel>(aModel);
     const GpReflectModel&   modelRef = modelCSP.Vn();
 
-    iElements.Register(modelUid, std::move(modelCSP));
+    iElements.Set(modelUid, std::move(modelCSP));
 
     return modelRef;
 }
 
 const GpReflectModel&   GpReflectManager::Find (const GpUUID& aModelUid)
 {
-    auto res = iElements.FindOpt(aModelUid);
+    auto res = iElements.GetOpt(aModelUid);
 
     if (res.has_value())
     {
@@ -96,7 +96,7 @@ const GpReflectModel&   GpReflectManager::FromSources (const GpUUID& aModelUid)
         }
     }
 
-    THROW_GP("Reflection model was not found by UID '"_sv + aModelUid + "'");
+    THROW_GP(u8"Reflection model was not found by UID '"_sv + aModelUid + u8"'");
 }
 
 }//GPlatform

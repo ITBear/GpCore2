@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../../GpMacro.hpp"
+#include "../../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_SHARED_POINTERS)
 
-#include <stddef.h>
+#include "../../Macro/GpMacroClass.hpp"
+
 #include <atomic>
 
 namespace GPlatform {

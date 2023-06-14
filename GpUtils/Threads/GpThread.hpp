@@ -21,12 +21,12 @@ public:
 
 public:
                             GpThread    (void) noexcept = default;
-    inline                  GpThread    (std::string aName) noexcept;
+    inline                  GpThread    (std::u8string aName) noexcept;
                             GpThread    (const GpThread& aThread) = delete;
     inline                  GpThread    (GpThread&& aThread) noexcept;
                             ~GpThread   (void) noexcept;
 
-    std::string_view        Name        (void) const noexcept {return iName;}
+    std::u8string_view      Name        (void) const noexcept {return iName;}
     std::thread::id         Run         (GpRunnable::SP aRunnable);
     inline std::thread::id  ThreadId    (void) const noexcept;
 
@@ -36,13 +36,13 @@ public:
 
 private:
     mutable GpRWLock        iRWLock;
-    std::string             iName;
+    std::u8string           iName;
     ImplT                   iThread;
     GpRunnable::SP          iRunnable;
     std::thread::id         iThreadId;
 };
 
-GpThread::GpThread (std::string aName) noexcept:
+GpThread::GpThread (std::u8string aName) noexcept:
 iName(std::move(aName))
 {
 }

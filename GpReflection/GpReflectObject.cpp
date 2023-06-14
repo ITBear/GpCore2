@@ -67,13 +67,13 @@ const GpReflectModel&   GpReflectObject::_SReflectCreateModel (void)
     GpReflectProp::C::Vec::Val  props;
     GpReflectObjectFactory::SP  factory     = GpSP<Factory>::SNew();
     constexpr const GpUUID      modelUid    = GpReflectObject::SReflectModelUid();
-    constexpr const GpUUID      groupId     = GpUUID::CE_FromString("96155f96-6bc0-434e-a2da-0f9e72368461"_sv);
+    constexpr const GpUUID      groupId     = GpUUID::CE_FromString(u8"96155f96-6bc0-434e-a2da-0f9e72368461"_sv);
 
     GpReflectModel reflectModel
     (
         modelUid,
         GpUUID(),
-        std::string(GpReflectUtils::SModelName<GpReflectObject>()),
+        std::u8string(GpUTF::S_STR_To_UTF8(GpReflectUtils::SModelName<GpReflectObject>())),
         std::move(props),
         groupId,
         std::move(factory),

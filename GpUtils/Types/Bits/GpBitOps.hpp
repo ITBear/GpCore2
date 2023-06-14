@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../../GpMacro.hpp"
-#include "../../Exceptions/GpCeExceptions.hpp"
+#include "../../../Config/GpConfig.hpp"
+#include "../../Macro/GpMacroClass.hpp"
+#include "../../Concepts/GpConcepts.hpp"
 #include "../Numerics/GpNumericTypes.hpp"
-#include "GpBitCast.hpp"
+#include "../Pointers/GpSpanPtr.hpp"
 
-#include <bitset>
-#include <limits>
+#include <bit>
 #include <tuple>
 
 #if defined(GP_CPU_USE_BMI2)
@@ -14,26 +14,6 @@
 #endif
 
 //TODO: implement with https://en.cppreference.com/w/cpp/header/bit
-
-namespace std {
-
-#if (__cplusplus < 202002L)
-enum class endian
-{
-#ifdef _WIN32
-    little = 0,
-    big    = 1,
-    native = little
-#else
-    little = __ORDER_LITTLE_ENDIAN__,
-    big    = __ORDER_BIG_ENDIAN__,
-    native = __BYTE_ORDER__
-#endif
-};
-
-#endif//#if (__cplusplus < 202002L)
-
-}//namespace std
 
 namespace GPlatform {
 
@@ -51,24 +31,32 @@ namespace GPlatform {
 #   error Unknown compiler
 #endif
 
+static_assert
+(
+       (std::endian::native == std::endian::big)
+    || (std::endian::native == std::endian::little)
+    , "Mixed endian"
+);
+
+static_assert
+(
+       (sizeof(unsigned int) == sizeof(u_int_32))
+    && (sizeof(unsigned long) == sizeof(u_int_64))
+    && (sizeof(unsigned long long) == sizeof(u_int_64))
+    , ""
+);
+
 class GpBitOperations
 {
-private:
+public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpBitOperations)
+
 
 public:
     //------------------------------------ Network/Host byte order (N2H/H2N) --------------------------------
-    template<typename T> [[nodiscard]] static
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static
     T                               BSwap (const T aValue)
     {
-        static_assert(std::is_integral<T>::value, "T must be integral");
-        static_assert(   (sizeof(T) == 1)
-                      || (sizeof(T) == 2)
-                      || (sizeof(T) == 4)
-                      || (sizeof(T) == 8)
-                      || (sizeof(T) == 16),
-                      "sizeof(T) must be 2, 4, 8 or 16");
-
         typename std::make_unsigned<T>::type tmpVal;
         tmpVal = std::bit_cast<decltype(tmpVal)>(aValue);
 
@@ -96,7 +84,7 @@ public:
         return std::bit_cast<float>(BSWAP32(tmpVal));
     }
 
-    template<typename T> [[nodiscard]] static
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static
     T                               Native2BigEndian (T aValue)
     {
         if constexpr (std::endian::native == std::endian::big)
@@ -105,13 +93,10 @@ public:
         } else if constexpr (std::endian::native == std::endian::little)
         {
             return BSwap(aValue);
-        } else
-        {
-            GpThrowCe<std::exception>("Mixed endian");
         }
     }
 
-    template<typename T> [[nodiscard]] static
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static
     T                               Native2LittleEndian (T aValue)
     {
         if constexpr (std::endian::native == std::endian::big)
@@ -120,14 +105,14 @@ public:
         } else if constexpr (std::endian::native == std::endian::little)
         {
             return aValue;
-        } else
-        {
-            GpThrowCe<std::exception>("Mixed endian");
         }
     }
 
-    template<typename T> [[nodiscard]] static
-    T                               N2H (T aValue)
+    template<typename T>
+    requires   Concepts::IsIntegralUpTo128<T>
+            || std::is_same_v<T, double>
+            || std::is_same_v<T, float>
+    [[nodiscard]] static T          N2H (T aValue)
     {
         if constexpr (std::endian::native == std::endian::big)
         {
@@ -135,14 +120,14 @@ public:
         } else if constexpr (std::endian::native == std::endian::little)
         {
             return BSwap(aValue);
-        } else
-        {
-            GpThrowCe<std::exception>("Mixed endian");
         }
     }
 
-    template<typename T> [[nodiscard]] static
-    T                               H2N (T aValue)
+    template<typename T>
+    requires   Concepts::IsIntegralUpTo128<T>
+            || std::is_same_v<T, double>
+            || std::is_same_v<T, float>
+    [[nodiscard]] static T          H2N (T aValue)
     {
         if constexpr (std::endian::native == std::endian::big)
         {
@@ -150,10 +135,37 @@ public:
         } else if constexpr (std::endian::native == std::endian::little)
         {
             return BSwap(aValue);
-        } else
-        {
-            GpThrowCe<std::exception>("Mixed endian");
         }
+    }
+
+    template<typename T>
+    requires   Concepts::IsIntegralUpTo128<T>
+            || std::is_same_v<T, double>
+            || std::is_same_v<T, float>
+    static void                     H2N_Span (GpSpanPtr<T*> aSpan)
+    {
+        if constexpr (std::endian::native == std::endian::big)
+        {
+            return;
+        } else if constexpr (std::endian::native == std::endian::little)
+        {
+            const size_t    count   = aSpan.Count();
+            T*              ptr     = aSpan.Ptr();
+            for (size_t id = 0; id < count; id++)
+            {
+                *ptr = BSwap<T>(*ptr);
+                ptr++;
+            }
+        }
+    }
+
+    template<typename T>
+    requires   Concepts::IsIntegralUpTo128<T>
+            || std::is_same_v<T, double>
+            || std::is_same_v<T, float>
+    static void                     N2H_Span (GpSpanPtr<T*> aSpan)
+    {
+        H2N_Span<T>(aSpan);
     }
 
     //------------------------------------ Interleave16_16(Morton Codes) ------------------------------------
@@ -253,7 +265,7 @@ public:
                                                              const u_int_8  aSpecific) noexcept;
 
     //-------------------------------------------------------------------------------------------
-    template<typename T> [[nodiscard]] static constexpr
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static constexpr
     T                               SetByMask           (const T aValueDst,
                                                          const T aValueSrc,
                                                          const T aMask) noexcept
@@ -261,137 +273,124 @@ public:
         return T((aValueDst & ~(aMask)) | (aValueSrc & (aMask)));
     }
 
-    template<typename T> [[nodiscard]] static constexpr
-    T                               And                 (const T aValue, const T aBitMask) noexcept
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static constexpr
+    T                               And_by_mask         (const T aValue, const T aBitMask) noexcept
     {
         return T(aValue & aBitMask);
     }
 
-    template<typename T> [[nodiscard]] static constexpr
-    T                               Up                  (const T aValue, const T aBitMask) noexcept
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static constexpr
+    T                               And_by_id           (const T aValue, const size_t aBitId) noexcept
+    {
+        return And_by_mask<T>(aValue, T(1) << aBitId);
+    }
+
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static constexpr
+    T                               Up_by_mask          (const T aValue, const T aBitMask) noexcept
     {
         return T(aValue | aBitMask);
     }
 
-    template<typename T> [[nodiscard]] static constexpr
-    T                               Down                (const T aValue, const T aBitMask) noexcept
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static constexpr
+    T                               Up_by_id            (const T aValue, const size_t aBitId) noexcept
+    {
+        return Up_by_mask<T>(aValue, T(1) << aBitId);
+    }
+
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static constexpr
+    T                               Down_by_mask        (const T aValue, const T aBitMask) noexcept
     {
         return T(aValue & ~(aBitMask));
     }
 
-    template<typename T> [[nodiscard]] static constexpr
-    T                               UpAndDown           (const T aValue, const T aUpBitMask, const T aDownBitMask) noexcept
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static constexpr
+    T                               Down_by_id          (const T aValue, const size_t aBitId) noexcept
+    {
+        return Down_by_mask<T>(aValue, T(1) << aBitId);
+    }
+
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static constexpr
+    T                               UpAndDown_by_mask   (const T aValue, const T aUpBitMask, const T aDownBitMask) noexcept
     {
         return Up(Down(aValue, aDownBitMask), aUpBitMask);
     }
 
-    template<typename T> [[nodiscard]] static constexpr
-    T                               Invert              (const T aValue, const T aBitMask) noexcept
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static constexpr
+    T                               Invert_by_mask      (const T aValue, const T aBitMask) noexcept
     {
         return T(aValue ^ aBitMask);
     }
 
-    template<typename T> [[nodiscard]] static constexpr
-    bool                            TestAny             (const T aValue, const T aBitMask) noexcept
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static constexpr
+    T                               Invert_by_id            (const T aValue, const size_t aBitId) noexcept
+    {
+        return Invert_by_mask<T>(aValue, T(1) << aBitId);
+    }
+
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static constexpr
+    bool                            TestAny_by_mask     (const T aValue, const T aBitMask) noexcept
     {
         return T(aValue & aBitMask);
     }
 
-    template<typename T> [[nodiscard]] static constexpr
-    bool                            TestAll             (const T aValue, const T aBitMask) noexcept
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static constexpr
+    T                               Test_by_id          (const T aValue, const size_t aBitId) noexcept
+    {
+        return TestAny_by_mask<T>(aValue, T(1) << aBitId);
+    }
+
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static constexpr
+    bool                            TestAll_by_mask     (const T aValue, const T aBitMask) noexcept
     {
         return T((aValue & aBitMask) == aBitMask);
     }
 
-    template<typename T> [[nodiscard]] static constexpr
-    bool                            Match               (const T aValueA, const T aValueB, const T aBitMask) noexcept
+    template<Concepts::IsIntegralUpTo128 T> [[nodiscard]] static constexpr
+    bool                            Match_by_mask       (const T aValueA, const T aValueB, const T aBitMask) noexcept
     {
         return (aValueA & aBitMask) == (aValueB & aBitMask);
     }
 
-    template<typename TValue> [[nodiscard]] static constexpr
+    template<Concepts::IsIntegralUpTo128 TValue> [[nodiscard]] static constexpr
     TValue                          SHL                 (const TValue aValue, const size_t aShift) noexcept
     {
         return TValue(aValue << aShift);
     }
 
-    template<typename TValue> [[nodiscard]] static constexpr
+    template<Concepts::IsIntegralUpTo128 TValue> [[nodiscard]] static constexpr
     TValue                          SHR                 (const TValue aValue, const size_t aShift) noexcept
     {
         return TValue(aValue >> aShift);
     }
 
-    template<typename T> [[nodiscard]] static constexpr
+    template<Concepts::IsIntegralUpTo64 T> [[nodiscard]] static constexpr
     size_t                          Leading0bitCnt  (T aValue) noexcept
     {
         using UT = typename std::make_unsigned<T>::type;
-
-        static_assert(std::is_integral<T>(), "Type must be integral");
-        static_assert(sizeof(T) <= sizeof(unsigned long long), "Type size is too big");
-        static_assert(sizeof(T) == sizeof(UT), "Signed and unsigned types must be the same size");
 
         const UT v = std::bit_cast<UT>(aValue);
 
         if (v == UT(0))
         {
-            return size_t(sizeof(UT) * 8);
+            return static_cast<size_t>(sizeof(UT) * 8);
         }
 
         if constexpr (std::is_same<UT, u_int_8>::value)
         {
-            return size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_8))*8;
+            return static_cast<size_t>(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_8))*8;
         } else if constexpr (std::is_same<UT, u_int_16>::value)
         {
-            if constexpr (sizeof(unsigned int) >= sizeof(u_int_16))
-            {
-                return size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_16))*8;
-            } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_16))
-            {
-                return size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_16))*8;
-            } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_16))
-            {
-                return size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_16))*8;
-            } else
-            {
-                GP_TEMPLATE_THROW(T, "Unsupported type");
-            }
+            return static_cast<size_t>(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_16))*8;
         } else if constexpr (std::is_same<UT, u_int_32>::value)
         {
-            if constexpr (sizeof(unsigned int) >= sizeof(u_int_32))
-            {
-                return size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_32))*8;
-            } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_32))
-            {
-                return size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_32))*8;
-            } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_32))
-            {
-                return size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_32))*8;
-            } else
-            {
-                GP_TEMPLATE_THROW(T, "Unsupported type");
-            }
+            return static_cast<size_t>(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_32))*8;
         } else if constexpr (std::is_same<UT, u_int_64>::value)
         {
-            if constexpr (sizeof(unsigned int) >= sizeof(u_int_64))
-            {
-                return size_t(__builtin_clz(static_cast<unsigned int>(v))) - (sizeof(unsigned int) - sizeof(u_int_64))*8;
-            } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_64))
-            {
-                return size_t(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_64))*8;
-            } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_64))
-            {
-                return size_t(__builtin_clzll(static_cast<unsigned long long>(v))) - (sizeof(unsigned long long) - sizeof(u_int_64))*8;
-            } else
-            {
-                GP_TEMPLATE_THROW(T, "Unsupported type");
-            }
-        } else
-        {
-            GP_TEMPLATE_THROW(T, "Unsupported type");
+            return static_cast<size_t>(__builtin_clzl(static_cast<unsigned long>(v))) - (sizeof(unsigned long) - sizeof(u_int_64))*8;
         }
     }
 
-    template<typename T> [[nodiscard]] static constexpr
+    template<Concepts::IsIntegralUpTo64 T> [[nodiscard]] static constexpr
     size_t                          Leading1bitCnt  (T aValue) noexcept
     {
         using UT = typename std::make_unsigned<T>::type;
@@ -400,222 +399,93 @@ public:
         return Leading0bitCnt(iv);
     }
 
-    template<typename T> [[nodiscard]] static constexpr
+    template<Concepts::IsIntegralUpTo64 T> [[nodiscard]] static constexpr
     size_t                      Trailing0bitCnt (T aValue) noexcept
     {
         using UT = typename std::make_unsigned<T>::type;
-
-        static_assert(std::is_integral<T>(), "Type must be integral");
-        static_assert(sizeof(T) <= sizeof(unsigned long long), "Type size is too big");
-        static_assert(sizeof(T) == sizeof(UT), "Signed and unsigned types must be the same size");
 
         const UT v = std::bit_cast<UT>(aValue);
 
         if (v == UT(0))
         {
-            return size_t(sizeof(UT)*8);
+            return static_cast<size_t>(sizeof(UT)*8);
         }
 
         if constexpr (std::is_same<UT, u_int_8>::value)
         {
-            return size_t(__builtin_ctz(static_cast<unsigned int>(v)));
+            return static_cast<size_t>(__builtin_ctz(static_cast<unsigned int>(v)));
         } else if constexpr (std::is_same<UT, u_int_16>::value)
         {
-            if constexpr (sizeof(unsigned int) >= sizeof(u_int_16))
-            {
-                return size_t(__builtin_ctz(static_cast<unsigned int>(v)));
-            } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_16))
-            {
-                return size_t(__builtin_ctzl(static_cast<unsigned long>(v)));
-            } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_16))
-            {
-                return size_t(__builtin_ctzll(static_cast<unsigned long long>(v)));
-            } else
-            {
-                GP_TEMPLATE_THROW(T, "Unsupported type");
-            }
+            return static_cast<size_t>(__builtin_ctz(static_cast<unsigned int>(v)));
         } else if constexpr (std::is_same<UT, u_int_32>::value)
         {
-            if constexpr (sizeof(unsigned int) >= sizeof(u_int_32))
-            {
-                return size_t(__builtin_ctz(static_cast<unsigned int>(v)));
-            } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_32))
-            {
-                return size_t(__builtin_ctzl(static_cast<unsigned long>(v)));
-            } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_32))
-            {
-                return size_t(__builtin_ctzll(static_cast<unsigned long long>(v)));
-            } else
-            {
-                GP_TEMPLATE_THROW(T, "Unsupported type");
-            }
+            return static_cast<size_t>(__builtin_ctz(static_cast<unsigned int>(v)));
         } else if constexpr (std::is_same<UT, u_int_64>::value)
         {
-            if constexpr (sizeof(unsigned int) >= sizeof(u_int_64))
-            {
-                return size_t(__builtin_ctz(static_cast<unsigned int>(v)));
-            } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_64))
-            {
-                return size_t(__builtin_ctzl(static_cast<unsigned long>(v)));
-            } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_64))
-            {
-                return size_t(__builtin_ctzll(static_cast<unsigned long long>(v)));
-            } else
-            {
-                GP_TEMPLATE_THROW(T, "Unsupported type");
-            }
-        } else
-        {
-            GP_TEMPLATE_THROW(T, "Unsupported type");
+            return static_cast<size_t>(__builtin_ctzl(static_cast<unsigned long>(v)));
         }
     }
 
-    template<typename T> [[nodiscard]] static constexpr
+    template<Concepts::IsIntegralUpTo64 T> [[nodiscard]] static constexpr
     size_t                      PopCount    (T aValue) noexcept
     {
         using UT = typename std::make_unsigned<T>::type;
-
-        static_assert(std::is_integral<T>(), "Type must be integral");
-        static_assert(sizeof(T) <= sizeof(unsigned long long), "Type size is too big");
-        static_assert(sizeof(T) == sizeof(UT), "Signed and unsigned types must be the same size");
 
         const UT v = std::bit_cast<UT>(aValue);
 
         if constexpr (std::is_same<UT, u_int_8>::value)
         {
-            return size_t(__builtin_popcount(static_cast<unsigned int>(v)));
+            return static_cast<size_t>(__builtin_popcount(static_cast<unsigned int>(v)));
         } else if constexpr (std::is_same<UT, u_int_16>::value)
         {
-            if constexpr (sizeof(unsigned int) >= sizeof(u_int_16))
-            {
-                return size_t(__builtin_popcount(static_cast<unsigned int>(v)));
-            } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_16))
-            {
-                return size_t(__builtin_popcountl(static_cast<unsigned long>(v)));
-            } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_16))
-            {
-                return size_t(__builtin_popcountll(static_cast<unsigned long long>(v)));
-            } else
-            {
-                GP_TEMPLATE_THROW(T, "Unsupported type");
-            }
+            return static_cast<size_t>(__builtin_popcount(static_cast<unsigned int>(v)));
         } else if constexpr (std::is_same<UT, u_int_32>::value)
         {
-            if constexpr (sizeof(unsigned int) >= sizeof(u_int_32))
-            {
-                return size_t(__builtin_popcount(static_cast<unsigned int>(v)));
-            } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_32))
-            {
-                return size_t(__builtin_popcountl(static_cast<unsigned long>(v)));
-            } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_32))
-            {
-                return size_t(__builtin_popcountll(static_cast<unsigned long long>(v)));
-            } else
-            {
-                GP_TEMPLATE_THROW(T, "Unsupported type");
-            }
+            return static_cast<size_t>(__builtin_popcount(static_cast<unsigned int>(v)));
         } else if constexpr (std::is_same<UT, u_int_64>::value)
         {
-            if constexpr (sizeof(unsigned int) >= sizeof(u_int_64))
-            {
-                return size_t(__builtin_popcount(static_cast<unsigned int>(v)));
-            } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_64))
-            {
-                return size_t(__builtin_popcountl(static_cast<unsigned long>(v)));
-            } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_64))
-            {
-                return size_t(__builtin_popcountll(static_cast<unsigned long long>(v)));
-            } else
-            {
-                GP_TEMPLATE_THROW(T, "Unsupported type");
-            }
-        } else
-        {
-            GP_TEMPLATE_THROW(T, "Unsupported type");
+            return static_cast<size_t>(__builtin_popcountl(static_cast<unsigned long>(v)));
         }
     }
 
     /**
      * Returns one plus the index of the least significant 1-bit of aValue, or if aValue is zero, returns zero.
      */
-    template<typename T> [[nodiscard]] static constexpr
+    template<Concepts::IsIntegralUpTo64 T> [[nodiscard]] static constexpr
     size_t                      LeastSignificantBit (T aValue) noexcept
     {
         using UT = typename std::make_unsigned<T>::type;
-
-        static_assert(std::is_integral<T>(), "Type must be integral");
-        static_assert(sizeof(T) <= sizeof(unsigned long long), "Type size is too big");
-        static_assert(sizeof(T) == sizeof(UT), "Signed and unsigned types must be the same size");
 
         const UT v = std::bit_cast<UT>(aValue);
 
         if constexpr (std::is_same<UT, u_int_8>::value)
         {
-            return size_t(__builtin_ffs(static_cast<unsigned int>(v)));
+            return static_cast<size_t>(__builtin_ffs(std::bit_cast<int>(v)));
         } else if constexpr (std::is_same<UT, u_int_16>::value)
         {
-            if constexpr (sizeof(unsigned int) >= sizeof(u_int_16))
-            {
-                return size_t(__builtin_ffs(static_cast<unsigned int>(v)));
-            } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_16))
-            {
-                return size_t(__builtin_ffsl(static_cast<unsigned long>(v)));
-            } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_16))
-            {
-                return size_t(__builtin_ffsll(static_cast<unsigned long long>(v)));
-            } else
-            {
-                GP_TEMPLATE_THROW(T, "Unsupported type");
-            }
+            return static_cast<size_t>(__builtin_ffs(std::bit_cast<int>(v)));
         } else if constexpr (std::is_same<UT, u_int_32>::value)
         {
-            if constexpr (sizeof(unsigned int) >= sizeof(u_int_32))
-            {
-                return size_t(__builtin_ffs(static_cast<unsigned int>(v)));
-            } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_32))
-            {
-                return size_t(__builtin_ffsl(static_cast<unsigned long>(v)));
-            } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_32))
-            {
-                return size_t(__builtin_ffsll(static_cast<unsigned long long>(v)));
-            } else
-            {
-                GP_TEMPLATE_THROW(T, "Unsupported type");
-            }
+            return static_cast<size_t>(__builtin_ffs(std::bit_cast<int>(v)));
         } else if constexpr (std::is_same<UT, u_int_64>::value)
         {
-            if constexpr (sizeof(unsigned int) >= sizeof(u_int_64))
-            {
-                return size_t(__builtin_ffs(static_cast<unsigned int>(v)));
-            } else if constexpr (sizeof(unsigned long) >= sizeof(u_int_64))
-            {
-                return size_t(__builtin_ffsl(static_cast<unsigned long>(v)));
-            } else if constexpr (sizeof(unsigned long long) >= sizeof(u_int_64))
-            {
-                return size_t(__builtin_ffsll(static_cast<unsigned long long>(v)));
-            } else
-            {
-                GP_TEMPLATE_THROW(T, "Unsupported type");
-            }
-        } else
-        {
-            GP_TEMPLATE_THROW(T, "Unsupported type");
+            return static_cast<size_t>(__builtin_ffsl(std::bit_cast<long>(v)));
         }
     }
 
     /**
      * Returns one plus the index of the most significant 1-bit of aValue, or if aValue is zero, returns zero.
      */
-    template<typename T> [[nodiscard]] static constexpr
+    template<Concepts::IsIntegralUpTo64 T> [[nodiscard]] static constexpr
     size_t                      MostSignificantBit  (T aValue) noexcept
     {
-        return size_t(sizeof(T)*8) - Leading0bitCnt(aValue);
+        return static_cast<size_t>(sizeof(T)*8) - Leading0bitCnt(aValue);
     }
 
-    template<typename T> [[nodiscard]] static constexpr
+    template<Concepts::IsIntegralUpTo64 T> [[nodiscard]] static constexpr
     T               MakeMaskHI          (void);
 
-    template<typename T> [[nodiscard]] static constexpr
+    template<Concepts::IsIntegralUpTo64 T> [[nodiscard]] static constexpr
     T               MakeMaskLO          (void);
 };
 
@@ -838,7 +708,7 @@ constexpr bool  GpBitOperations::HasSpecificByteIn64
     return Has0ByteIn64(aValue ^ (~u_int_64(0)/u_int_64(255) * aSpecific));
 }
 
-template<typename T> [[nodiscard]] constexpr
+template<Concepts::IsIntegralUpTo64 T> [[nodiscard]] constexpr
 T   GpBitOperations::MakeMaskHI (void)
 {
     static_assert(std::is_unsigned_v<T>);
@@ -847,7 +717,7 @@ T   GpBitOperations::MakeMaskHI (void)
     return hi;
 }
 
-template<typename T> [[nodiscard]] constexpr
+template<Concepts::IsIntegralUpTo64 T> [[nodiscard]] constexpr
 T   GpBitOperations::MakeMaskLO (void)
 {
     static_assert(std::is_unsigned_v<T>);

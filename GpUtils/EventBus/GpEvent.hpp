@@ -1,13 +1,14 @@
 #pragma once
 
-#include "../GpMacro.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined (GP_USE_EVENT_BUS)
 
 #include "../Types/Containers/GpContainersT.hpp"
-#include "../Types/UIDs/GpUUID.hpp"
 
 namespace GPlatform {
+
+class GpUUID;
 
 class GpEvent
 {
@@ -15,7 +16,7 @@ public:
     CLASS_DD(GpEvent)
 
 protected:
-                            GpEvent     (void) noexcept = default;
+    explicit                GpEvent     (void) noexcept = default;
     explicit                GpEvent     (const GpEvent& aEvent) noexcept = default;
     explicit                GpEvent     (GpEvent&& aEvent) noexcept = default;
 

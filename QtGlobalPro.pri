@@ -1,5 +1,5 @@
-#qmake options for DEBUG:   CONFIG+=debug_build   CONFIG+=os_linux CONFIG+=compiler_gcc CONFIG+=arc_x86_64
-#qmake options for RELEASE: CONFIG+=release_build CONFIG+=os_linux CONFIG+=compiler_gcc CONFIG+=arc_x86_64
+#qmake options for DEBUG:   CONFIG+=debug_build   CONFIG+=arc_x86_64  CONFIG+=os_linux CONFIG+=compiler_clang CONFIG+=use_asan_ubsan
+#qmake options for RELEASE: CONFIG+=release_build CONFIG+=arc_x86_64  CONFIG+=os_linux CONFIG+=compiler_clang
 
 CONFIG		-= qt
 QT			-= core gui widgets
@@ -11,32 +11,54 @@ compiler_gcc{
 	QMAKE_CC		=	gcc-11
 	QMAKE_CXX		=	g++-11
 	QMAKE_LINK		=	g++-11
+
+	QMAKE_CXXFLAGS	+= -fstack-clash-protection -Wplacement-new -Wlogical-op -Wduplicated-cond -Wduplicated-branches\
+					   -Wrestrict -Wno-terminate
+
 }else:compiler_clang{
+	QMAKE_CC		=	clang-15
+	QMAKE_CXX		=	clang++-15
+	QMAKE_LINK		=	clang++-15
+
 	QMAKE_CXXFLAGS	+= -stdlib=libc++
 	QMAKE_LFLAGS    += -stdlib=libc++
 
 	#QMAKE_CXXFLAGS	+= -stdlib=libstdc++
 	#QMAKE_LFLAGS   += -stdlib=libstdc++
+
 }else:compiler_emscripten{
 }else{
 	error("Unknown compiler mode. Set CONFIG+=compiler_gcc OR CONFIG+=compiler_clang OR CONFIG+=compiler_emscripten")
 }
 
 #c++20
-CONFIG			+=	c++20
+CONFIG			+=	c++latest
 CONFIG			+=	c17
-QMAKE_CXXFLAGS	+=	-std=gnu++20
+#QMAKE_CXXFLAGS	+=	-std=gnu++20
 
 QMAKE_CXXFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden
-QMAKE_CXXFLAGS	+= -ffunction-sections -fdata-sections -fexceptions -fstrict-aliasing -fstack-clash-protection
+QMAKE_CXXFLAGS	+= -ffunction-sections -fdata-sections -fexceptions -fstrict-aliasing
 QMAKE_CXXFLAGS	+= -Wall -Wextra -Wno-comment -Wdouble-promotion -Wswitch-default -Wswitch-enum -Wuninitialized
-QMAKE_CXXFLAGS	+= -Wstrict-aliasing -Wfloat-equal -Wshadow -Wplacement-new -Wcast-align -Wconversion -Wlogical-op
-QMAKE_CXXFLAGS	+= -Wduplicated-cond -Wduplicated-branches -Wrestrict -Wnull-dereference -Wno-terminate
-#QMAKE_CXXFLAGS	+= -fno-rtti
-QMAKE_LFLAGS    += -Wl,--gc-sections
+QMAKE_CXXFLAGS	+= -Wstrict-aliasing -Wfloat-equal -Wshadow -Wcast-align -Wconversion
+QMAKE_CXXFLAGS	+= -Wnull-dereference
+QMAKE_LFLAGS    += -Wl,-E,--gc-sections -v
 
-#sanitizers = use_tsan
-sanitizers = use_asan_usan
+use_asan_ubsan {
+	sanitizers = use_asan_ubsan
+}
+
+use_tsan {
+	sanitizers = use_tsan
+}
+
+os_linux {
+    #For symbol info
+	QMAKE_CXXFLAGS	+= -g
+}
+
+os_browser {
+	QMAKE_LFLAGS += -s DISABLE_EXCEPTION_CATCHING=0
+}
 
 #------------------------ DEBUG or RELEASE ---------------------
 debug_build {
@@ -52,49 +74,42 @@ debug_build {
 		OUT_BUILD_MODE_PATH	= DebugTsan
 
 		DEFINES			+= BOOST_USE_TSAN
-		QMAKE_CXXFLAGS	+= -fsanitize=thread -fno-omit-frame-pointer -fno-optimize-sibling-calls
-		LIBS			+= -ltsan
-
-		DEFINES		   += BOOST_USE_UCONTEXT
+		DEFINES		    += BOOST_USE_UCONTEXT
 		BOOST_POSTFIX	= _ucontext_tsan
+
+		QMAKE_CXXFLAGS	+= -fsanitize=thread -fno-omit-frame-pointer -fno-optimize-sibling-calls
+		LIBS			+= -ltsan		
 	}
 
-	equals(sanitizers, "use_asan_usan") {
-		message([$$PACKET_NAME]: Use sanitizers: asan usan)
-		OUT_BUILD_MODE_PATH	= DebugAsanUsan
+	equals(sanitizers, "use_asan_ubsan") {
+		message([$$PACKET_NAME]: Use sanitizers: asan ubsan)
+		OUT_BUILD_MODE_PATH	= DebugAsanUBsan
 
 		DEFINES	+= BOOST_USE_ASAN
+		DEFINES	+= BOOST_USE_UBSAN
+		DEFINES += BOOST_USE_UCONTEXT
+		BOOST_POSTFIX	= _ucontext_asan_ubsan
+
 		QMAKE_CXXFLAGS	+= -fsanitize=address -fsanitize=undefined -fno-sanitize=vptr
 		QMAKE_CXXFLAGS	+= -fsanitize-recover=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
 		LIBS			+= -lasan
 		LIBS			+= -lubsan
-
-		DEFINES		   += BOOST_USE_UCONTEXT
-		BOOST_POSTFIX	= _ucontext_asan_usan
-	}
-
-	os_browser {
-		QMAKE_LFLAGS += -s DISABLE_EXCEPTION_CATCHING=0
 	}
 } else:profile_build {
 	message([$$PACKET_NAME]: ***************** Build mode PROFILE *****************)
-	DEFINES			   += DEBUG_BUILD
-	DEFINES			   += PROFILE_BUILD
+	DEFINES	+= DEBUG_BUILD
+	DEFINES	+= PROFILE_BUILD
+
 	TARGET_POSTFIX		= _d
 	OUT_BUILD_MODE_PATH	= Profile
-
 	BOOST_POSTFIX		= _fcontext
 } else:release_build {
 	message([$$PACKET_NAME]: ***************** Build mode RELEASE *****************)
-	DEFINES			    += RELEASE_BUILD
+	DEFINES	+= RELEASE_BUILD
+
 	TARGET_POSTFIX		=
 	OUT_BUILD_MODE_PATH	= Release
-
 	BOOST_POSTFIX		= _fcontext
-
-	os_browser {
-		QMAKE_LFLAGS += -s DISABLE_EXCEPTION_CATCHING=0
-	}
 } else {
 	error("Unknown build mode. Set CONFIG+=debug_build CONFIG+=profile_build OR CONFIG+=release_build")
 }
@@ -119,7 +134,7 @@ os_linux {
 #------------------------ ARC ---------------------
 arc_x86_64 {
 	OUT_BUILD_ARCH_PATH = x86_64
-	QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64
+	QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v2
 } else:arc_x86 {
 	OUT_BUILD_ARCH_PATH = x86
 	QMAKE_CXXFLAGS	+= -mtune=generic -march=i686
@@ -155,4 +170,6 @@ LIBS += -L$$DESTDIR
 
 INCLUDEPATH += \
     $$DIR_LEVEL/../Extras \
-	$$DIR_LEVEL/../Extras/Boost/boost_1_77_0$$BOOST_POSTFIX
+	$$DIR_LEVEL/../Extras/Boost/boost_1_81_0$$BOOST_POSTFIX \
+	$$DIR_LEVEL/../Extras/Vulkan/1.3.239.0/x86_64/include
+

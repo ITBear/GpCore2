@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpTasks_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
@@ -19,7 +19,7 @@ private:
 public:
                                         ~GpTaskFiberManager (void) noexcept = default;
 
-    static GpTaskFiberManager&          S                   (void) noexcept {return sManager;}
+    static GpTaskFiberManager&          S                   (void) noexcept {return sInstance;}
 
     inline void                         Init                (const size_t       aMaxStacksCount,
                                                              const size_byte_t  aStackSize);
@@ -31,7 +31,7 @@ public:
 private:
     GpTaskFiberStackPool                iStackPool;
 
-    static GpTaskFiberManager           sManager;
+    static GpTaskFiberManager           sInstance;
 };
 
 void    GpTaskFiberManager::Init

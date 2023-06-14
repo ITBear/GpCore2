@@ -4,18 +4,32 @@
 
 #if defined(GP_USE_ENUMS)
 
-#include "GpEnum.hpp"
+#include "../../Macro/GpMacroClass.hpp"
+#include "../Containers/GpContainersT.hpp"
 
 namespace GPlatform {
+
+TAG_REGISTER(GpEnum)
+
+namespace EnumConcepts {
+
+template <typename T>
+concept IsEnum = requires()
+{
+    requires GpHasTag_GpEnum<T>();
+};
+
+}//namespace EnumConcepts
+
+TAG_REGISTER(GpEnumFlags)
 
 class GP_UTILS_API GpEnumFlags
 {
 public:
     CLASS_DD(GpEnumFlags)
-    CLASS_TAG(GpEnumFlags)
-    CLASS_TAG_DETECTOR(GpEnumFlags)
+    TAG_SET(GpEnumFlags)
 
-    using value_type = GpEnum::value_type;
+    using value_type = ssize_t;
 
 protected:
     constexpr                           GpEnumFlags (void) noexcept
@@ -47,34 +61,33 @@ public:
     constexpr void                      Clear               (void) noexcept {iValue = 0;}
 
     constexpr value_type                Value               (void) const noexcept {return iValue;}
-    constexpr void                      SetAllFromRaw       (const value_type aValue) noexcept{iValue = aValue;}
+    constexpr void                      SetAllFromRaw       (const value_type aValue) noexcept {iValue = aValue;}
+    constexpr void                      CombineFromRaw      (const value_type aValue) noexcept {iValue |= aValue;}
     constexpr void                      Set                 (const value_type aId) noexcept {iValue |=  value_type(value_type(1) << aId);}
     constexpr void                      Clear               (const value_type aId) noexcept {iValue &= ~value_type(value_type(1) << aId);}
     constexpr bool                      Test                (const value_type aId) const noexcept {return iValue & value_type(value_type(1) << aId);}
 
-    virtual void                        Set                 (std::string_view aEnumName) = 0;
-    virtual void                        Clear               (std::string_view aEnumName) = 0;
-    virtual bool                        Test                (std::string_view aEnumName) const = 0;
-    virtual std::string_view            ToStringFlag        (const value_type aId) const = 0;
-    virtual value_type                  FromStringFlag      (std::string_view aEnumName) const = 0;
 
-    std::vector<std::string>            ToStringArray       (void) const;
-    std::vector<std::string_view>       ToStringViewArray   (void) const;
-    void                                FromStringArray     (const std::vector<std::string>& aArray);
-    void                                FromStringViewArray (const std::vector<std::string_view>& aArray);
+    virtual void                        Set                 (std::u8string_view aEnumName) = 0;
+    virtual void                        Clear               (std::u8string_view aEnumName) = 0;
+    virtual bool                        Test                (std::u8string_view aEnumName) const = 0;
+    virtual std::u8string_view          ToStringFlag        (const value_type aId) const = 0;
+    virtual value_type                  FromStringFlag      (std::u8string_view aEnumName) const = 0;
 
-    std::string                         Echo                (void) const;
+    std::vector<std::u8string>          ToStringArray       (void) const;
+    std::vector<std::u8string_view>     ToStringViewArray   (void) const;
+    void                                FromStringArray     (const std::vector<std::u8string>& aArray);
+    void                                FromStringViewArray (const std::vector<std::u8string_view>& aArray);
+
+    std::u8string                       Echo                (void) const;
 
 protected:
     value_type                          iValue  = 0;
 };
 
-
 template<typename E> class GpEnumFlagsST final: public GpEnumFlags
 {
 public:
-    static_assert(std::is_base_of<GpEnum, E>::value, "E must be inherited from GpEnum");
-
     using this_type         = GpEnumFlagsST<E>;
     using EnumT             = E;
     using EnumTE            = typename E::EnumT;
@@ -132,27 +145,27 @@ public:
         return GpEnumFlags::Test(GpEnumFlags::value_type(aEnum));
     }
 
-    virtual void                Set             (std::string_view aEnumName) override final
+    virtual void                Set             (std::u8string_view aEnumName) override final
     {
         GpEnumFlags::Set(GpEnumFlags::value_type(E::SFromString(aEnumName)));
     }
 
-    virtual void                Clear           (std::string_view aEnumName) override final
+    virtual void                Clear           (std::u8string_view aEnumName) override final
     {
         GpEnumFlags::Clear(GpEnumFlags::value_type(E::SFromString(aEnumName)));
     }
 
-    virtual bool                Test            (std::string_view aEnumName) const override final
+    virtual bool                Test            (std::u8string_view aEnumName) const override final
     {
         return GpEnumFlags::Test(GpEnumFlags::value_type(E::SFromString(aEnumName)));
     }
 
-    virtual std::string_view    ToStringFlag    (const value_type aId) const override final
+    virtual std::u8string_view  ToStringFlag    (const value_type aId) const override final
     {
         return E::SToString(typename E::EnumT(aId));
     }
 
-    virtual value_type          FromStringFlag  (std::string_view aEnumName) const override final
+    virtual value_type          FromStringFlag  (std::u8string_view aEnumName) const override final
     {
         return GpEnumFlags::value_type(E::SFromString(aEnumName));
     }
@@ -173,10 +186,7 @@ public:
         return this_type(aFlagsLeft.iValue | value_type(value_type(1) << aFlagRight));
     }
 
-    friend this_type            operator|       (const typename E::EnumT aFlagLeft, const typename E::EnumT aFlagRight) noexcept
-    {
-        return this_type(value_type(value_type(1) << aFlagLeft) | value_type(value_type(1) << aFlagRight));
-    }
+    friend this_type            operator|       (const typename E::EnumT aFlagLeft, const typename E::EnumT aFlagRight) noexcept;//Implemented in GpEnum
 
     friend this_type            operator|       (const typename E::EnumT aFlagLeft, const this_type& aFlagsRight) noexcept
     {

@@ -11,12 +11,12 @@ GpReflectObject::SP GpReflectObjectDynamic::Factory::NewInstance (const GpUUID& 
 
 void    GpReflectObjectDynamic::Factory::Construct (void* /*aDataPtr*/) const
 {
-    THROW_GP("Use GpReflectObjectDynamic::SP"_sv);
+    THROW_GP(u8"Use GpReflectObjectDynamic::SP"_sv);
 }
 
 void    GpReflectObjectDynamic::Factory::Destruct (void* /*aDataPtr*/) const
 {
-    THROW_GP("Use GpReflectObjectDynamic::SP"_sv);
+    THROW_GP(u8"Use GpReflectObjectDynamic::SP"_sv);
 }
 
 GpReflectObjectDynamic::~GpReflectObjectDynamic (void) noexcept

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpBitReaderStorage.hpp"
+/*#include "GpBitReaderStorage.hpp"
 #include "../Types/Bits/GpBitOps.hpp"
 
 namespace GPlatform {
@@ -77,3 +77,4 @@ private:
 };
 
 }//GPlatform
+*/

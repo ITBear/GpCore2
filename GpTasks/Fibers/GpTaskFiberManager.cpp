@@ -5,7 +5,7 @@
 
 namespace GPlatform {
 
-GpTaskFiberManager  GpTaskFiberManager::sManager;
+GpTaskFiberManager  GpTaskFiberManager::sInstance;
 
 }//GPlatform
 

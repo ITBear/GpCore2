@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpMacro.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_DATE_TIME)
 
@@ -13,7 +13,7 @@ namespace GPlatform {
 class GP_UTILS_API GpDateTimeOps
 {
 public:
-    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpDateTimeOps);
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpDateTimeOps)
 
     using FormatT   = GpDateTimeFormat;
     using FormatTE  = FormatT::EnumT;
@@ -22,13 +22,13 @@ public:
     [[nodiscard]] static unix_ts_ms_t       SUnixTS_ms          (void) noexcept;
     [[nodiscard]] static unix_ts_s_t        SUnixTS_s           (void) noexcept;
 
-    [[nodiscard]] static unix_ts_ms_t       SUnixTsFromStr_ms   (std::string_view   aStr,
-                                                                 std::string_view   aFormat);
-    [[nodiscard]] static unix_ts_s_t        SUnixTsFromStr_s    (std::string_view   aStr,
-                                                                 std::string_view   aFormat);
-    [[nodiscard]] static unix_ts_ms_t       SUnixTsFromStr_ms   (std::string_view   aStr,
+    [[nodiscard]] static unix_ts_ms_t       SUnixTsFromStr_ms   (std::u8string_view aStr,
+                                                                 std::u8string_view aFormat);
+    [[nodiscard]] static unix_ts_s_t        SUnixTsFromStr_s    (std::u8string_view aStr,
+                                                                 std::u8string_view aFormat);
+    [[nodiscard]] static unix_ts_ms_t       SUnixTsFromStr_ms   (std::u8string_view aStr,
                                                                  const FormatTE     aFormat);
-    [[nodiscard]] static unix_ts_s_t        SUnixTsFromStr_s    (std::string_view   aStr,
+    [[nodiscard]] static unix_ts_s_t        SUnixTsFromStr_s    (std::u8string_view aStr,
                                                                  const FormatTE     aFormat);
 
     [[nodiscard]] static microseconds_t     SSteadyTS_us        (void) noexcept;
@@ -40,19 +40,19 @@ public:
 
     [[nodiscard]] static microseconds_t     SHighResTS_us       (void) noexcept;
 
-    [[nodiscard]] static std::string        SUnixTsToStr        (const unix_ts_ms_t aTs,
-                                                                 std::string_view   aFormat);
-    [[nodiscard]] static std::string        SUnixTsToStr        (const unix_ts_s_t  aTs,
-                                                                 std::string_view   aFormat);
-    [[nodiscard]] static std::string        SUnixTsToStr        (const unix_ts_ms_t aTs,
+    [[nodiscard]] static std::u8string      SUnixTsToStr        (const unix_ts_ms_t aTs,
+                                                                 std::u8string_view aFormat);
+    [[nodiscard]] static std::u8string      SUnixTsToStr        (const unix_ts_s_t  aTs,
+                                                                 std::u8string_view aFormat);
+    [[nodiscard]] static std::u8string      SUnixTsToStr        (const unix_ts_ms_t aTs,
                                                                  const FormatTE     aFormat);
-    [[nodiscard]] static std::string        SUnixTsToStr        (const unix_ts_s_t  aTs,
+    [[nodiscard]] static std::u8string      SUnixTsToStr        (const unix_ts_s_t  aTs,
                                                                  const FormatTE     aFormat);
 
 private:
     static const microseconds_t                                         sStartSteadyTSus;
     static const milliseconds_t                                         sStartSteadyTSms;
-    static const std::array<std::string, GpDateTimeFormat::SCount()>    sFormats;
+    static const std::array<std::u8string, GpDateTimeFormat::SCount()>  sFormats;
 };
 
 }//GPlatform

@@ -1,12 +1,13 @@
 #pragma once
 
-#include "../GpMacro.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_FILE_UTILS)
 
-#include "../Types/Containers/GpElementsCatalog.hpp"
+#include "../Types/Containers/GpDictionary.hpp"
 #include "../Types/Enums/GpEnumFlags.hpp"
 #include "../Types/Units/Other/size_byte_t.hpp"
+#include "../Types/Strings/GpUTF.hpp"
 
 namespace GPlatform {
 
@@ -24,7 +25,7 @@ using GpFileFlags = GpEnumFlagsST<GpFileFlag>;
 class GP_UTILS_API GpFile
 {
 public:
-    CLASS_REMOVE_CTRS_MOVE_COPY(GpFile);
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpFile)
     CLASS_DD(GpFile)
 
 #if defined(GP_POSIX)
@@ -39,7 +40,7 @@ public:
 
     HandlerT            Handler         (void) noexcept {return iHandler;}
 
-    void                Open            (std::string_view   aName,
+    void                Open            (std::u8string_view aName,
                                          const GpFileFlags  aFlags);
     bool                IsOpen          (void) const noexcept {return iHandler != HandlerT();}
     void                Close           (void) noexcept;

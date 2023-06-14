@@ -1,6 +1,7 @@
 #include "GpBitReader.hpp"
 #include "../Exceptions/GpExceptions.hpp"
 
+/*
 namespace GPlatform {
 
 void    GpBitReader::Bits
@@ -259,3 +260,4 @@ void    GpBitReader::Copy
 }
 
 }//GPlatform
+*/

@@ -6,11 +6,11 @@ namespace GPlatform {
 
 class GpUnitType_SI_TIME;
 
-using microseconds_t    = GpUnit<double, 1, GpUnitType_SI_TIME, std::micro,                             decltype("us"_template_str)>;
-using milliseconds_t    = GpUnit<double, 1, GpUnitType_SI_TIME, std::milli,                             decltype("ms"_template_str)>;
-using seconds_t         = GpUnit<double, 1, GpUnitType_SI_TIME, std::ratio<intmax_t(1),    intmax_t(1)>,    decltype("s"_template_str)>;
-using minutes_t         = GpUnit<double, 1, GpUnitType_SI_TIME, std::ratio<intmax_t(60),   intmax_t(1)>,    decltype("minutes"_template_str)>;
-using hours_t           = GpUnit<double, 1, GpUnitType_SI_TIME, std::ratio<intmax_t(3600), intmax_t(1)>,    decltype("hours"_template_str)>;
+using microseconds_t    = GpUnit<double, GpUnitType_SI_TIME, std::micro,                                decltype("us"_template_str)>;
+using milliseconds_t    = GpUnit<double, GpUnitType_SI_TIME, std::milli,                                decltype("ms"_template_str)>;
+using seconds_t         = GpUnit<double, GpUnitType_SI_TIME, std::ratio<intmax_t(1),    intmax_t(1)>,   decltype("s"_template_str)>;
+using minutes_t         = GpUnit<double, GpUnitType_SI_TIME, std::ratio<intmax_t(60),   intmax_t(1)>,   decltype("minutes"_template_str)>;
+using hours_t           = GpUnit<double, GpUnitType_SI_TIME, std::ratio<intmax_t(3600), intmax_t(1)>,   decltype("hours"_template_str)>;
 
 constexpr microseconds_t    operator"" _si_us (long double aValue)      {return microseconds_t::SMake(microseconds_t::value_type(aValue));}
 constexpr milliseconds_t    operator"" _si_ms (long double aValue)      {return milliseconds_t::SMake(milliseconds_t::value_type(aValue));}

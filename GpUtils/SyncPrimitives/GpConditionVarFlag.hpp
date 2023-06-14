@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpMacro.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_SYNC_PRIMITIVES)
 
@@ -13,7 +13,7 @@ class GpConditionVarFlag
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpConditionVarFlag)
     CLASS_DD(GpConditionVarFlag)
-    CLASS_TAG(THREAD_SAFE)
+    TAG_SET(THREAD_SAFE)
 
     using WaitForResT = GpConditionVar::WaitForResT;
 

@@ -12,33 +12,33 @@ GpGlobalStructCatalogC::~GpGlobalStructCatalogC (void) noexcept
 
 GpGlobalStructCatalogC& GpGlobalStructCatalogC::S (void)
 {
-    static GpGlobalStructCatalogC sCatalog;
+    static GpGlobalStructCatalogC sInstance;
 
-    return sCatalog;
+    return sInstance;
 }
 
 void    GpGlobalStructCatalogC::Clear (void) noexcept
 {
-    iCatalog.Clear();
+    sInstance.Clear();
 }
 
 void    GpGlobalStructCatalogC::Register
 (
-    std::string aKey,
-    std::any    aValue
+    std::u8string   aKey,
+    GpAny       aValue
 )
 {
-    iCatalog.Register(std::move(aKey), std::move(aValue));
+    sInstance.Set(std::move(aKey), std::move(aValue));
 }
 
-std::any    GpGlobalStructCatalogC::Unregister (std::string_view aKey)
+GpAny   GpGlobalStructCatalogC::Unregister (std::u8string_view aKey)
 {
-    return iCatalog.Unregister(aKey);
+    return sInstance.Erase(aKey);
 }
 
-const std::any& GpGlobalStructCatalogC::Find (std::string_view aKey) const
+const GpAny&    GpGlobalStructCatalogC::Find (std::u8string_view aKey) const
 {
-    return iCatalog.Find(aKey);
+    return sInstance.Get(aKey);
 }
 
 }//GPlatform

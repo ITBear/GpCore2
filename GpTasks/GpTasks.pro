@@ -33,7 +33,6 @@ SOURCES += \
     GpTaskLambda.cpp \
     GpTaskScheduler.cpp \
     GpTaskState.cpp \
-    ITC/GpItcProducerConsumer.cpp \
     ITC/GpItcSharedCondition.cpp
 
 HEADERS += \

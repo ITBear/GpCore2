@@ -1,37 +1,50 @@
 #pragma once
 
+#include "../../Config/GpConfig.hpp"
+
+#if defined(GP_USE_MULTITHREADING)
+
 #include "GpItcProducerConsumer.hpp"
 
 namespace GPlatform {
 
+template<typename T>
 class GpItcConsumer
 {
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpItcConsumer)
-    CLASS_DD(GpItcConsumer)
+    CLASS_DD(GpItcConsumer<T>)
+
+    using ItcProducerConsumerT  = GpItcProducerConsumer<T>;
+    using ItcResultT            = GpItcResult<T>;
 
 public:
-    inline                                          GpItcConsumer   (GpItcProducerConsumer::SP aProducerConsumer) noexcept;
-    inline                                          ~GpItcConsumer  (void) noexcept;
+    inline                                                  GpItcConsumer   (typename  ItcProducerConsumerT::SP aProducerConsumer) noexcept;
+    inline                                                  ~GpItcConsumer  (void) noexcept;
 
-    [[nodiscard]] inline GpItcResult::C::Opt::SP    Consume         (const milliseconds_t aWaitTimeout);
+    [[nodiscard]] inline typename ItcResultT::C::Opt::SP    Consume         (const milliseconds_t aWaitTimeout);
 
 private:
-    GpItcProducerConsumer::SP   iProducerConsumer;
+    typename  ItcProducerConsumerT::SP  iProducerConsumer;
 };
 
-GpItcConsumer::GpItcConsumer (GpItcProducerConsumer::SP aProducerConsumer) noexcept:
+template<typename T>
+GpItcConsumer<T>::GpItcConsumer (typename  ItcProducerConsumerT::SP aProducerConsumer) noexcept:
 iProducerConsumer(std::move(aProducerConsumer))
 {
 }
 
-GpItcConsumer::~GpItcConsumer (void) noexcept
+template<typename T>
+GpItcConsumer<T>::~GpItcConsumer (void) noexcept
 {
 }
 
-GpItcResult::C::Opt::SP GpItcConsumer::Consume (const milliseconds_t aWaitTimeout)
+template<typename T>
+typename GpItcConsumer<T>::ItcResultT::C::Opt::SP   GpItcConsumer<T>::Consume (const milliseconds_t aWaitTimeout)
 {
     return iProducerConsumer.V().Consume(aWaitTimeout);
 }
 
 }//namespace GPlatform
+
+#endif//#if defined(GP_USE_MULTITHREADING)

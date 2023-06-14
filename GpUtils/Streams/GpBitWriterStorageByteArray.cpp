@@ -1,5 +1,6 @@
 #include "GpBitWriterStorageByteArray.hpp"
 
+/*
 namespace GPlatform {
 
 GpBitWriterStorageByteArray::~GpBitWriterStorageByteArray (void) noexcept
@@ -36,3 +37,4 @@ void    GpBitWriterStorageByteArray::AllocateNext (const size_bit_t aSize)
 }
 
 }//namespace GPlatform
+*/

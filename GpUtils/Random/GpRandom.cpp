@@ -10,10 +10,10 @@
 
 namespace GPlatform {
 
-std::array<const std::string, 2> GpRandom::sStrs =
+std::array<const std::u8string, 2> GpRandom::sStrs =
 {
-    std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"_sv),   //StrMode::ALPHA_NUM
-    std::string("0123456789"_sv)                                                        //StrMode::NUM
+    std::u8string(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"_sv),   //StrMode::ALPHA_NUM
+    std::u8string(u8"0123456789"_sv)                                                        //StrMode::NUM
 };
 
 void    GpRandom::SetSeedFromRD (void)
@@ -80,18 +80,39 @@ bool    GpRandom::Bool (void) noexcept
     return Next<u_int_64>(0, 1) == 0;
 }
 
-std::string     GpRandom::String
+double  GpRandom::Double
+(
+    const double    aMin,
+    const double    aMax
+) noexcept
+{
+    const double v = double(Next<u_int_64>(NumOps::SMin<u_int_64>(), NumOps::SMax<u_int_64>()))
+                   / double(NumOps::SMax<u_int_64>());
+
+    return NumOps::SLerp(aMin, aMax, v);
+}
+
+float   GpRandom::Float
+(
+    const float aMin,
+    const float aMax
+) noexcept
+{
+    return float(Double(double(aMin), double(aMax)));
+}
+
+std::u8string       GpRandom::String
 (
     const GpRandomStrMode::EnumT    aMode,
     const size_t                    aSize
 )
 {
-    std::string_view    srcStr      = sStrs.at(size_t(aMode));
+    std::u8string_view  srcStr      = sStrs.at(size_t(aMode));
     const u_int_8       srcStrMaxId = NumOps::SConvert<u_int_8>(srcStr.size()) - 1;
-    std::string         res;
+    std::u8string       res;
 
     res.resize(aSize);
-    char* strData = res.data();
+    char8_t* strData = res.data();
 
     for (size_t id = 0; id < aSize; ++id)
     {

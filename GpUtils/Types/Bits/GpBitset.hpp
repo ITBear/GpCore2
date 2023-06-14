@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../GpUtils_global.hpp"
+#include "../../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_BITSET)
 
-#include "../Containers/GpContainersT.hpp"
+//#include "../Containers/GpContainersT.hpp"
 #include "GpBitOps.hpp"
 
 #include <type_traits>
@@ -12,7 +12,7 @@
 
 namespace GPlatform{
 
-template<typename MaskT,//enum or integral
+/*template<typename MaskT,//enum or integral
          typename ValueT>
 class GpBitset
 {
@@ -431,7 +431,7 @@ void    GpBitset<MaskT, ValueT>::WriteToAddr (const std::ptrdiff_t          aADD
 {
     GetByAddr(aADDR)->SetNV(aBitset);
 }
-
+*/
 }//GPlatform
 
 #endif//#if defined(GP_USE_BITSET)

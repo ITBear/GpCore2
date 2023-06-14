@@ -1,12 +1,16 @@
 #pragma once
 
-#include "../../GpUtils_global.hpp"
+#include "../../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_TIMERS)
 
-#include "GpTimerShotEvent.hpp"
+#include "../../GpUtils_global.hpp"
+#include "../../Macro/GpMacroClass.hpp"
+#include "../../Types/Containers/GpContainersT.hpp"
 
 namespace GPlatform {
+
+class GpTimerShotEvent;
 
 class GP_UTILS_API GpTimerShotEventFactory
 {
@@ -18,7 +22,7 @@ public:
                                     GpTimerShotEventFactory     (void) noexcept = default;
     virtual                         ~GpTimerShotEventFactory    (void) noexcept = default;
 
-    virtual GpTimerShotEvent::SP    NewInstance                 (void) const;
+    virtual GpSP<GpTimerShotEvent>  NewInstance                 (void) const;
 };
 
 }//namespace GPlatform

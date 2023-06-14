@@ -1,9 +1,11 @@
 #pragma once
 
-#include "../GpTasks_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
+
+#include "../../GpUtils/Exceptions/GpException.hpp"
 
 namespace GPlatform {
 
@@ -15,7 +17,7 @@ private:
 public:
     inline          GpTaskFiberStopEx   (const GpTaskFiberStopEx&   aException);
     inline          GpTaskFiberStopEx   (GpTaskFiberStopEx&&        aException);
-    inline          GpTaskFiberStopEx   (std::string_view       aMsg,
+    inline          GpTaskFiberStopEx   (std::u8string_view     aMsg,
                                          const SourceLocationT& aSourceLocation = SourceLocationT::current()) noexcept;
 
     virtual         ~GpTaskFiberStopEx  (void) noexcept override final = default;
@@ -33,7 +35,7 @@ GpException(std::move(aException))
 
 GpTaskFiberStopEx::GpTaskFiberStopEx
 (
-    std::string_view        aMsg,
+    std::u8string_view      aMsg,
     const SourceLocationT&  aSourceLocation
 ) noexcept:
 GpException(aMsg, aSourceLocation)

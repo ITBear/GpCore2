@@ -31,7 +31,7 @@ void    GpTimersManager::SStop (void)
 
 void    GpTimersManager::AddTimer (GpTimer::SP aTimer)
 {
-    iTimers.Register(aTimer.P(), std::move(aTimer));
+    iTimers.Set(aTimer.P(), std::move(aTimer));
 }
 
 void    GpTimersManager::Run (GpThreadStopToken aStopToken) noexcept
@@ -64,13 +64,13 @@ void    GpTimersManager::Run (GpThreadStopToken aStopToken) noexcept
         }
     } catch (const GpException& e)
     {
-        GpStringUtils::SCerr("[GpTimersManager::Run]: "_sv + e.what() + "\n"_sv);
+        GpStringUtils::SCerr(u8"[GpTimersManager::Run]: "_sv + e.what() + "\n"_sv);
     } catch (const std::exception& e)
     {
-        GpStringUtils::SCerr("[GpTimersManager::Run]: "_sv + e.what() + "\n"_sv);
+        GpStringUtils::SCerr(u8"[GpTimersManager::Run]: "_sv + e.what() + "\n"_sv);
     } catch (...)
     {
-        GpStringUtils::SCerr("[GpTimersManager::Run]: unknown\n"_sv);
+        GpStringUtils::SCerr(u8"[GpTimersManager::Run]: unknown\n"_sv);
     }
 }
 

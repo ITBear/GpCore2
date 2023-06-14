@@ -1,12 +1,10 @@
 #pragma once
 
-#include "../../GpUtils_global.hpp"
+#include "../../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_SHARED_POINTERS)
 
 #include "GpReferenceCounter.hpp"
-#include "../../GpMemOps.hpp"
-#include <array>
 
 namespace GPlatform {
 
@@ -21,15 +19,13 @@ public:
 
 public:
     template<typename... Ts>
-                    GpReferenceStorage  (Ts&&... aArgs):
+    explicit        GpReferenceStorage  (Ts&&... aArgs):
                     GpReferenceCounter(&iValue),
                     iValue(std::forward<Ts>(aArgs)...)
                     {
                     }
 
-    virtual         ~GpReferenceStorage (void) noexcept override final
-                    {
-                    }
+    virtual         ~GpReferenceStorage (void) noexcept override final = default;
 
 private:
     T               iValue;

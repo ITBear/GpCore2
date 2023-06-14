@@ -4,7 +4,7 @@
 
 namespace GPlatform {
 
-const GpUUID    GpTimerShotEvent::sTypeId = "9de1b354-9878-434e-1957-1ab45bf55400"_uuid;
+const GpUUID    GpTimerShotEvent::sTypeId = u8"9de1b354-9878-434e-1957-1ab45bf55400"_uuid;
 
 GpTimerShotEvent::~GpTimerShotEvent (void) noexcept
 {

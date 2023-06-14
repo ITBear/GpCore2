@@ -2,6 +2,7 @@
 
 #if defined(GP_USE_MULTITHREADING)
 
+#include "../GpUtils/Other/GpRAIIonDestruct.hpp"
 #include "GpTaskScheduler.hpp"
 
 namespace GPlatform {
@@ -10,7 +11,7 @@ decltype(GpTask::sTasksByThreadId)  GpTask::sTasksByThreadId;
 
 GpTask::~GpTask (void) noexcept
 {
-    CompletePromise(MakeSP<GpItcResult>());
+    CompletePromise(MakeSP<CompleteItcResultT>(size_t(0)));
 }
 
 void    GpTask::OnPushEvent (void)

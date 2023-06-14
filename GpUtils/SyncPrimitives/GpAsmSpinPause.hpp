@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpUtils_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_ARCH_X86_64) || defined(GP_ARCH_X86)
 #   include <emmintrin.h>

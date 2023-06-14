@@ -2,9 +2,9 @@
 
 namespace GPlatform {
 
-GpTaskFiberLambda::GpTaskFiberLambda
+/*GpTaskFiberLambda::GpTaskFiberLambda
 (
-    std::string                 aName,
+    std::u8string               aName,
     std::optional<FnT>          aBeforeStartFn,
     std::optional<OnStepFnT>    aOnStepFn,
     std::optional<FnT>          aAfterStopFn
@@ -44,6 +44,6 @@ void    GpTaskFiberLambda::OnStop (void) noexcept
     {
         return iAfterStopFn.value()(*this);
     }
-}
+}*/
 
 }//namespace GPlatform

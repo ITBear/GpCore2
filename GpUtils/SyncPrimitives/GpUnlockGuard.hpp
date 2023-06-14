@@ -1,8 +1,10 @@
 #pragma once
 
-#include "../GpMacro.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_SYNC_PRIMITIVES)
+
+#include "../Macro/GpMacroClass.hpp"
 
 namespace GPlatform{
 

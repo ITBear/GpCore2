@@ -1,8 +1,7 @@
 #pragma once
 
-#include "GpElementsCatalog.hpp"
-
-#include <any>
+#include "GpDictionary.hpp"
+#include "GpAny.hpp"
 
 namespace GPlatform {
 
@@ -11,7 +10,7 @@ class GP_UTILS_API GpGlobalStructCatalogC
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpGlobalStructCatalogC)
 
-    using CatalogT  = GpElementsCatalog<std::string, std::any>;
+    using CatalogT  = GpDictionary<std::u8string, GpAny>;
 
 private:
                                     GpGlobalStructCatalogC  (void) noexcept;
@@ -22,24 +21,24 @@ public:
 
     void                            Clear                   (void) noexcept;
 
-    void                            Register                (std::string    aKey,
-                                                             std::any       aValue);
+    void                            Register                (std::u8string  aKey,
+                                                             GpAny          aValue);
 
-    std::any                        Unregister              (std::string_view aKey);
-    const std::any&                 Find                    (std::string_view aKey) const;
+    GpAny                           Unregister              (std::u8string_view aKey);
+    const GpAny&                    Find                    (std::u8string_view aKey) const;
 
     template<typename T>
-    T                               FindAs                  (std::string_view aKey) const;
+    T                               FindAs                  (std::u8string_view aKey) const;
 
 private:
-    CatalogT                        iCatalog;
+    CatalogT                        sInstance;
 };
 
 template<typename T>
-T   GpGlobalStructCatalogC::FindAs (std::string_view aKey) const
+T   GpGlobalStructCatalogC::FindAs (std::u8string_view aKey) const
 {
-    const std::any& val = Find(aKey);
-    return std::any_cast<T>(val);
+    const GpAny& val = Find(aKey);
+    return val.Value<T>();
 }
 
 }//GPlatform

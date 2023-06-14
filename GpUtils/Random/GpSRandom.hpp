@@ -1,8 +1,12 @@
 #pragma once
 
-#include "GpRandom.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_RANDOM_GENERATORS)
+
+#include "../SyncPrimitives/GpSpinlock.hpp"
+#include "GpRandom.hpp"
+#include <mutex>
 
 namespace GPlatform {
 
@@ -15,7 +19,7 @@ private:
                                         ~GpSRandom      (void) noexcept = default;
 
 public:
-    static GpSRandom&                   S               (void) noexcept {return sSRnd;}
+    static GpSRandom&                   S               (void) noexcept {return sInstance;}
 
     GpSpinlock&                         Lock            (void) noexcept {return iLock;}
 
@@ -39,8 +43,12 @@ public:
     [[nodiscard]] inline u_int_64       UI64            (const u_int_64 aMin = NumOps::SMin<u_int_64>(),
                                                          const u_int_64 aMax = NumOps::SMax<u_int_64>()) noexcept;
     [[nodiscard]] inline bool           Bool            (void) noexcept;
+    [[nodiscard]] inline double         Double          (const double   aMin,
+                                                         const double   aMax) noexcept;
+    [[nodiscard]] inline float          Float           (const float    aMin,
+                                                         const float    aMax) noexcept;
 
-    [[nodiscard]] inline std::string    String          (const GpRandomStrMode::EnumT   aMode,
+    [[nodiscard]] inline std::u8string  String          (const GpRandomStrMode::EnumT   aMode,
                                                          const size_t                   aSize);
 
     template<typename T>
@@ -54,7 +62,7 @@ private:
     GpRandom                            iRandom;
     mutable GpSpinlock                  iLock;
 
-    static GpSRandom                    sSRnd;
+    static GpSRandom                    sInstance;
 };
 
 void    GpSRandom::SetSeedFromRD (void)
@@ -123,7 +131,27 @@ bool    GpSRandom::Bool (void) noexcept
     return iRandom.Bool();
 }
 
-std::string GpSRandom::String
+double  GpSRandom::Double
+(
+    const double    aMin,
+    const double    aMax
+) noexcept
+{
+    std::scoped_lock l(iLock);
+    return iRandom.Double(aMin, aMax);
+}
+
+float   GpSRandom::Float
+(
+    const float aMin,
+    const float aMax
+) noexcept
+{
+    std::scoped_lock l(iLock);
+    return iRandom.Float(aMin, aMax);
+}
+
+std::u8string   GpSRandom::String
 (
     const GpRandomStrMode::EnumT    aMode,
     const size_t                    aSize

@@ -1,14 +1,11 @@
 #pragma once
 
-#pragma once
-
-#include "../../GpUtils_global.hpp"
+#include "../../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_CONTAINERS)
 
-#include "GpContainersT.hpp"
 #include "../Strings/GpStringOps.hpp"
-#include "../../SyncPrimitives/GpSyncPrimitives.hpp"
+#include "../../SyncPrimitives/GpRWLock.hpp"
 
 #include <mutex>
 #include <shared_mutex>
@@ -16,15 +13,17 @@
 
 namespace GPlatform {
 
+TAG_REGISTER(GpDictionary)
+
 template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT = std::map<KeyT, ValueT, std::less<>>>
-class GpElementsCatalog
+class GpDictionary
 {
-    CLASS_REMOVE_CTRS_COPY(GpElementsCatalog)
+    CLASS_REMOVE_CTRS_COPY(GpDictionary)
 
 public:
-    using this_type         = GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>;
+    using this_type         = GpDictionary<KeyT, ValueT, UnderlyingContainerT>;
     using key_type          = KeyT;
     using value_type        = ValueT;
     using container_type    = UnderlyingContainerT;
@@ -40,62 +39,63 @@ public:
     template<typename T>
     struct IsReferenceWrapper<std::reference_wrapper<T>> : std::true_type{};
 
-    CLASS_TAG(THREAD_SAFE)
+    TAG_SET(GpDictionary)
+    TAG_SET(THREAD_SAFE)
 
 public:
-                            GpElementsCatalog   (GpElementsCatalog&& aCatalog) noexcept;
-                            GpElementsCatalog   (void) noexcept = default;
-    virtual                 ~GpElementsCatalog  (void) noexcept;
+                            GpDictionary    (GpDictionary&& aCatalog) noexcept;
+                            GpDictionary    (void) noexcept = default;
+    virtual                 ~GpDictionary   (void) noexcept;
 
-    size_t                  Size                (void) const noexcept;
+    size_t                  Size            (void) const noexcept;
 
-    void                    Clear               (void) noexcept;
-
-    template<typename K>
-    const ValueT&           Find                (K&& aKey) const;
+    void                    Clear           (void) noexcept;
 
     template<typename K>
-    ValueT&                 Find                (K&& aKey);
+    const ValueT&           Get             (K&& aKey) const;
 
     template<typename K>
-    ValueCRefOptT           FindOpt             (K&& aKey) const noexcept;
+    ValueT&                 Get             (K&& aKey);
 
     template<typename K>
-    ValueRefOptT            FindOpt             (K&& aKey) noexcept;
+    ValueCRefOptT           GetOpt          (K&& aKey) const noexcept;
 
     template<typename K>
-    ValueT                  FindRetCopy         (K&& aKey) const;
+    ValueRefOptT            GetOpt          (K&& aKey) noexcept;
 
     template<typename K>
-    ValueOptT               FindRetCopyOpt      (K&& aKey) const noexcept;
+    ValueT                  GetCopy         (K&& aKey) const;
+
+    template<typename K>
+    ValueOptT               GetCopyOpt      (K&& aKey) const;
 
     template<typename K, typename V>
-    void                    Register            (K&& aKey,
-                                                 V&& aValue);
+    void                    Set             (K&& aKey,
+                                             V&& aValue);
 
     template<typename K, typename V>
-    [[nodiscard]] bool      TryRegister         (K&& aKey,
-                                                 V&& aValue);
+    [[nodiscard]] bool      TrySet          (K&& aKey,
+                                             V&& aValue);
 
     template<typename K>
-    ValueT&                 FindOrRegister      (K&&            aKey,
-                                                 ValueGenFnT    aGenFn);
+    ValueT&                 GetOrSet        (K&&            aKey,
+                                             ValueGenFnT    aGenFn);
 
     template<typename K>
-    ValueT&                 UpdateOrRegister    (K&&            aKey,
-                                                 ValueGenFnT    aGenFn,
-                                                 ValueUpdateFnT aUpdateFn);
+    ValueT&                 UpdateOrSet     (K&&            aKey,
+                                             ValueGenFnT    aGenFn,
+                                             ValueUpdateFnT aUpdateFn);
 
     template<typename K>
-    ValueT                  Unregister          (K&& aKey);
+    ValueT                  Erase           (K&& aKey);
 
     template<typename K>
-    ValueOptT               UnregisterOpt       (K&& aKey);
+    ValueOptT               EraseOpt        (K&& aKey);
 
-    this_type               UnregisterAll       (void) noexcept;
+    this_type               EraseAll        (void) noexcept;
 
-    void                    Process             (std::function<void(container_type&)> aFn);
-    void                    Apply               (std::function<void(ValueT&)> aFn);
+    void                    Process         (std::function<void(container_type&)> aFn);
+    void                    Apply           (std::function<void(ValueT&)> aFn);
 
 private:
     mutable GpRWLock        iLock;
@@ -105,15 +105,15 @@ private:
 template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
-GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::GpElementsCatalog (GpElementsCatalog&& aCatalog) noexcept
-{
-    iElements = std::move(aCatalog.iElements);
+GpDictionary<KeyT, ValueT, UnderlyingContainerT>::GpDictionary (GpDictionary&& aCatalog) noexcept:
+iElements(std::move(aCatalog.iElements))
+{   
 }
 
 template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
-GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::~GpElementsCatalog (void) noexcept
+GpDictionary<KeyT, ValueT, UnderlyingContainerT>::~GpDictionary (void) noexcept
 {
     Clear();
 }
@@ -121,7 +121,7 @@ GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::~GpElementsCatalog (void)
 template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
-size_t  GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::Size (void) const noexcept
+size_t  GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Size (void) const noexcept
 {
     std::shared_lock lock(iLock);
     return iElements.size();
@@ -130,7 +130,7 @@ size_t  GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::Size (void) const
 template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
-void    GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::Clear (void) noexcept
+void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Clear (void) noexcept
 {
     std::scoped_lock lock(iLock);
     iElements.clear();
@@ -140,16 +140,16 @@ template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
 template<typename K>
-const ValueT&   GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::Find (K&& aKey) const
+const ValueT&   GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Get (K&& aKey) const
 {
-    return const_cast<this_type&>(*this).Find<K>(aKey);
+    return const_cast<this_type&>(*this).Get<K>(aKey);
 }
 
 template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
 template<typename K>
-ValueT& GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::Find (K&& aKey)
+ValueT& GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Get (K&& aKey)
 {
     std::shared_lock lock(iLock);
 
@@ -158,7 +158,7 @@ ValueT& GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::Find (K&& aKey)
     THROW_COND_GP
     (
         iter != iElements.end(),
-        [&](){return "Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv;}
+        [&](){return u8"Element not found by key '"_sv + StrOps::SToString(aKey) + u8"'"_sv;}
     );
 
     return iter->second;
@@ -168,7 +168,7 @@ template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
 template<typename K>
-auto    GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::FindOpt (K&& aKey) const noexcept -> ValueCRefOptT
+auto    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::GetOpt (K&& aKey) const noexcept -> ValueCRefOptT
 {
     std::shared_lock lock(iLock);
 
@@ -193,7 +193,7 @@ template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
 template<typename K>
-auto    GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::FindOpt (K&& aKey) noexcept -> ValueRefOptT
+auto    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::GetOpt (K&& aKey) noexcept -> ValueRefOptT
 {
     std::shared_lock lock(iLock);
 
@@ -218,7 +218,7 @@ template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
 template<typename K>
-ValueT  GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::FindRetCopy (K&& aKey) const
+ValueT  GpDictionary<KeyT, ValueT, UnderlyingContainerT>::GetCopy (K&& aKey) const
 {
     std::shared_lock lock(iLock);
 
@@ -227,7 +227,7 @@ ValueT  GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::FindRetCopy (K&& 
     THROW_COND_GP
     (
         iter != iElements.end(),
-        [&](){return "Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv;}
+        [&](){return u8"Element not found by key '"_sv + StrOps::SToString(aKey) + u8"'"_sv;}
     );
 
     return ValueT(iter->second);
@@ -237,7 +237,7 @@ template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
 template<typename K>
-auto    GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::FindRetCopyOpt (K&& aKey) const noexcept -> ValueOptT
+auto    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::GetCopyOpt (K&& aKey) const -> ValueOptT
 {
     std::shared_lock lock(iLock);
 
@@ -257,7 +257,7 @@ template<typename KeyT,
          typename UnderlyingContainerT>
 template<typename K,
          typename V>
-void    GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::Register
+void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Set
 (
     K&& aKey,
     V&& aValue
@@ -265,12 +265,12 @@ void    GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::Register
 {
     THROW_COND_GP
     (
-        TryRegister
+        TrySet
         (
             std::forward<K>(aKey),
             std::forward<V>(aValue)
         ),
-        [&](){return "Key '"_sv + StrOps::SToString(aKey) + "' is not unique"_sv;}
+        [&](){return u8"Key '"_sv + StrOps::SToString(aKey) + u8"' is not unique"_sv;}
     );
 }
 
@@ -279,7 +279,7 @@ template<typename KeyT,
          typename UnderlyingContainerT>
 template<typename K,
          typename V>
-bool    GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::TryRegister
+bool    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::TrySet
 (
     K&& aKey,
     V&& aValue
@@ -302,7 +302,7 @@ template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
 template<typename K>
-ValueT& GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::FindOrRegister
+ValueT& GpDictionary<KeyT, ValueT, UnderlyingContainerT>::GetOrSet
 (
     K&&         aKey,
     ValueGenFnT aGenFn
@@ -328,7 +328,7 @@ ValueT& GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::FindOrRegister
             return iter->second;
         }
 
-        //Register
+        //Set
         return iElements.try_emplace
         (
             KeyT(std::forward<K>(aKey)),
@@ -341,7 +341,7 @@ template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
 template<typename K>
-ValueT& GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::UpdateOrRegister
+ValueT& GpDictionary<KeyT, ValueT, UnderlyingContainerT>::UpdateOrSet
 (
     K&&             aKey,
     ValueGenFnT     aGenFn,
@@ -370,7 +370,7 @@ template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
 template<typename K>
-ValueT  GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::Unregister (K&& aKey)
+ValueT  GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Erase (K&& aKey)
 {
     std::scoped_lock lock(iLock);
 
@@ -379,7 +379,7 @@ ValueT  GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::Unregister (K&& a
     THROW_COND_GP
     (
         iter != iElements.end(),
-        [&](){return "Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv;}
+        [&](){return u8"Element not found by key '"_sv + StrOps::SToString(aKey) + u8"'"_sv;}
     );
 
     ValueT val = std::move(iter->second);
@@ -392,7 +392,7 @@ template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
 template<typename K>
-auto    GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::UnregisterOpt (K&& aKey) -> ValueOptT
+auto    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::EraseOpt (K&& aKey) -> ValueOptT
 {
     std::scoped_lock lock(iLock);
 
@@ -412,7 +412,7 @@ auto    GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::UnregisterOpt (K&
 template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
-auto    GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::UnregisterAll (void) noexcept -> this_type
+auto    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::EraseAll (void) noexcept -> this_type
 {
     std::scoped_lock lock(iLock);
     return this_type(std::move(*this));
@@ -421,7 +421,7 @@ auto    GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::UnregisterAll (vo
 template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
-void    GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::Process (std::function<void(container_type&)> aFn)
+void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Process (std::function<void(container_type&)> aFn)
 {
     std::scoped_lock lock(iLock);
     aFn(iElements);
@@ -430,7 +430,7 @@ void    GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::Process (std::fun
 template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
-void    GpElementsCatalog<KeyT, ValueT, UnderlyingContainerT>::Apply (std::function<void(ValueT&)> aFn)
+void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Apply (std::function<void(ValueT&)> aFn)
 {
     std::shared_lock lock(iLock);
 

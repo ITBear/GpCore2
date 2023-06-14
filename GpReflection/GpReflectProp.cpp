@@ -15,7 +15,7 @@ GpReflectProp::GpReflectProp
     const GpUUID            aModelUid,
     const ContainerTE       aContainer,
     const TypeTE            aContainerKeyType,
-    std::string&&           aName,
+    std::u8string&&         aName,
     const size_t            aAlign,
     const size_t            aSize,
     const std::ptrdiff_t    aOffset,
@@ -44,38 +44,38 @@ iFromStringFns(std::move(aFromStringFns))
 }
 
 GpReflectProp::GpReflectProp (const GpReflectProp& aProp):
-iType(aProp.iType),
-iModelUid(aProp.iModelUid),
-iContainer(aProp.iContainer),
-iContainerKeyType(aProp.iContainerKeyType),
-iName(aProp.iName),
-iAlign(aProp.iAlign),
-iSize(aProp.iSize),
-iOffset(aProp.iOffset),
-iFlags(aProp.iFlags),
-iFlagArgs(aProp.iFlagArgs),
-iGenFn(aProp.iGenFn),
+iType             (aProp.iType),
+iModelUid         (aProp.iModelUid),
+iContainer        (aProp.iContainer),
+iContainerKeyType (aProp.iContainerKeyType),
+iName             (aProp.iName),
+iAlign            (aProp.iAlign),
+iSize             (aProp.iSize),
+iOffset           (aProp.iOffset),
+iFlags            (aProp.iFlags),
+iFlagArgs         (aProp.iFlagArgs),
+iGenFn            (aProp.iGenFn),
 iConstructCustomFn(aProp.iConstructCustomFn),
-iDestructCustomFn(aProp.iDestructCustomFn),
-iFromStringFns(aProp.iFromStringFns)
+iDestructCustomFn (aProp.iDestructCustomFn),
+iFromStringFns    (aProp.iFromStringFns)
 {
 }
 
 GpReflectProp::GpReflectProp (GpReflectProp&& aProp) noexcept:
 iType(std::move(aProp.iType)),
-iModelUid(std::move(aProp.iModelUid)),
-iContainer(std::move(aProp.iContainer)),
-iContainerKeyType(std::move(aProp.iContainerKeyType)),
-iName(std::move(aProp.iName)),
-iAlign(std::move(aProp.iAlign)),
-iSize(std::move(aProp.iSize)),
-iOffset(std::move(aProp.iOffset)),
-iFlags(std::move(aProp.iFlags)),
-iFlagArgs(std::move(aProp.iFlagArgs)),
-iGenFn(std::move(aProp.iGenFn)),
+iModelUid         (std::move(aProp.iModelUid)),
+iContainer        (std::move(aProp.iContainer)),
+iContainerKeyType (std::move(aProp.iContainerKeyType)),
+iName             (std::move(aProp.iName)),
+iAlign            (std::move(aProp.iAlign)),
+iSize             (std::move(aProp.iSize)),
+iOffset           (std::move(aProp.iOffset)),
+iFlags            (std::move(aProp.iFlags)),
+iFlagArgs         (std::move(aProp.iFlagArgs)),
+iGenFn            (std::move(aProp.iGenFn)),
 iConstructCustomFn(std::move(aProp.iConstructCustomFn)),
-iDestructCustomFn(std::move(aProp.iDestructCustomFn)),
-iFromStringFns(std::move(aProp.iFromStringFns))
+iDestructCustomFn (std::move(aProp.iDestructCustomFn)),
+iFromStringFns    (std::move(aProp.iFromStringFns))
 {
 }
 
@@ -123,7 +123,7 @@ GpReflectProp&  GpReflectProp::operator= (GpReflectProp&& aProp) noexcept
     return *this;
 }
 
-std::optional<std::string_view> GpReflectProp::FlagArg (const GpReflectPropFlag::EnumT aFlag) const noexcept
+std::optional<std::u8string_view>   GpReflectProp::FlagArg (const GpReflectPropFlag::EnumT aFlag) const noexcept
 {
     auto iter = iFlagArgs.find(aFlag);
 
@@ -144,7 +144,7 @@ const GpReflectProp&    GpReflectProp::UnwrapContainerKeyProp (void) const
            (Container() != ContainerT::NO)
         || (FlagTest(GpReflectPropFlag::UNWRAP_CONTAINER))
         || (Type() == TypeT::OBJECT_SP),
-        [&](){return "Failed to get container key. Model UID "_sv + ModelUid();}
+        [&](){return u8"Failed to get container key. Model UID "_sv + ModelUid();}
     );
 
     //
@@ -159,7 +159,7 @@ const GpReflectProp&    GpReflectProp::UnwrapContainerKeyProp (void) const
         }
     }
 
-    THROW_GP("No property with UNWRAP_CONTAINER_KEY flag was found for model UID "_sv + ModelUid());
+    THROW_GP(u8"No property with UNWRAP_CONTAINER_KEY flag was found for model UID "_sv + ModelUid());
 }
 
 bool    GpReflectProp::GenFn (void* aDataPtr) const
@@ -175,9 +175,9 @@ bool    GpReflectProp::GenFn (void* aDataPtr) const
 
 bool    GpReflectProp::FromStringFn
 (
-    std::string_view    aFnName,
+    std::u8string_view  aFnName,
     void*               aDataPtr,
-    std::string_view    aStr
+    std::u8string_view  aStr
 ) const
 {
     auto iter = iFromStringFns.find(aFnName);
@@ -194,7 +194,7 @@ bool    GpReflectProp::FromStringFn
 
 GpReflectProp&  GpReflectProp::AddFromStringFn
 (
-    std::string_view    aFnName,
+    std::u8string_view  aFnName,
     FromStringFnT       aFn
 )
 {
@@ -210,7 +210,7 @@ void    GpReflectProp::ConstructCustom (void* aDataPtr) const
         iConstructCustomFn.value()(PropPtr(aDataPtr));
     } else
     {
-        THROW_GP("There are no custom construct function"_sv);
+        THROW_GP(u8"There are no custom construct function"_sv);
     }
 }
 
@@ -221,7 +221,7 @@ void    GpReflectProp::DestructCustom (void* aDataPtr) const
         iDestructCustomFn.value()(PropPtr(aDataPtr));
     } else
     {
-        THROW_GP("There are no custom destruct function"_sv);
+        THROW_GP(u8"There are no custom destruct function"_sv);
     }
 }
 

@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../../GpMacro.hpp"
+#include "../../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_TIMERS)
 
 #include "../../EventBus/GpEventPublisher.hpp"
+#include "../../Types/Units/SI/GpUnitsSI_Time.hpp"
 #include "GpTimerShotEventFactory.hpp"
 
 namespace GPlatform {

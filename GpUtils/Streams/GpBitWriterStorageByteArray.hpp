@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include "GpBitWriterStorage.hpp"
 
 namespace GPlatform {
@@ -30,3 +31,4 @@ iOut(aOut)
 }
 
 }//GPlatform
+*/

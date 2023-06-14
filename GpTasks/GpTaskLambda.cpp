@@ -8,7 +8,7 @@ GpTaskLambda::GpTaskLambda
     std::optional<OnStepFnT>    aOnStepFn,
     std::optional<OnStoptFnT>   aOnStoptFn
 ):
-GpTaskBase(""),
+GpTaskBase(u8""),
 iOnStartFn(aOnStartFn),
 iOnStepFn(aOnStepFn),
 iOnStoptFn(aOnStoptFn)

@@ -1,14 +1,63 @@
 #pragma once
 
-#include "../../GpUtils_global.hpp"
+#include "../../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_SHARED_POINTERS)
 
-#include "GpReferenceStorage.hpp"
+#include "../../Macro/GpMacroTags.hpp"
+#include "../../GpMemOps.hpp"
 #include "../../Exceptions/GpException.hpp"
-#include "../Strings/GpStringLiterals.hpp"
+
+#include "GpReferenceStorage.hpp"
 
 namespace GPlatform {
+
+TAG_REGISTER(GpSharedPtrBase)
+
+namespace Concepts::SharedPtr {
+
+template <typename T>
+concept IsSharedPtr = requires()
+{
+    requires GpHasTag_GpSharedPtrBase<T>();
+};
+
+template<typename BASE, typename DERIVED>
+using IsBaseOf_value_type = std::is_base_of<typename BASE::value_type, typename DERIVED::value_type>;
+
+//      Derived ->       Base (OK)
+//const Derived -> const Base (OK)
+//      Derived -> const Base (OK)
+//const Derived ->       Base (Error)
+template<typename FROM, typename TO>
+concept CastableDown = requires()
+{
+    requires
+       IsBaseOf_value_type<TO, FROM>::value
+    && !(FROM::SIsConst() && !TO::SIsConst());
+};
+
+//      Base ->       Derived (OK)
+//const Base -> const Derived (OK)
+//      Base -> const Derived (OK)
+//const Base ->       Derived (Error)
+template<typename FROM, typename TO>
+concept CastableUp = requires()
+{
+   requires
+      IsBaseOf_value_type<FROM, TO>::value
+   && !(FROM::SIsConst() && !TO::SIsConst());
+};
+
+template<typename FROM, typename TO>
+concept Castable = requires()
+{
+   requires
+      (IsBaseOf_value_type<FROM, TO>::value || IsBaseOf_value_type<TO, FROM>::value)
+   && !(FROM::SIsConst() && !TO::SIsConst());
+};
+
+}//namespace Concepts::SharedPtr
 
 template <typename  T,
           bool      _IsWeak>
@@ -19,37 +68,10 @@ public:
     using value_type        = T;
     using const_value_type  = const std::remove_const_t<T>;
 
-    CLASS_TAG(GpSharedPtrBase)
-    CLASS_TAG_DETECTOR(GpSharedPtrBase)
+    TAG_SET(GpSharedPtrBase)
 
     static constexpr bool SIsWeak   (void) noexcept {return _IsWeak;}
     static constexpr bool SIsConst  (void) noexcept {return std::is_const_v<value_type>;}
-
-    template<typename BASE, typename DERIVED>
-    using IsBaseOf = std::is_base_of<typename BASE::value_type, typename DERIVED::value_type>;
-
-    //      Derived ->       Base (OK)
-    //const Derived -> const Base (OK)
-    //      Derived -> const Base (OK)
-    //const Derived ->       Base (Error)
-    template<typename FROM, typename TO>
-    using IsCastableDown = typename std::enable_if<   IsBaseOf<TO, FROM>::value
-                                                   && !(FROM::SIsConst() && !TO::SIsConst())
-                                                  >::type;
-
-    //      Base ->       Derived (OK)
-    //const Base -> const Derived (OK)
-    //      Base -> const Derived (OK)
-    //const Base ->       Derived (Error)
-    template<typename FROM, typename TO>
-    using IsCastableUp  = typename std::enable_if<   IsBaseOf<FROM, TO>::value
-                                                  && !(FROM::SIsConst() && !TO::SIsConst())
-                                                 >::type;
-
-    template<typename FROM, typename TO>
-    using IsCastable    = typename std::enable_if<   (IsBaseOf<FROM, TO>::value || IsBaseOf<TO, FROM>::value)
-                                                  && !(FROM::SIsConst() && !TO::SIsConst())
-                                                 >::type;
 
 public:
     [[nodiscard]] static
@@ -72,7 +94,8 @@ private:
                                     GpSharedPtrBase (GpReferenceCounter* aRefCounter) noexcept;
 
 public:
-    template<typename TSP, typename = IsCastableDown<TSP, this_type>>
+    template<Concepts::SharedPtr::IsSharedPtr TSP>
+    requires Concepts::SharedPtr::CastableDown<TSP, this_type>
                                     GpSharedPtrBase (const TSP& aSharedPtr) noexcept:
     iRefCounter(aSharedPtr._RefCounter())
     {
@@ -92,7 +115,8 @@ public:
     void                            Set             (const this_type& aSharedPtr) noexcept;
     void                            Set             (this_type&& aSharedPtr) noexcept;
 
-    template<typename TSP, typename = IsCastableDown<TSP, this_type>>
+    template<Concepts::SharedPtr::IsSharedPtr TSP>
+    requires Concepts::SharedPtr::CastableDown<TSP, this_type>
     void                            Set             (const TSP& aSharedPtr) noexcept
     {
         if (iRefCounter != aSharedPtr._RefCounter())
@@ -119,7 +143,7 @@ public:
         THROW_COND_GP
         (
             iRefCounter != nullptr,
-            "Shared pointer is empty"_sv
+            u8"Shared pointer is empty"_sv
         );
 
         T* ptr = Pn();
@@ -127,7 +151,7 @@ public:
         THROW_COND_GP
         (
             ptr != nullptr,
-            "Shared pointer value is null"_sv
+            u8"Shared pointer value is null"_sv
         );
 
         return ptr;
@@ -141,6 +165,16 @@ public:
 
     [[nodiscard]] const_value_type* Pn              (void) const noexcept {return const_cast<this_type&>(*this).Pn();}
 
+    [[nodiscard]] value_type*       operator->      (void)
+    {
+        return P();
+    }
+
+    [[nodiscard]] const_value_type* operator->      (void) const
+    {
+        return P();
+    }
+
     //----------------- operators -------------------------
     [[nodiscard]] bool              operator!=      (const this_type& aSharedPtr) const noexcept;
     [[nodiscard]] bool              operator==      (const this_type& aSharedPtr) const noexcept;
@@ -150,7 +184,8 @@ public:
     this_type&                      operator=       (const this_type& aSharedPtr) noexcept;
     this_type&                      operator=       (this_type&& aSharedPtr) noexcept;
 
-    template<typename TSP, typename = IsCastableDown<this_type, TSP>>
+    template<Concepts::SharedPtr::IsSharedPtr TSP>
+    requires Concepts::SharedPtr::CastableDown<this_type, TSP>
     this_type&                      operator=       (const TSP& aSharedPtr) noexcept
     {
         Set(aSharedPtr);
@@ -164,19 +199,22 @@ public:
         return *this;
     }*/
 
-    template<typename TSP, typename = IsCastableDown<this_type, TSP>>
+    template<Concepts::SharedPtr::IsSharedPtr TSP>
+    requires Concepts::SharedPtr::CastableDown<this_type, TSP>
     TSP                             CastDownAs      (void) noexcept
     {
         return TSP::_SConstructFromRefCounter(iRefCounter);
     }
 
-    template<typename TSP, typename = IsCastableUp<this_type, TSP>>
+    template<Concepts::SharedPtr::IsSharedPtr TSP>
+    requires Concepts::SharedPtr::CastableUp<this_type, TSP>
     TSP                             CastUpAs        (void) noexcept
     {
         return TSP::_SConstructFromRefCounter(iRefCounter);
     }
 
-    template<typename TSP, typename = IsCastable<this_type, TSP>>
+    template<Concepts::SharedPtr::IsSharedPtr TSP>
+    requires Concepts::SharedPtr::Castable<this_type, TSP>
     TSP                             CastAs      (void) noexcept
     {
         return TSP::_SConstructFromRefCounter(iRefCounter);
@@ -241,7 +279,10 @@ void    GpSharedPtrBase<T, _IsWeak>::Clear (void) noexcept
 
         if (refCount == 0)
         {
-            MemOps::SDelete(iRefCounter);
+            if constexpr(!_IsWeak)
+            {
+                MemOps::SDelete(iRefCounter);
+            }
         }
 
         iRefCounter = nullptr;

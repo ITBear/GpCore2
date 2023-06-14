@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../GpMacro.hpp"
+#include "../../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_TIMERS)
 
-#include "../../Types/Containers/GpElementsCatalog.hpp"
+#include "../../Types/Containers/GpDictionary.hpp"
 #include "../../Threads/GpThread.hpp"
 #include "GpTimerShotEventFactory.hpp"
 #include "GpTimer.hpp"
@@ -17,7 +17,7 @@ public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpTimersManager)
     CLASS_DD(GpTimersManager)
 
-    using TimersT = GpElementsCatalog<const void*, GpTimer::SP>;
+    using TimersT = GpDictionary<const void*, GpTimer::SP>;
 
 public:
     static void                     SStart              (void);

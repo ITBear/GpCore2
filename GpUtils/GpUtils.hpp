@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GpUtils_global.hpp"
-#include "GpMacro.hpp"
 #include "GpMemOps.hpp"
 #include "Algorithms/GpAlgorithms.hpp"
 #include "DateTime/GpDateTime.hpp"
@@ -16,3 +15,4 @@
 #include "TypeTraits/GpTypeTraits.hpp"
 #include "Files/GpFiles.hpp"
 #include "Encoders/GpEncoders.hpp"
+#include "Lifetime/GpLifetime.hpp"

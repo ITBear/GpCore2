@@ -1,13 +1,18 @@
 #pragma once
 
-#include "../GpTasks_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
+#include <type_traits>
+
+#include "../../GpUtils/Macro/GpMacroWarnings.hpp"
+
 GP_WARNING_PUSH()
 GP_WARNING_DISABLE(shadow)
 
+#include "../../GpUtils/TypeTraits/GpTypeTraitsResultOf.hpp"
 #include <boost/context/fiber.hpp>
 #include <boost/context/stack_context.hpp>
 

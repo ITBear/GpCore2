@@ -2,5 +2,7 @@
 
 #include "GpErrno.hpp"
 #include "GpRAIIonDestruct.hpp"
-#include "GpGlobals.hpp"
 #include "GpCallOnce.hpp"
+#include "GpCallHandler.hpp"
+#include "GpCallHandler2.hpp"
+#include "GpSystemInfo.hpp"

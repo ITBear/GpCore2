@@ -18,7 +18,7 @@ GpReflectModelBuilder&  GpReflectPropBuilder::DoneBuildProps (void)
     THROW_COND_GP
     (
         iModelBuilder != nullptr,
-        "iModelBuilder is null"_sv
+        u8"iModelBuilder is null"_sv
     );
 
     iTotalSize = size_t(iOffset);
@@ -26,79 +26,79 @@ GpReflectModelBuilder&  GpReflectPropBuilder::DoneBuildProps (void)
     return *iModelBuilder;
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::UI8 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::UI8 (std::u8string_view aName)
 {
     return AddProp<u_int_8, GpReflectType::U_INT_8, GpReflectContainerType::NO>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::SI8 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::SI8 (std::u8string_view aName)
 {
     return AddProp<s_int_8, GpReflectType::S_INT_8, GpReflectContainerType::NO>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::UI16 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::UI16 (std::u8string_view aName)
 {
     return AddProp<u_int_16, GpReflectType::U_INT_16, GpReflectContainerType::NO>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::SI16 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::SI16 (std::u8string_view aName)
 {
     return AddProp<s_int_16, GpReflectType::S_INT_16, GpReflectContainerType::NO>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::UI32 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::UI32 (std::u8string_view aName)
 {
     return AddProp<u_int_32, GpReflectType::U_INT_32, GpReflectContainerType::NO>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::SI32 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::SI32 (std::u8string_view aName)
 {
     return AddProp<s_int_32, GpReflectType::S_INT_32, GpReflectContainerType::NO>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::UI64 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::UI64 (std::u8string_view aName)
 {
     return AddProp<u_int_64, GpReflectType::U_INT_64, GpReflectContainerType::NO>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::SI64 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::SI64 (std::u8string_view aName)
 {
     return AddProp<s_int_64, GpReflectType::S_INT_64, GpReflectContainerType::NO>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Double (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Double (std::u8string_view aName)
 {
     return AddProp<double, GpReflectType::DOUBLE, GpReflectContainerType::NO>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Float (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Float (std::u8string_view aName)
 {
     return AddProp<float, GpReflectType::FLOAT, GpReflectContainerType::NO>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Bool (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Bool (std::u8string_view aName)
 {
     return AddProp<bool, GpReflectType::BOOLEAN, GpReflectContainerType::NO>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Uuid (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Uuid (std::u8string_view aName)
 {
     return AddProp<GpUUID, GpReflectType::UUID, GpReflectContainerType::NO>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::String (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::String (std::u8string_view aName)
 {
-    return AddProp<std::string, GpReflectType::STRING, GpReflectContainerType::NO>(aName);
+    return AddProp<std::u8string, GpReflectType::STRING, GpReflectContainerType::NO>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Blob (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Blob (std::u8string_view aName)
 {
     return AddProp<GpBytesArray, GpReflectType::BLOB, GpReflectContainerType::NO>(aName);
 }
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Object
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     const GpReflectModel&   aModel
 )
 {
@@ -107,86 +107,86 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Object
 
 GpReflectPropBuilder&   GpReflectPropBuilder::ObjectSP
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     const GpReflectModel&   aModel
 )
 {
     return AddProp<GpReflectObject::SP, GpReflectType::OBJECT_SP, GpReflectContainerType::NO>(aName, aModel);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Vec_UI8 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Vec_UI8 (std::u8string_view aName)
 {
     return AddProp<u_int_8, GpReflectType::U_INT_8, GpReflectContainerType::VECTOR>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Vec_SI8 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Vec_SI8 (std::u8string_view aName)
 {
     return AddProp<s_int_8, GpReflectType::S_INT_8, GpReflectContainerType::VECTOR>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Vec_UI16 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Vec_UI16 (std::u8string_view aName)
 {
     return AddProp<u_int_16, GpReflectType::U_INT_16, GpReflectContainerType::VECTOR>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Vec_SI16 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Vec_SI16 (std::u8string_view aName)
 {
     return AddProp<s_int_16, GpReflectType::S_INT_16, GpReflectContainerType::VECTOR>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Vec_UI32 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Vec_UI32 (std::u8string_view aName)
 {
     return AddProp<u_int_32, GpReflectType::U_INT_32, GpReflectContainerType::VECTOR>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Vec_SI32 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Vec_SI32 (std::u8string_view aName)
 {
     return AddProp<s_int_32, GpReflectType::S_INT_32, GpReflectContainerType::VECTOR>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Vec_UI64 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Vec_UI64 (std::u8string_view aName)
 {
     return AddProp<u_int_64, GpReflectType::U_INT_64, GpReflectContainerType::VECTOR>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Vec_SI64 (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Vec_SI64 (std::u8string_view aName)
 {
     return AddProp<s_int_64, GpReflectType::S_INT_64, GpReflectContainerType::VECTOR>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Vec_Double (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Vec_Double (std::u8string_view aName)
 {
     return AddProp<double, GpReflectType::DOUBLE, GpReflectContainerType::VECTOR>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Vec_Float (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Vec_Float (std::u8string_view aName)
 {
     return AddProp<float, GpReflectType::FLOAT, GpReflectContainerType::VECTOR>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Vec_Bool (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Vec_Bool (std::u8string_view aName)
 {
     return AddProp<bool, GpReflectType::BOOLEAN, GpReflectContainerType::VECTOR>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Vec_Uuid (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Vec_Uuid (std::u8string_view aName)
 {
     return AddProp<GpUUID, GpReflectType::UUID, GpReflectContainerType::VECTOR>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Vec_String (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Vec_String (std::u8string_view aName)
 {
-    return AddProp<std::string, GpReflectType::STRING, GpReflectContainerType::VECTOR>(aName);
+    return AddProp<std::u8string, GpReflectType::STRING, GpReflectContainerType::VECTOR>(aName);
 }
 
-GpReflectPropBuilder&   GpReflectPropBuilder::Vec_Blob (std::string_view aName)
+GpReflectPropBuilder&   GpReflectPropBuilder::Vec_Blob (std::u8string_view aName)
 {
     return AddProp<GpBytesArray, GpReflectType::BLOB, GpReflectContainerType::VECTOR>(aName);
 }
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Vec_ObjectSP
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     const GpReflectModel&   aModel
 )
 {
@@ -195,7 +195,7 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Vec_ObjectSP
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_UI8
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType
 )
 {
@@ -204,7 +204,7 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Map_UI8
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_SI8
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType
 )
 {
@@ -213,7 +213,7 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Map_SI8
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_UI16
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType
 )
 {
@@ -222,7 +222,7 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Map_UI16
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_SI16
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType
 )
 {
@@ -231,7 +231,7 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Map_SI16
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_UI32
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType
 )
 {
@@ -240,7 +240,7 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Map_UI32
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_SI32
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType
 )
 {
@@ -249,7 +249,7 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Map_SI32
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_UI64
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType
 )
 {
@@ -258,7 +258,7 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Map_UI64
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_SI64
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType
 )
 {
@@ -267,7 +267,7 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Map_SI64
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_Double
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType
 )
 {
@@ -276,7 +276,7 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Map_Double
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_Float
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType
 )
 {
@@ -285,7 +285,7 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Map_Float
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_Bool
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType
 )
 {
@@ -294,7 +294,7 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Map_Bool
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_Uuid
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType
 )
 {
@@ -303,16 +303,16 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Map_Uuid
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_String
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType
 )
 {
-    return AddPropMap<std::string, GpReflectType::STRING>(aName, aKeyType, GpUUID::CE_Zero());
+    return AddPropMap<std::u8string, GpReflectType::STRING>(aName, aKeyType, GpUUID::CE_Zero());
 }
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_Blob
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType
 )
 {
@@ -321,7 +321,7 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Map_Blob
 
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_ObjectSP
 (
-    std::string_view        aName,
+    std::u8string_view      aName,
     GpReflectType::EnumT    aKeyType,
     const GpReflectModel&   aModel
 )
@@ -332,14 +332,14 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Map_ObjectSP
 void    GpReflectPropBuilder::Check (void) const
 {
     //Check if all property names are unique
-    std::set<std::string_view> names;
+    std::set<std::u8string_view> names;
 
     for (const GpReflectProp& prop: iProps)
     {
         THROW_COND_GP
         (
             names.emplace(prop.Name()).second == true,
-            [&](){return "Property name '"_sv + prop.Name() + "' is not unique"_sv;}
+            [&](){return u8"Property name '"_sv + prop.Name() + u8"' is not unique"_sv;}
         );
     }
 }
@@ -359,7 +359,7 @@ ptrdiff_t   GpReflectPropBuilder::SCalcOffset
 
     std::align(aAlign, aSize, ptr, space);
 
-    return std::numeric_limits<size_t>::max() - space;
+    return ptrdiff_t(std::numeric_limits<size_t>::max() - space);
 }
 
 }//namespace GPlatform

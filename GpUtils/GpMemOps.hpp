@@ -1,15 +1,31 @@
 #pragma once
 
-#include "GpMacro.hpp"
+#include "../Config/GpConfig.hpp"
 
-#if defined(GP_USE_MEMORY_MNG)
+#if defined(GP_USE_MEMORY_OPS)
 
+#include "Macro/GpMacroClass.hpp"
 #include "Types/Numerics/GpNumericOps.hpp"
 #include <cstring>
 #include <utility>
 #include <sys/types.h>
 
 namespace GPlatform {
+
+namespace MemOpsConcepts {
+
+template <typename T>
+concept IsOneBytePtr = requires()
+{
+    requires
+       std::is_same_v<T, char>
+    || std::is_same_v<T, unsigned char>
+    || std::is_same_v<T, std::byte>
+    || std::is_same_v<T, u_int_8>
+    || std::is_same_v<T, char8_t>;
+};
+
+}//namespace GpMemOpsConcepts
 
 class GpMemOps
 {
@@ -175,7 +191,8 @@ public:
         SCopy(aElementsDst, aElementsSrc, 1);
     }
 
-    template<typename T1, typename T2>
+    template<MemOpsConcepts::IsOneBytePtr T1,
+             MemOpsConcepts::IsOneBytePtr T2>
     static constexpr void   SCopy
     (
         T1*             aElementsDst,
@@ -183,9 +200,6 @@ public:
         const size_t    aSize
     )
     {
-        static_assert(   (std::is_same_v<T1, std::byte> || std::is_same_v<T1, char> || std::is_same_v<T1, u_int_8>)
-                      && (std::is_same_v<T2, std::byte> || std::is_same_v<T2, char> || std::is_same_v<T2, u_int_8>));
-
         SCopy
         (
             reinterpret_cast<std::byte*>(aElementsDst),
@@ -481,4 +495,4 @@ using MemOps = GpMemOps;
 
 }//GPlatform
 
-#endif//#if defined(GP_USE_MEMORY_MNG)
+#endif//#if defined(GP_USE_MEMORY_OPS)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../GpMacro.hpp"
+#include "../../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_CONTAINERS)
 
@@ -21,7 +21,7 @@ public:
     using value_type    = T;
     using QueueT        = std::queue<value_type>;
 
-    CLASS_TAG(THREAD_SAFE)
+    TAG_SET(THREAD_SAFE)
 
     enum class ReleaseAct
     {
@@ -92,7 +92,7 @@ void    GpElementsPool<T>::Init
     THROW_COND_GP
     (
         aMaxCount >= aInitCount,
-        "aMaxCount >= aInitCount"_sv
+        u8"aMaxCount >= aInitCount"_sv
     );
 
     Clear();
@@ -102,7 +102,7 @@ void    GpElementsPool<T>::Init
     THROW_COND_GP
     (
         iIsInit == false,
-        "Already initialized"_sv
+        u8"Already initialized"_sv
     );
 
     PreInit(aInitCount);
@@ -168,7 +168,7 @@ void    GpElementsPool<T>::Release (value_type aElement)
     THROW_COND_GP
     (
         iAcquiredCount > 0,
-        "Release without acquire"_sv
+        u8"Release without acquire"_sv
     );
 
     iAcquiredCount--;

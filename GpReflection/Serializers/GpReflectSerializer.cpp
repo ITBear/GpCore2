@@ -2,6 +2,9 @@
 
 #if defined(GP_USE_REFLECTION)
 
+#include "../../GpUtils/Streams/GpByteWriter.hpp"
+#include "../../GpUtils/Streams/GpByteWriterStorageByteArray.hpp"
+
 namespace GPlatform {
 
 GpBytesArray    GpReflectSerializer::FromObject (const GpReflectObject& aObject) const

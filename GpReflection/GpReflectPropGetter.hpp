@@ -1,8 +1,10 @@
 #pragma once
 
-#include "GpReflectProp.hpp"
+#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_REFLECTION)
+
+#include "GpReflectProp.hpp"
 
 namespace GPlatform {
 

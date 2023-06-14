@@ -1,8 +1,11 @@
 #pragma once
 
-#include "GpReflection_global.hpp"
+#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_REFLECTION)
+
+#include "../GpUtils/Macro/GpMacroClass.hpp"
+#include "../GpUtils/Types/Containers/GpContainersT.hpp"
 
 namespace GPlatform {
 

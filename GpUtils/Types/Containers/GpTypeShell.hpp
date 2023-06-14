@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../GpUtils_global.hpp"
 #include <utility>
 
 namespace GPlatform {

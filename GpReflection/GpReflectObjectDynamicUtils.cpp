@@ -6,6 +6,7 @@
 #include <cstddef>
 #include "GpReflectManager.hpp"
 #include "GpReflectVisitor.hpp"
+#include "../GpUtils/Other/GpRAIIonDestruct.hpp"
 
 namespace GPlatform {
 
@@ -250,7 +251,7 @@ void    Visitor_VisitValueCtx::Value_String
     Visitor_VisitCtx&       /*aCtx*/
 )
 {
-    MemOps::SConstruct<std::string>
+    MemOps::SConstruct<std::u8string>
     (
         &(aProp.Value_String(aDataPtr)),
         1
@@ -687,7 +688,7 @@ void    Visitor_VisitContainerCtx::Value_Object
     Visitor_VisitCtx&       /*aCtx*/
 )
 {
-    THROW_GP("Object arrays are not supported; use Object::SP instead."_sv);
+    THROW_GP(u8"Object arrays are not supported; use Object::SP instead."_sv);
 }
 
 template<typename ValGetterT>
@@ -715,7 +716,7 @@ void    Visitor_VisitContainerCtx::Value_Enum
     Visitor_VisitCtx&       /*aCtx*/
 )
 {
-    THROW_GP("Enum arrays are not supported."_sv);
+    THROW_GP(u8"Enum arrays are not supported."_sv);
 }
 
 template<typename ValGetterT>
@@ -726,7 +727,7 @@ void    Visitor_VisitContainerCtx::Value_EnumFlags
     Visitor_VisitCtx&       /*aCtx*/
 )
 {
-    THROW_GP("Enum flag arrays are not supported."_sv);
+    THROW_GP(u8"Enum flag arrays are not supported."_sv);
 }
 
 //------------------------------------- Visitor_VisitMapCtx ------------------------------------------
@@ -1401,7 +1402,7 @@ void    Visitor_VisitValueCtx::Value_String
     Visitor_VisitCtx&       /*aCtx*/
 )
 {
-    MemOps::SDestruct<std::string>
+    MemOps::SDestruct<std::u8string>
     (
         &(aProp.Value_String(aDataPtr)),
         1
@@ -1839,7 +1840,7 @@ void    Visitor_VisitContainerCtx::Value_Object
     Visitor_VisitCtx&       /*aCtx*/
 )
 {
-    THROW_GP("Object arrays are not supported; use Object::SP instead."_sv);
+    THROW_GP(u8"Object arrays are not supported; use Object::SP instead."_sv);
 }
 
 template<typename ValGetterT>
@@ -1867,7 +1868,7 @@ void    Visitor_VisitContainerCtx::Value_Enum
     Visitor_VisitCtx&       /*aCtx*/
 )
 {
-    THROW_GP("Enum arrays are not supported."_sv);
+    THROW_GP(u8"Enum arrays are not supported."_sv);
 }
 
 template<typename ValGetterT>
@@ -1878,7 +1879,7 @@ void    Visitor_VisitContainerCtx::Value_EnumFlags
     Visitor_VisitCtx&       /*aCtx*/
 )
 {
-    THROW_GP("Enum flag arrays are not supported."_sv);
+    THROW_GP(u8"Enum flag arrays are not supported."_sv);
 }
 
 //------------------------------------- Visitor_VisitMapCtx ------------------------------------------

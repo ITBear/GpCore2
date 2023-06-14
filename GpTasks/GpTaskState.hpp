@@ -1,8 +1,12 @@
 #pragma once
 
-#include "GpTasks_global.hpp"
+#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
+
+#include "GpTasks_global.hpp"
+#include "../GpUtils/Types/Enums/GpEnum.hpp"
+#include "../GpUtils/Types/Strings/GpStringOps.hpp"
 
 namespace GPlatform {
 

@@ -1,11 +1,16 @@
 #pragma once
 
-#include "../GpTasks_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 
-#include <mutex>
-#include <shared_mutex>
+#include "../../GpUtils/Macro/GpMacroClass.hpp"
+#include "../../GpUtils/Types/Containers/GpContainersT.hpp"
+#include "../../GpUtils/Types/Pointers/GpSharedPtr.hpp"
+#include "../../GpUtils/Types/UIDs/GpUUID.hpp"
+#include "../../GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp"
+#include "../../GpUtils/SyncPrimitives/GpConditionVar.hpp"
+#include "../GpTasks_global.hpp"
 
 namespace GPlatform {
 

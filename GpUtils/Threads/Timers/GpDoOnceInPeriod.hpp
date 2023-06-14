@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../GpUtils_global.hpp"
+#include "../../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_TIMERS)
 

@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include "GpBitWriterStorage.hpp"
 
 namespace GPlatform {
@@ -60,3 +61,4 @@ private:
 };
 
 }//GPlatform
+*/

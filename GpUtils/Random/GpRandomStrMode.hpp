@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../GpUtils_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_RANDOM_GENERATORS)
 
 #include "../Types/Strings/GpStringOps.hpp"
+#include "../Types/Strings/GpUTF.hpp"
 #include "../Types/Enums/GpEnum.hpp"
 
 namespace GPlatform {

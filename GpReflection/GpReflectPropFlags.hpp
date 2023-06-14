@@ -1,8 +1,12 @@
 #pragma once
 
-#include "GpReflection_global.hpp"
+#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_REFLECTION)
+
+#include "GpReflection_global.hpp"
+#include "../GpUtils/Types/Enums/GpEnum.hpp"
+#include "../GpUtils/Types/Strings/GpStringOps.hpp"
 
 namespace GPlatform {
 
@@ -14,7 +18,8 @@ GP_ENUM(GP_REFLECTION_API, GpReflectPropFlag,
     NAME_OVERRIDE,
     GENERATED_ONCE,
     GENERATED_OUTSIDE,
-    PRIMARY_KEY
+    PRIMARY_KEY,
+    MULTILANGUAGE_STRING
 );
 
 using GpReflectPropFlags = GpEnumFlagsST<GpReflectPropFlag>;

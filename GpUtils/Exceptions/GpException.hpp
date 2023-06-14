@@ -1,19 +1,21 @@
 #pragma once
 
-#include "../GpUtils_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_EXCEPTIONS)
 
+#include "../GpUtils_global.hpp"
 #include "../Types/Strings/GpStringLiterals.hpp"
+#include "../Types/Strings/GpUTF.hpp"
 #include <exception>
 #include <functional>
 
-#if  (__cplusplus >= 202002L) && __has_include(<source_location>) && __has_builtin(__builtin_source_location)
+#if  (__cplusplus >= CPP_VERSION_20) && __has_include(<source_location>) && __has_builtin(__builtin_source_location)
 #   include <source_location>
     namespace GPlatform{
         using SourceLocationT = std::source_location;
     }
-#elif  (__cplusplus >= 202002L) && __has_include(<experimental/source_location>)
+#elif  (__cplusplus >= CPP_VERSION_20) && __has_include(<experimental/source_location>)
 #   include <experimental/source_location>
     namespace GPlatform{
         using SourceLocationT = std::experimental::source_location;
@@ -65,20 +67,23 @@ namespace GPlatform{
 class GP_UTILS_API GpException: public std::exception
 {
 public:
-                            GpException     (void) noexcept = delete;
+                            GpException     (void) noexcept = default;
     inline explicit         GpException     (const GpException& aException);
     inline explicit         GpException     (GpException&& aException);
-                            GpException     (std::string_view       aMsg,
+                            GpException     (std::u8string_view     aMsg,
                                              const SourceLocationT& aSourceLocation = SourceLocationT::current()) noexcept;
     virtual                 ~GpException    (void) noexcept override;
 
-    virtual const char*     what            (void) const noexcept override {return iWhat.data();}
-    std::string_view        Message         (void) const noexcept {return iMsg;}
+    virtual const char*     what            (void) const noexcept override {return reinterpret_cast<const char*>(iWhat.data());}
+    std::u8string_view      Message         (void) const noexcept {return iMsg;}
     const SourceLocationT&  SourceLocation  (void) const noexcept {return iSourceLocation;}
 
+    inline GpException&     operator=       (const GpException& aException);
+    inline GpException&     operator=       (GpException&&  aException);
+
 private:
-    std::string             iWhat;
-    std::string_view        iMsg;
+    std::u8string           iWhat;
+    std::u8string_view      iMsg;
     SourceLocationT         iSourceLocation;
 };
 
@@ -96,7 +101,32 @@ iSourceLocation(aException.iSourceLocation)//do not std::move
 {
 }
 
-using ThrowMsgGenT = std::function<std::string()>;
+GpException&    GpException::operator= (const GpException&  aException)
+{
+    iWhat           = aException.iWhat;
+    iMsg            = iWhat.data() + (aException.iMsg.data() - aException.iWhat.data()), aException.iMsg.length();
+    iSourceLocation = aException.iSourceLocation;
+
+    return *this;
+}
+
+GpException&    GpException::operator= (GpException&& aException)
+{
+    iWhat           = aException.iWhat;
+    iMsg            = iWhat.data() + (aException.iMsg.data() - aException.iWhat.data()), aException.iMsg.length();
+    iSourceLocation = aException.iSourceLocation;
+
+    return *this;
+}
+
+[[noreturn]] inline void    THROW_GP
+(
+    std::u8string_view      aMsg,
+    const SourceLocationT&  aSourceLocation = SourceLocationT::current()
+)
+{
+    throw GpException(aMsg, aSourceLocation);
+}
 
 [[noreturn]] inline void    THROW_GP
 (
@@ -104,7 +134,7 @@ using ThrowMsgGenT = std::function<std::string()>;
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
 )
 {
-    throw GpException(aMsg, aSourceLocation);
+    throw GpException(GpUTF::S_STR_To_UTF8(aMsg), aSourceLocation);
 }
 
 [[noreturn]] inline void    THROW_GP_NOT_IMPLEMENTED
@@ -112,13 +142,13 @@ using ThrowMsgGenT = std::function<std::string()>;
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
 )
 {
-    throw GpException("Not implemented yet..."_sv, aSourceLocation);
+    throw GpException(u8"Not implemented yet..."_sv, aSourceLocation);
 }
 
 inline void THROW_COND_GP
 (
     const bool              aCondition,
-    std::string_view        aMsg,
+    std::u8string_view      aMsg,
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
 )
 {
@@ -131,13 +161,40 @@ inline void THROW_COND_GP
 inline void THROW_COND_GP
 (
     const bool              aCondition,
-    ThrowMsgGenT            aMsgGenFn,
+    std::string_view        aMsg,
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
 )
 {
     if (!aCondition)
     {
+        throw GpException(GpUTF::S_STR_To_UTF8(aMsg), aSourceLocation);
+    }
+}
+
+inline void THROW_COND_GP
+(
+    const bool                      aCondition,
+    std::function<std::u8string()>  aMsgGenFn,
+    const SourceLocationT&          aSourceLocation = SourceLocationT::current()
+)
+{
+    if (!aCondition)
+    {
         throw GpException(aMsgGenFn(), aSourceLocation);
+    }
+}
+
+inline void THROW_COND_GP
+(
+    const bool                      aCondition,
+    std::function<std::string()>    aMsgGenFn,
+    const SourceLocationT&          aSourceLocation = SourceLocationT::current()
+)
+{
+    if (!aCondition)
+    {
+        const auto msg = aMsgGenFn();
+        throw GpException(GpUTF::S_STR_To_UTF8(msg), aSourceLocation);
     }
 }
 

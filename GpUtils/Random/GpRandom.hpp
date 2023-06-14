@@ -1,16 +1,15 @@
 #pragma once
 
-#include "../GpUtils_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_RANDOM_GENERATORS)
 
-#include "../SyncPrimitives/GpSyncPrimitives.hpp"
-#include "../Types/Numerics/GpNumericOps.hpp"
-#include "../Types/Units/Numerics/GpUnitsNumerics.hpp"
-#include "GpRandomStrMode.hpp"
 #include <random>
-#include <array>
-#include <type_traits>
+
+#include "../GpUtils_global.hpp"
+#include "../Macro/GpMacroClass.hpp"
+#include "../Types/Numerics/GpNumericOps.hpp"
+#include "GpRandomStrMode.hpp"
 
 namespace GPlatform {
 
@@ -50,11 +49,15 @@ public:
     [[nodiscard]] u_int_64      UI64            (const u_int_64 aMin = NumOps::SMin<u_int_64>(),
                                                  const u_int_64 aMax = NumOps::SMax<u_int_64>()) noexcept;
     [[nodiscard]] bool          Bool            (void) noexcept;
+    [[nodiscard]] double        Double          (const double   aMin,
+                                                 const double   aMax) noexcept;
+    [[nodiscard]] float         Float           (const float    aMin,
+                                                 const float    aMax) noexcept;
 
-    [[nodiscard]] std::string   String          (const GpRandomStrMode::EnumT   aMode,
+    [[nodiscard]] std::u8string String          (const GpRandomStrMode::EnumT   aMode,
                                                  const size_t                   aSize);
 
-    template<typename T>
+    template<EnumConcepts::IsEnum T>
     typename T::EnumT           Enum            (void) noexcept;
 
     template<typename T>
@@ -69,13 +72,19 @@ private:
 
 private:
     random_mt19937                          iEngine;
-    static std::array<const std::string, 2> sStrs;
+    static std::array<const std::u8string, 2>   sStrs;
 };
 
-template<typename T>
+template<EnumConcepts::IsEnum T>
 typename T::EnumT   GpRandom::Enum (void) noexcept
 {
-    return typename T::EnumT(UI64(0_u_int_64, T::SCount().template As<UInt64>() - 1_u_int_64).Value());
+    const u_int_64 pos = UI64
+    (
+        u_int_64(0),
+        NumOps::SSub<u_int_64>(u_int_64(T::SCount()), 1)
+    );
+
+    return T().FromNumPos(NumOps::SConvert<size_t>(pos));
 }
 
 template<typename T>

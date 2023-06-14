@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpTasks_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
@@ -9,7 +9,7 @@
 
 namespace GPlatform {
 
-class GP_TASKS_API GpTaskFiberLambda final: public GpTaskFiberBase
+/*class GP_TASKS_API GpTaskFiberLambda final: public GpTaskFiberBase
 {
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskFiberLambda)
@@ -19,7 +19,7 @@ public:
     using OnStepFnT = std::function<GpTaskDoRes(EventOptRefT aEvent)>;
 
 public:
-                                GpTaskFiberLambda       (std::string                aName,
+                                GpTaskFiberLambda       (std::u8string              aName,
                                                          std::optional<FnT>         aBeforeStartFn,
                                                          std::optional<OnStepFnT>   aOnStepFn,
                                                          std::optional<FnT>         aAfterStopFn) noexcept;
@@ -34,7 +34,7 @@ private:
     std::optional<FnT>          iBeforeStartFn;
     std::optional<OnStepFnT>    iOnStepFn;
     std::optional<FnT>          iAfterStopFn;
-};
+};*/
 
 }//namespace GPlatform
 

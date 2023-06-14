@@ -35,7 +35,7 @@ GpReflectModelDesc::GpReflectModelDesc
     const GpUUID&                           aUid,
     const GpUUID&                           aBaseUid,
     const GpUUID&                           aGroupId,
-    std::string                             aName,
+    std::u8string                           aName,
     const GpReflectPropDesc::C::Vec::SP&    aProps
 ):
 uid     (aUid),
@@ -51,7 +51,7 @@ GpReflectModelDesc::GpReflectModelDesc
     const GpUUID&                   aUid,
     const GpUUID&                   aBaseUid,
     const GpUUID&                   aGroupId,
-    std::string                     aName,
+    std::u8string                   aName,
     GpReflectPropDesc::C::Vec::SP&& aProps
 ) noexcept:
 uid     (aUid),

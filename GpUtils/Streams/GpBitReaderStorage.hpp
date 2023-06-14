@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include "../Types/Containers/GpBytesArray.hpp"
 
 namespace GPlatform {
@@ -45,3 +46,4 @@ iLeft(iSize - aOffset)
 }
 
 }//GPlatform
+*/

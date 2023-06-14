@@ -24,10 +24,14 @@ void    GpReflectUtils::SGenerateOnce
 
 void    GpReflectUtils::SGenerateOnce (GpReflectObject& aItem)
 {
-    const GpReflectModel& model = aItem.ReflectModel();
+    const GpReflectModel&               model           = aItem.ReflectModel();
+    const GpReflectProp::C::Vec::CRef   genOnceProps    = GpReflectUtils::SPropsFlagFilter
+    (
+        model.Props(),
+        GpReflectPropFlag::GENERATED_ONCE
+    );
 
-    const GpReflectProp::C::Vec::CRef   genOnceProps    = GpReflectUtils::SPropsFlagFilter(model.Props(), GpReflectPropFlag::GENERATED_ONCE);
-    void*                               itemDataPtr     = aItem.ReflectDataPtr();
+    void* itemDataPtr = aItem.ReflectDataPtr();
 
     for (const GpReflectProp& prop: genOnceProps)
     {

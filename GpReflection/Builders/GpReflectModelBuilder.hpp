@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpReflection_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_REFLECTION)
 
@@ -10,26 +10,23 @@ namespace GPlatform {
 
 class GP_REFLECTION_API GpReflectModelBuilder
 {
-private:
-                                        GpReflectModelBuilder   (void) noexcept;
-
 public:
+                                        GpReflectModelBuilder   (void) noexcept;
                                         ~GpReflectModelBuilder  (void) noexcept;
-
-    static GpReflectModelBuilder        SNew                    (void) noexcept {return GpReflectModelBuilder();}
 
     GpReflectModel                      Build                   (void);
 
     inline GpReflectModelBuilder&       UID                     (const GpUUID&  aUid);
     inline GpReflectModelBuilder&       BaseUID                 (const GpUUID&  aBaseUid);
-    inline GpReflectModelBuilder&       Name                    (std::string_view aName);
+    inline GpReflectModelBuilder&       Name                    (std::u8string_view aName);
     inline GpReflectPropBuilder&        Props                   (void);
+    inline GpReflectModelBuilder&       SetPropBuilder          (GpReflectPropBuilder&& aPropBuilder);
     inline GpReflectModelBuilder&       GroupID                 (const GpUUID&  aGroupId);
 
 private:
     GpUUID                              iUID;
     GpUUID                              iBaseUID;
-    std::string                         iName;
+    std::u8string                       iName;
     GpUUID                              iGroupID;
     std::optional<GpReflectPropBuilder> iPropBuilder;
 };
@@ -46,7 +43,7 @@ GpReflectModelBuilder&  GpReflectModelBuilder::BaseUID (const GpUUID& aBaseUid)
     return *this;
 }
 
-GpReflectModelBuilder&  GpReflectModelBuilder::Name (std::string_view aName)
+GpReflectModelBuilder&  GpReflectModelBuilder::Name (std::u8string_view aName)
 {
     iName = aName;
     return *this;
@@ -56,10 +53,19 @@ GpReflectPropBuilder&   GpReflectModelBuilder::Props (void)
 {
     if (iPropBuilder.has_value() == false)
     {
-        iPropBuilder = GpReflectPropBuilder::SNew(*this);
+        iPropBuilder = GpReflectPropBuilder(*this);
     }
 
     return iPropBuilder.value();
+}
+
+GpReflectModelBuilder&  GpReflectModelBuilder::SetPropBuilder (GpReflectPropBuilder&& aPropBuilder)
+{
+    iPropBuilder = std::move(aPropBuilder);
+    iPropBuilder->SetModelBuilder(this);
+    iPropBuilder->DoneBuildProps();
+
+    return *this;
 }
 
 GpReflectModelBuilder&  GpReflectModelBuilder::GroupID (const GpUUID& aGroupId)

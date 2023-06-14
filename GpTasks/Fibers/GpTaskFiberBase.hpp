@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpTasks_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
@@ -18,7 +18,7 @@ public:
     using EventOptRefT  = std::optional<std::reference_wrapper<GpEvent>>;
 
 protected:
-    inline              GpTaskFiberBase     (std::string aName) noexcept;
+    inline              GpTaskFiberBase     (std::u8string aName) noexcept;
     virtual             ~GpTaskFiberBase    (void) noexcept override;
 
 protected:
@@ -29,7 +29,7 @@ protected:
     virtual void        OnStop              (void) noexcept = 0;
 };
 
-GpTaskFiberBase::GpTaskFiberBase (std::string aName) noexcept:
+GpTaskFiberBase::GpTaskFiberBase (std::u8string aName) noexcept:
 GpTaskFiber(std::move(aName))
 {
 }

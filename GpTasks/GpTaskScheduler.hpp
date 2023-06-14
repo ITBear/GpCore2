@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpTasks_global.hpp"
+#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 
@@ -21,54 +21,57 @@ public:
 
     using ExecutorT             = GpTaskExecutor;
     using TaskSchedulerOptRefT  = std::optional<GpTaskScheduler::WP>;
+    using CompleteItcPromiseT   = typename GpTask::CompleteItcPromiseT;
+    using CompleteItcFutureT    = typename GpTask::CompleteItcFutureT;
+    using CompleteItcResultT    = typename GpTask::CompleteItcResultT;
 
 public:
-                                    GpTaskScheduler         (void) noexcept;
-                                    ~GpTaskScheduler        (void) noexcept;
+                                            GpTaskScheduler         (void) noexcept;
+                                            ~GpTaskScheduler        (void) noexcept;
 
-    static GpTaskScheduler&         S                       (void) noexcept {return sTaskScheduler;}
+    static GpTaskScheduler&                 S                       (void) noexcept {return sInstance;}
 
-    size_t                          ExecutorsCount          (void) const noexcept {return iExecutorsCount;}
+    size_t                                  ExecutorsCount          (void) const noexcept {return iExecutorsCount;}
 
-    void                            Start                   (const size_t aExecutorsCount);
-    void                            RequestStop             (void) noexcept;
-    void                            Join                    (void) noexcept;
+    void                                    Start                   (const size_t aExecutorsCount);
+    void                                    RequestStop             (void) noexcept;
+    void                                    Join                    (void) noexcept;
 
-    void                            NewToReady              (GpTask::SP aTask);
-    [[nodiscard]] GpItcFuture::SP   NewToReadyDepend        (GpTask::SP aTask);
-    void                            NewToWaiting            (GpTask::SP aTask);
-    [[nodiscard]] GpItcFuture::SP   NewToWaitingDepend      (GpTask::SP aTask);
-    void                            MakeTaskReady           (const GpUUID& aTaskGuid);
-
-private:
-    GpTask::SP                      _Reshedule              (GpTask::SP         aLastTaskSP,
-                                                             const GpTaskDoRes  aLastTaskExecRes) noexcept;
-    void                            _DestroyTaskSP          (GpTask::SP&& aTask);
-    void                            _DestroyTaskRef         (GpTask::SP&& aTask);
-    GpItcFuture::SP                 _NewToReady             (GpTask::SP aTask,
-                                                             const bool aIsDependent);
-    GpItcFuture::SP                 _NewToWaiting           (GpTask::SP aTask,
-                                                             const bool aIsDependent);
-    inline void                     _AddToRuningTasks       (GpTask::SP aTask);
-    inline void                     _RemoveFromRuningTasks  (const GpUUID& aTaskGuid);
-    inline std::optional<GpTask*>   _FindInRunningTasks     (const GpUUID& aTaskGuid);
-
-    void                            Clear                   (void) noexcept;
+    void                                    NewToReady              (GpTask::SP aTask);
+    [[nodiscard]] CompleteItcFutureT::SP    NewToReadyDepend        (GpTask::SP aTask);
+    void                                    NewToWaiting            (GpTask::SP aTask);
+    [[nodiscard]] CompleteItcFutureT::SP    NewToWaitingDepend      (GpTask::SP aTask);
+    void                                    MakeTaskReady           (const GpUUID& aTaskGuid);
 
 private:
-    mutable GpSpinlock              iLock;
-    size_t                          iExecutorsCount     = 0;
-    GpTask::C::Deque::SP            iReadyTasks;
-    GpTask::C::UMapUuid::SP         iWaitingTasks;
-    std::vector<GpTask::SP>         iRunningTasks;
-    GpTaskExecutorsPool             iExecutorsPool;
-    bool                            iIsStarted          = false;
-    bool                            iIsStopRequested    = false;
+    GpTask::SP                              _Reshedule              (GpTask::SP         aLastTaskSP,
+                                                                     const GpTaskDoRes  aLastTaskExecRes) noexcept;
+    void                                    _DestroyTaskSP          (GpTask::SP&& aTask);
+    void                                    _DestroyTaskRef         (GpTask::SP&& aTask);
+    CompleteItcFutureT::SP                  _NewToReady             (GpTask::SP aTask,
+                                                                     const bool aIsDependent);
+    CompleteItcFutureT::SP                  _NewToWaiting           (GpTask::SP aTask,
+                                                                     const bool aIsDependent);
+    inline void                             _AddToRuningTasks       (GpTask::SP aTask);
+    inline void                             _RemoveFromRuningTasks  (const GpUUID& aTaskGuid);
+    inline std::optional<GpTask*>           _FindInRunningTasks     (const GpUUID& aTaskGuid);
 
-    GpSpinlock                      iReadyToDestroyLock;
-    GpTask::C::UMapUuid::SP         iReadyToDestroyTasks;
+    void                                    Clear                   (void) noexcept;
 
-    static GpTaskScheduler          sTaskScheduler;
+private:
+    mutable GpSpinlock                      iLock;
+    size_t                                  iExecutorsCount     = 0;
+    GpTask::C::Deque::SP                    iReadyTasks;
+    GpTask::C::UMapUuid::SP                 iWaitingTasks;
+    std::vector<GpTask::SP>                 iRunningTasks;
+    GpTaskExecutorsPool                     iExecutorsPool;
+    bool                                    iIsStarted          = false;
+    bool                                    iIsStopRequested    = false;
+
+    GpSpinlock                              iReadyToDestroyLock;
+    GpTask::C::UMapUuid::SP                 iReadyToDestroyTasks;
+
+    static GpTaskScheduler                  sInstance;
 };
 
 void    GpTaskScheduler::_AddToRuningTasks (GpTask::SP aTask)

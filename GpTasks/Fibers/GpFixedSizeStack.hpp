@@ -1,9 +1,12 @@
 #pragma once
 
-#include "../GpTasks_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
+
+#include "../../GpUtils/Macro/GpMacroWarnings.hpp"
+#include "../../GpUtils/Types/Numerics/GpNumericOps.hpp"
 
 extern "C"
 {
@@ -17,12 +20,17 @@ extern "C"
 #include <cstddef>
 #include <new>
 
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE(shadow)
+
 #include <boost/assert.hpp>
 #include <boost/config.hpp>
 
 #include <boost/context/detail/config.hpp>
 #include <boost/context/stack_context.hpp>
 #include <boost/context/stack_traits.hpp>
+
+GP_WARNING_POP()
 
 #if defined(BOOST_USE_VALGRIND)
 #include <valgrind/valgrind.h>

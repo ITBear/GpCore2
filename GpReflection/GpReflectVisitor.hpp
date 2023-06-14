@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpReflection_global.hpp"
+#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_REFLECTION)
 
@@ -83,10 +83,7 @@ void    GpReflectVisitor<T, VisitorT>::Visit
             }
         } catch (const std::exception& e)
         {
-            THROW_GP("Failed to visit propetry "_sv + aModel.Name() + "."_sv + prop.Name() + "\nReason:\n"_sv + e.what());
-        } catch (...)
-        {
-            THROW_GP("Failed to visit propetry "_sv + aModel.Name() + "."_sv + prop.Name() + "\nReason:\nUnknown exception"_sv);
+            THROW_GP(u8"Failed to visit propetry "_sv + aModel.Name() + u8"."_sv + prop.Name() + u8"\nReason:\n"_sv + e.what());
         }
     }
 
@@ -131,8 +128,8 @@ void    GpReflectVisitor<T, VisitorT>::VisitValue
         case GpReflectType::OBJECT_SP:  visitValueCtx.Value_ObjectSP(aDataPtr, aProp, aCtx);            break;
         case GpReflectType::ENUM:       visitValueCtx.Value_Enum(aDataPtr, aProp, aCtx);                break;
         case GpReflectType::ENUM_FLAGS: visitValueCtx.Value_EnumFlags(aDataPtr, aProp, aCtx);           break;
-        case GpReflectType::NOT_SET:    THROW_GP("Type "_sv + GpReflectType::SToString(aProp.Type()));  break;
-        default:                        THROW_GP("Unsupported type "_sv + GpReflectType::SToString(aProp.Type()));
+        case GpReflectType::NOT_SET:    THROW_GP(u8"Type "_sv + GpReflectType::SToString(aProp.Type()));    break;
+        default:                        THROW_GP(u8"Unsupported type "_sv + GpReflectType::SToString(aProp.Type()));
     }
 
     visitValueCtx.OnVisitEnd(aDataPtr, aProp, aCtx);
@@ -189,8 +186,8 @@ void    GpReflectVisitor<T, VisitorT>::ProcessContainer
         case GpReflectType::OBJECT_SP:  visitContainerCtx.template Value_ObjectSP<ValGetterT>(aDataPtr, aProp, aCtx);   break;
         case GpReflectType::ENUM:       visitContainerCtx.template Value_Enum<ValGetterT>(aDataPtr, aProp, aCtx);       break;
         case GpReflectType::ENUM_FLAGS: visitContainerCtx.template Value_EnumFlags<ValGetterT>(aDataPtr, aProp, aCtx);  break;
-        case GpReflectType::NOT_SET:    THROW_GP("Type "_sv + GpReflectType::SToString(aProp.Type()));                  break;
-        default:                        THROW_GP("Unsupported type "_sv + GpReflectType::SToString(aProp.Type()));
+        case GpReflectType::NOT_SET:    THROW_GP(u8"Type "_sv + GpReflectType::SToString(aProp.Type()));                    break;
+        default:                        THROW_GP(u8"Unsupported type "_sv + GpReflectType::SToString(aProp.Type()));
     }
 
     visitContainerCtx.OnVisitEnd(aDataPtr, aProp, aCtx);
@@ -226,16 +223,16 @@ void    GpReflectVisitor<T, VisitorT>::VisitValueMap
         case GpReflectType::S_INT_64:   ProcessMapK<s_int_64, GpReflectPropGetter_Map>(aDataPtr, aProp, aCtx, visitMapCtx);     break;
         case GpReflectType::DOUBLE:     ProcessMapK<double, GpReflectPropGetter_Map>(aDataPtr, aProp, aCtx, visitMapCtx);       break;
         case GpReflectType::FLOAT:      ProcessMapK<float, GpReflectPropGetter_Map>(aDataPtr, aProp, aCtx, visitMapCtx);        break;
-        case GpReflectType::BOOLEAN:    THROW_GP("bool is not supported as map key"_sv);                                        break;
+        case GpReflectType::BOOLEAN:    THROW_GP(u8"bool is not supported as map key"_sv);                                      break;
         case GpReflectType::UUID:       ProcessMapK<GpUUID, GpReflectPropGetter_Map>(aDataPtr, aProp, aCtx, visitMapCtx);       break;
-        case GpReflectType::STRING:     ProcessMapK<std::string, GpReflectPropGetter_Map>(aDataPtr, aProp, aCtx, visitMapCtx);  break;
+        case GpReflectType::STRING:     ProcessMapK<std::u8string, GpReflectPropGetter_Map>(aDataPtr, aProp, aCtx, visitMapCtx);break;
         case GpReflectType::BLOB:       ProcessMapK<GpBytesArray, GpReflectPropGetter_Map>(aDataPtr, aProp, aCtx, visitMapCtx); break;
-        case GpReflectType::OBJECT:     THROW_GP("Object is not supported as map key"_sv);                                      break;
-        case GpReflectType::OBJECT_SP:  THROW_GP("Object::SP is not supported as map key"_sv);                                  break;
-        case GpReflectType::ENUM:       THROW_GP("enums is not supported as map key"_sv);                                       break;
-        case GpReflectType::ENUM_FLAGS: THROW_GP("enum flags is not supported as map key"_sv);                                  break;
-        case GpReflectType::NOT_SET:    THROW_GP("Type "_sv + GpReflectType::SToString(aProp.Type()));                          break;
-        default:                        THROW_GP("Unsupported type "_sv + GpReflectType::SToString(aProp.Type()));
+        case GpReflectType::OBJECT:     THROW_GP(u8"Object is not supported as map key"_sv);                                    break;
+        case GpReflectType::OBJECT_SP:  THROW_GP(u8"Object::SP is not supported as map key"_sv);                                break;
+        case GpReflectType::ENUM:       THROW_GP(u8"enums is not supported as map key"_sv);                                     break;
+        case GpReflectType::ENUM_FLAGS: THROW_GP(u8"enum flags is not supported as map key"_sv);                                break;
+        case GpReflectType::NOT_SET:    THROW_GP(u8"Type "_sv + GpReflectType::SToString(aProp.Type()));                        break;
+        default:                        THROW_GP(u8"Unsupported type "_sv + GpReflectType::SToString(aProp.Type()));
     }
 
     visitMapCtx.OnVisitEnd(aDataPtr, aProp, aCtx);
@@ -269,14 +266,14 @@ void    GpReflectVisitor<T, VisitorT>::ProcessMapK
         case GpReflectType::FLOAT:      aCtxMap.template K_Float<KeyT, float, ValGetterT>(aDataPtr, aProp, aCtx);                   break;
         case GpReflectType::BOOLEAN:    aCtxMap.template K_Bool<KeyT, bool, ValGetterT>(aDataPtr, aProp, aCtx);                     break;
         case GpReflectType::UUID:       aCtxMap.template K_UUID<KeyT, GpUUID, ValGetterT>(aDataPtr, aProp, aCtx);                   break;
-        case GpReflectType::STRING:     aCtxMap.template K_String<KeyT, std::string, ValGetterT>(aDataPtr, aProp, aCtx);            break;
+        case GpReflectType::STRING:     aCtxMap.template K_String<KeyT, std::u8string, ValGetterT>(aDataPtr, aProp, aCtx);          break;
         case GpReflectType::BLOB:       aCtxMap.template K_BLOB<KeyT, GpBytesArray, ValGetterT>(aDataPtr, aProp, aCtx);             break;
-        case GpReflectType::OBJECT:     THROW_GP("Object is not supported as map key"_sv);                                          break;
+        case GpReflectType::OBJECT:     THROW_GP(u8"Object is not supported as map key"_sv);                                        break;
         case GpReflectType::OBJECT_SP:  aCtxMap.template K_ObjectSP<KeyT, GpReflectObject::SP, ValGetterT>(aDataPtr, aProp, aCtx);  break;
-        case GpReflectType::ENUM:       THROW_GP("enums is not supported as map key"_sv);                                           break;
-        case GpReflectType::ENUM_FLAGS: THROW_GP("enum flags is not supported as map key"_sv);                                      break;
-        case GpReflectType::NOT_SET:    THROW_GP("Type "_sv + GpReflectType::SToString(aProp.Type()));                              break;
-        default:                        THROW_GP("Unsupported type "_sv + GpReflectType::SToString(aProp.Type()));
+        case GpReflectType::ENUM:       THROW_GP(u8"enums is not supported as map key"_sv);                                         break;
+        case GpReflectType::ENUM_FLAGS: THROW_GP(u8"enum flags is not supported as map key"_sv);                                    break;
+        case GpReflectType::NOT_SET:    THROW_GP(u8"Type "_sv + GpReflectType::SToString(aProp.Type()));                            break;
+        default:                        THROW_GP(u8"Unsupported type "_sv + GpReflectType::SToString(aProp.Type()));
     }
 }
 

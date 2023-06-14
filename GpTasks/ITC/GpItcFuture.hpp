@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpTasks_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 
@@ -9,17 +9,20 @@
 
 namespace GPlatform {
 
+template<typename T>
 class GpItcPromise;
 
+template<typename T>
 class GpItcFuture
 {
-    friend class GpItcPromise;
+    friend class GpItcPromise<T>;
 
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpItcFuture)
-    CLASS_DD(GpItcFuture)
+    CLASS_DD(GpItcFuture<T>)
 
-    using ResultT       = std::optional<GpItcResult::SP>;
+    using ItcResultT    = GpItcResult<T>;
+    using ItcResultOptT = std::optional<typename ItcResultT::SP>;
     using WaitForResT   = GpItcSharedCondition::WaitForConditionResT;
 
 public:
@@ -29,24 +32,23 @@ public:
     inline bool                         IsReady         (void) const noexcept;
     inline void                         Wait            (void);
     [[nodiscard]] inline WaitForResT    WaitFor         (const milliseconds_t aWaitTimeout);
-    inline ResultT                      Result          (void) noexcept;
+    inline ItcResultOptT                Result          (void) noexcept;
 
-    template<typename T>
-    static bool                         SCheckIfReady   (GpItcFuture::SP&                       aFuture,
-                                                         std::function<void(T&&)>               aOnSuccessFn,
-                                                         std::function<void(std::string_view)>  aOnErrorFn,
-                                                         std::function<void()>                  aOnNullResFn);
+    static bool                         SCheckIfReady   (this_type::SP&                                 aFuture,
+                                                         typename ItcResultT::ExtractFnT_OnSuccess      aOnSuccessFn,
+                                                         typename ItcResultT::ExtractFnT_OnException    aOnExceptionFn);
 
 private:
     inline void                         AddTaskGuid     (const GpUUID& aCurrentTaskGuid);
-    inline void                         SetResultOnce   (GpItcResult::SP aResult);
+    inline void                         SetResultOnce   (typename ItcResultT::SP aResult);
 
 private:
     GpItcSharedCondition                iItcSharedCondition;
-    ResultT                             iResult;
+    ItcResultOptT                       iResultOpt;
 };
 
-bool    GpItcFuture::IsReady (void) const noexcept
+template<typename T>
+bool    GpItcFuture<T>::IsReady (void) const noexcept
 {
     bool isReady = false;
 
@@ -54,14 +56,15 @@ bool    GpItcFuture::IsReady (void) const noexcept
     (
         [&]()
         {
-            isReady = iResult.has_value();
+            isReady = iResultOpt.has_value();
         }
     );
 
     return isReady;
 }
 
-void    GpItcFuture::Wait (void)
+template<typename T>
+void    GpItcFuture<T>::Wait (void)
 {
     while (WaitFor(1.0_si_s) == WaitForResT::TIMEOUT)
     {
@@ -69,14 +72,15 @@ void    GpItcFuture::Wait (void)
     }
 }
 
-[[nodiscard]] GpItcFuture::WaitForResT  GpItcFuture::WaitFor (const milliseconds_t aWaitTimeout)
+template<typename T>
+[[nodiscard]] typename GpItcFuture<T>::WaitForResT  GpItcFuture<T>::WaitFor (const milliseconds_t aWaitTimeout)
 {
     return iItcSharedCondition.WaitForCondition
     (
         aWaitTimeout,
         [&]()//Condition
         {
-            return iResult.has_value();
+            return iResultOpt.has_value();
         },
         []()//Action on condition met
         {
@@ -88,15 +92,16 @@ void    GpItcFuture::Wait (void)
     );
 }
 
-GpItcFuture::ResultT    GpItcFuture::Result (void) noexcept
+template<typename T>
+typename GpItcFuture<T>::ItcResultOptT  GpItcFuture<T>::Result (void) noexcept
 {
-    ResultT res;
+    ItcResultOptT res;
 
     iItcSharedCondition.Do
     (
         [&]()
         {
-            res = iResult;
+            res = iResultOpt;
         }
     );
 
@@ -104,12 +109,11 @@ GpItcFuture::ResultT    GpItcFuture::Result (void) noexcept
 }
 
 template<typename T>
-bool    GpItcFuture::SCheckIfReady
+bool    GpItcFuture<T>::SCheckIfReady
 (
-    GpItcFuture::SP&                        aFuture,
-    std::function<void(T&&)>                aOnSuccessFn,
-    std::function<void(std::string_view)>   aOnErrorFn,
-    std::function<void()>                   aOnNullResFn
+    this_type::SP&                              aFuture,
+    typename ItcResultT::ExtractFnT_OnSuccess   aOnSuccessFn,
+    typename ItcResultT::ExtractFnT_OnException aOnExceptionFn
 )
 {
     if (aFuture.IsNULL())
@@ -117,40 +121,41 @@ bool    GpItcFuture::SCheckIfReady
         return true;
     }
 
-    GpItcFuture& future = aFuture.V();
+    this_type& future = aFuture.V();
 
     if (future.IsReady() == false)
     {
         return false;
     }
 
-    GpItcFuture::ResultT futureRes = future.Result();
-    GpItcResult::SExtract<T>
+    ItcResultOptT futureRes = future.Result();
+    ItcResultT::SExtract
     (
         futureRes,
         aOnSuccessFn,
-        aOnErrorFn,
-        aOnNullResFn
+        aOnExceptionFn
     );
 
     return true;
 }
 
-void    GpItcFuture::AddTaskGuid (const GpUUID& aCurrentTaskGuid)
+template<typename T>
+void    GpItcFuture<T>::AddTaskGuid (const GpUUID& aCurrentTaskGuid)
 {
     iItcSharedCondition.AddTaskGuid(aCurrentTaskGuid);
 }
 
-void    GpItcFuture::SetResultOnce (GpItcResult::SP aResult)
+template<typename T>
+void    GpItcFuture<T>::SetResultOnce (typename ItcResultT::SP aResult)
 {
     iItcSharedCondition.WakeupAll
     (
         [&, resultSrc = std::move(aResult)]()
         {
-            if (   (iResult.has_value() == false)
-                || (iResult.value().IsNULL()))
+            if (   (iResultOpt.has_value() == false)
+                || (iResultOpt.value().IsNULL()))
             {
-                iResult = std::move(resultSrc);
+                iResultOpt = std::move(resultSrc);
             }
         }
     );

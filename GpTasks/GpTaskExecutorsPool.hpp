@@ -1,11 +1,13 @@
 #pragma once
 
-#include "GpTasks_global.hpp"
+#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 
-#include <bitset>
 #include "GpTaskExecutor.hpp"
+#include "../GpUtils/SyncPrimitives/GpSpinlock.hpp"
+#include "../GpUtils/Threads/GpThread.hpp"
+#include "../GpUtils/Types/Bits/GpBitOps.hpp"
 
 namespace GPlatform {
 
@@ -21,7 +23,7 @@ public:
 
     using ExecutorT             = GpTaskExecutor;
     using ExecutorsContainerT   = std::array<ExecutorT::SP, GpTasksSettings::SMaxCoresCount()>;
-    using ExecutorsFreeFlagsT   = std::bitset<GpTasksSettings::SMaxCoresCount()>;
+    using ExecutorsFreeFlagsT   = GpTasksSettings::bistset_type;
 
 public:
                                 GpTaskExecutorsPool     (void) noexcept = default;
@@ -41,31 +43,35 @@ private:
     size_t                      iCount = 0;
     GpThread::C::Vec::Val       iThreads;
     ExecutorsContainerT         iExecutors;
-    ExecutorsFreeFlagsT         iExecutorsIdleFlags;
+    ExecutorsFreeFlagsT         iExecutorsIdleFlags = std::numeric_limits<ExecutorsFreeFlagsT>::max();
 };
 
 void    GpTaskExecutorsPool::WakeupNextIdle (void)
 {
     std::scoped_lock lock(iLock);
 
-    const size_t id = iExecutorsIdleFlags._Find_first();
+    const size_t id_plus_one = BitOps::LeastSignificantBit(iExecutorsIdleFlags);
 
-    if (id < iCount)
+    if (id_plus_one > 0)
     {
-        iExecutors.at(id).V().CVF().WakeupOne();
+        if (id_plus_one < iCount)
+        {
+            iExecutors.at(id_plus_one - 1).V().CVF().WakeupOne();
+        }
     }
 }
 
 void    GpTaskExecutorsPool::MarkAsBusy (const size_t aExecutorId)
 {
     std::scoped_lock lock(iLock);
-    iExecutorsIdleFlags.reset(aExecutorId);
+
+    iExecutorsIdleFlags = BitOps::Down_by_id(iExecutorsIdleFlags, aExecutorId);
 }
 
 void    GpTaskExecutorsPool::MarkAsIdle (const size_t aExecutorId)
 {
     std::scoped_lock lock(iLock);
-    iExecutorsIdleFlags.set(aExecutorId);
+    iExecutorsIdleFlags = BitOps::Up_by_id(iExecutorsIdleFlags, aExecutorId);
 }
 
 }//GPlatform

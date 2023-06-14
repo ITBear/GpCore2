@@ -1,9 +1,12 @@
 #pragma once
 
-#include "GpRandomDeviceIf.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_RANDOM_GENERATORS)
+
 #   if defined(GP_OS_WINDOWS)
+
+#include "GpRandomDeviceIf.hpp"
 
 namespace GPlatform {
 

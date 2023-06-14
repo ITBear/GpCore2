@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpMacro.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_SYNC_PRIMITIVES)
 
@@ -18,7 +18,7 @@ public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpConditionVar)
     CLASS_DD(GpConditionVar)
 
-    CLASS_TAG(THREAD_SAFE)
+    TAG_SET(THREAD_SAFE)
 
     using OnWakeupFnT   = std::function<void()>;
     using OnCheckFnT    = std::function<bool()>;

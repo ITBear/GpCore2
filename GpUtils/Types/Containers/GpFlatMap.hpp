@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../GpUtils_global.hpp"
+#include "../../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_CONTAINERS)
 
-#include "GpContainersT.hpp"
 #include "../Strings/GpStringOps.hpp"
+#include "GpContainersT.hpp"
 
 namespace GPlatform {
 
@@ -50,8 +50,8 @@ public:
     ValueT&             Find                    (const KeyT&    aKey);
     ValueCRefOptT       FindOpt                 (const KeyT&    aKey) const noexcept;
     ValueRefOptT        FindOpt                 (const KeyT&    aKey) noexcept;
-    ValueT              FindRetCopy             (const KeyT&    aKey) const;
-    ValueT              FindRetCopyOrDefault    (const KeyT&    aKey) const noexcept;
+    ValueT              FindCopy                (const KeyT&    aKey) const;
+    ValueT              FindCopyOrDefault       (const KeyT&    aKey) const noexcept;
 
     ValueT              Remove                  (const KeyT&    aKey);
 
@@ -124,7 +124,7 @@ void    GpFlatMap<KeyT, ValueT, MaxSizeV>::Insert
         }
     }
 
-    THROW_GP("Out of rane"_sv);
+    THROW_GP(u8"Out of rane"_sv);
 }
 
 template<typename   KeyT,
@@ -148,7 +148,7 @@ void    GpFlatMap<KeyT, ValueT, MaxSizeV>::Insert
         }
     }
 
-    THROW_GP("Out of rane"_sv);
+    THROW_GP(u8"Out of rane"_sv);
 }
 
 template<typename   KeyT,
@@ -169,7 +169,7 @@ void    GpFlatMap<KeyT, ValueT, MaxSizeV>::Update
         }
     }
 
-    THROW_GP("Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv);
+    THROW_GP(u8"Element not found by key '"_sv + StrOps::SToString(aKey) + u8"'"_sv);
 }
 
 template<typename   KeyT,
@@ -190,7 +190,7 @@ void    GpFlatMap<KeyT, ValueT, MaxSizeV>::Update
         }
     }
 
-    THROW_GP("Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv);
+    THROW_GP(u8"Element not found by key '"_sv + StrOps::SToString(aKey) + u8"'"_sv);
 }
 
 template<typename   KeyT,
@@ -214,7 +214,7 @@ ValueT& GpFlatMap<KeyT, ValueT, MaxSizeV>::Find (const KeyT& aKey)
         }
     }
 
-    THROW_GP("Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv);
+    THROW_GP(u8"Element not found by key '"_sv + StrOps::SToString(aKey) + u8"'"_sv);
 }
 
 template<typename   KeyT,
@@ -268,7 +268,7 @@ auto    GpFlatMap<KeyT, ValueT, MaxSizeV>::FindOpt (const KeyT& aKey) noexcept -
 template<typename   KeyT,
          typename   ValueT,
          size_t     MaxSizeV>
-ValueT  GpFlatMap<KeyT, ValueT, MaxSizeV>::FindRetCopy (const KeyT& aKey) const
+ValueT  GpFlatMap<KeyT, ValueT, MaxSizeV>::FindCopy (const KeyT& aKey) const
 {
     for (size_t id = 0; id < MaxSizeV; id++)
     {
@@ -278,13 +278,13 @@ ValueT  GpFlatMap<KeyT, ValueT, MaxSizeV>::FindRetCopy (const KeyT& aKey) const
         }
     }
 
-    THROW_GP("Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv);
+    THROW_GP(u8"Element not found by key '"_sv + StrOps::SToString(aKey) + u8"'"_sv);
 }
 
 template<typename   KeyT,
          typename   ValueT,
          size_t     MaxSizeV>
-ValueT  GpFlatMap<KeyT, ValueT, MaxSizeV>::FindRetCopyOrDefault (const KeyT& aKey) const noexcept
+ValueT  GpFlatMap<KeyT, ValueT, MaxSizeV>::FindCopyOrDefault (const KeyT& aKey) const noexcept
 {
     for (size_t id = 0; id < MaxSizeV; id++)
     {
@@ -315,7 +315,7 @@ ValueT  GpFlatMap<KeyT, ValueT, MaxSizeV>::Remove (const KeyT& aKey)
         }
     }
 
-    THROW_GP("Element not found by key '"_sv + StrOps::SToString(aKey) + "'"_sv);
+    THROW_GP(u8"Element not found by key '"_sv + StrOps::SToString(aKey) + u8"'"_sv);
 }
 
 }//GPlatform

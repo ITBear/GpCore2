@@ -1,29 +1,27 @@
 #pragma once
 
-#include "../../GpMacro.hpp"
+#include "../../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_CONTAINERS)
 
-#include "../../GpMemOps.hpp"
-#include "../../TypeTraits/GpTypeTraitsIterator.hpp"
 #include "../Pointers/GpSpanPtr.hpp"
-#include "GpContainersT.hpp"
 
 namespace GPlatform {
 
-using GpSpanPtrCharR    = GpSpanPtr<const char*>;
-using GpSpanPtrCharRW   = GpSpanPtr<char*>;
+using GpSpanPtrCharR    = GpSpanPtr<const char8_t*>;
+using GpSpanPtrCharRW   = GpSpanPtr<char8_t*>;
 using GpSpanPtrByteR    = GpSpanPtr<const u_int_8*>;
 using GpSpanPtrByteRW   = GpSpanPtr<u_int_8*>;
 
-using GpBytesArray      = std::vector<u_int_8>;
+using GpBytesArray      = std::vector<u_int_8>;//TODO test and reimplement with no default value type
 
 class GpBytesArrayUtils
 {
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpBytesArrayUtils)
 
 public:
-    template<typename FROM, typename = std::enable_if_t<has_random_access_iter_v<FROM>, FROM>>
+    template<typename FROM>
+    requires Concepts::HasRandomAccessIter<FROM>
     static GpBytesArray SMake (const FROM& aContainer)
     {
         GpBytesArray res;

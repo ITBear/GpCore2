@@ -10,7 +10,7 @@
 
 namespace GPlatform {
 
-GpTaskFiber::GpTaskFiber (std::string aName) noexcept:
+GpTaskFiber::GpTaskFiber (std::u8string aName) noexcept:
 GpTask
 (
     std::move(aName),
@@ -23,9 +23,10 @@ GpTaskFiber::~GpTaskFiber (void) noexcept
 {
     if (iCtx)
     {
-        GpStringUtils::SCerr("[GpTaskFiber::~GpTaskFiber]: iCtx is not null!\n"_sv);
+        GpStringUtils::SCerr(u8"[GpTaskFiber::~GpTaskFiber]: iCtx is not null!\n"_sv);
         //Yes, app will crash
-        throw std::runtime_error("[GpTaskFiber::~GpTaskFiber]: iCtx is not null!");
+        std::terminate();
+        //throw std::runtime_error("[GpTaskFiber::~GpTaskFiber]: iCtx is not null!");
     }
 }
 
@@ -59,29 +60,31 @@ GpTaskDoRes GpTaskFiber::_Run (GpThreadStopToken aStopToken) noexcept
     } catch (const boost::context::detail::forced_unwind& e)
     {
         iStage = StageT::FINISHED;
-        CompletePromise(MakeSP<GpItcResult>(std::runtime_error("boost::context::detail::forced_unwind")));
+        //CompletePromise(MakeSP<CompleteItcResultT>(std::runtime_error("boost::context::detail::forced_unwind")));
+        CompletePromise(MakeSP<CompleteItcResultT>(GpException(u8"boost::context::detail::forced_unwind")));
     } catch (const GpTaskFiberStopEx& e)
     {
         iStage = StageT::FINISHED;
-        CompletePromise(MakeSP<GpItcResult>(e));
+        CompletePromise(MakeSP<CompleteItcResultT>(e));
     } catch (const GpException& e)
     {
         iStage = StageT::FINISHED;
-        CompletePromise(MakeSP<GpItcResult>(e));
+        CompletePromise(MakeSP<CompleteItcResultT>(e));
     } catch (const std::exception& e)
     {
         iStage = StageT::FINISHED;
-        CompletePromise(MakeSP<GpItcResult>(e));
+        CompletePromise(MakeSP<CompleteItcResultT>(e));
     } catch (...)
     {
         iStage = StageT::FINISHED;
-        CompletePromise(MakeSP<GpItcResult>(std::runtime_error("Unknown exception")));
+        //CompletePromise(MakeSP<CompleteItcResultT>(std::runtime_error("Unknown exception")));
+        CompletePromise(MakeSP<CompleteItcResultT>(GpException(u8"Unknown exception")));
     }
 
     if (taskRes == GpTaskDoRes::DONE)
     {
         iStage = StageT::FINISHED;
-        CompletePromise(MakeSP<GpItcResult>());
+        CompletePromise(MakeSP<CompleteItcResultT>(size_t(0)));
     }
 
     if (iStage == StageT::FINISHED)

@@ -1,6 +1,10 @@
 #pragma once
 
-#include "../GpMacro.hpp"
+#include "../../Config/GpConfig.hpp"
+
+#if defined(GP_USE_EXCEPTIONS)
+
+#include "../Macro/GpMacroClass.hpp"
 
 #include <functional>
 #include <stack>
@@ -42,3 +46,5 @@ private:
 };
 
 }//GPlatform
+
+#endif//#if defined(GP_USE_EXCEPTIONS)

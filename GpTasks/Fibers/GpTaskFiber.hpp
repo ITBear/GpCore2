@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpTasks_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
@@ -27,7 +27,7 @@ public:
     };
 
 public:
-                                    GpTaskFiber     (std::string aName) noexcept;
+                                    GpTaskFiber     (std::u8string aName) noexcept;
     virtual                         ~GpTaskFiber    (void) noexcept override;
 
     static void                     SYield          (const GpTaskDoRes aRes);

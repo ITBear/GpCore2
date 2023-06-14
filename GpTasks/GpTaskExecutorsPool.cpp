@@ -14,7 +14,6 @@ void    GpTaskExecutorsPool::Start (const size_t aCount)
 
     iCount = aCount;
     iThreads.resize(aCount);
-    iExecutorsIdleFlags.set();
 
     //Main therad
     GpTaskAccessor::SAddExecutorThreadId(std::this_thread::get_id());
@@ -26,6 +25,7 @@ void    GpTaskExecutorsPool::Start (const size_t aCount)
         ExecutorT::SP   executor    = MakeSP<ExecutorT>(id, *this);
 
         iExecutors.at(id) = executor;
+        iExecutorsIdleFlags = BitOps::Up_by_id(iExecutorsIdleFlags, id);
 
         const std::thread::id threadId = thread.Run(executor);
         GpTaskAccessor::SAddExecutorThreadId(threadId);

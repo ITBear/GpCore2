@@ -26,11 +26,14 @@ SOURCES += \
     Encoders/GpBase64.cpp \
     EventBus/GpEventSubscriber.cpp \
     Exceptions/GpException.cpp \
+    Exceptions/GpExceptionCode.cpp \
+    Exceptions/GpExceptionTextCode.cpp \
     Exceptions/GpExceptionUtils.cpp \
     Files/GpFile.cpp \
     Files/GpFileUtils.cpp \
+    Lifetime/GpLifetimeManager.cpp \
     Other/GpErrno.cpp \
-    Other/GpGlobals.cpp \
+    Other/GpSystemInfo.cpp \
     Random/GpRandom.cpp \
     Random/GpRandomDeviceWin.cpp \
     Random/GpRandomStrMode.cpp \
@@ -54,6 +57,7 @@ SOURCES += \
     Types/Enums/GpEnumFlags.cpp \
     Types/Strings/GpStringOps.cpp \
     Types/Strings/GpStringUtils.cpp \
+    Types/Strings/GpUTF.cpp \
     Types/UIDs/GpUUID.cpp
 
 HEADERS += \
@@ -63,6 +67,7 @@ HEADERS += \
     Algorithms/GpFind.hpp \
     Algorithms/GpHysteresis.hpp \
     Algorithms/GpSplit.hpp \
+    Concepts/GpConcepts.hpp \
     DateTime/GpDateTime.hpp \
     DateTime/GpDateTimeFormat.hpp \
     DateTime/GpDateTimeOps.hpp \
@@ -72,9 +77,10 @@ HEADERS += \
     EventBus/GpEvent.hpp \
     EventBus/GpEventPublisher.hpp \
     EventBus/GpEventSubscriber.hpp \
-    Exceptions/GpCeExceptions.hpp \
     Exceptions/GpException.hpp \
+    Exceptions/GpExceptionCe.hpp \
     Exceptions/GpExceptionCode.hpp \
+    Exceptions/GpExceptionTextCode.hpp \
     Exceptions/GpExceptionUtils.hpp \
     Exceptions/GpExceptions.hpp \
     Exceptions/GpOnThrowStackUnwindFn.hpp \
@@ -83,15 +89,23 @@ HEADERS += \
     Files/GpFileUtils.hpp \
     Files/GpFileWindows.hpp \
     Files/GpFiles.hpp \
-    GpMacro.hpp \
     GpMemOps.hpp \
     GpUtils.hpp \
     GpUtils_global.hpp \
+    Lifetime/GpLifetime.hpp \
+    Lifetime/GpLifetimeElement.hpp \
+    Lifetime/GpLifetimeManager.hpp \
+    Macro/GpMacroClass.hpp \
+    Macro/GpMacroImportExport.hpp \
+    Macro/GpMacroTags.hpp \
+    Macro/GpMacroWarnings.hpp \
+    Other/GpCallHandler.hpp \
+    Other/GpCallHandler2.hpp \
     Other/GpCallOnce.hpp \
     Other/GpErrno.hpp \
-    Other/GpGlobals.hpp \
     Other/GpOther.hpp \
     Other/GpRAIIonDestruct.hpp \
+    Other/GpSystemInfo.hpp \
     Random/GpRandom.hpp \
     Random/GpRandomDeviceIf.hpp \
     Random/GpRandomDeviceWin.hpp \
@@ -131,21 +145,21 @@ HEADERS += \
     Threads/Timers/GpTimerShotEventFactory.hpp \
     Threads/Timers/GpTimers.hpp \
     Threads/Timers/GpTimersManager.hpp \
+    TypeTraits/GpTypeInfoUtils.hpp \
     TypeTraits/GpTypeTraits.hpp \
     TypeTraits/GpTypeTraitsArray.hpp \
-    TypeTraits/GpTypeTraitsFalse.hpp \
-    TypeTraits/GpTypeTraitsIterator.hpp \
+    TypeTraits/GpTypeTraitsResultOf.hpp \
     TypeTraits/GpTypeTraitsTuple.hpp \
-    Types/Bits/GpBitCast.hpp \
     Types/Bits/GpBitOps.hpp \
     Types/Bits/GpBits.hpp \
     Types/Bits/GpBitset.hpp \
     Types/Bool/GpBool.hpp \
+    Types/Containers/GpAny.hpp \
     Types/Containers/GpBytesArray.hpp \
     Types/Containers/GpCachePool.hpp \
     Types/Containers/GpContainers.hpp \
     Types/Containers/GpContainersT.hpp \
-    Types/Containers/GpElementsCatalog.hpp \
+    Types/Containers/GpDictionary.hpp \
     Types/Containers/GpElementsPool.hpp \
     Types/Containers/GpFlatMap.hpp \
     Types/Containers/GpGlobalStructCatalogC.hpp \
@@ -170,10 +184,10 @@ HEADERS += \
     Types/Strings/GpStringTemplateArg.hpp \
     Types/Strings/GpStringUtils.hpp \
     Types/Strings/GpStrings.hpp \
+    Types/Strings/GpUTF.hpp \
     Types/UIDs/GpUIDs.hpp \
     Types/UIDs/GpUUID.hpp \
     Types/Units/GpUnit.hpp \
-    Types/Units/GpUnitUtils.hpp \
     Types/Units/GpUnits.hpp \
     Types/Units/Numerics/GpUnitsNumerics.hpp \
     Types/Units/Numerics/GpUnitsNumerics_Double.hpp \

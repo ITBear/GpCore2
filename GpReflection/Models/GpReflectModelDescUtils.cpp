@@ -7,14 +7,12 @@ namespace GPlatform {
 
 GpReflectModel  GpReflectModelDescUtils::SDescToModel (const GpReflectModelDesc& aDesc)
 {
-    return GpReflectModelBuilder::SNew()
+    return GpReflectModelBuilder()
         .UID(aDesc.uid)
         .BaseUID(aDesc.base_uid)
         .GroupID(aDesc.group_id)
         .Name(aDesc.name)
-        .Props()
-            .SetProps(SDescToModelProps(aDesc.props))
-        .DoneBuildProps()
+        .SetPropBuilder(SDescToModelPropBuilder(aDesc.props))
     .Build();
 }
 
@@ -25,7 +23,7 @@ GpReflectModelDesc::SP  GpReflectModelDescUtils::SModelToDesc (const GpReflectMo
         aModel.Uid(),
         aModel.BaseUid(),
         aModel.GroupId(),
-        std::string(aModel.Name()),
+        std::u8string(aModel.Name()),
         SModelToDescProps(aModel.Props())
     );
 
@@ -45,14 +43,14 @@ GpReflectPropDesc::C::Vec::SP   GpReflectModelDescUtils::SModelToDescProps (cons
             prop.ContainerKeyType(),
             prop.Container(),
             prop.ModelUid(),
-            std::string(prop.Name())
+            std::u8string(prop.Name())
         ));
     }
 
     return propsDesc;
 }
 
-GpReflectProp::C::Vec::Val  GpReflectModelDescUtils::SDescToModelProps (const GpReflectPropDesc::C::Vec::SP& aPropsDesc)
+GpReflectPropBuilder    GpReflectModelDescUtils::SDescToModelPropBuilder (const GpReflectPropDesc::C::Vec::SP& aPropsDesc)
 {
     GpReflectPropBuilder propBuilder;
 
@@ -76,14 +74,14 @@ GpReflectProp::C::Vec::Val  GpReflectModelDescUtils::SDescToModelProps (const Gp
             } break;
             default:
             {
-                THROW_GP("Unsupported container type"_sv);
+                THROW_GP(u8"Unsupported container type"_sv);
             }
         }
     }
 
     propBuilder.Check();
 
-    return propBuilder.MoveProps();
+    return propBuilder;
 }
 
 void    GpReflectModelDescUtils::SAddProps_Val
@@ -92,7 +90,7 @@ void    GpReflectModelDescUtils::SAddProps_Val
     GpReflectPropBuilder&       aPropBuilder
 )
 {
-    std::string_view name = aPropDesc.name;
+    std::u8string_view name = aPropDesc.name;
 
     switch (aPropDesc.val_type.Value())
     {
@@ -175,7 +173,7 @@ void    GpReflectModelDescUtils::SAddProps_Val
         case GpReflectType::NOT_SET:[[fallthrough]];
         default:
         {
-            THROW_GP("Unsupported value type"_sv);
+            THROW_GP(u8"Unsupported value type"_sv);
         }
     }
 }
@@ -186,7 +184,7 @@ void    GpReflectModelDescUtils::SAddProps_Vec
     GpReflectPropBuilder&       aPropBuilder
 )
 {
-    std::string_view name = aPropDesc.name;
+    std::u8string_view name = aPropDesc.name;
 
     switch (aPropDesc.val_type.Value())
     {
@@ -257,7 +255,7 @@ void    GpReflectModelDescUtils::SAddProps_Vec
         case GpReflectType::NOT_SET:[[fallthrough]];
         default:
         {
-            THROW_GP("Unsupported value type"_sv);
+            THROW_GP(u8"Unsupported value type"_sv);
         }
     }
 }
@@ -268,7 +266,7 @@ void    GpReflectModelDescUtils::SAddProps_Map
     GpReflectPropBuilder&       aPropBuilder
 )
 {
-    std::string_view name = aPropDesc.name;
+    std::u8string_view name = aPropDesc.name;
 
     const GpReflectType::EnumT keyType = aPropDesc.key_type.Value();
     const GpReflectType::EnumT valType = aPropDesc.val_type.Value();
@@ -342,7 +340,7 @@ void    GpReflectModelDescUtils::SAddProps_Map
         case GpReflectType::NOT_SET:[[fallthrough]];
         default:
         {
-            THROW_GP("Unsupported value type"_sv);
+            THROW_GP(u8"Unsupported value type"_sv);
         }
     }
 }

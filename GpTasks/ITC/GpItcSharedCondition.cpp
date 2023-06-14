@@ -1,6 +1,8 @@
 #include "GpItcSharedCondition.hpp"
 #include "GpTaskScheduler.hpp"
 #include "Fibers/GpTaskFiber.hpp"
+#include "../../GpUtils/DateTime/GpDateTimeOps.hpp"
+#include "../../GpUtils/Other/GpRAIIonDestruct.hpp"
 
 #include <iostream>
 
@@ -30,6 +32,9 @@ void    GpItcSharedCondition::WakeupOne (std::function<void()> aFn)
                 } catch (const std::exception& e)
                 {
                     GpStringUtils::SCerr("[GpItcSharedCondition::WakeupOne]: "_sv + e.what() + "\n"_sv);
+                } catch (const boost::context::detail::forced_unwind&)
+                {
+                    throw;
                 } catch (...)
                 {
                     GpStringUtils::SCerr("[GpItcSharedCondition::WakeupOne]: unknown\n"_sv);
@@ -62,6 +67,9 @@ void    GpItcSharedCondition::WakeupAll (std::function<void()> aFn)
                 } catch (const std::exception& e)
                 {
                     GpStringUtils::SCerr("[GpItcSharedCondition::WakeupAll]: "_sv + e.what() + "\n"_sv);
+                } catch (const boost::context::detail::forced_unwind&)
+                {
+                    throw;
                 } catch (...)
                 {
                     GpStringUtils::SCerr("[GpItcSharedCondition::WakeupAll]: unknown\n"_sv);
@@ -196,8 +204,6 @@ void    GpItcSharedCondition::_AddTaskGuid (const GpUUID& aTaskGuid)
 
     const size_t size = iTaskFiberGuids.size();
 
-    //std::cout << "[GpItcSharedCondition::_AddTaskGuid]: iTaskFiberGuids.size() = " << size << std::endl;
-
     ssize_t freeSlotId = -1;
 
     for (size_t id = 0; id < size; id++)
@@ -225,8 +231,6 @@ void    GpItcSharedCondition::_AddTaskGuid (const GpUUID& aTaskGuid)
 void    GpItcSharedCondition::_RemoveTaskGuid (const GpUUID& aTaskGuid)
 {
     const size_t size = iTaskFiberGuids.size();
-
-    //std::cout << "[GpItcSharedCondition::_RemoveTaskGuid]: iTaskFiberGuids.size() = " << size << std::endl;
 
     for (size_t id = 0; id < size; id++)
     {

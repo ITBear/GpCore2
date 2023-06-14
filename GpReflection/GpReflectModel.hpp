@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpReflection_global.hpp"
+#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_REFLECTION)
 
@@ -18,31 +18,31 @@ public:
     using PropsT    = PropT::C::Vec::Val;
 
 public:
-                                GpReflectModel  (void) noexcept {}
-                                GpReflectModel  (const GpUUID&              aUid,
+                                GpReflectModel  (void) noexcept = default;
+    inline                      GpReflectModel  (const GpUUID&              aUid,
                                                  const GpUUID&              aBaseUid,
-                                                 std::string&&              aName,
+                                                 std::u8string&&            aName,
                                                  PropsT&&                   aProps,
                                                  const GpUUID&              aGroupId,
                                                  GpReflectObjectFactory::SP aFactory,
                                                  const size_t               aAlign,
                                                  const size_t               aSize) noexcept;
-                                GpReflectModel  (const GpUUID&              aUid,
+    inline                      GpReflectModel  (const GpUUID&              aUid,
                                                  const GpUUID&              aBaseUid,
-                                                 std::string&&              aName,
+                                                 std::u8string&&            aName,
                                                  const GpUUID&              aGroupId,
                                                  GpReflectObjectFactory::SP aFactory) noexcept;
-                                GpReflectModel  (const GpReflectModel& aModel);
-                                GpReflectModel  (GpReflectModel&& aModel) noexcept;
+    inline                      GpReflectModel  (const GpReflectModel& aModel);
+    inline                      GpReflectModel  (GpReflectModel&& aModel) noexcept;
                                 ~GpReflectModel (void) noexcept;
 
     const GpUUID&               Uid             (void) const noexcept {return iUid;}
     const GpUUID&               BaseUid         (void) const noexcept {return iBaseUid;}
-    std::string_view            Name            (void) const noexcept {return iName;}
+    std::u8string_view          Name            (void) const noexcept {return iName;}
     const PropsT&               Props           (void) const noexcept {return iProps;}
     const GpReflectProp&        Prop            (const size_t aId) const {return iProps.at(aId);}
-    const GpReflectProp&        Prop            (std::string_view aName) const;
-    const GpReflectProp&        Prop            (std::string_view                       aName,
+    const GpReflectProp&        Prop            (std::u8string_view aName) const;
+    const GpReflectProp&        Prop            (std::u8string_view                     aName,
                                                  const GpReflectType::EnumT             aType,
                                                  const GpReflectContainerType::EnumT    aContainerType) const;
     const GpUUID&               GroupId         (void) const noexcept {return iGroupId;}
@@ -55,18 +55,79 @@ public:
     void                        Destruct        (void* aDataPtr) const {iFactory.Vn().Destruct(aDataPtr);}
 
 private:
-    size_t                      CalcSizeOfProps (void) const;
-
-private:
     GpUUID                      iUid;
     GpUUID                      iBaseUid;
-    std::string                 iName;
+    std::u8string               iName;
     PropsT                      iProps;
     GpUUID                      iGroupId;
     GpReflectObjectFactory::SP  iFactory;
     size_t                      iAlign = 0;
     size_t                      iSize = 0;
 };
+
+GpReflectModel::GpReflectModel
+(
+    const GpUUID&               aUid,
+    const GpUUID&               aBaseUid,
+    std::u8string&&             aName,
+    PropsT&&                    aProps,
+    const GpUUID&               aGroupId,
+    GpReflectObjectFactory::SP  aFactory,
+    const size_t                aAlign,
+    const size_t                aSize
+) noexcept:
+iUid(aUid),
+iBaseUid(aBaseUid),
+iName(std::move(aName)),
+iProps(std::move(aProps)),
+iGroupId(aGroupId),
+iFactory(std::move(aFactory)),
+iAlign(aAlign),
+iSize(aSize)
+{
+}
+
+GpReflectModel::GpReflectModel
+(
+    const GpUUID&               aUid,
+    const GpUUID&               aBaseUid,
+    std::u8string&&             aName,
+    const GpUUID&               aGroupId,
+    GpReflectObjectFactory::SP  aFactory
+) noexcept:
+iUid    (aUid),
+iBaseUid(aBaseUid),
+iName   (std::move(aName)),
+iGroupId(aGroupId),
+iFactory(std::move(aFactory)),
+iAlign  (1),
+iSize   (0)
+{
+}
+
+GpReflectModel::GpReflectModel (const GpReflectModel& aModel):
+iUid    (aModel.iUid),
+iBaseUid(aModel.iBaseUid),
+iName   (aModel.iName),
+iProps  (aModel.iProps),
+iGroupId(aModel.iGroupId),
+iFactory(aModel.iFactory),
+iAlign  (aModel.iAlign),
+iSize   (aModel.iSize)
+{
+}
+
+GpReflectModel::GpReflectModel (GpReflectModel&& aModel) noexcept:
+iUid    (std::move(aModel.iUid)),
+iBaseUid(std::move(aModel.iBaseUid)),
+iName   (std::move(aModel.iName)),
+iProps  (std::move(aModel.iProps)),
+iGroupId(std::move(aModel.iGroupId)),
+iFactory(std::move(aModel.iFactory)),
+iAlign  (std::move(aModel.iAlign)),
+iSize   (std::move(aModel.iSize))
+{
+}
 
 }//GPlatform
 

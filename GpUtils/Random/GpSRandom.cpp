@@ -4,7 +4,7 @@
 
 namespace GPlatform {
 
-GpSRandom   GpSRandom::sSRnd;
+GpSRandom   GpSRandom::sInstance;
 
 }//GPlatform
 

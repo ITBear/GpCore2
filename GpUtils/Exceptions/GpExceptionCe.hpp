@@ -1,6 +1,9 @@
 #pragma once
 
-#include "../TypeTraits/GpTypeTraitsFalse.hpp"
+#include "../../Config/GpConfig.hpp"
+
+#if defined(GP_USE_EXCEPTIONS)
+
 #include <stdexcept>
 #include <type_traits>
 
@@ -13,9 +16,8 @@ constexpr auto GpThrowByCondition (void) -> void
 }
 
 template<typename Exception, typename... Args>
-void GpThrowCe([[maybe_unused]] Args... aArgs)
-{
-#if (__cplusplus >= 202002L)
+constexpr void GpThrowCe([[maybe_unused]] Args... aArgs)
+{   
     if (std::is_constant_evaluated())
     {
         GpThrowByCondition<true>();
@@ -23,11 +25,8 @@ void GpThrowCe([[maybe_unused]] Args... aArgs)
     {
         throw Exception(aArgs...);
     }
-#else
-    GpThrowByCondition<true>();
-#endif
 }
 
-#define GP_TEMPLATE_THROW(T, MSG) static_assert(GpConstexprFalse<T>::value, MSG)
-
 }//Gplatform
+
+#endif//#if defined(GP_USE_EXCEPTIONS)

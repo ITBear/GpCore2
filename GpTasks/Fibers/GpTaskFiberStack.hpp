@@ -1,9 +1,13 @@
 #pragma once
 
-#include "../GpTasks_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
+
+#include "../../GpUtils/Macro/GpMacroClass.hpp"
+#include "../../GpUtils/Types/Containers/GpContainersT.hpp"
+#include "../../GpUtils/Types/Units/Other/size_byte_t.hpp"
 
 #include "boost_context.hpp"
 

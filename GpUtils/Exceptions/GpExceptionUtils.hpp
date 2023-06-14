@@ -1,11 +1,14 @@
 #pragma once
 
-#include "../GpUtils_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_EXCEPTIONS)
 
-#include "../GpMacro.hpp"
+#include <optional>
+
+#include "../Macro/GpMacroClass.hpp"
 #include "GpException.hpp"
+#include "../Types/Strings/GpUTF.hpp"
 
 namespace GPlatform{
 
@@ -17,8 +20,8 @@ public:
     class ToStrResT
     {
     public:
-        std::string         fullMessage;
-        std::string_view    message;//view of part of fullMessage
+        std::u8string       fullMessage;
+        std::u8string_view  message;//view of part of fullMessage
     };
 
     enum class ExceptionType
@@ -28,15 +31,16 @@ public:
     };
 
 public:
-    static ToStrResT            SToString   (const std::string_view aMessage,
-                                             const SourceLocationT& aSourceLocation,
-                                             const ExceptionType    aExceptionType);
-    static inline std::string   SToString   (const std::exception&  aException,
+    static ToStrResT            SToString   (const std::u8string_view       aMessage,
+                                             const SourceLocationT&         aSourceLocation,
+                                             const ExceptionType            aExceptionType,
+                                             std::optional<std::u8string>   aStackTrace);
+    static inline std::u8string SToString   (const std::exception&  aException,
                                              const SourceLocationT& aSourceLocation = SourceLocationT::current());
-    static inline std::string   SToString   (const GpException&     aException);
+    static inline std::u8string SToString   (const GpException&     aException);
 };
 
-std::string GpExceptionUtils::SToString
+std::u8string   GpExceptionUtils::SToString
 (
     const std::exception&   aException,
     const SourceLocationT&  aSourceLocation
@@ -44,15 +48,16 @@ std::string GpExceptionUtils::SToString
 {
     return SToString
     (
-        std::string_view(aException.what()),
+        GpUTF::S_STR_To_UTF8(aException.what()),
         aSourceLocation,
-        ExceptionType::STD
+        ExceptionType::STD,
+        std::nullopt
     ).fullMessage;
 }
 
-std::string GpExceptionUtils::SToString (const GpException& aException)
+std::u8string   GpExceptionUtils::SToString (const GpException& aException)
 {
-    return std::string(aException.what());
+    return std::u8string(GpUTF::S_STR_To_UTF8(aException.what()));
 }
 
 }//GPlatform

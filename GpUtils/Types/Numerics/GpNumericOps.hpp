@@ -1,12 +1,18 @@
 #pragma once
 
-#include "../../GpMacro.hpp"
+#include "../../../Config/GpConfig.hpp"
+#include "../../../Config/GpCompilerFeatures.hpp"
+#include "../../Macro/GpMacroClass.hpp"
+#include "../../Concepts/GpConcepts.hpp"
+#include "../../Exceptions/GpExceptionCe.hpp"
+#include "../../Exceptions/GpException.hpp"
 #include "GpNumericTypes.hpp"
-#include "../../Exceptions/GpCeExceptions.hpp"
 
 #include <cmath>
 #include <limits>
 #include <stdexcept>
+#include <tuple>
+#include <algorithm>
 
 namespace GPlatform{
 
@@ -28,11 +34,9 @@ public:
     [[nodiscard]] inline static
     size_t                          SDecDigsCountSI64 (const s_int_64 aValue) noexcept;
 
-    template<typename T>
+    template<Concepts::IsIntergal T>
     [[nodiscard]] static size_t     SDecDigsCount (const T aValue) noexcept
     {
-        static_assert(std::numeric_limits<T>::is_integer, "Value must be integer");
-
         size_t  res     = 1;
         T       value   = aValue;
 
@@ -65,66 +69,65 @@ public:
         }
     }
 
-    template<typename T>
-    [[nodiscard]] static constexpr T SSign (const T aValue) noexcept
+    template<Concepts::IsFloatingPoint T>
+    [[nodiscard]] static constexpr T SLerp (const T aValueMin, const T aValueMax, const T aK) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
-        //return (T(0) < aValue) - (aValue < T(0));
-        return std::copysign(T(1), aValue);
+        return aValueMin + (aValueMax - aValueMin) * aK;
     }
 
     template<typename T>
+    requires    Concepts::IsIntergal<T>
+             || Concepts::IsFloatingPoint<T>
+    [[nodiscard]] static constexpr T SSign (const T aValue) noexcept
+    {
+        if (std::is_constant_evaluated())
+        {
+            return (T(0) < aValue) - (aValue < T(0));
+        } else
+        {
+            return std::copysign(T(1), aValue);
+        }
+    }
+
+    template<Concepts::IsIntergal T>
     [[nodiscard]] static constexpr T SIsNegative (const T aValue) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         return std::signbit(aValue);
     }
 
-    template<typename T>
+    template<Concepts::IsIntergal T>
     [[nodiscard]] static constexpr T SIsPositiveOrZero (const T aValue) noexcept
     {
         return !SIsNegative(aValue);
     }
 
-    template<typename T>
+    template<Concepts::IsIntergal T>
     [[nodiscard]] static consteval T SMin (void) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         return std::numeric_limits<T>::min();
     }
 
-    template<typename T>
+    template<Concepts::IsIntergal T>
     [[nodiscard]] static consteval T SMax (void) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         return std::numeric_limits<T>::max();
     }
 
-    template<typename T>
+    template<Concepts::IsIntergal T>
     [[nodiscard]] static consteval T SMin (const T aValue) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         return std::numeric_limits<decltype(aValue)>::min();
     }
 
-    template<typename T>
+    template<Concepts::IsIntergal T>
     [[nodiscard]] static consteval T SMax (const T aValue) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         return std::numeric_limits<decltype(aValue)>::max();
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     [[nodiscard]] static constexpr std::tuple<T, T> SMinMax (const T aValueA, const T aValueB) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         if (aValueA > aValueB)
         {
             return {aValueB, aValueA};
@@ -134,11 +137,9 @@ public:
         }
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     [[nodiscard]] static constexpr std::tuple<T, T> SMinMaxFast (const T aValueMin, const T aValueMax, const T aValue) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         if (aValue < aValueMin)
         {
             return {aValue, aValueMax};
@@ -151,11 +152,9 @@ public:
         }
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     [[nodiscard]] static constexpr T SClamp (const T aValueMin, const T aValueMax, const T aValue) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         if (aValue < aValueMin)
         {
             return aValueMin;
@@ -168,11 +167,9 @@ public:
         }
     }
 
-    template<typename T>
-    [[nodiscard]] constexpr static bool SIsEqual (const T a, const T b) noexcept
+    template<Concepts::IsArithmetic T>
+    [[nodiscard]] static constexpr bool SIsEqual (const T a, const T b) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         if constexpr (std::is_floating_point<T>())
         {
             return SIsEqualFP<T>(a, b);
@@ -182,35 +179,27 @@ public:
         }
     }
 
-    template<typename T>
-    [[nodiscard]] constexpr static bool SIsEqualToDelta (const T a, const T b, const T delta) noexcept
+    template<Concepts::IsArithmetic T>
+    [[nodiscard]] static constexpr bool SIsEqualToDelta (const T a, const T b, const T delta) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
-        return std::abs(SSub(a, b)) <= delta;
+        return SAbs(SSub(a, b)) <= delta;
     }
 
-    template<typename T>
-    [[nodiscard]] constexpr static bool SIsNotEqual (const T a, const T b) noexcept
+    template<Concepts::IsArithmetic T>
+    [[nodiscard]] static constexpr bool SIsNotEqual (const T a, const T b) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         return !SIsEqual(a, b);
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     [[nodiscard]] static constexpr bool SIsLess (const T a, const T b) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         return a < b;
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     [[nodiscard]] static constexpr bool SIsLessOrEqual (const T a, const T b) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         if constexpr (std::is_floating_point<T>())
         {
             return (a < b) || SIsEqualFP<T>(a, b);
@@ -220,19 +209,15 @@ public:
         }
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     [[nodiscard]] static constexpr bool SIsGreater (const T a, const T b) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         return a > b;
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     [[nodiscard]] static constexpr bool SIsGreaterOrEqual (const T a, const T b) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         if constexpr (std::is_floating_point<T>())
         {
             return (a > b) || SIsEqualFP<T>(a, b);
@@ -242,32 +227,28 @@ public:
         }
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     [[nodiscard]] static constexpr bool SIsBetween (const T a, const T aMin, const T aMax)
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         return    SIsGreaterOrEqual(a, aMin)
                && SIsLessOrEqual(a, aMax);
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     static constexpr T SInc (const T a)
     {
         return SAdd<T>(a, T(1));
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     static constexpr T SDec (const T a)
     {
         return SSub<T>(a, T(1));
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     [[nodiscard]] static constexpr T SAdd (const T a, const T b)
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         if constexpr (std::is_floating_point<T>())
         {
             return a + b;
@@ -278,7 +259,7 @@ public:
 
             if (__builtin_add_overflow(a, b, &res))
             {
-                GpThrowCe<std::out_of_range>("Add overflow");
+                GpThrowCe<GpException>(u8"Add overflow");
             }
 
             return res;
@@ -288,11 +269,9 @@ public:
         }
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     [[nodiscard]] static constexpr T SSub (const T a, const T b)
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         if constexpr (std::is_floating_point<T>())
         {
             return a - b;
@@ -303,7 +282,7 @@ public:
 
             if (__builtin_sub_overflow(a, b, &res))
             {
-                GpThrowCe<std::out_of_range>("Sub overflow");
+                GpThrowCe<GpException>(u8"Sub overflow");
             }
 
             return res;
@@ -313,11 +292,9 @@ public:
         }
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     [[nodiscard]] static constexpr T SMul (const T a, const T b)
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         if constexpr (std::is_floating_point<T>())
         {
             return a * b;
@@ -328,7 +305,7 @@ public:
 
             if (__builtin_mul_overflow(a, b, &res))
             {
-                GpThrowCe<std::out_of_range>("Mul overflow");
+                GpThrowCe<GpException>(u8"Mul overflow");
             }
 
             return res;
@@ -338,27 +315,23 @@ public:
         }
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     [[nodiscard]] static constexpr T SDiv (const T a, const T b)
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         if (SIsNotEqual(b,T(0))) //b != 0
         {
             return a / b;
         } else
         {
-            GpThrowCe<std::out_of_range>("Div by zero");
+            GpThrowCe<GpException>(u8"Div by zero");
         }
 
         return 0;
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
     [[nodiscard]] static constexpr T SDivCeil (const T a, const T b)
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         if (SIsNotEqual(b,T(0))) //b != 0
         {
             if constexpr (std::is_floating_point<T>())
@@ -373,87 +346,75 @@ public:
             }
         } else
         {
-            GpThrowCe<std::out_of_range>("Div by zero");
+            GpThrowCe<GpException>(u8"Div by zero");
         }
 
         return 0;
     }
 
-    template<typename T>
+    template<Concepts::IsIntergal T>
     [[nodiscard]] static constexpr T SMod (const T a, const T b)
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-
         if (SIsNotEqual(b,T(0))) //b != 0
         {
             return a % b;
         } else
         {
-            GpThrowCe<std::out_of_range>("Mod by zero");
+            GpThrowCe<GpException>(u8"Mod by zero");
         }
 
         return 0;
     }
 
-    template<typename T>
+    template<Concepts::IsArithmetic T>
+    requires Concepts::IsSigned<T>
     [[nodiscard]] static constexpr T SNegative (const T a) noexcept
     {
-        static_assert(std::is_arithmetic<T>(), "T must be integral or floating point");
-        static_assert(std::is_signed<T>(), "T must be signed");
         return -a;
     }
 
-    template<typename TO, typename FROM>
-    [[nodiscard]] static constexpr TO SConvertSafe (const FROM aValueFrom) noexcept
+    template<Concepts::IsFloatingPoint T>
+    [[nodiscard]] static constexpr T SSqrt (const T aValue) noexcept
     {
-        static_assert(std::is_arithmetic<FROM>(), "FROM must be integral or floating point");
-        static_assert(std::is_arithmetic<TO>(), "TO must be integral or floating point");
-
-        if constexpr(std::is_integral<FROM>() && std::is_integral<TO>())
+        if (std::is_constant_evaluated())
         {
-            using unsigned_from = std::make_unsigned_t<FROM>;
-            using unsigned_to   = std::make_unsigned_t<TO>;
-            using signed_from   = std::make_signed_t<FROM>;
-            using signed_to     = std::make_signed_t<TO>;
-
-            if constexpr(std::is_same<FROM, TO>())
+            if (   (aValue >= T(0.0))
+                && (aValue < static_cast<T>(std::numeric_limits<double>::infinity())))
             {
-                return TO(aValueFrom);
-            } else if constexpr ((unsigned_to(GpNumericOps::SMax<TO>()) >= unsigned_from(GpNumericOps::SMax<FROM>())) &&
-                                 (signed_to(GpNumericOps::SMin<TO>()) <= signed_from(GpNumericOps::SMin<FROM>())))
-            {
-                return TO(aValueFrom);
+                return static_cast<T>
+                (
+                    _SNewtonSqrtDouble
+                    (
+                        static_cast<double>(aValue),
+                        static_cast<double>(aValue),
+                        0.0
+                    )
+                );
             } else
             {
-                GP_TEMPLATE_THROW(TO, "FROM is out of range of TO");
+                return static_cast<T>(std::numeric_limits<double>::quiet_NaN());
             }
-        } else if constexpr(std::is_floating_point<FROM>() && std::is_floating_point<TO>())
-        {
-            return TO(aValueFrom);
-        } else if constexpr(std::is_integral<FROM>() && std::is_floating_point<TO>())
-        {
-            return TO(aValueFrom);
-        } else if constexpr(std::is_floating_point<FROM>() && std::is_integral<TO>())
-        {
-            if ((aValueFrom > FROM(GpNumericOps::SMax<TO>())) ||
-                (aValueFrom < FROM(GpNumericOps::SMin<TO>())))
-            {
-                GpThrowCe<std::out_of_range>("GpNumericOps::SConvert out of range (B)");
-            }
-
-            return TO(aValueFrom);
         } else
         {
-            GP_TEMPLATE_THROW(TO, "FROM and TO must be integral or float");
+            return std::sqrt(aValue);
         }
     }
 
-    template<typename TO, typename FROM>
+    template<Concepts::IsFloatingPoint T>
+    [[nodiscard]] static constexpr T SAbs (const T aValue) noexcept
+    {
+        if (std::is_constant_evaluated())
+        {
+            return SSign(aValue)*aValue;
+        } else
+        {
+            return std::fabs(aValue);
+        }
+    }
+
+    template<Concepts::IsArithmetic TO, Concepts::IsArithmetic FROM>
     [[nodiscard]] static constexpr TO SConvert (const FROM aValueFrom)
     {
-        static_assert(std::is_arithmetic<FROM>(), "FROM must be integral or floating point");
-        static_assert(std::is_arithmetic<TO>(), "TO must be integral or floating point");
-
         if constexpr(std::is_integral<FROM>() && std::is_integral<TO>())
         {
             using unsigned_from = std::make_unsigned_t<FROM>;
@@ -476,7 +437,7 @@ public:
 
                     if (aValueFrom < FROM(0))
                     {
-                        GpThrowCe<std::out_of_range>("GpNumericOps::SConvert out of range (A)");
+                        GpThrowCe<GpException>(u8"GpNumericOps::SConvert out of range (A)");
                     }
 
                     return TO(aValueFrom);
@@ -490,7 +451,7 @@ public:
                     if ((aValueFrom > FROM(GpNumericOps::SMax<TO>())) ||
                         (aValueFrom < FROM(GpNumericOps::SMin<TO>())))
                     {
-                        GpThrowCe<std::out_of_range>("GpNumericOps::SConvert out of range (B)");
+                        GpThrowCe<GpException>(u8"GpNumericOps::SConvert out of range (B)");
                     }
 
                     return TO(aValueFrom);
@@ -499,7 +460,7 @@ public:
                     //Check TO upper bound
                     if (aValueFrom > FROM(GpNumericOps::SMax<TO>()))
                     {
-                        GpThrowCe<std::out_of_range>("GpNumericOps::SConvert out of range (C)");
+                        GpThrowCe<GpException>(u8"GpNumericOps::SConvert out of range (C)");
                     }
 
                     return TO(aValueFrom);
@@ -516,23 +477,25 @@ public:
             if ((aValueFrom > FROM(GpNumericOps::SMax<TO>())) ||
                 (aValueFrom < FROM(GpNumericOps::SMin<TO>())))
             {
-                GpThrowCe<std::out_of_range>("GpNumericOps::SConvert out of range (B)");
+                GpThrowCe<GpException>(u8"GpNumericOps::SConvert out of range (B)");
             }
 
             return TO(aValueFrom);
-        } else
-        {
-            GP_TEMPLATE_THROW(TO, "FROM and TO must be integral or float");
         }
     }
 
 private:
-    template<typename T>
-    [[nodiscard]] constexpr static bool SIsEqualFP (const T a, const T b) noexcept
+    template<Concepts::IsFloatingPoint T>
+    [[nodiscard]] static constexpr bool SIsEqualFP (const T a, const T b) noexcept
     {
         constexpr T ulp = T(10);
-        return std::abs(a - b) <= std::numeric_limits<T>::epsilon() * std::fmax(std::abs(a), std::abs(b)) * ulp;
+        return SAbs(a - b) <= std::numeric_limits<T>::epsilon() * std::max<T>(SAbs(a), SAbs(b)) * ulp;
     }
+
+    static inline constexpr
+    double                      _SNewtonSqrtDouble  (const double aValue,
+                                                     const double aValueNow,
+                                                     const double aValueBefore) noexcept;
 };
 
 size_t  GpNumericOps::SDecDigsCountUI64 (const u_int_64 aValue) noexcept
@@ -545,7 +508,7 @@ size_t  GpNumericOps::SDecDigsCountSI64 (const s_int_64 aValue) noexcept
     return SDecDigsCount<s_int_64>(aValue);
 }
 
-template<typename T> struct NumOps_IsEqual
+template<Concepts::IsArithmetic T> struct NumOps_IsEqual
 {
     constexpr bool operator()(const T a, const T b) const noexcept
     {
@@ -553,7 +516,7 @@ template<typename T> struct NumOps_IsEqual
     }
 };
 
-template<typename T> struct NumOps_IsNotEqual
+template<Concepts::IsArithmetic T> struct NumOps_IsNotEqual
 {
     constexpr bool operator()(const T a, const T b) const noexcept
     {
@@ -561,7 +524,7 @@ template<typename T> struct NumOps_IsNotEqual
     }
 };
 
-template<typename T> struct NumOps_IsLess
+template<Concepts::IsArithmetic T> struct NumOps_IsLess
 {
     constexpr bool operator()(const T a, const T b) const noexcept
     {
@@ -569,7 +532,7 @@ template<typename T> struct NumOps_IsLess
     }
 };
 
-template<typename T> struct NumOps_IsLessOrEqual
+template<Concepts::IsArithmetic T> struct NumOps_IsLessOrEqual
 {
     constexpr bool operator()(const T a, const T b) const noexcept
     {
@@ -577,7 +540,7 @@ template<typename T> struct NumOps_IsLessOrEqual
     }
 };
 
-template<typename T> struct NumOps_IsGreater
+template<Concepts::IsArithmetic T> struct NumOps_IsGreater
 {
     constexpr bool operator()(const T a, const T b) const noexcept
     {
@@ -585,7 +548,7 @@ template<typename T> struct NumOps_IsGreater
     }
 };
 
-template<typename T> struct NumOps_IsGreaterOrEqual
+template<Concepts::IsArithmetic T> struct NumOps_IsGreaterOrEqual
 {
     constexpr bool operator()(const T a, const T b) const noexcept
     {
@@ -593,7 +556,7 @@ template<typename T> struct NumOps_IsGreaterOrEqual
     }
 };
 
-template<typename T> struct NumOps_Add
+template<Concepts::IsArithmetic T> struct NumOps_Add
 {
     constexpr T operator()(const T a, const T b) const noexcept
     {
@@ -601,7 +564,7 @@ template<typename T> struct NumOps_Add
     }
 };
 
-template<typename T> struct NumOps_Sub
+template<Concepts::IsArithmetic T> struct NumOps_Sub
 {
     constexpr T operator()(const T a, const T b) const noexcept
     {
@@ -609,7 +572,7 @@ template<typename T> struct NumOps_Sub
     }
 };
 
-template<typename T> struct NumOps_Mul
+template<Concepts::IsArithmetic T> struct NumOps_Mul
 {
     constexpr T operator()(const T a, const T b) const noexcept
     {
@@ -617,7 +580,7 @@ template<typename T> struct NumOps_Mul
     }
 };
 
-template<typename T> struct NumOps_Div
+template<Concepts::IsArithmetic T> struct NumOps_Div
 {
     constexpr T operator()(const T a, const T b) const noexcept
     {
@@ -625,7 +588,7 @@ template<typename T> struct NumOps_Div
     }
 };
 
-template<typename T> struct NumOps_Mod
+template<Concepts::IsIntergal T> struct NumOps_Mod
 {
     constexpr T operator()(const T a, const T b) const noexcept
     {
@@ -633,15 +596,16 @@ template<typename T> struct NumOps_Mod
     }
 };
 
-template<typename T> struct NumOps_Negative
+template<Concepts::IsArithmetic T> struct NumOps_Negative
 {
     constexpr T operator()(const T aValue) const noexcept
+    requires Concepts::IsSigned<T>
     {
         return NumOps::SNegative<T>(aValue);
     }
 };
 
-template<typename T> struct NumOps_Inc
+template<Concepts::IsArithmetic T> struct NumOps_Inc
 {
     constexpr T operator()(const T aValue) const noexcept
     {
@@ -649,12 +613,28 @@ template<typename T> struct NumOps_Inc
     }
 };
 
-template<typename T> struct NumOps_Dec
+template<Concepts::IsArithmetic T> struct NumOps_Dec
 {
     constexpr T operator()(const T aValue) const noexcept
     {
         return NumOps::SDec<T>(aValue);
     }
 };
+
+constexpr double    GpNumericOps::_SNewtonSqrtDouble
+(
+    const double aValue,
+    const double aValueNow,
+    const double aValueBefore
+) noexcept
+{
+    if (SIsEqual<double>(aValueNow, aValueBefore))
+    {
+        return aValueNow;
+    } else
+    {
+        return _SNewtonSqrtDouble(aValue, 0.5 * (aValueNow + aValue / aValueNow), aValueNow);
+    }
+}
 
 }//GPlatform

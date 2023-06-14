@@ -106,7 +106,7 @@ std::vector<T>  DistributeProportional<T>::SDist
 
         if (controlSumm != aValueToDist)
         {
-            throw std::runtime_error("Distribute error");
+            throw GpException(u8"Distribute error");
         }
     }
 

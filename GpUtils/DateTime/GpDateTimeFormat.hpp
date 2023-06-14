@@ -1,11 +1,12 @@
 #pragma once
 
-#include "../GpMacro.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_DATE_TIME)
 
 #include "../Types/Enums/GpEnum.hpp"
 #include "../Types/Strings/GpStringOps.hpp"
+#include "../Types/Strings/GpUTF.hpp"
 
 namespace GPlatform {
 

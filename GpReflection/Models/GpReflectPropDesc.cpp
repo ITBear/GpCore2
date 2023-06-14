@@ -36,7 +36,7 @@ GpReflectPropDesc::GpReflectPropDesc
     const GpReflectType::EnumT          aKeyType,
     const GpReflectContainerType::EnumT aContainerType,
     const GpUUID&                       aModelUid,
-    std::string                         aName
+    std::u8string                       aName
 ) noexcept:
 val_type      (aValType),
 key_type      (aKeyType),

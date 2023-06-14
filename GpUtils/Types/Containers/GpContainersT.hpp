@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../GpUtils_global.hpp"
+#include "../../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_CONTAINERS)
 
@@ -19,6 +19,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <functional>
 
 #include "../Numerics/GpNumericTypes.hpp"
 #include "../Pointers/GpSharedPtr.hpp"
@@ -32,6 +33,7 @@ class GpDeclContainerT
 {
 public:
     using Val   = C<typename S::value_type, Ts...>;
+    using CVal  = C<const typename S::value_type, Ts...>;
     using Ptr   = C<typename S::value_type*, Ts...>;
     using CPtr  = C<const typename S::value_type*, Ts...>;
     using Ref   = C<std::reference_wrapper<typename S::value_type>, Ts...>;
@@ -78,8 +80,8 @@ public:
     using List          = GpDeclContainerT<std::list, this_type>;
     using FList         = GpDeclContainerT<std::forward_list, this_type>;
 
-    using MapStr        = GpDeclContainerMapT<std::map, std::string, this_type, std::less<>>;
-    using MapSv         = GpDeclContainerMapT<std::map, std::string_view, this_type, std::less<>>;
+    using MapStr        = GpDeclContainerMapT<std::map, std::u8string, this_type, std::less<>>;
+    using MapSv         = GpDeclContainerMapT<std::map, std::u8string_view, this_type, std::less<>>;
     using MapUuid       = GpDeclContainerMapT<std::map, GpUUID, this_type, std::less<>>;
     using MapSi64       = GpDeclContainerMapT<std::map, s_int_64, this_type, std::less<>>;
     using MapUi64       = GpDeclContainerMapT<std::map, u_int_64, this_type, std::less<>>;
@@ -87,8 +89,8 @@ public:
     using MapSSizeT     = GpDeclContainerMapT<std::map, ssize_t, this_type, std::less<>>;
     using MapCVoidPtr   = GpDeclContainerMapT<std::map, const void*, this_type, std::less<>>;
 
-    using UMapStr       = GpDeclContainerMapT<std::map, std::string, this_type>;
-    using UMapSv        = GpDeclContainerMapT<std::map, std::string_view, this_type>;
+    using UMapStr       = GpDeclContainerMapT<std::map, std::u8string, this_type>;
+    using UMapSv        = GpDeclContainerMapT<std::map, std::u8string_view, this_type>;
     using UMapUuid      = GpDeclContainerMapT<std::unordered_map, GpUUID, this_type>;
     using UMapSi64      = GpDeclContainerMapT<std::unordered_map, s_int_64, this_type>;
     using UMapUi64      = GpDeclContainerMapT<std::unordered_map, u_int_64, this_type>;
@@ -98,8 +100,7 @@ public:
     using UMapCPtr      = GpDeclContainerMapT<std::map, const this_type*, this_type>;
 
     using Opt           = GpDeclContainerT<std::optional, this_type>;
-    using Ref           = std::reference_wrapper<this_type>;
-    using CRef          = std::reference_wrapper<const this_type>;
+    using Ref           = GpDeclContainerT<std::reference_wrapper, this_type>;
 };
 
 }//GPlatform

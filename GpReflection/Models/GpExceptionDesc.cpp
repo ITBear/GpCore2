@@ -41,20 +41,20 @@ void    GpExceptionDesc::SetFromExceptionSTD
     const SourceLocationT&  aSourceLocation
 )
 {
-    message         = "std::exception: "_sv + aException.what();
-    line            = count_t::SMake(aSourceLocation.line());
-    column          = count_t::SMake(aSourceLocation.column());
-    file_name       = aSourceLocation.file_name();
-    function_name   = aSourceLocation.function_name();
+    message         = u8"std::exception: "_sv + aException.what();
+    line            = NumOps::SConvert<decltype(line)>(aSourceLocation.line());
+    column          = NumOps::SConvert<decltype(column)>(aSourceLocation.column());
+    file_name       = GpUTF::S_STR_To_UTF8(aSourceLocation.file_name());
+    function_name   = GpUTF::S_STR_To_UTF8(aSourceLocation.function_name());
 }
 
 void    GpExceptionDesc::SetFromExceptionGP (const GpException& aException)
 {
     message         = aException.Message();
-    line            = count_t::SMake(aException.SourceLocation().line());
-    column          = count_t::SMake(aException.SourceLocation().column());
-    file_name       = aException.SourceLocation().file_name();
-    function_name   = aException.SourceLocation().function_name();
+    line            = NumOps::SConvert<decltype(line)>(aException.SourceLocation().line());
+    column          = NumOps::SConvert<decltype(column)>(aException.SourceLocation().column());
+    file_name       = GpUTF::S_STR_To_UTF8(aException.SourceLocation().file_name());
+    function_name   = GpUTF::S_STR_To_UTF8(aException.SourceLocation().function_name());
 }
 
 void    GpExceptionDesc::_SReflectCollectProps (GpReflectProp::C::Vec::Val& aPropsOut)

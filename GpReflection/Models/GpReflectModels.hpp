@@ -4,3 +4,4 @@
 #include "GpReflectModelDesc.hpp"
 #include "GpReflectPropDesc.hpp"
 #include "GpReflectModelDescUtils.hpp"
+#include "GpReflectDemoDesc.hpp"

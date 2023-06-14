@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpMacro.hpp"
+#include "../Macro/GpMacroClass.hpp"
 
 namespace GPlatform::Algo {
 

@@ -4,6 +4,7 @@
 
 #include "../Types/Strings/GpStringUtils.hpp"
 #include "../Types/Strings/GpStringOps.hpp"
+#include "../Types/Strings/GpUTF.hpp"
 
 namespace GPlatform {
 
@@ -20,7 +21,7 @@ std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
         THROW_COND_GP
         (
             iRunnable.IsNULL(),
-            "Already run"_sv
+            u8"Already run"_sv
         );
 
         iRunnable = aRunnable;
@@ -61,13 +62,13 @@ void    GpThread::Join (void) noexcept
             iThread.join();
         } catch (const GpException& e)
         {
-            GpStringUtils::SCerr("[GpThread::Join]: "_sv + e.what() + "\n"_sv);
+            GpStringUtils::SCerr(u8"[GpThread::Join]: "_sv + e.what() + "\n"_sv);
         } catch (const std::exception& e)
         {
-            GpStringUtils::SCerr("[GpThread::Join]: "_sv + e.what() + "\n"_sv);
+            GpStringUtils::SCerr(u8"[GpThread::Join]: "_sv + e.what() + "\n"_sv);
         } catch (...)
         {
-            GpStringUtils::SCerr("[GpThread::Join]: Unknown exception\n"_sv);
+            GpStringUtils::SCerr(u8"[GpThread::Join]: Unknown exception\n"_sv);
         }
     }
 
@@ -94,13 +95,13 @@ bool    GpThread::RequestStop (void) noexcept
                 iRunnable.Vn().CVF().WakeupAll();
             } catch (const GpException& e)
             {
-                GpStringUtils::SCerr("[GpThread::RequestStop]: "_sv + e.what() + "\n"_sv);
+                GpStringUtils::SCerr(u8"[GpThread::RequestStop]: "_sv + e.what() + "\n"_sv);
             } catch (const std::exception& e)
             {
-                GpStringUtils::SCerr("[GpThread::RequestStop]: "_sv + e.what() + "\n"_sv);
+                GpStringUtils::SCerr(u8"[GpThread::RequestStop]: "_sv + e.what() + "\n"_sv);
             } catch (...)
             {
-                GpStringUtils::SCerr("[GpThread::RequestStop]: Unknown exception\n"_sv);
+                GpStringUtils::SCerr(u8"[GpThread::RequestStop]: Unknown exception\n"_sv);
             }
         }
     }

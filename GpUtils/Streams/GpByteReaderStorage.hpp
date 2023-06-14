@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../GpUtils_global.hpp"
 #include "../Types/Containers/GpBytesArray.hpp"
 
 namespace GPlatform {

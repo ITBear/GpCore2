@@ -1,11 +1,12 @@
 #pragma once
 
-#include "../GpTasks_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
 #include "GpTaskFiberStack.hpp"
+#include "../../GpUtils/Types/Containers/GpElementsPool.hpp"
 
 namespace GPlatform {
 

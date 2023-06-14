@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpReflection_global.hpp"
+#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_REFLECTION)
 
@@ -10,7 +10,7 @@ namespace GPlatform {
 
 class GP_REFLECTION_API GpReflectObjectDynamicUtils
 {
-    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpReflectObjectDynamicUtils);
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpReflectObjectDynamicUtils)
 
 public:
     static GpReflectObjectDynamic::SP       SConstruct  (const GpReflectModel& aModel);

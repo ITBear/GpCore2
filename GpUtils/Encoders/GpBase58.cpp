@@ -2,6 +2,8 @@
 
 #if defined(GP_USE_BASE58)
 
+#include <cstring>
+
 #if defined(GP_USE_GNU_GMP)
 #   include <gmpxx.h>
 #else
@@ -31,7 +33,7 @@ void    GpBase58::SEncode
     THROW_COND_GP
     (
         aData.Count() > 0,
-        "Data is empty"_sv
+        u8"Data is empty"_sv
     );
 
     //----------------- Alphabet -------------------
@@ -65,14 +67,14 @@ void    GpBase58::SEncode
     }
 }
 
-std::string GpBase58::SEncodeToStr
+std::u8string   GpBase58::SEncodeToStr
 (
     GpSpanPtrByteR      aData,
     const AlphabetTE    aAlphabet
 )
 {
     const size_t    encodedSize = SEncodedSize(aData);
-    std::string     encodedStr;
+    std::u8string   encodedStr;
     encodedStr.resize(encodedSize);
 
     GpByteWriterStorageFixedSize    writerStorge({encodedStr.data(), encodedStr.size()});
@@ -103,47 +105,50 @@ GpBytesArray    GpBase58::SEncodeToByteArray
 
 void    GpBase58::SDecode
 (
-    std::string_view    aBase58Str,
+    std::u8string_view  aBase58Str,
     GpByteWriter&       aWriterData,
     const AlphabetTE    aAlphabet
 )
 {
-    const auto  decodedAny  = SDecodePrecalc(aBase58Str, aAlphabet);
-    const auto& decodedInfo = std::any_cast<const std::tuple<mpz_class, size_t>&>(decodedAny);
+    mpz_class   mpzData;
+    size_t      decodedSize = 0;
+    SDecodePrecalc(aBase58Str, aAlphabet, &mpzData, decodedSize);
 
-    SDecode(decodedInfo, aWriterData);
+    SDecode(&mpzData, decodedSize, aWriterData);
 }
 
-std::string GpBase58::SDecodeToStr
+std::u8string   GpBase58::SDecodeToStr
 (
-    std::string_view    aBase58Str,
+    std::u8string_view  aBase58Str,
     const AlphabetTE    aAlphabet
 )
 {
-    const auto      decodedAny  = SDecodePrecalc(aBase58Str, aAlphabet);
-    const auto&     decodedInfo = std::any_cast<const std::tuple<mpz_class, size_t>&>(decodedAny);
-    const size_t    decodedSize = std::get<1>(decodedInfo);
-    std::string     decodedStr;
+    mpz_class   mpzData;
+    size_t      decodedSize = 0;
+    SDecodePrecalc(aBase58Str, aAlphabet, &mpzData, decodedSize);
+
+    std::u8string decodedStr;
 
     decodedStr.resize(decodedSize);
 
     GpByteWriterStorageFixedSize    writerStorge({decodedStr.data(), decodedStr.size()});
     GpByteWriter                    writer(writerStorge);
 
-    SDecode(decodedInfo, writer);
+    SDecode(&mpzData, decodedSize, writer);
 
     return decodedStr;
 }
 
 GpBytesArray    GpBase58::SDecodeToByteArray
 (
-    std::string_view    aBase58Str,
+    std::u8string_view  aBase58Str,
     const AlphabetTE    aAlphabet
 )
 {
-    const auto      decodedAny  = SDecodePrecalc(aBase58Str, aAlphabet);
-    const auto&     decodedInfo = std::any_cast<const std::tuple<mpz_class, size_t>&>(decodedAny);
-    const size_t    decodedSize = std::get<1>(decodedInfo);
+    mpz_class   mpzData;
+    size_t      decodedSize = 0;
+    SDecodePrecalc(aBase58Str, aAlphabet, &mpzData, decodedSize);
+
     GpBytesArray    decodedData;
 
     decodedData.resize(decodedSize);
@@ -151,7 +156,7 @@ GpBytesArray    GpBase58::SDecodeToByteArray
     GpByteWriterStorageFixedSize    writerStorge({decodedData.data(), decodedData.size()});
     GpByteWriter                    writer(writerStorge);
 
-    SDecode(decodedInfo, writer);
+    SDecode(&mpzData, decodedSize, writer);
 
     return decodedData;
 }
@@ -160,7 +165,7 @@ size_t  GpBase58::SEncodedSize (GpSpanPtrByteR aData)
 {
     const size_t dataSize = aData.Count();
 
-    THROW_COND_GP(dataSize > 0, "Data is empty"_sv);
+    THROW_COND_GP(dataSize > 0, u8"Data is empty"_sv);
 
     mpz_class data;
     mpz_class remainder;
@@ -189,16 +194,18 @@ size_t  GpBase58::SEncodedSize (GpSpanPtrByteR aData)
     return encodedSize;
 }
 
-std::any    GpBase58::SDecodePrecalc
+void    GpBase58::SDecodePrecalc
 (
-    std::string_view    aBase58Str,
-    const AlphabetTE    aAlphabet
+    std::u8string_view  aBase58Str,
+    const AlphabetTE    aAlphabet,
+    void*               aMpzClass,
+    size_t&             aDataSizeOut
 )
 {
     THROW_COND_GP
     (
         aBase58Str.size() > 0,
-        "Data is empty"_sv
+        u8"Data is empty"_sv
     );
 
     //----------------- Alphabet -------------------
@@ -206,7 +213,8 @@ std::any    GpBase58::SDecodePrecalc
     std::memcpy(alphabet.data(), Alphabet(aAlphabet).data(), 58);
 
     //----------------- Decode BASE58 -------------------
-    mpz_class           data = 0;
+    mpz_class*          data = static_cast<mpz_class*>(aMpzClass);
+    std::memset(data, 0, sizeof(mpz_class));
     const u_int_8* _R_  base58StrPtr    = reinterpret_cast<const u_int_8*>(aBase58Str.data());
     const size_t        base58StrSize   = aBase58Str.size();
 
@@ -215,24 +223,22 @@ std::any    GpBase58::SDecodePrecalc
         const u_int_8   ch      = *base58StrPtr++;
         const size_t    chId    = SFindChId(ch, alphabet);
 
-        data = data*size_t(58) + size_t(chId);
+        *data = *data*size_t(58) + size_t(chId);
     }
 
-    const size_t dataSizeInBase = mpz_sizeinbase(data.get_mpz_t(), 2);
-    const size_t dataSize       = NumOps::SDiv<size_t>(NumOps::SAdd<size_t>(dataSizeInBase, (8-1)), 8);
-
-    return std::make_tuple(data, dataSize);
+    const size_t dataSizeInBase = mpz_sizeinbase(data->get_mpz_t(), 2);
+    aDataSizeOut = NumOps::SDiv<size_t>(NumOps::SAdd<size_t>(dataSizeInBase, (8-1)), 8);
 }
 
 void    GpBase58::SDecode
 (
-    const std::any& aDecodePrecalc,
+    const void*     aMpzClass,
+    const size_t    aDataSize,
     GpByteWriter&   aWriterData
 )
 {
-    const auto&         decodedInfo = std::any_cast<const std::tuple<mpz_class, size_t>&>(aDecodePrecalc);
-    const mpz_class&    bigNum      = std::get<0>(decodedInfo);
-    size_t              decodedSize = std::get<1>(decodedInfo);
+    const mpz_class&    bigNum      = *static_cast<const mpz_class*>(aMpzClass);
+    size_t              decodedSize = aDataSize;
 
     GpSpanPtrByteRW dataOut = aWriterData.Offset(decodedSize);
 
@@ -241,7 +247,7 @@ void    GpBase58::SDecode
 
 size_t  GpBase58::SFindChId
 (
-    const u_int_8               aCh,
+    const u_int_8                   aCh,
     const std::array<u_int_8, 58>&  aAlphabet
 )
 {
@@ -257,7 +263,7 @@ size_t  GpBase58::SFindChId
         id++;
     }
 
-    THROW_GP("Wrong Base58 character '"_sv + aCh + "'"_sv);
+    THROW_GP(u8"Wrong Base58 character '"_sv + aCh + u8"'"_sv);
 }
 
 }//GPlatform

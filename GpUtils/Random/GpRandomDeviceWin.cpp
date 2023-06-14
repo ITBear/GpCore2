@@ -21,7 +21,7 @@ GpRandomDeviceWin::result_type  GpRandomDeviceWin::operator() (void)
     /*unsigned int res = 0;
     if (rand_s(&res) != 0)
     {
-        THROW_GP_EXCEPTION("Random device (rand_s) return error"_sv);
+        THROW_GP("Random device (rand_s) return error"_sv);
     }
 
     return result_type(res);*/
@@ -33,7 +33,7 @@ GpRandomDeviceWin::result_type  GpRandomDeviceWin::operator() (void)
 
     if (iRandomVecUnused < sizeof(result_type))
     {
-        THROW_GP_EXCEPTION("iRandomVecUnused < sizeof(result_type)");
+        THROW_GP("iRandomVecUnused < sizeof(result_type)");
     }
 
     result_type res;
@@ -53,7 +53,7 @@ void    GpRandomDeviceWin::CryptRefillRandom (size_t aBufferSize)
 
     if (!::CryptAcquireContextW(&hProvider, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
     {
-        THROW_GP_EXCEPTION("CryptAcquireContextW return error: "_sv + GpErrno::WinGetLastErrorAsString());
+        THROW_GP("CryptAcquireContextW return error: "_sv + GpErrno::WinGetLastErrorAsString());
     }
 
     const DWORD dwLength = DWORD(aBufferSize);
@@ -63,13 +63,13 @@ void    GpRandomDeviceWin::CryptRefillRandom (size_t aBufferSize)
     {
         Clear();
         ::CryptReleaseContext(hProvider, 0);
-        THROW_GP_EXCEPTION("CryptGenRandom return error: "_sv + GpErrno::WinGetLastErrorAsString());
+        THROW_GP("CryptGenRandom return error: "_sv + GpErrno::WinGetLastErrorAsString());
     }
 
     if (!::CryptReleaseContext(hProvider, 0))
     {
         Clear();
-        THROW_GP_EXCEPTION("CryptReleaseContext return error: "_sv + GpErrno::WinGetLastErrorAsString());
+        THROW_GP("CryptReleaseContext return error: "_sv + GpErrno::WinGetLastErrorAsString());
     }
 
     iRandomVecUnused = aBufferSize;

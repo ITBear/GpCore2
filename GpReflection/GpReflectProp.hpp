@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpReflection_global.hpp"
+#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_REFLECTION)
 
@@ -26,10 +26,10 @@ public:
     using FlagT                 = GpReflectPropFlag;
     using FlagTE                = FlagT::EnumT;
     using FlagsT                = GpReflectPropFlags;
-    using FlagArgsT             = std::map<GpReflectPropFlags::EnumT, std::string>;
+    using FlagArgsT             = std::map<GpReflectPropFlags::EnumT, std::u8string>;
 
-    using FromStringFnT         = std::function<void(const GpReflectProp& aProp, void* aDataPtr, std::string_view aSrc)>;
-    using FromStringFnMapT      = std::map<std::string, FromStringFnT, std::less<>>;
+    using FromStringFnT         = std::function<void(const GpReflectProp& aProp, void* aDataPtr, std::u8string_view aSrc)>;
+    using FromStringFnMapT      = std::map<std::u8string, FromStringFnT, std::less<>>;
 
     using GenFnT                = std::function<void(const GpReflectProp& aProp, void* aDataPtr)>;
     using GenFnOptT             = std::optional<GenFnT>;
@@ -42,7 +42,7 @@ public:
                                                              const GpUUID           aModelUid,
                                                              const ContainerTE      aContainer,
                                                              const TypeTE           aContainerKeyType,
-                                                             std::string&&          aName,
+                                                             std::u8string&&        aName,
                                                              const size_t           aAlign,
                                                              const size_t           aSize,
                                                              const std::ptrdiff_t   aOffset,
@@ -63,19 +63,19 @@ public:
     const GpUUID&                   ModelUid                (void) const noexcept {return iModelUid;}
     ContainerTE                     Container               (void) const noexcept {return iContainer;}
     TypeTE                          ContainerKeyType        (void) const noexcept {return iContainerKeyType;}
-    std::string_view                Name                    (void) const noexcept {return iName;}
+    std::u8string_view              Name                    (void) const noexcept {return iName;}
     size_t                          Align                   (void) const noexcept {return iAlign;}
     size_t                          Size                    (void) const noexcept {return iSize;}
     std::ptrdiff_t                  Offset                  (void) const noexcept {return iOffset;}
     const GpReflectPropFlags&       Flags                   (void) const noexcept {return iFlags;}
     bool                            FlagTest                (const GpReflectPropFlag::EnumT aFlag) const noexcept {return iFlags.Test(aFlag);}
-    std::optional<std::string_view> FlagArg                 (const GpReflectPropFlag::EnumT aFlag) const noexcept;
+    std::optional<std::u8string_view>FlagArg                (const GpReflectPropFlag::EnumT aFlag) const noexcept;
     const GpReflectProp&            UnwrapContainerKeyProp  (void) const;
     bool                            GenFn                   (void* aDataPtr) const;
-    bool                            FromStringFn            (std::string_view   aFnName,
+    bool                            FromStringFn            (std::u8string_view aFnName,
                                                              void*              aDataPtr,
-                                                             std::string_view   aStr) const;
-    GpReflectProp&                  AddFromStringFn         (std::string_view   aFnName,
+                                                             std::u8string_view aStr) const;
+    GpReflectProp&                  AddFromStringFn         (std::u8string_view aFnName,
                                                              FromStringFnT      aFn);
 
     void                            ConstructCustom         (void* aDataPtr) const;
@@ -109,8 +109,8 @@ public:
     bool&                           Value_Bool              (void* aDataPtr) const      {return CastValueAs<bool>(aDataPtr);}
     const GpUUID&                   Value_UUID              (const void* aDataPtr) const {return CastValueAsConst<GpUUID>(aDataPtr);}
     GpUUID&                         Value_UUID              (void* aDataPtr) const      {return CastValueAs<GpUUID>(aDataPtr);}
-    const std::string&              Value_String            (const void* aDataPtr) const {return CastValueAsConst<std::string>(aDataPtr);}
-    std::string&                    Value_String            (void* aDataPtr) const      {return CastValueAs<std::string>(aDataPtr);}
+    const std::u8string&                Value_String            (const void* aDataPtr) const {return CastValueAsConst<std::u8string>(aDataPtr);}
+    std::u8string&                  Value_String            (void* aDataPtr) const      {return CastValueAs<std::u8string>(aDataPtr);}
     const GpBytesArray&             Value_BLOB              (const void* aDataPtr) const {return CastValueAsConst<GpBytesArray>(aDataPtr);}
     GpBytesArray&                   Value_BLOB              (void* aDataPtr) const      {return CastValueAs<GpBytesArray>(aDataPtr);}
     const GpReflectObject&          Value_Object            (const void* aDataPtr) const {return CastValueAsConst<GpReflectObject>(aDataPtr);}
@@ -150,8 +150,8 @@ public:
     auto&                           Vec_Bool                (void* aDataPtr) const      {return CastValueAs<std::vector<bool>>(aDataPtr);}
     const auto&                     Vec_UUID                (const void* aDataPtr) const {return CastValueAsConst<std::vector<GpUUID>>(aDataPtr);}
     auto&                           Vec_UUID                (void* aDataPtr) const      {return CastValueAs<std::vector<GpUUID>>(aDataPtr);}
-    const auto&                     Vec_String              (const void* aDataPtr) const {return CastValueAsConst<std::vector<std::string>>(aDataPtr);}
-    auto&                           Vec_String              (void* aDataPtr) const      {return CastValueAs<std::vector<std::string>>(aDataPtr);}
+    const auto&                     Vec_String              (const void* aDataPtr) const {return CastValueAsConst<std::vector<std::u8string>>(aDataPtr);}
+    auto&                           Vec_String              (void* aDataPtr) const      {return CastValueAs<std::vector<std::u8string>>(aDataPtr);}
     const auto&                     Vec_BLOB                (const void* aDataPtr) const {return CastValueAsConst<std::vector<GpBytesArray>>(aDataPtr);}
     auto&                           Vec_BLOB                (void* aDataPtr) const      {return CastValueAs<std::vector<GpBytesArray>>(aDataPtr);}
     //const auto&                   Vec_Object              (const void* aDataPtr) const {return CastValueAsConst<std::vector<GpReflectObject>>(aDataPtr);}
@@ -191,8 +191,8 @@ public:
     template<typename Key> auto&        Map_Bool            (void* aDataPtr) const      {return CastValueAs<std::map<Key, bool, std::less<>>>(aDataPtr);}
     template<typename Key> const auto&  Map_UUID            (const void* aDataPtr) const {return CastValueAsConst<std::map<Key, GpUUID, std::less<>>>(aDataPtr);}
     template<typename Key> auto&        Map_UUID            (void* aDataPtr) const      {return CastValueAs<std::map<Key, GpUUID, std::less<>>>(aDataPtr);}
-    template<typename Key> const auto&  Map_String          (const void* aDataPtr) const {return CastValueAsConst<std::map<Key, std::string, std::less<>>>(aDataPtr);}
-    template<typename Key> auto&        Map_String          (void* aDataPtr) const      {return CastValueAs<std::map<Key, std::string, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_String          (const void* aDataPtr) const {return CastValueAsConst<std::map<Key, std::u8string, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_String          (void* aDataPtr) const      {return CastValueAs<std::map<Key, std::u8string, std::less<>>>(aDataPtr);}
     template<typename Key> const auto&  Map_BLOB            (const void* aDataPtr) const {return CastValueAsConst<std::map<Key, GpBytesArray, std::less<>>>(aDataPtr);}
     template<typename Key> auto&        Map_BLOB            (void* aDataPtr) const      {return CastValueAs<std::map<Key, GpBytesArray, std::less<>>>(aDataPtr);}
     //template<typename Key> const auto&Map_Object          (const void* aDataPtr) const {return CastValueAsConst<std::map<Key, GpReflectObject, std::less<>>>(aDataPtr);}
@@ -219,7 +219,7 @@ private:
     GpUUID              iModelUid;
     ContainerTE         iContainer;
     TypeTE              iContainerKeyType;
-    std::string         iName;
+    std::u8string           iName;
     size_t              iAlign      = 0;
     size_t              iSize       = 0;
     std::ptrdiff_t      iOffset     = 0;

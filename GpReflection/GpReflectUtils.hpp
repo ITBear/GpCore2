@@ -1,16 +1,17 @@
 #pragma once
 
-#include "GpReflection_global.hpp"
+#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_REFLECTION)
 
+#include "../GpUtils/Types/Strings/GpUTF.hpp"
 #include "GpReflectObject.hpp"
 
 namespace GPlatform {
 
 class GP_REFLECTION_API GpReflectUtils
 {
-    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpReflectUtils);
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpReflectUtils)
 
 public:
     [[nodiscard]] inline static
@@ -37,7 +38,7 @@ public:
     constexpr GpUUID                SDetectModelUid         (void);
 
     template<typename T> static
-    GpReflectProp&                  SAddProp                (std::string&&                      aPropName,
+    GpReflectProp&                  SAddProp                (std::u8string&&                    aPropName,
                                                              const std::ptrdiff_t               aOffset,
                                                              const GpReflectPropFlags           aFlags,
                                                              GpReflectProp::FlagArgsT&&         aFlagArgs,
@@ -112,26 +113,80 @@ constexpr GpReflectType::EnumT  GpReflectUtils::SDetectType (void)
 {
     using VT = std::remove_cvref_t<T>;
 
-         if constexpr (std::is_same_v<VT, u_int_8>) return GpReflectType::U_INT_8;
-    else if constexpr (std::is_same_v<VT, s_int_8>) return GpReflectType::S_INT_8;
-    else if constexpr (std::is_same_v<VT, u_int_16>) return GpReflectType::U_INT_16;
-    else if constexpr (std::is_same_v<VT, s_int_16>) return GpReflectType::S_INT_16;
-    else if constexpr (std::is_same_v<VT, u_int_32>) return GpReflectType::U_INT_32;
-    else if constexpr (std::is_same_v<VT, s_int_32>) return GpReflectType::S_INT_32;
-    else if constexpr (std::is_same_v<VT, u_int_64>) return GpReflectType::U_INT_64;
-    else if constexpr (std::is_same_v<VT, s_int_64>) return GpReflectType::S_INT_64;
-    else if constexpr (std::is_same_v<VT, double>) return GpReflectType::DOUBLE;
-    else if constexpr (std::is_same_v<VT, float>) return GpReflectType::FLOAT;
-    else if constexpr (std::is_same_v<VT, bool>) return GpReflectType::BOOLEAN;
-    else if constexpr (std::is_same_v<VT, GpUUID>) return GpReflectType::UUID;
-    else if constexpr (std::is_same_v<VT, std::string>) return GpReflectType::STRING;
-    else if constexpr (std::is_same_v<VT, GpBytesArray>) return GpReflectType::BLOB;
-    else if constexpr (std::is_base_of_v<GpReflectObject, VT>) return GpReflectType::OBJECT;
-    else if constexpr (GpReflectObject::SP::SHasTag_GpSharedPtrBase<VT>()) return GpReflectType::OBJECT_SP;
-    else if constexpr (GpUnitUtils::SHasTag_GpUnit<VT>()) return GpReflectUtils::SDetectType<typename VT::value_type>();
-    else if constexpr (GpEnum::SHasTag_GpEnum<VT>()) return GpReflectType::ENUM;
-    else if constexpr (GpEnumFlags::SHasTag_GpEnumFlags<VT>()) return GpReflectType::ENUM_FLAGS;
-    else return GpReflectType::NOT_SET;
+    if constexpr (std::is_same_v<VT, u_int_8>)
+    {
+        return GpReflectType::U_INT_8;
+    } else if constexpr (std::is_same_v<VT, s_int_8>)
+    {
+        return GpReflectType::S_INT_8;
+    } else if constexpr (std::is_same_v<VT, u_int_16>)
+    {
+        return GpReflectType::U_INT_16;
+    } else if constexpr (std::is_same_v<VT, s_int_16>)
+    {
+        return GpReflectType::S_INT_16;
+    } else if constexpr (std::is_same_v<VT, u_int_32>)
+    {
+        return GpReflectType::U_INT_32;
+    } else if constexpr (std::is_same_v<VT, s_int_32>)
+    {
+        return GpReflectType::S_INT_32;
+    } else if constexpr (std::is_same_v<VT, u_int_64>)
+    {
+        return GpReflectType::U_INT_64;
+    } else if constexpr (std::is_same_v<VT, s_int_64>)
+    {
+        return GpReflectType::S_INT_64;
+    } else if constexpr (std::is_same_v<VT, double>)
+    {
+        return GpReflectType::DOUBLE;
+    } else if constexpr (std::is_same_v<VT, float>)
+    {
+        return GpReflectType::FLOAT;
+    } else if constexpr (std::is_same_v<VT, bool>)
+    {
+        return GpReflectType::BOOLEAN;
+    } else if constexpr (std::is_same_v<VT, GpUUID>)
+    {
+        return GpReflectType::UUID;
+    } else if constexpr (std::is_same_v<VT, std::u8string>)
+    {
+        return GpReflectType::STRING;
+    } else if constexpr (std::is_same_v<VT, GpBytesArray>)
+    {
+        return GpReflectType::BLOB;
+    } else if constexpr (std::is_base_of_v<GpReflectObject, VT>)
+    {
+        return GpReflectType::OBJECT;
+    } else if constexpr (GpHasTag_GpSharedPtrBase<VT>())
+    {
+        if constexpr (GpHasTag_GpReflectObject<typename VT::value_type>())
+        {
+            return GpReflectType::OBJECT_SP;
+        } else
+        {
+            GpThrowCe<GpException>(u8"Unknown type");
+        }
+    } else if constexpr (GpHasTag_GpUnit<VT>())
+    {
+        constexpr GpReflectType::EnumT t = GpReflectUtils::SDetectType<typename VT::value_type>();
+
+        if constexpr (t == GpReflectType::NOT_SET)
+        {
+            GpThrowCe<GpException>(u8"Unknown type");
+        }
+
+        return t;
+    } else if constexpr (GpHasTag_GpEnum<VT>())
+    {
+        return GpReflectType::ENUM;
+    } else if constexpr (GpHasTag_GpEnumFlags<VT>())
+    {
+        return GpReflectType::ENUM_FLAGS;
+    } else
+    {
+        return GpReflectType::NOT_SET;
+    }
 }
 
 template<typename T> [[nodiscard]]
@@ -151,7 +206,7 @@ constexpr std::tuple<GpReflectType::EnumT, GpReflectType::EnumT, GpReflectContai
 
             if constexpr (!SCheckContainerValueType(std::get<0>(res)))
             {
-                GpThrowCe<std::out_of_range>("Unsupported type '"_sv + SModelName<T>() + "' for vector value");
+                GpThrowCe<GpException>(u8"Unsupported type '"_sv + SModelName<T>() + u8"' for vector value");
             }
 
             return res;
@@ -164,18 +219,18 @@ constexpr std::tuple<GpReflectType::EnumT, GpReflectType::EnumT, GpReflectContai
 
             if constexpr (!SCheckContainerKeyType(std::get<1>(res)))
             {
-                GpThrowCe<std::out_of_range>("Unsupported type '"_sv + SModelName<T>() + "' for map key");
+                GpThrowCe<GpException>(u8"Unsupported type '"_sv + SModelName<T>() + u8"' for map key");
             }
 
             if constexpr (!SCheckContainerValueType(std::get<0>(res)))
             {
-                GpThrowCe<std::out_of_range>("Unsupported type '"_sv + SModelName<T>() + "' for map mapped_type");
+                GpThrowCe<GpException>(u8"Unsupported type '"_sv + SModelName<T>() + u8"' for map mapped_type");
             }
 
             return res;
         } else
         {
-            GpThrowCe<std::out_of_range>("Unknown type '"_sv + SModelName<T>() + "'");
+            GpThrowCe<GpException>(u8"Unknown type '"_sv + SModelName<T>() + u8"'");
         }
     }
 
@@ -217,7 +272,7 @@ constexpr GpUUID    GpReflectUtils::SDetectModelUid (void)
             return SGetModelUid<typename T::mapped_type, et>();
         } else
         {
-            GpThrowCe<std::out_of_range>("Unknown model '"_sv + SModelName<T>() + "'");
+            GpThrowCe<GpException>(u8"Unknown model '"_sv + SModelName<T>() + u8"'");
         }
     }
 
@@ -227,7 +282,7 @@ constexpr GpUUID    GpReflectUtils::SDetectModelUid (void)
 template<typename T>
 GpReflectProp&  GpReflectUtils::SAddProp
 (
-    std::string&&                   aPropName,
+    std::u8string&&                 aPropName,
     const std::ptrdiff_t            aOffset,
     const GpReflectPropFlags        aFlags,
     GpReflectProp::FlagArgsT&&      aFlagArgs,
@@ -315,46 +370,64 @@ T   GpReflectUtils::SCopyValue (const T& aValue)
 
          if constexpr (std::is_arithmetic_v<VT>) return aValue;
     else if constexpr (std::is_same_v<VT, GpUUID>) return aValue;
-    else if constexpr (std::is_same_v<VT, std::string>) return aValue;
+    else if constexpr (std::is_same_v<VT, std::u8string>) return aValue;
     else if constexpr (std::is_same_v<VT, GpBytesArray>) return aValue;
     else if constexpr (std::is_base_of_v<GpReflectObject, VT>) return aValue;
-    else if constexpr (GpReflectObject::SP::SHasTag_GpSharedPtrBase<VT>())
+    else if constexpr (GpHasTag_GpSharedPtrBase<VT>())
     {
-        return aValue.V().template ReflectClone<typename T::value_type>();
-    } else if constexpr (GpUnitUtils::SHasTag_GpUnit<VT>()) return aValue;
-    else if constexpr (GpEnum::SHasTag_GpEnum<VT>()) return aValue;
-    else if constexpr (GpEnumFlags::SHasTag_GpEnumFlags<VT>()) return aValue;
-    else if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
-    {
-        if constexpr (GpReflectObject::SP::SHasTag_GpSharedPtrBase<typename T::value_type>())
+        if constexpr (GpHasTag_GpReflectObject<typename VT::value_type>())
         {
-            T tmp;
-            tmp.reserve(aValue.size());
-
-            for (const auto& e: aValue)
+            return aValue.V().template ReflectClone<typename VT::value_type>();
+        } else
+        {
+            GpThrowCe<GpException>(u8"Unknown type");
+        }
+    } else if constexpr (GpHasTag_GpUnit<VT>()) return aValue;
+    else if constexpr (GpHasTag_GpEnum<VT>()) return aValue;
+    else if constexpr (GpHasTag_GpEnumFlags<VT>()) return aValue;
+    else if constexpr (std::is_same_v<VT, std::vector<typename VT::value_type>>)
+    {
+        if constexpr (GpHasTag_GpSharedPtrBase<typename VT::value_type>())
+        {
+            if constexpr (GpHasTag_GpReflectObject<typename VT::value_type::value_type>())
             {
-                GpReflectObject::SP val = e.V().ReflectClone();
-                tmp.emplace_back(val.CastUpAs<typename T::value_type>());
-            }
+                T tmp;
+                tmp.reserve(aValue.size());
 
-            return tmp;
+                for (const auto& e: aValue)
+                {
+                    GpReflectObject::SP val = e.V().ReflectClone();
+                    tmp.emplace_back(val.CastUpAs<typename T::value_type>());
+                }
+
+                return tmp;
+            } else
+            {
+                GpThrowCe<GpException>(u8"Unknown type");
+            }
         } else
         {
             return aValue;
         }
-    } else if constexpr (std::is_same_v<T, std::map<typename T::key_type, typename T::mapped_type, std::less<>>>)
+    } else if constexpr (std::is_same_v<VT, std::map<typename VT::key_type, typename VT::mapped_type, std::less<>>>)
     {
-        if constexpr (GpReflectObject::SP::SHasTag_GpSharedPtrBase<typename T::mapped_type>())
+        if constexpr (GpHasTag_GpSharedPtrBase<typename VT::mapped_type>())
         {
-            T tmp;
-
-            for (const auto& [key, value]: aValue)
+            if constexpr (GpHasTag_GpReflectObject<typename VT::mapped_type::value_type>())
             {
-                GpReflectObject::SP val = value.V().ReflectClone();
-                tmp.try_emplace(key, val.CastUpAs<typename T::mapped_type>());
-            }
+                T tmp;
 
-            return tmp;
+                for (const auto& [key, value]: aValue)
+                {
+                    GpReflectObject::SP val = value.V().ReflectClone();
+                    tmp.try_emplace(key, val.CastUpAs<typename T::mapped_type>());
+                }
+
+                return tmp;
+            } else
+            {
+                GpThrowCe<GpException>(u8"Unknown type");
+            }
         } else
         {
             return aValue;

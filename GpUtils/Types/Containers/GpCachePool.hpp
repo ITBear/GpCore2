@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../../GpMacro.hpp"
+#include "../../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_CONTAINERS)
 
-#include "GpContainersT.hpp"
 #include "../../SyncPrimitives/GpSpinlock.hpp"
 #include "../Strings/GpStringOps.hpp"
+#include "../Strings/GpUTF.hpp"
 #include "../Strings/GpStringUtils.hpp"
 
 #include <mutex>
@@ -120,10 +120,10 @@ GpCachePoolElementGuard<ElementT, CacheT>::~GpCachePoolElementGuard (void) noexc
         }
     } catch (const std::exception& e)
     {
-        GpStringUtils::SCerr("[GpCachePoolElementGuard::~GpCachePoolElementGuard]: "_sv + e.what());
+        GpStringUtils::SCerr(u8"[GpCachePoolElementGuard::~GpCachePoolElementGuard]: "_sv + e.what());
     } catch (...)
     {
-        GpStringUtils::SCerr("[GpCachePoolElementGuard::~GpCachePoolElementGuard]: unkown exception"_sv);
+        GpStringUtils::SCerr(u8"[GpCachePoolElementGuard::~GpCachePoolElementGuard]: unkown exception"_sv);
     }
 }
 
@@ -226,7 +226,7 @@ typename GpCachePool<KeyT, ValueT>::CachePoolElementGuardOptT   GpCachePool<KeyT
             _EliminateOne();
         } else
         {
-            THROW_GP("Cache limit was reached"_sv);
+            THROW_GP(u8"Cache limit was reached"_sv);
         }
     }
 

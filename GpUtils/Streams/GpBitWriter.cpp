@@ -1,5 +1,6 @@
 #include "GpBitWriter.hpp"
 
+/*
 namespace GPlatform {
 
 void    GpBitWriter::Bits
@@ -161,3 +162,4 @@ void    GpBitWriter::_Bits
 }
 
 }//GPlatform
+*/

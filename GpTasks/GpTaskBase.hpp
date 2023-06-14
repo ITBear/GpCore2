@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpTasks_global.hpp"
+#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 
@@ -17,7 +17,7 @@ public:
     using EventOptRefT  = std::optional<std::reference_wrapper<GpEvent>>;
 
 protected:
-    inline              GpTaskBase  (std::string aName) noexcept;
+    inline              GpTaskBase  (std::u8string aName) noexcept;
     virtual             ~GpTaskBase (void) noexcept override;
 
 protected:
@@ -31,7 +31,7 @@ private:
     bool                iIsStarted = false;
 };
 
-GpTaskBase::GpTaskBase (std::string aName) noexcept:
+GpTaskBase::GpTaskBase (std::u8string aName) noexcept:
 GpTask
 (
     std::move(aName),

@@ -29,6 +29,13 @@
 //201703L (C++17)
 //202002L (C++20)
 
-#if __cplusplus < 202002L
-#   define consteval  constexpr
+#define CPP_VERSION_03 199711L
+#define CPP_VERSION_11 201103L
+#define CPP_VERSION_14 201402L
+#define CPP_VERSION_17 201703L
+#define CPP_VERSION_20 202002L
+#define CPP_VERSION_23 202303L //TODO: check
+
+#if __cplusplus < CPP_VERSION_20
+#   define consteval constexpr
 #endif

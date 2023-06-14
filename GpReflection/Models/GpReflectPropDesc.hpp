@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpReflection_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_REFLECTION)
 
@@ -14,7 +14,7 @@ class GP_REFLECTION_API GpReflectPropDesc final: public GpReflectObject
 {
 public:
     CLASS_DD(GpReflectPropDesc)
-    REFLECT_DECLARE("f7a8691c-070a-4576-9e00-f4156b61758a"_uuid)
+    REFLECT_DECLARE(u8"f7a8691c-070a-4576-9e00-f4156b61758a"_uuid)
 
 public:
                             GpReflectPropDesc   (void) noexcept;
@@ -24,7 +24,7 @@ public:
                                                  const GpReflectType::EnumT             aKeyType,
                                                  const GpReflectContainerType::EnumT    aContainerType,
                                                  const GpUUID&                          aModelUid,
-                                                 std::string                            aName) noexcept;
+                                                 std::u8string                          aName) noexcept;
     virtual                 ~GpReflectPropDesc  (void) noexcept override final;
 
 public:
@@ -32,7 +32,7 @@ public:
     GpReflectType           key_type;
     GpReflectContainerType  container_type;
     GpUUID                  model_uid;
-    std::string             name;
+    std::u8string           name;
 };
 
 }//namespace GPlatform

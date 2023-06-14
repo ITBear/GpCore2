@@ -3,6 +3,8 @@
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
+#include "../../GpUtils/Other/GpRAIIonDestruct.hpp"
+
 namespace GPlatform {
 
 GpTaskFiberBase::~GpTaskFiberBase (void) noexcept

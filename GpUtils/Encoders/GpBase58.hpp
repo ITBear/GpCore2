@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpMacro.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_BASE58)
 
@@ -8,8 +8,7 @@
 #include "../Types/Enums/GpEnum.hpp"
 #include "../Types/Containers/GpContainersT.hpp"
 #include "../Types/Strings/GpStringOps.hpp"
-
-#include <any>
+#include "../Types/Strings/GpUTF.hpp"
 
 namespace GPlatform {
 
@@ -30,17 +29,17 @@ public:
     static void             SEncode             (GpSpanPtrByteR     aData,
                                                  GpByteWriter&      aWriterBase58Str,
                                                  const AlphabetTE   aAlphabet);
-    static std::string      SEncodeToStr        (GpSpanPtrByteR     aData,
+    static std::u8string    SEncodeToStr        (GpSpanPtrByteR     aData,
                                                  const AlphabetTE   aAlphabet);
     static GpBytesArray     SEncodeToByteArray  (GpSpanPtrByteR     aData,
                                                  const AlphabetTE   aAlphabet);
 
-    static void             SDecode             (std::string_view   aBase58Str,
+    static void             SDecode             (std::u8string_view aBase58Str,
                                                  GpByteWriter&      aWriterData,
                                                  const AlphabetTE   aAlphabet);
-    static std::string      SDecodeToStr        (std::string_view   aBase58Str,
+    static std::u8string    SDecodeToStr        (std::u8string_view aBase58Str,
                                                  const AlphabetTE   aAlphabet);
-    static GpBytesArray     SDecodeToByteArray  (std::string_view   aBase58Str,
+    static GpBytesArray     SDecodeToByteArray  (std::u8string_view aBase58Str,
                                                  const AlphabetTE   aAlphabet);
 
 private:
@@ -50,9 +49,12 @@ private:
     }
 
     static size_t           SEncodedSize        (GpSpanPtrByteR aData);
-    static std::any         SDecodePrecalc      (std::string_view   aBase58Str,
-                                                 const AlphabetTE   aAlphabet);
-    static void             SDecode             (const std::any&    aDecodePrecalc,
+    static void             SDecodePrecalc      (std::u8string_view aBase58Str,
+                                                 const AlphabetTE   aAlphabet,
+                                                 void*              aMpzClass,
+                                                 size_t&            aDataSizeOut);
+    static void             SDecode             (const void*        aMpzClass,
+                                                 const size_t       aDataSize,
                                                  GpByteWriter&      aWriterData);
     static size_t           SFindChId           (const u_int_8                  aCh,
                                                  const std::array<u_int_8, 58>& aAlphabet);

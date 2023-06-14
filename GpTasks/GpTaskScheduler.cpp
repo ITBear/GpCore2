@@ -5,10 +5,11 @@
 #if defined(GP_USE_MULTITHREADING)
 
 #include <iostream>
+#include "../GpUtils/Other/GpRAIIonDestruct.hpp"
 
 namespace GPlatform {
 
-GpTaskScheduler GpTaskScheduler::sTaskScheduler;
+GpTaskScheduler GpTaskScheduler::sInstance;
 
 GpTaskScheduler::GpTaskScheduler (void) noexcept
 {
@@ -76,7 +77,7 @@ void    GpTaskScheduler::NewToReady (GpTask::SP aTask)
     _NewToReady(std::move(aTask), false);
 }
 
-GpItcFuture::SP GpTaskScheduler::NewToReadyDepend (GpTask::SP aTask)
+GpTaskScheduler::CompleteItcFutureT::SP GpTaskScheduler::NewToReadyDepend (GpTask::SP aTask)
 {
     return _NewToReady(std::move(aTask), true);
 }
@@ -86,7 +87,7 @@ void    GpTaskScheduler::NewToWaiting (GpTask::SP aTask)
     _NewToWaiting(std::move(aTask), false);
 }
 
-GpItcFuture::SP GpTaskScheduler::NewToWaitingDepend (GpTask::SP aTask)
+GpTaskScheduler::CompleteItcFutureT::SP GpTaskScheduler::NewToWaitingDepend (GpTask::SP aTask)
 {
     return _NewToWaiting(std::move(aTask), true);
 }
@@ -325,7 +326,7 @@ void    GpTaskScheduler::_DestroyTaskRef (GpTask::SP&& aTask)
     }
 }
 
-GpItcFuture::SP GpTaskScheduler::_NewToReady
+GpTaskScheduler::CompleteItcFutureT::SP GpTaskScheduler::_NewToReady
 (
     GpTask::SP  aTask,
     const bool  aIsDependent
@@ -333,7 +334,7 @@ GpItcFuture::SP GpTaskScheduler::_NewToReady
 {
     std::scoped_lock lock(iLock);
 
-    GpItcFuture::SP future;
+    CompleteItcFutureT::SP future;
 
     THROW_COND_GP
     (
@@ -370,7 +371,7 @@ GpItcFuture::SP GpTaskScheduler::_NewToReady
     return future;
 }
 
-GpItcFuture::SP GpTaskScheduler::_NewToWaiting
+GpTaskScheduler::CompleteItcFutureT::SP GpTaskScheduler::_NewToWaiting
 (
     GpTask::SP  aTask,
     const bool  aIsDependent
@@ -378,7 +379,7 @@ GpItcFuture::SP GpTaskScheduler::_NewToWaiting
 {
     std::scoped_lock lock(iLock);
 
-    GpItcFuture::SP future;
+    CompleteItcFutureT::SP future;
 
     THROW_COND_GP
     (

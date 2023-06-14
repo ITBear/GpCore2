@@ -1,9 +1,10 @@
 #pragma once
 
-#include "GpReflection_global.hpp"
+#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_REFLECTION)
 
+#include "../GpUtils/Macro/GpMacroTags.hpp"
 #include "GpReflectModel.hpp"
 #include "GpReflectObjectFactory.hpp"
 
@@ -17,10 +18,14 @@
 
 namespace GPlatform {
 
+TAG_REGISTER(GpReflectObject);
+
 class GP_REFLECTION_API GpReflectObject
 {
 public:
     CLASS_DD(GpReflectObject)
+
+    TAG_SET(GpReflectObject);
 
     struct  _type_id_tag_t{};
     template<typename T> static T& SBaseType(void(T::*)(typename T::_type_id_tag_t&) const);
@@ -44,7 +49,7 @@ public:
     static const GpReflectModel&    SReflectModel           (void) noexcept {return GpReflectObject::_sReflectModel;}
     static constexpr GpUUID         SReflectModelUid        (void) noexcept
     {
-        constexpr const GpUUID uid = GpUUID::CE_FromString("10000000-0000-0000-0000-000000000001"_sv);
+        constexpr const GpUUID uid = GpUUID::CE_FromString(u8"10000000-0000-0000-0000-000000000001"_sv);
         return uid;
     }
 
@@ -95,7 +100,7 @@ typename T::SP  GpReflectObject::ReflectClone (void) const
     }; \
 \
     static const ::GPlatform::GpReflectModel&   SReflectModel           (void) noexcept {return this_type::_sReflectModel;} \
-    constexpr static const ::GPlatform::GpUUID  SReflectModelUid        (void) noexcept \
+    static constexpr const ::GPlatform::GpUUID  SReflectModelUid        (void) noexcept \
     { \
         constexpr const ::GPlatform::GpUUID uid(TUUID); \
         return uid; \
@@ -162,7 +167,7 @@ private: \
         (\
             modelUid, \
             aBaseReflectionModel.Uid(), \
-            std::string(::GPlatform::GpReflectUtils::SModelName<T>()), \
+            std::u8string(::GPlatform::GpUTF::S_STR_To_UTF8(::GPlatform::GpReflectUtils::SModelName<T>())), \
             std::move(props), \
             groupId, \
             std::move(factory), \
@@ -177,7 +182,7 @@ private: \
 #define PROP(PROP_NAME) \
     ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
-        std::string(#PROP_NAME), \
+        std::u8string(GpUTF::S_STR_To_UTF8(#PROP_NAME)), \
         ::GPlatform::GpReflectUtils::SOffsetOf(&this_type::PROP_NAME), \
         {}, \
         GpReflectProp::FlagArgsT(), \
@@ -189,7 +194,7 @@ private: \
 #define PROP_F(PROP_NAME, FLAGS) \
     ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
-        std::string(#PROP_NAME), \
+        std::u8string(GpUTF::S_STR_To_UTF8(#PROP_NAME)), \
         ::GPlatform::GpReflectUtils::SOffsetOf(&this_type::PROP_NAME), \
         FLAGS, \
         GpReflectProp::FlagArgsT(), \
@@ -201,7 +206,7 @@ private: \
 #define PROP_FG(PROP_NAME, FLAGS, GEN_FN) \
     ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
-        std::string(#PROP_NAME), \
+        std::u8string(GpUTF::S_STR_To_UTF8(#PROP_NAME)), \
         ::GPlatform::GpReflectUtils::SOffsetOf(&this_type::PROP_NAME), \
         FLAGS, \
         GpReflectProp::FlagArgsT(), \
@@ -213,7 +218,7 @@ private: \
 #define PROP_FA(PROP_NAME, FLAGS, FLAG_ARGS) \
     ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
-        std::string(#PROP_NAME), \
+        std::u8string(GpUTF::S_STR_To_UTF8(#PROP_NAME)), \
         ::GPlatform::GpReflectUtils::SOffsetOf(&this_type::PROP_NAME), \
         FLAGS, \
         std::move(FLAG_ARGS), \

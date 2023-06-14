@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpReflection_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_REFLECTION)
 

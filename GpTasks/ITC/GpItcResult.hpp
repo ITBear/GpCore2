@@ -1,127 +1,170 @@
 #pragma once
 
-#include "../GpTasks_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
+
+#include "../../GpUtils/Exceptions/GpException.hpp"
+#include "../../GpUtils/Macro/GpMacroClass.hpp"
+#include "../../GpUtils/Types/Containers/GpContainersT.hpp"
+#include "../../GpUtils/Types/Strings/GpUTF.hpp"
 
 #include <variant>
 
 namespace GPlatform {
 
+template<typename T>
 class GpItcResult
 {
 public:
-    CLASS_DD(GpItcResult)
+    CLASS_DD(GpItcResult<T>)
+
+    using ExceptionT                = std::tuple<std::u8string, SourceLocationT>;
+    using ExtractFnT_OnSuccess      = std::function<void(T&)>;
+    using ExtractFnT_OnException    = std::function<void(const ExceptionT&)>;
+
+    using VariantsT = std::variant
+    <
+        ExceptionT,
+        T
+    >;
 
 public:
-    inline                      GpItcResult     (void) noexcept;
-                                GpItcResult     (const GpItcResult& aRes) noexcept = delete;
-    inline                      GpItcResult     (GpItcResult&& aRes) noexcept;
+                                GpItcResult     (void) noexcept = delete;
+                                GpItcResult     (const this_type& aRes) = delete;
+    inline                      GpItcResult     (this_type&& aRes);
     inline                      GpItcResult     (const GpException& aException);
     inline                      GpItcResult     (const std::exception&  aException,
-                                                 const SourceLocationT& aSourceLocation = SourceLocationT::current()) noexcept;
-    inline                      GpItcResult     (std::any&& aAny) noexcept;
+                                                 const SourceLocationT& aSourceLocation = SourceLocationT::current());
+    inline                      GpItcResult     (T aPayload);
     virtual                     ~GpItcResult    (void) noexcept = default;
 
     inline bool                 IsException     (void) const noexcept;
-    inline const std::any&      Value           (void) const noexcept;
-    inline std::any&            Value           (void) noexcept;
+    inline bool                 IsPayload       (void) const noexcept;
 
-    template<typename T>
-    static void                 SExtract        (std::optional<GpItcResult::SP>&        aRes,
-                                                 std::function<void(T&&)>               aOnSuccessFn,
-                                                 std::function<void(std::string_view)>  aOnErrorFn,
-                                                 std::function<void()>                  aOnNullResFn);
+    inline const ExceptionT&    Exception       (void) const;
+    inline const T&             Payload         (void) const;
+    inline T&                   Payload         (void);
+    inline VariantsT&           Variants        (void) noexcept;
+
+    static void                 SExtract        (std::optional<this_type::SP>&  aRes,
+                                                 ExtractFnT_OnSuccess           aOnSuccessFn,
+                                                 ExtractFnT_OnException         aOnExceptionFn);
 
 private:
-    std::any                    iValue;
+    VariantsT                   iVariants;
 };
 
-GpItcResult::GpItcResult (void) noexcept:
-iValue(size_t(EXIT_SUCCESS))
+template<typename T>
+GpItcResult<T>::GpItcResult (this_type&& aRes):
+iVariants(std::move(aRes.iVariants))
 {
 }
 
-GpItcResult::GpItcResult (GpItcResult&& aRes) noexcept:
-iValue (std::move(aRes.iValue))
+template<typename T>
+GpItcResult<T>::GpItcResult (const GpException& aException):
+iVariants
+(
+    ExceptionT
+    (
+        GpUTF::S_STR_To_UTF8(aException.what()),
+        aException.SourceLocation()
+    )
+)
 {
 }
 
-GpItcResult::GpItcResult (const GpException& aException):
-iValue(aException)
-{
-}
-
-GpItcResult::GpItcResult
+template<typename T>
+GpItcResult<T>::GpItcResult
 (
     const std::exception&   aException,
     const SourceLocationT&  aSourceLocation
-) noexcept:
-iValue(GpException
+):
+iVariants(ExceptionT
 (
-    aException.what(),
+    GpUTF::S_STR_To_UTF8(aException.what()),
     aSourceLocation
 ))
 {
 }
 
-GpItcResult::GpItcResult (std::any&& aAny) noexcept:
-iValue(std::move(aAny))
+template<typename T>
+GpItcResult<T>::GpItcResult (T aPayload):
+iVariants(std::move(aPayload))
 {
-}
-
-bool    GpItcResult::IsException (void) const noexcept
-{
-    return iValue.type() == typeid(GpException);
-}
-
-const std::any& GpItcResult::Value (void) const noexcept
-{
-    return iValue;
-}
-
-std::any&   GpItcResult::Value (void) noexcept
-{
-    return iValue;
 }
 
 template<typename T>
-void    GpItcResult::SExtract
+bool    GpItcResult<T>::IsException (void) const noexcept
+{
+    return std::holds_alternative<ExceptionT>(iVariants);
+}
+
+template<typename T>
+bool    GpItcResult<T>::IsPayload (void) const noexcept
+{
+    return std::holds_alternative<T>(iVariants);
+}
+
+template<typename T>
+const typename GpItcResult<T>::ExceptionT&  GpItcResult<T>::Exception (void) const
+{
+    return std::get<ExceptionT>(iVariants);
+}
+
+template<typename T>
+const T&    GpItcResult<T>::Payload (void) const
+{
+    return std::get<T>(iVariants);
+}
+
+template<typename T>
+T&  GpItcResult<T>::Payload (void)
+{
+    return std::get<T>(iVariants);
+}
+
+template<typename T>
+typename GpItcResult<T>::VariantsT& GpItcResult<T>::Variants (void) noexcept
+{
+    return iVariants;
+}
+
+template<typename T>
+void    GpItcResult<T>::SExtract
 (
-    std::optional<GpItcResult::SP>&         aRes,
-    std::function<void(T&&)>                aOnSuccessFn,
-    std::function<void(std::string_view)>   aOnErrorFn,
-    std::function<void()>                   aOnNullResFn
+    std::optional<this_type::SP>&   aRes,
+    ExtractFnT_OnSuccess            aOnSuccessFn,
+    ExtractFnT_OnException          aOnExceptionFn
 )
 {
     if (aRes.has_value() == false)
     {
-        aOnNullResFn();
+        aOnExceptionFn(ExceptionT{u8"Result is std::nullopt"_sv, SourceLocationT::current()});
         return;
     }
 
-    GpItcResult::SP& resSP = aRes.value();
+    this_type::SP& resSP = aRes.value();
 
     if (resSP.IsNULL())
     {
-        aOnNullResFn();
+        aOnExceptionFn(ExceptionT{u8"Result is nullptr"_sv, SourceLocationT::current()});
         return;
     }
 
-    GpItcResult&    res     = resSP.Vn();
-    std::any&       value   = res.Value();
+    this_type& res = resSP.Vn();
 
-    if (value.type() == typeid(GpException))
+    if (res.IsException())
     {
-        return aOnErrorFn(std::any_cast<GpException>(value).what());
+        return aOnExceptionFn(res.Exception());
     }
 
     try
     {
-        return aOnSuccessFn(std::move(std::any_cast<T>(value)));
+        return aOnSuccessFn(res.Payload());
     } catch (const std::exception& e)
     {
-        return aOnErrorFn(e.what());
+        return aOnExceptionFn(ExceptionT{GpUTF::S_STR_To_UTF8(e.what()), SourceLocationT::current()});
     }
 }
 

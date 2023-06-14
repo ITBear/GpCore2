@@ -2,19 +2,20 @@
 
 #if defined(GP_USE_UUID)
 
-#include "../../Random/GpSRandom.hpp"
 #include "../Strings/GpStringOps.hpp"
+#include "../Bits/GpBitOps.hpp"
+#include "../../Random/GpSRandom.hpp"
 #include "../../DateTime/GpDateTimeOps.hpp"
 
 namespace GPlatform {
 
-std::string GpUUID::ToString (void) const
+std::u8string   GpUUID::ToString (void) const
 {
     //    8      4    4    4       12
     //xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-    std::string str;
+    std::u8string str;
     str.resize(36);
-    char* _R_ strPtr = str.data();
+    char8_t* _R_ strPtr = str.data();
 
     DataT data;
     MemOps::SCopy(data, iData);
@@ -22,7 +23,7 @@ std::string GpUUID::ToString (void) const
 
     for (size_t id = 0; id < data.size(); ++id)
     {
-        std::array<char,2> h = StrOps::SFromByteHex(*dataPtr++);
+        std::array<char8_t, 2> h = StrOps::SFromByteHex(*dataPtr++);
         *strPtr++ = h.at(0);
         *strPtr++ = h.at(1);
 
@@ -38,22 +39,22 @@ std::string GpUUID::ToString (void) const
     return str;
 }
 
-void    GpUUID::FromString (std::string_view aStr)
+void    GpUUID::FromString (std::u8string_view aStr)
 {
     THROW_COND_GP
     (
         aStr.size() == 36,
-        "Length of UUID string must be 36"_sv
+        u8"Length of UUID string must be 36"_sv
     );
 
     DataT data;
 
-    const char* _R_ strPtr  = aStr.data();
-    u_int_8* _R_    dataPtr = data.data();
+    const char8_t* _R_  strPtr  = aStr.data();
+    u_int_8* _R_        dataPtr = data.data();
 
     for (size_t id = 0; id < data.size(); ++id)
     {
-        std::array<char,2> str = {*strPtr++, *strPtr++};
+        std::array<char8_t,2> str = {*strPtr++, *strPtr++};
 
         *dataPtr++ = StrOps::SToByteHex(str);
 
@@ -113,7 +114,7 @@ GpUUID  GpUUID::SGenRandomV7 (const unix_ts_ms_t aUnixTS) noexcept
         THROW_COND_GP
         (
             ts >= 0,
-            "Unix timestamp < 0"_sv
+            u8"Unix timestamp < 0"_sv
         );
 
         const u_int_64 tsn =   BitOps::Native2BigEndian(u_int_64(ts) << 16)
@@ -134,7 +135,7 @@ GpUUID  GpUUID::SGenRandomV7 (const unix_ts_ms_t aUnixTS) noexcept
     return uuid;
 }
 
-GpUUID  GpUUID::SFromString (std::string_view aStr)
+GpUUID  GpUUID::SFromString (std::u8string_view aStr)
 {
     GpUUID uuid;
     uuid.FromString(aStr);

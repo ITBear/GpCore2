@@ -1,38 +1,49 @@
 #pragma once
 
+#include "../../Config/GpConfig.hpp"
+
+#if defined(GP_USE_MULTITHREADING)
+
 #include "GpItcProducerConsumer.hpp"
 
 namespace GPlatform {
 
+template<typename T>
 class GpItcProducer
 {
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpItcProducer)
-    CLASS_DD(GpItcProducer)
+    CLASS_DD(GpItcProducer<T>)
+
+    using ItcProducerConsumerT  = GpItcProducerConsumer<T>;
+    using ItcResultT            = GpItcResult<T>;
 
 public:
-    inline                      GpItcProducer   (GpItcProducerConsumer::SP aProducerConsumer) noexcept;
-    inline                      ~GpItcProducer  (void) noexcept;
+    inline                              GpItcProducer   (typename ItcProducerConsumerT::SP aProducerConsumer) noexcept;
+    inline                              ~GpItcProducer  (void) noexcept;
 
-    [[nodiscard]] inline bool   Produce         (GpItcResult::SP        aResult,
-                                                 const milliseconds_t   aWaitTimeout);
+    [[nodiscard]] inline bool           Produce         (typename ItcResultT::SP    aResult,
+                                                         const milliseconds_t       aWaitTimeout);
 
 private:
-    GpItcProducerConsumer::SP   iProducerConsumer;
+    typename ItcProducerConsumerT::SP   iProducerConsumer;
 };
 
-GpItcProducer::GpItcProducer (GpItcProducerConsumer::SP aProducerConsumer) noexcept:
+template<typename T>
+GpItcProducer<T>::GpItcProducer (typename ItcProducerConsumerT::SP aProducerConsumer) noexcept:
 iProducerConsumer(std::move(aProducerConsumer))
 {
 }
 
-GpItcProducer::~GpItcProducer (void) noexcept
+template<typename T>
+GpItcProducer<T>::~GpItcProducer (void) noexcept
 {
 }
 
-bool    GpItcProducer::Produce
+template<typename T>
+bool    GpItcProducer<T>::Produce
 (
-    GpItcResult::SP         aResult,
+    typename ItcResultT::SP aResult,
     const milliseconds_t    aWaitTimeout
 )
 {
@@ -44,3 +55,5 @@ bool    GpItcProducer::Produce
 }
 
 }//namespace GPlatform
+
+#endif//#if defined(GP_USE_MULTITHREADING)

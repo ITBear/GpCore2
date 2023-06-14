@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpTasks_global.hpp"
+#include "../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 
@@ -20,7 +20,7 @@ protected:
 public:
     virtual                     ~GpTaskFactory  (void) noexcept {}
 
-    virtual GpTask::SP          NewInstance     (std::string aTaskName) const = 0;
+    virtual GpTask::SP          NewInstance     (std::u8string aTaskName) const = 0;
 };
 
 }//namespace GPlatform

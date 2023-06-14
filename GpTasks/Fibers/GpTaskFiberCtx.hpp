@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpTasks_global.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
@@ -66,13 +66,11 @@ void    GpTaskFiberCtx::Yield (const GpTaskDoRes aRes)
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     //>>>>>>>>>>>>>> INSIDE FIBER <<<<<<<<<<<<<<
 
-
     //>>>>>>>>>>>>>> OUTSIDE FIBER <<<<<<<<<<<<<<
     //VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
     iFiberInner = std::move(iFiberInner).resume();
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     //>>>>>>>>>>>>>> OUTSIDE FIBER <<<<<<<<<<<<<<
-
 
     //>>>>>>>>>>>>>> INSIDE FIBER <<<<<<<<<<<<<<
     //VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV

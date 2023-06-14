@@ -1,5 +1,6 @@
 #include "GpTimer.hpp"
 #include "GpTimersManager.hpp"
+#include "GpTimerShotEvent.hpp"
 
 #if defined(GP_USE_TIMERS)
 
@@ -76,7 +77,7 @@ void    GpTimer::SSingleShot
         MakeSP<GpTimerShotEventFactory>(),
         0.0_si_s,
         aDelayBeforeShot,
-        1
+        u_int_64(1)
     );
 
     timer.V().Subscribe(aSubscriber);
