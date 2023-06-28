@@ -42,6 +42,7 @@ public:
     const PropsT&               Props           (void) const noexcept {return iProps;}
     const GpReflectProp&        Prop            (const size_t aId) const {return iProps.at(aId);}
     const GpReflectProp&        Prop            (std::u8string_view aName) const;
+    GpReflectProp::C::Opt::CRef PropOpt         (std::u8string_view aName) const noexcept;
     const GpReflectProp&        Prop            (std::u8string_view                     aName,
                                                  const GpReflectType::EnumT             aType,
                                                  const GpReflectContainerType::EnumT    aContainerType) const;

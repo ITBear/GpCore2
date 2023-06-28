@@ -85,6 +85,8 @@ public:
     using MapUuid       = GpDeclContainerMapT<std::map, GpUUID, this_type, std::less<>>;
     using MapSi64       = GpDeclContainerMapT<std::map, s_int_64, this_type, std::less<>>;
     using MapUi64       = GpDeclContainerMapT<std::map, u_int_64, this_type, std::less<>>;
+    using MapSi32       = GpDeclContainerMapT<std::map, s_int_32, this_type, std::less<>>;
+    using MapUi32       = GpDeclContainerMapT<std::map, u_int_32, this_type, std::less<>>;
     using MapSizeT      = GpDeclContainerMapT<std::map, size_t, this_type, std::less<>>;
     using MapSSizeT     = GpDeclContainerMapT<std::map, ssize_t, this_type, std::less<>>;
     using MapCVoidPtr   = GpDeclContainerMapT<std::map, const void*, this_type, std::less<>>;

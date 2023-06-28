@@ -25,6 +25,21 @@ const GpReflectProp&    GpReflectModel::Prop (std::u8string_view aName) const
     THROW_GP(u8"Property was not found by name '"_sv + aName + u8"'"_sv);
 }
 
+GpReflectProp::C::Opt::CRef GpReflectModel::PropOpt (std::u8string_view aName) const noexcept
+{
+    //TODO: implement with flat map
+
+    for (const GpReflectProp& prop: iProps)
+    {
+        if (prop.Name() == aName)
+        {
+            return prop;
+        }
+    }
+
+    return std::nullopt;
+}
+
 const GpReflectProp&    GpReflectModel::Prop
 (
     std::u8string_view                  aName,

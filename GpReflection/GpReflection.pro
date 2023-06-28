@@ -43,6 +43,7 @@ HEADERS += \
     Builders/GpReflectBuilders.hpp \
     Builders/GpReflectModelBuilder.hpp \
     Builders/GpReflectPropBuilder.hpp \
+    GpReflectConcepts.hpp \
     GpReflectModelSource.hpp \
     GpReflectModelSourceFactory.hpp \
     GpReflectObjectDynamic.hpp \
