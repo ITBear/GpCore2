@@ -152,7 +152,7 @@ inline void THROW_COND_GP
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
 )
 {
-    if (!aCondition)
+    if (!aCondition) [[unlikely]]
     {
         throw GpException(aMsg, aSourceLocation);
     }
@@ -165,7 +165,7 @@ inline void THROW_COND_GP
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
 )
 {
-    if (!aCondition)
+    if (!aCondition) [[unlikely]]
     {
         throw GpException(GpUTF::S_STR_To_UTF8(aMsg), aSourceLocation);
     }
@@ -178,7 +178,7 @@ inline void THROW_COND_GP
     const SourceLocationT&          aSourceLocation = SourceLocationT::current()
 )
 {
-    if (!aCondition)
+    if (!aCondition) [[unlikely]]
     {
         throw GpException(aMsgGenFn(), aSourceLocation);
     }
@@ -191,7 +191,7 @@ inline void THROW_COND_GP
     const SourceLocationT&          aSourceLocation = SourceLocationT::current()
 )
 {
-    if (!aCondition)
+    if (!aCondition) [[unlikely]]
     {
         const auto msg = aMsgGenFn();
         throw GpException(GpUTF::S_STR_To_UTF8(msg), aSourceLocation);

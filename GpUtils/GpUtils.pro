@@ -130,7 +130,7 @@ HEADERS += \
     SyncPrimitives/GpAsmSpinPause.hpp \
     SyncPrimitives/GpConditionVar.hpp \
     SyncPrimitives/GpConditionVarFlag.hpp \
-    SyncPrimitives/GpRWLock.hpp \
+    SyncPrimitives/GpRWSpinLock.hpp \
     SyncPrimitives/GpSpinlock.hpp \
     SyncPrimitives/GpSyncPrimitives.hpp \
     SyncPrimitives/GpTryLockGuard.hpp \

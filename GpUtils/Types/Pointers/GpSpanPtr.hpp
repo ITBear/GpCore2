@@ -101,7 +101,7 @@ public:
     static constexpr size_byte_t value_size_v = size_byte_t::SMake(sizeof(PureT<T>));
 
 public:
-    constexpr                                   GpSpanPtr       (void) noexcept = delete;
+    constexpr                                   GpSpanPtr       (void) noexcept;
     constexpr                                   GpSpanPtr       (const this_type& aSpan) noexcept;
     constexpr                                   GpSpanPtr       (this_type&& aSpan) noexcept;
     constexpr                                   GpSpanPtr       (pointer        aPtr,
@@ -335,17 +335,25 @@ protected:
 };
 
 template<Concepts::IsPointer T>
+constexpr   GpSpanPtr<T>::GpSpanPtr (void) noexcept:
+iPtr  (nullptr),
+iCount(0)
+{
+}
+
+template<Concepts::IsPointer T>
 constexpr   GpSpanPtr<T>::GpSpanPtr (const this_type& aSpan) noexcept:
-iPtr(aSpan.iPtr),
+iPtr  (aSpan.iPtr),
 iCount(aSpan.iCount)
 {
 }
 
 template<Concepts::IsPointer T>
 constexpr   GpSpanPtr<T>::GpSpanPtr (this_type&& aSpan) noexcept:
-iPtr(std::move(aSpan.iPtr)),
+iPtr  (std::move(aSpan.iPtr)),
 iCount(std::move(aSpan.iCount))
 {
+    aSpan.Clear();
 }
 
 template<Concepts::IsPointer T>
@@ -354,7 +362,7 @@ constexpr   GpSpanPtr<T>::GpSpanPtr
     pointer         aPtr,
     const size_t    aCount
 ):
-iPtr(aPtr),
+iPtr  (aPtr),
 iCount(aCount)
 {
     _CheckPointers(iPtr, iCount);

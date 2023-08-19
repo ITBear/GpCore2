@@ -129,7 +129,7 @@ inline void THROW_COND_##SHORT_NAME \
     const SourceLocationT&  aSourceLocation = SourceLocationT::current() \
 ) \
 { \
-    if (!aCondition) \
+    if (!aCondition) [[unlikely]] \
     { \
         throw NAME(aCode, aMsg, aSourceLocation); \
     } \
@@ -143,7 +143,7 @@ inline void THROW_COND_##SHORT_NAME \
     const SourceLocationT&  aSourceLocation = SourceLocationT::current() \
 ) \
 { \
-    if (!aCondition) \
+    if (!aCondition) [[unlikely]] \
     { \
         throw NAME(aCode, ::GPlatform::GpUTF::S_STR_To_UTF8(aMsg), aSourceLocation); \
     } \
@@ -157,7 +157,7 @@ inline void THROW_COND_##SHORT_NAME \
     const SourceLocationT&          aSourceLocation = SourceLocationT::current() \
 ) \
 { \
-    if (!aCondition) \
+    if (!aCondition) [[unlikely]] \
     { \
         throw NAME(aCode, aMsgGenFn(), aSourceLocation); \
     } \
@@ -171,7 +171,7 @@ inline void THROW_COND_##SHORT_NAME \
     const SourceLocationT&          aSourceLocation = SourceLocationT::current() \
 ) \
 { \
-    if (!aCondition) \
+    if (!aCondition) [[unlikely]] \
     { \
         const auto msg = aMsgGenFn(); \
         throw NAME(aCode, GpUTF::S_STR_To_UTF8(msg), aSourceLocation); \

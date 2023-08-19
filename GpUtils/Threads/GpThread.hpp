@@ -5,7 +5,7 @@
 #if defined(GP_USE_MULTITHREADING)
 
 #include "GpRunnable.hpp"
-#include "../SyncPrimitives/GpRWLock.hpp"
+#include "../SyncPrimitives/GpRWSpinLock.hpp"
 #include <shared_mutex>
 
 namespace GPlatform {
@@ -35,7 +35,7 @@ public:
     bool                    RequestStop (void) noexcept;
 
 private:
-    mutable GpRWLock        iRWLock;
+    mutable GpRWSpinLock    iRWLock;
     std::u8string           iName;
     ImplT                   iThread;
     GpRunnable::SP          iRunnable;

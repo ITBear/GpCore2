@@ -2320,15 +2320,18 @@ GpReflectObjectDynamic::SP  GpReflectObjectDynamicUtils::SConstruct (const GpRef
     //Data ptr
     void* dataPtr = nullptr;
 
-    GpRAIIonDestruct stopGuard([&]()
-    {
-        if (dataPtr != nullptr)
+    GpRAIIonDestruct stopGuard
+    (
+        [&]()
         {
-            std::free(dataPtr);
-        }
+            if (dataPtr != nullptr)
+            {
+                std::free(dataPtr);
+            }
 
-        dataPtr = nullptr;
-    });
+            dataPtr = nullptr;
+        }
+    );
 
     //Props
     const GpReflectProp::C::Vec::Val& props = aModel.Props();

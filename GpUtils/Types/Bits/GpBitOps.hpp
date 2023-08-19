@@ -363,6 +363,20 @@ public:
         return TValue(aValue >> aShift);
     }
 
+    template<Concepts::IsIntegralUpTo128 TValue> [[nodiscard]] static constexpr
+    TValue                          SHL_C               (const TValue aValue, const size_t aShift) noexcept
+    {
+        if (aShift == 0) return aValue;
+        return (aValue << aShift) | (aValue >> ((sizeof(aValue) * CHAR_BIT) - aShift));
+    }
+
+    template<Concepts::IsIntegralUpTo128 TValue> [[nodiscard]] static constexpr
+    TValue                          SHR_C               (const TValue aValue, const size_t aShift) noexcept
+    {
+        if (aShift == 0) return aValue;
+        return (aValue >> aShift) | (aValue << ((sizeof(aValue) * CHAR_BIT) - aShift));
+    }
+
     template<Concepts::IsIntegralUpTo64 T> [[nodiscard]] static constexpr
     size_t                          Leading0bitCnt  (T aValue) noexcept
     {

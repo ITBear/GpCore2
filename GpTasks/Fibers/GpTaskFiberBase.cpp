@@ -13,10 +13,13 @@ GpTaskFiberBase::~GpTaskFiberBase (void) noexcept
 
 void    GpTaskFiberBase::FiberFn (GpThreadStopToken aStopToken)
 {
-    GpRAIIonDestruct stopGuard([&]()
-    {
-        this->OnStop();
-    });
+    GpRAIIonDestruct stopGuard
+    (
+        [&]()
+        {
+            this->OnStop();
+        }
+    );
 
     OnStart();
 

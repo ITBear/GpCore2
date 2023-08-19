@@ -20,7 +20,7 @@ template <typename> struct GpStringTemplateArgHolder;
 template <char8_t... chars>
 struct GpStringTemplateArgHolder<GpStringTemplateArg<chars...>>
 {
-    static constexpr std::u8string_view SAsStringView (void) noexcept
+    static constexpr std::u8string_view SAsStringViewU8 (void) noexcept
     {
         constexpr std::array<char8_t, sizeof...(chars) + 1> str = {chars..., '\0'};
         return std::u8string_view(str.data(), str.size() - 1);

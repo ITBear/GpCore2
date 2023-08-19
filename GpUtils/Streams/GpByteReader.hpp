@@ -29,6 +29,7 @@ public:
     s_int_64                CompactSInt64   (void);
     GpSpanPtrByteR          BytesWithLen    (void);
     inline GpSpanPtrByteR   Bytes           (const size_t aSize);
+    GpSpanPtrByteR          NextTextLine    (void);
 
 private:
     template<typename T>

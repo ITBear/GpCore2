@@ -71,7 +71,7 @@ inline void THROW_COND_TEXT_CODE_GP
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
 )
 {
-    if (!aCondition)
+    if (!aCondition) [[unlikely]]
     {
         throw GpExceptionTextCode(aMsg, std::move(aCode), aSourceLocation);
     }
@@ -85,7 +85,7 @@ inline void THROW_COND_TEXT_CODE_GP
     const SourceLocationT&          aSourceLocation = SourceLocationT::current()
 )
 {
-    if (!aCondition)
+    if (!aCondition) [[unlikely]]
     {
         throw GpExceptionTextCode(aMsgGenFn(), std::move(aCode), aSourceLocation);
     }

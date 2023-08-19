@@ -35,6 +35,7 @@ public:
     [[nodiscard]] const DataT&          Data            (void) const noexcept {return iData;}
     [[nodiscard]] DataT&                Data            (void) noexcept {return iData;}
     [[nodiscard]] std::u8string_view    AsStringView    (void) const noexcept {return std::u8string_view(reinterpret_cast<const char8_t*>(Data().data()), Data().size());}
+    [[nodiscard]] u_int_128             AsUInt128       (void) const noexcept {return std::bit_cast<u_int_128>(iData);}
 
     [[nodiscard]] std::u8string         ToString        (void) const;
     void                                FromString      (std::u8string_view aStr);

@@ -89,4 +89,34 @@ GpSpanPtrByteR  GpByteReader::BytesWithLen (void)
     return Bytes(size);
 }
 
+GpSpanPtrByteR  GpByteReader::NextTextLine (void)
+{
+    const char* _R_ dataPtr     = iStorage.StoragePtr().PtrAs<const char*>();
+    const size_t    sizeLeft    = SizeLeft();
+
+    for (size_t id = 0; id < sizeLeft; id++)
+    {
+        const char ch = dataPtr[id];
+
+        if (ch == '\n') [[unlikely]]
+        {
+            return iStorage.Read(id+1).SubspanBegin(0, id);
+        } else if (ch == '\r') [[unlikely]]
+        {
+            // Check next char
+            if (   ((id+1) < sizeLeft)
+                && (ch == '\n'))
+            {
+                return iStorage.Read(id+2).SubspanBegin(0, id);
+            } else
+            {
+                return iStorage.Read(id+1).SubspanBegin(0, id);
+            }
+        }
+    }
+
+    // Read all data left
+    return iStorage.Read(sizeLeft);
+}
+
 }//GPlatform

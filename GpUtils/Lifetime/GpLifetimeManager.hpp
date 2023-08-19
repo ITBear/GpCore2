@@ -22,7 +22,7 @@ public:
     void                        Destroy             (GpLifetimeElement::SP aElement);
 
 private:
-    GpRWLock                    iLock;
+    GpRWSpinLock                iLock;
 
 
     static GpLifetimeManager    sInstance;

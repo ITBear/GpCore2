@@ -2,7 +2,7 @@
 
 /*#include "../GpMacro.hpp"
 #include "../Types/Containers/GpContainersT.hpp"
-#include "../SyncPrimitives/GpRWLock.hpp"
+#include "../SyncPrimitives/GpRWSpinLock.hpp"
 #include "../Exceptions/GpException.hpp"
 #include "../Types/Strings/GpStringOps.hpp"
 
@@ -28,13 +28,13 @@ public:
     inline void             OnDestroy           (void);
 
 protected:
-    GpRWLock&               Lock                (void) const {return iLock;}
+    GpRWSpinLock&           Lock                (void) const {return iLock;}
 
     virtual void            _OnInit             (void) = 0;
     virtual void            _OnDestroy          (void) = 0;
 
 private:
-    mutable GpRWLock        iLock;
+    mutable GpRWSpinLock    iLock;
     const std::u8string     iName;
     bool                    iIsInit = false;
 };

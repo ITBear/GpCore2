@@ -82,7 +82,7 @@ template<typename T>
 typename T::SP  GpReflectObject::ReflectClone (void) const
 {
     GpReflectObject::SP val = ReflectClone();
-    return val.CastUpAs<typename T::SP>();
+    return val.CastAs<typename T::SP>();
 }
 
 }//GPlatform

@@ -63,7 +63,7 @@ private:
     void                        MakeShot            (void);
 
 private:
-    mutable GpRWLock            iLock;
+    mutable GpRWSpinLock        iLock;
     GpTimerShotEventFactory::SP iFactory;
     const bool                  iIsShotsLimited;
     const u_int_64              iShotsMaxCount  = 0;

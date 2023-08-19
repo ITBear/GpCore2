@@ -5,7 +5,7 @@
 #if defined(GP_USE_CONTAINERS)
 
 #include "../Strings/GpStringOps.hpp"
-#include "../../SyncPrimitives/GpRWLock.hpp"
+#include "../../SyncPrimitives/GpRWSpinLock.hpp"
 
 #include <mutex>
 #include <shared_mutex>
@@ -98,7 +98,7 @@ public:
     void                    Apply           (std::function<void(ValueT&)> aFn);
 
 private:
-    mutable GpRWLock        iLock;
+    mutable GpRWSpinLock    iLock;
     container_type          iElements;
 };
 

@@ -5,7 +5,7 @@
 #if defined(GP_USE_CONTAINERS)
 
 #include "GpContainersT.hpp"
-#include "../../SyncPrimitives/GpRWLock.hpp"
+#include "../../SyncPrimitives/GpRWSpinLock.hpp"
 
 #include <set>
 #include <mutex>
@@ -42,7 +42,7 @@ public:
     const underlying_container& UnderlyingContainer (void) const noexcept;
 
 private:
-    mutable GpRWLock            iLockRW;
+    mutable GpRWSpinLock        iLockRW;
     underlying_container        iContainer;
 };
 
