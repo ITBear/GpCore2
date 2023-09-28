@@ -13,20 +13,20 @@ template<typename T> class GpTryLockGuard
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTryLockGuard)
 
 public:
-                            GpTryLockGuard      (T& aLock) noexcept;
-                            ~GpTryLockGuard     (void) noexcept;
+                    GpTryLockGuard  (T& aLock) noexcept;
+                    ~GpTryLockGuard (void) noexcept;
 
-    bool                    IsLocked            (void) const noexcept {return iIsLocked;}
+    bool            IsLocked        (void) const noexcept {return iIsLocked;}
 
 private:
-    const bool              iIsLocked;
-    T&                      iLock;
+    const bool      iIsLocked;
+    T&              iLock;
 };
 
 template<typename T>
 GpTryLockGuard<T>::GpTryLockGuard (T& aLock) noexcept:
 iIsLocked(aLock.try_lock()),
-iLock(aLock)
+iLock    (aLock)
 {
 }
 

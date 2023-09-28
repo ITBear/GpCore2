@@ -14,7 +14,7 @@ class GpRAIIonDestruct
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpRAIIonDestruct)
 
 public:
-                GpRAIIonDestruct    (FnT aFn) noexcept;
+                GpRAIIonDestruct    (FnT&& aFn) noexcept;
                 ~GpRAIIonDestruct   (void) noexcept;
 
 private:
@@ -22,7 +22,7 @@ private:
 };
 
 template<typename FnT>
-GpRAIIonDestruct<FnT>::GpRAIIonDestruct (FnT aFn) noexcept: iFn(aFn)
+GpRAIIonDestruct<FnT>::GpRAIIonDestruct (FnT&& aFn) noexcept: iFn(std::move(aFn))
 {
 }
 
@@ -40,7 +40,7 @@ GpRAIIonDestruct<FnT>::~GpRAIIonDestruct (void) noexcept
         GpStringUtils::SCerr(GpExceptionUtils::SToString(e));
     } catch (...)
     {
-        GpStringUtils::SCerr(u8"[GpRAIIonDestruct::~GpRAIIonDestruct]: Unknown exception\n"_sv);
+        GpStringUtils::SCerr(u8"[GpRAIIonDestruct::~GpRAIIonDestruct]: Unknown exception"_sv);
     }
 }
 

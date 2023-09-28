@@ -17,6 +17,7 @@
 #include "../Containers/GpBytesArray.hpp"
 #include "../Enums/GpEnum.hpp"
 #include "../UIDs/GpUUID.hpp"
+#include "../Numerics/GpNumericOps.hpp"
 #include "GpUTF.hpp"
 
 namespace GPlatform {
@@ -44,6 +45,11 @@ public:
                                                              const char8_t      aChar);
     static inline std::u8string             STrimRight      (std::u8string_view aStr,
                                                              const char8_t      aChar);
+
+    //-------------------------------- Compare ----------------------------------
+    static bool                             SIsEqualCaseInsensitive8bit
+                                                            (std::u8string_view aStr1,
+                                                             std::u8string_view aStr2) noexcept;
 
     //------------------------- Numeric from/to string --------------------------
     static size_t                           SFromUI64       (const u_int_64     aValue,
@@ -91,6 +97,8 @@ public:
     //------------------------- Auto to string -----------------------------
     static std::u8string_view               SToString       (const std::u8string& aValue) {return aValue;}
     static std::u8string_view               SToString       (std::u8string_view aValue) {return aValue;}
+    static std::string_view                 SToString       (const std::string& aValue) {return aValue;}
+    static std::string_view                 SToString       (std::string_view aValue) {return aValue;}
     static std::u8string                    SToString       (const GpBytesArray& aValue) {return SFromBytesHex(GpSpanPtrByteR(aValue.data(), aValue.size()));}
     static std::u8string_view               SToString       (const GpEnum& aValue) {return aValue.ToString();}
     static std::u8string                    SToString       (const GpUUID& aValue) {return aValue.ToString();}
@@ -100,7 +108,7 @@ public:
     static std::u8string                    SToString       (const void* aPtr);
     static std::u8string_view               SToString       (const bool aValue) noexcept {return aValue ? u8"true"_sv : u8"false"_sv;}
 
-    template<typename T, typename _D = void, typename = std::enable_if_t<std::is_integral_v<T>, _D>>
+    template<Concepts::IsIntergal T>
     static std::u8string                    SToString       (T aValue)
     {
         if constexpr (std::is_signed_v<T>)
@@ -387,7 +395,7 @@ inline std::string operator+
     return res;
 }
 
-template<typename T>
+template<::GPlatform::Concepts::IsIntergal T>
 inline std::string operator+
 (
     std::string_view    aLeft,
@@ -403,7 +411,6 @@ inline std::string operator+
 
     return res;
 }
-
 
 //------------------ char8_t ---------------------
 //TODO: make all pairs and combinations
@@ -480,6 +487,20 @@ inline std::u8string operator+
     res.reserve(aLeft.length() + aRight.length());
     res.append(aLeft.data(), aLeft.length());
     res.append(aRight.data(), aRight.length());
+
+    return res;
+}
+
+inline std::u8string operator+
+(
+    std::u8string_view  aLeft,
+    std::string_view    aRight
+)
+{
+    std::u8string res;
+    res.reserve(aLeft.length() + aRight.length());
+    res.append(aLeft.data(), aLeft.length());
+    res.append(GPlatform::GpUTF::S_STR_To_UTF8(aRight.data()), aRight.length());
 
     return res;
 }

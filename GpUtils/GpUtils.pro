@@ -24,7 +24,6 @@ SOURCES += \
     DateTime/GpDateTimeOps.cpp \
     Encoders/GpBase58.cpp \
     Encoders/GpBase64.cpp \
-    EventBus/GpEventSubscriber.cpp \
     Exceptions/GpException.cpp \
     Exceptions/GpExceptionCode.cpp \
     Exceptions/GpExceptionTextCode.cpp \
@@ -49,8 +48,6 @@ SOURCES += \
     Streams/GpByteWriterStorageFixedSize.cpp \
     Threads/GpThread.cpp \
     Threads/Timers/GpTimer.cpp \
-    Threads/Timers/GpTimerShotEvent.cpp \
-    Threads/Timers/GpTimerShotEventFactory.cpp \
     Threads/Timers/GpTimersManager.cpp \
     Types/Containers/GpGlobalStructCatalogC.cpp \
     Types/Enums/GpEnum.cpp \
@@ -74,9 +71,7 @@ HEADERS += \
     Encoders/GpBase58.hpp \
     Encoders/GpBase64.hpp \
     Encoders/GpEncoders.hpp \
-    EventBus/GpEvent.hpp \
-    EventBus/GpEventPublisher.hpp \
-    EventBus/GpEventSubscriber.hpp \
+    EventBus/GpEventChannel.hpp \
     Exceptions/GpException.hpp \
     Exceptions/GpExceptionCe.hpp \
     Exceptions/GpExceptionCode.hpp \
@@ -90,7 +85,6 @@ HEADERS += \
     Files/GpFileWindows.hpp \
     Files/GpFiles.hpp \
     GpMemOps.hpp \
-    GpUtils.hpp \
     GpUtils_global.hpp \
     Lifetime/GpLifetime.hpp \
     Lifetime/GpLifetimeElement.hpp \
@@ -132,18 +126,13 @@ HEADERS += \
     SyncPrimitives/GpConditionVarFlag.hpp \
     SyncPrimitives/GpRWSpinLock.hpp \
     SyncPrimitives/GpSpinlock.hpp \
-    SyncPrimitives/GpSyncPrimitives.hpp \
     SyncPrimitives/GpTryLockGuard.hpp \
     SyncPrimitives/GpUnlockGuard.hpp \
     Threads/GpRunnable.hpp \
     Threads/GpThread.hpp \
-    Threads/GpThreadStopToken.hpp \
     Threads/GpThreads.hpp \
     Threads/Timers/GpDoOnceInPeriod.hpp \
     Threads/Timers/GpTimer.hpp \
-    Threads/Timers/GpTimerShotEvent.hpp \
-    Threads/Timers/GpTimerShotEventFactory.hpp \
-    Threads/Timers/GpTimers.hpp \
     Threads/Timers/GpTimersManager.hpp \
     TypeTraits/GpTypeInfoUtils.hpp \
     TypeTraits/GpTypeTraits.hpp \
@@ -161,20 +150,16 @@ HEADERS += \
     Types/Containers/GpContainersT.hpp \
     Types/Containers/GpDictionary.hpp \
     Types/Containers/GpElementsPool.hpp \
-    Types/Containers/GpFlatMap.hpp \
     Types/Containers/GpGlobalStructCatalogC.hpp \
     Types/Containers/GpSet.hpp \
     Types/Containers/GpSpanPtrNumerics.hpp \
     Types/Containers/GpTypeShell.hpp \
     Types/Enums/GpEnum.hpp \
     Types/Enums/GpEnumFlags.hpp \
-    Types/Enums/GpEnums.hpp \
-    Types/GpTypes.hpp \
     Types/Numerics/GpMath.hpp \
     Types/Numerics/GpNumericOps.hpp \
     Types/Numerics/GpNumericTypes.hpp \
     Types/Numerics/GpNumerics.hpp \
-    Types/Pointers/GpPointers.hpp \
     Types/Pointers/GpReferenceCounter.hpp \
     Types/Pointers/GpReferenceStorage.hpp \
     Types/Pointers/GpSharedPtr.hpp \

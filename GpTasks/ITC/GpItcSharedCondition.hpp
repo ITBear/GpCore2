@@ -4,13 +4,14 @@
 
 #if defined(GP_USE_MULTITHREADING)
 
+#include "../GpTasks_global.hpp"
+
 #include "../../GpUtils/Macro/GpMacroClass.hpp"
 #include "../../GpUtils/Types/Containers/GpContainersT.hpp"
-#include "../../GpUtils/Types/Pointers/GpSharedPtr.hpp"
-#include "../../GpUtils/Types/UIDs/GpUUID.hpp"
 #include "../../GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp"
-#include "../../GpUtils/SyncPrimitives/GpConditionVar.hpp"
-#include "../GpTasks_global.hpp"
+#include "../../GpUtils/SyncPrimitives/GpConditionVarFlag.hpp"
+
+#include <boost/container/flat_set.hpp>
 
 namespace GPlatform {
 
@@ -20,115 +21,46 @@ public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpItcSharedCondition)
     CLASS_DD(GpItcSharedCondition)
 
-    enum class ActionCondNotMetRes
+    enum class NotifyMode
     {
-        CONTINUE,
-        BREAK
+        ONE,
+        ALL
     };
 
-    using ConditionFnT          = std::function<bool()>;
-    using ActionCondMetFnT      = std::function<void()>;
-    using ActionCondNotMetFnT   = std::function<ActionCondNotMetRes()>;
-    using WaitForConditionResT  = GpConditionVar::WaitForResT;
+    using AtomicFnT     = GpConditionVar::AtomicFnT;
+    using AtomicFnOptT  = std::optional<std::reference_wrapper<const AtomicFnT>>;
+    using CondFnT       = std::function<bool(std::mutex& aLock)>;
+    using TaskGuidsT    = boost::container::flat_set<u_int_64>;
 
 public:
-                                GpItcSharedCondition    (void) noexcept = default;
-                                ~GpItcSharedCondition   (void) noexcept = default;
+                            GpItcSharedCondition    (void) noexcept = default;
+                            ~GpItcSharedCondition   (void) noexcept = default;
 
-    inline void                 Do                      (std::function<void()> aFn) const;
-    void                        WakeupOne               (std::function<void()> aFn);
-    void                        WakeupAll               (std::function<void()> aFn);
-    [[nodiscard]] inline WaitForConditionResT
-                                WaitForCondition        (const milliseconds_t   aTimeout,
-                                                         ConditionFnT           aConditionFn,
-                                                         ActionCondMetFnT       aOnConditionMetFn,
-                                                         ActionCondNotMetFnT    aOnConditionNotMetFn);
-
-    inline void                 AddTaskGuid             (const GpUUID& aTaskGuid);
-    inline void                 RemoveTaskGuid          (const GpUUID& aTaskGuid);
+    inline void             DoAtomic                (const AtomicFnT& aFn) const;
+    void                    Notify                  (const NotifyMode   aNotifyMode,
+                                                     AtomicFnOptT       aBeforeSendNotifyFn = std::nullopt);
+    bool                    WaitFor                 (const milliseconds_t   aTimeout,
+                                                     const CondFnT&         aCondFn);
 
 private:
-    [[nodiscard]] WaitForConditionResT
-                                _WaitForCondition       (const milliseconds_t   aTimeout,
-                                                         ConditionFnT           aConditionFn,
-                                                         ActionCondMetFnT       aOnConditionMetFn,
-                                                         ActionCondNotMetFnT    aOnConditionNotMetFn);
-    void                        _AddTaskGuid            (const GpUUID& aTaskGuid);
-    void                        _RemoveTaskGuid         (const GpUUID& aTaskGuid);
+    bool                    WaitForFiber            (const u_int_64         aTaskId,
+                                                     const milliseconds_t   aTimeout,
+                                                     const CondFnT&         aCondFn);
+    bool                    WaitForThread           (const milliseconds_t   aTimeout,
+                                                     const CondFnT&         aCondFn);
 
-protected:
-    std::vector<GpUUID>         iTaskFiberGuids;
-    GpConditionVar              iCV;
+private:
+    // For waiting threads
+    GpConditionVarFlag      iThreadsFlagCV;
+    std::atomic<size_t>     iThreadsWaiting;
+
+    // For waiting fiber tasks
+    TaskGuidsT              iFiberTaskIds;
 };
 
-void    GpItcSharedCondition::Do (std::function<void()> aFn) const
+void    GpItcSharedCondition::DoAtomic (const AtomicFnT& aFn) const
 {
-    iCV.Do(aFn);
-}
-
-GpItcSharedCondition::WaitForConditionResT  GpItcSharedCondition::WaitForCondition
-(
-    const milliseconds_t    aTimeout,
-    ConditionFnT            aConditionFn,
-    ActionCondMetFnT        aOnConditionMetFn,
-    ActionCondNotMetFnT     aOnConditionNotMetFn
-)
-{
-    //Fast check condition
-    bool fastRes = false;
-    iCV.Do
-    (
-        [&]()
-        {
-            fastRes = aConditionFn();
-
-            if (fastRes)
-            {
-                aOnConditionMetFn();
-            } else  if (aTimeout <= 0.0_si_s)
-            {
-                aOnConditionNotMetFn();
-            }
-        }
-    );
-
-    if (fastRes)
-    {
-        return WaitForConditionResT::OK;
-    } else if (aTimeout <= 0.0_si_s)
-    {
-        return WaitForConditionResT::TIMEOUT;
-    }
-
-    return _WaitForCondition
-    (
-        aTimeout,
-        aConditionFn,
-        aOnConditionMetFn,
-        aOnConditionNotMetFn
-    );
-}
-
-void    GpItcSharedCondition::AddTaskGuid (const GpUUID& aTaskGuid)
-{
-    iCV.Do
-    (
-        [&]()
-        {
-            _AddTaskGuid(aTaskGuid);
-        }
-    );
-}
-
-void    GpItcSharedCondition::RemoveTaskGuid (const GpUUID& aTaskGuid)
-{
-    iCV.Do
-    (
-        [&]()
-        {
-            _RemoveTaskGuid(aTaskGuid);
-        }
-    );
+    iThreadsFlagCV.DoAtomic(aFn);
 }
 
 }//namespace GPlatform

@@ -368,8 +368,8 @@ std::u8string   GpUTF::SToUpper (std::u8string_view aStr)
 
 size_t  GpUTF::SCharsCount
 (
-    std::u8string_view          aStr,
-    const std::vector<char8_t>& aChars
+    std::u8string_view          /*aStr*/,
+    const std::vector<char8_t>& /*aChars*/
 ) noexcept
 {
     //TODO: implement
@@ -396,9 +396,9 @@ size_t  GpUTF::SCharsCount
 
 size_t  GpUTF::SCharsCountRange
 (
-    std::u8string_view  aStr,
-    const char8_t       aCharFrom,
-    const char8_t       aCharTo
+    std::u8string_view  /*aStr*/,
+    const char8_t       /*aCharFrom*/,
+    const char8_t       /*aCharTo*/
 ) noexcept
 {
     //TODO: implement
@@ -422,8 +422,8 @@ size_t  GpUTF::SCharsCountRange
 
 bool    GpUTF::SContainsOnlyChars
 (
-    std::u8string_view          aStr,
-    const std::set<char8_t>&    aSet
+    std::u8string_view          /*aStr*/,
+    const std::set<char8_t>&    /*aSet*/
 ) noexcept
 {
     //TODO: implement

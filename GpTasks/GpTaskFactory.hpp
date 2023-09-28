@@ -8,19 +8,20 @@
 
 namespace GPlatform {
 
-class GP_TASKS_API GpTaskFactory
+class GpTaskFactory
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskFactory)
     CLASS_DD(GpTaskFactory)
 
 protected:
-                                GpTaskFactory   (void) noexcept {}
+                                GpTaskFactory   (void) noexcept = default;
 
 public:
-    virtual                     ~GpTaskFactory  (void) noexcept {}
+    virtual                     ~GpTaskFactory  (void) noexcept = default;
 
     virtual GpTask::SP          NewInstance     (std::u8string aTaskName) const = 0;
+    virtual GpTask::SP          NewInstance     (void) const = 0;
 };
 
 }//namespace GPlatform

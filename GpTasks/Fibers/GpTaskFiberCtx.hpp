@@ -5,13 +5,10 @@
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
-#include "boost_context.hpp"
-#include <cstddef>
-#include <functional>
-
-#include "GpTaskFiberStopEx.hpp"
-#include "GpTaskFiberStack.hpp"
-#include "../GpTask.hpp"
+#include "../../GpUtils/Macro/GpMacroClass.hpp"
+#include "../../GpUtils/Types/Containers/GpContainersT.hpp"
+#include "../../GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp"
+#include "../GpTaskEnums.hpp"
 
 namespace GPlatform {
 
@@ -20,61 +17,20 @@ class GpTaskFiber;
 class GpTaskFiberCtx
 {
 public:
-    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTaskFiberCtx)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskFiberCtx)
     CLASS_DD(GpTaskFiberCtx)
 
+protected:
+                                        GpTaskFiberCtx  (void) noexcept = default;
+
 public:
-    inline                              GpTaskFiberCtx  (GpTaskFiber& aTaskFiber) noexcept;
-    inline                              ~GpTaskFiberCtx (void) noexcept;
+    virtual                             ~GpTaskFiberCtx (void) noexcept = default;
 
-    void                                Clear           (void) noexcept;
-    GpTaskDoRes                         Enter           (GpThreadStopToken aStopToken);
-    inline void                         Yield           (const GpTaskDoRes aRes);
-
-private:
-    void                                InitIfNot       (void);
-
-    static FiberT                       SFiberFn        (FiberT&& aFiber);
-    FiberT                              FiberFn         (FiberT&& aFiber);
-
-private:
-    GpTaskFiber&                        iTaskFiber;
-
-    std::unique_ptr<FiberT>             iFiberOuter;
-    FiberT                              iFiberInner;
-    GpTaskFiberStack::SP                iFiberStack;
-
-    GpThreadStopToken                   iStopToken;
-    GpTaskDoRes                         iYieldRes   = GpTaskDoRes::DONE;
-    std::optional<std::exception_ptr>   iException;
+    virtual std::optional<GpException>  Clear           (void) noexcept = 0;
+    virtual GpTaskRunRes::EnumT         Enter           (GpTaskFiber& aTaskFiber) = 0;
+    virtual void                        Yield           (const GpTaskRunRes::EnumT aRunRes) = 0;
+    virtual void                        Yield           (const milliseconds_t aTimeout) = 0;
 };
-
-GpTaskFiberCtx::GpTaskFiberCtx (GpTaskFiber& aTaskFiber) noexcept:
-iTaskFiber(aTaskFiber)
-{
-}
-
-GpTaskFiberCtx::~GpTaskFiberCtx (void) noexcept
-{
-    //Clear();
-}
-
-void    GpTaskFiberCtx::Yield (const GpTaskDoRes aRes)
-{
-    iYieldRes = aRes;
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    //>>>>>>>>>>>>>> INSIDE FIBER <<<<<<<<<<<<<<
-
-    //>>>>>>>>>>>>>> OUTSIDE FIBER <<<<<<<<<<<<<<
-    //VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
-    iFiberInner = std::move(iFiberInner).resume();
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    //>>>>>>>>>>>>>> OUTSIDE FIBER <<<<<<<<<<<<<<
-
-    //>>>>>>>>>>>>>> INSIDE FIBER <<<<<<<<<<<<<<
-    //VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
-}
 
 }//namespace GPlatform
 

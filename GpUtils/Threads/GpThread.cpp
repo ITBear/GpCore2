@@ -4,13 +4,19 @@
 
 #include "../Types/Strings/GpStringUtils.hpp"
 #include "../Types/Strings/GpStringOps.hpp"
-#include "../Types/Strings/GpUTF.hpp"
+
+#if defined(GP_OS_LINUX)
+    #include <sys/prctl.h>
+#endif
 
 namespace GPlatform {
 
 GpThread::~GpThread (void) noexcept
 {
+    GpStringUtils::SCout(u8"[GpThread::~GpThread]: "_sv + Name());
     RequestStop();
+
+    iThread = {};
 }
 
 std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
@@ -24,15 +30,31 @@ std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
             u8"Already run"_sv
         );
 
-        iRunnable = aRunnable;
+        iThreadRunnableDoneF.clear();
+        iRunnable = std::move(aRunnable);
     }
 
-#if defined(GP_USE_MULTITHREADING_IMPL_JTHREAD)
-    iThread = std::jthread([&](GpThreadStopToken aStopToken) noexcept
-    {
-        GpRunnable::SP runnable = iRunnable;
-        runnable.V().Run(aStopToken);
-    });
+#if defined(GP_USE_MULTITHREADING_IMPL_STD_THREAD)
+    iThread = std::thread
+    (
+        [
+            _runnable               = iRunnable,
+            _threadName             = std::u8string(Name()),
+            _stopRequest            = &iThreadStopRequestF,
+            _threadRunnableDoneF    = &iThreadRunnableDoneF
+        ]() noexcept
+        {
+            _threadRunnableDoneF->clear();
+
+            SSetSysNameForCurrent(_threadName);
+            GpRunnable::SP _r = std::move(_runnable);
+            _r->Run(*_stopRequest);
+
+            _threadRunnableDoneF->test_and_set();
+        }
+    );
+
+    iThread.detach();
 #else
 #   error Unimplemented
 #endif
@@ -44,69 +66,110 @@ std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
     }
 }
 
-void    GpThread::Join (void) noexcept
+void    GpThread::RequestStop (void) noexcept
 {
-    if (iThread.joinable())
+    std::scoped_lock lock(iRWLock);
+
+    if (iThreadStopRequestF.test())
+    {
+        return;
+    }
+
+    iThreadStopRequestF.test_and_set();
+
+    if (iRunnable.IsNotNULL())
     {
         try
         {
-            {
-                std::scoped_lock lock(iRWLock);
-
-                if (iRunnable.IsNotNULL())
-                {
-                    iRunnable.Vn().CVF().WakeupAll();
-                }
-            }
-
-            iThread.join();
+            iRunnable->CVF().NotifyAll();
         } catch (const GpException& e)
         {
-            GpStringUtils::SCerr(u8"[GpThread::Join]: "_sv + e.what() + "\n"_sv);
+            GpStringUtils::SCerr(u8"[GpThread::RequestStop]: "_sv + e.what());
         } catch (const std::exception& e)
         {
-            GpStringUtils::SCerr(u8"[GpThread::Join]: "_sv + e.what() + "\n"_sv);
+            GpStringUtils::SCerr(u8"[GpThread::RequestStop]: "_sv + e.what());
         } catch (...)
         {
-            GpStringUtils::SCerr(u8"[GpThread::Join]: Unknown exception\n"_sv);
-        }
-    }
-
-    {
-        std::scoped_lock lock(iRWLock);
-
-        if (iRunnable.IsNotNULL())
-        {
-            iRunnable.Clear();
+            GpStringUtils::SCerr(u8"[GpThread::RequestStop]: Unknown exception"_sv);
         }
     }
 }
 
-bool    GpThread::RequestStop (void) noexcept
+void    GpThread::Join (void) noexcept
 {
-    const bool res = iThread.request_stop();
-
-    if (res)
+    try
     {
-        if (iRunnable.IsNotNULL())
         {
-            try
+            std::scoped_lock lock(iRWLock);
+
+            if (iRunnable.IsNotNULL())
             {
-                iRunnable.Vn().CVF().WakeupAll();
-            } catch (const GpException& e)
-            {
-                GpStringUtils::SCerr(u8"[GpThread::RequestStop]: "_sv + e.what() + "\n"_sv);
-            } catch (const std::exception& e)
-            {
-                GpStringUtils::SCerr(u8"[GpThread::RequestStop]: "_sv + e.what() + "\n"_sv);
-            } catch (...)
-            {
-                GpStringUtils::SCerr(u8"[GpThread::RequestStop]: Unknown exception\n"_sv);
+                iRunnable->CVF().NotifyAll();
             }
         }
+
+        while (!iThreadRunnableDoneF.test())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+
+        {
+            std::scoped_lock lock(iRWLock);
+
+            if (iRunnable.IsNotNULL())
+            {
+                iRunnable.Clear();
+            }
+        }
+    } catch (const GpException& e)
+    {
+        GpStringUtils::SCerr(u8"[GpThread::Join]: "_sv + e.what());
+    } catch (const std::exception& e)
+    {
+        GpStringUtils::SCerr(u8"[GpThread::Join]: "_sv + e.what());
+    } catch (...)
+    {
+        GpStringUtils::SCerr(u8"[GpThread::Join]: Unknown exception"_sv);
+    }
+}
+
+void    GpThread::SSetSysNameForCurrent (std::u8string_view aName)
+{
+    if (aName.empty())
+    {
+        return;
     }
 
-    return res;
+#if defined(GP_OS_WINDOWS)
+#   error Need to be implemented
+#elif defined(GP_OS_LINUX)
+    const std::u8string name(aName.substr(0, NumOps::SMin<std::u8string_view::size_type>(15, aName.size())));
+
+    /*pthread_setname_np
+    (
+        pthread_self(),
+        GpUTF::S_UTF8_To_STR(name).data()
+    );*/
+
+    prctl(PR_SET_NAME, (unsigned long)name.data(), 0, 0, 0);
+
+#elif defined(GP_OS_ANDROID)
+    const std::u8string name(aName);
+
+    pthread_setname_np
+    (
+        pthread_self(),
+        GpUTF::S_UTF8_To_STR(name).data()
+    );
+#elif defined(GP_OS_IOS)
+#   error Need to be implemented
+#elif defined(GP_OS_IOS_SIMULATOR)
+#   error Need to be implemented
+#elif defined(GP_OS_MACOSX)
+#   error Need to be implemented
+#elif defined(GP_OS_BARE_METAL)
+#   error Need to be implemented
+#endif
 }
 
 }//GPlatform

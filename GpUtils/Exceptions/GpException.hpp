@@ -68,9 +68,11 @@ class GP_UTILS_API GpException: public std::exception
 {
 public:
                             GpException     (void) noexcept = default;
-    inline explicit         GpException     (const GpException& aException);
-    inline explicit         GpException     (GpException&& aException);
+    inline                  GpException     (const GpException& aException);
+    inline                  GpException     (GpException&& aException);
                             GpException     (std::u8string_view     aMsg,
+                                             const SourceLocationT& aSourceLocation = SourceLocationT::current()) noexcept;
+    inline                  GpException     (std::string_view       aMsg,
                                              const SourceLocationT& aSourceLocation = SourceLocationT::current()) noexcept;
     virtual                 ~GpException    (void) noexcept override;
 
@@ -88,16 +90,29 @@ private:
 };
 
 GpException::GpException (const GpException& aException):
-iWhat(aException.iWhat),
-iMsg(iWhat.data() + (aException.iMsg.data() - aException.iWhat.data()), aException.iMsg.length()),
+iWhat          (aException.iWhat),
+iMsg           (iWhat.data() + (aException.iMsg.data() - aException.iWhat.data()), aException.iMsg.length()),
 iSourceLocation(aException.iSourceLocation)
 {
 }
 
 GpException::GpException (GpException&& aException):
-iWhat(aException.iWhat),//do not std::move
-iMsg(iWhat.data() + (aException.iMsg.data() - aException.iWhat.data()), aException.iMsg.length()),
+iWhat          (aException.iWhat),//do not std::move
+iMsg           (iWhat.data() + (aException.iMsg.data() - aException.iWhat.data()), aException.iMsg.length()),
 iSourceLocation(aException.iSourceLocation)//do not std::move
+{
+}
+
+GpException::GpException
+(
+    std::string_view        aMsg,
+    const SourceLocationT&  aSourceLocation
+) noexcept:
+GpException
+(
+    GpUTF::S_STR_To_UTF8(aMsg),
+    aSourceLocation
+)
 {
 }
 

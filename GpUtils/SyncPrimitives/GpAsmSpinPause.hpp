@@ -2,6 +2,8 @@
 
 #include "../../Config/GpConfig.hpp"
 
+#if defined(GP_USE_SYNC_PRIMITIVES)
+
 #if defined(GP_ARCH_X86_64) || defined(GP_ARCH_X86)
 #   include <emmintrin.h>
 #endif
@@ -21,3 +23,5 @@ inline void GP_ASM_SPIN_PAUSE (void) noexcept
 }
 
 }//GPlatform
+
+#endif//#if defined(GP_USE_SYNC_PRIMITIVES)

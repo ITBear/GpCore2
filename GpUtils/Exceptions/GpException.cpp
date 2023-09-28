@@ -4,6 +4,7 @@
 
 #include "GpExceptionUtils.hpp"
 #include "../Types/Strings/GpStringOps.hpp"
+#include "../Types/Strings/GpStringUtils.hpp"
 
 #if defined(GP_POSIX)
 #   include <signal.h>
@@ -52,8 +53,14 @@ try
     iWhat           = std::move(res.fullMessage);
     iMsg            = std::move(res.message);
     iSourceLocation = aSourceLocation;
+} catch(const std::exception& ex)
+{
+    GpStringUtils::SCerr(u8"[GpException::GpException]: "_sv + ex.what());
+    std::terminate();
 } catch(...)
 {
+    GpStringUtils::SCerr(u8"[GpException::GpException]: unknown exception"_sv);
+    std::terminate();
 }
 
 GpException::~GpException (void) noexcept

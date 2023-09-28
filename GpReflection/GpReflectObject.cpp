@@ -6,7 +6,7 @@
 
 namespace GPlatform {
 
-GP_REFLECTION_STATIC_TYPE_REG_IMPL(GpReflectObject);
+GP_REFLECTION_STATIC_TYPE_REG_IMPL(GpReflectObject)
 
 GpReflectObject::SP GpReflectObject::Factory::NewInstance (const GpUUID& /*aModelUid*/) const
 {

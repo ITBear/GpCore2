@@ -15,7 +15,7 @@ GpBytesArray    GpFileUtils::SReadAll (std::u8string_view aFileName)
     std::u8string   fileName(aFileName);
     std::ifstream   ifs;
 
-    ifs.open(fileName.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+    ifs.open(std::filesystem::path(fileName.c_str()), std::ios::in | std::ios::binary | std::ios::ate);
 
     if (   (!ifs.is_open())
         || (ifs.fail())
@@ -56,7 +56,7 @@ void    GpFileUtils::SAppend
     std::u8string   fileName(aFileName);
     std::ofstream   ofs;
 
-    ofs.open(fileName.c_str(), std::ios::out | std::ios::app | std::ios::binary);
+    ofs.open(std::filesystem::path(fileName.c_str()), std::ios::out | std::ios::app | std::ios::binary);
 
     if (   (!ofs.is_open())
         || (ofs.fail())

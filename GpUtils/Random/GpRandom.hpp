@@ -71,7 +71,7 @@ private:
                                                  const T aMax) noexcept;
 
 private:
-    random_mt19937                          iEngine;
+    random_mt19937                              iEngine;
     static std::array<const std::u8string, 2>   sStrs;
 };
 

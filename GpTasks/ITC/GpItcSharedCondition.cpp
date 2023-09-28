@@ -1,245 +1,246 @@
 #include "GpItcSharedCondition.hpp"
-#include "GpTaskScheduler.hpp"
-#include "Fibers/GpTaskFiber.hpp"
-#include "../../GpUtils/DateTime/GpDateTimeOps.hpp"
+#include "../../GpUtils/Types/Strings/GpStringUtils.hpp"
+#include "../../GpUtils/Types/Strings/GpStringOps.hpp"
 #include "../../GpUtils/Other/GpRAIIonDestruct.hpp"
+#include "../../GpUtils/DateTime/GpDateTimeOps.hpp"
+#include "../../GpUtils/SyncPrimitives/GpUnlockGuard.hpp"
+#include "../Scheduler/GpTaskScheduler.hpp"
+#include "../GpTask.hpp"
+#include "../Fibers/GpTaskFiber.hpp"
 
-#include <iostream>
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE(shadow)
+
+#include <boost/context/fiber.hpp>
+
+GP_WARNING_POP()
 
 namespace GPlatform {
 
-void    GpItcSharedCondition::WakeupOne (std::function<void()> aFn)
+void    GpItcSharedCondition::Notify
+(
+    const NotifyMode    aNotifyMode,
+    AtomicFnOptT        aBeforeSendNotifyFn
+)
 {
-    iCV.WakeupOne
+    iThreadsFlagCV.DoAtomic
     (
-        [&]()
+        [&](std::mutex& aLock)
         {
-            aFn();
+            // Call 'aBeforeSendNotifyFn'
+            if (aBeforeSendNotifyFn.has_value())
+            {
+                aBeforeSendNotifyFn.value().get()(aLock);
+            }
 
-            //Wakeup waiting task fibers
-            for (const GpUUID& taskGuid: iTaskFiberGuids)
+            // Notify fiber tasks
+            for (const GpTask::IdT taskId: iFiberTaskIds)
             {
                 try
                 {
-                    if (taskGuid.IsNotZero())
+                    GpTaskScheduler::S().MakeTaskReady(taskId);
+
+                    if (aNotifyMode == NotifyMode::ONE)
                     {
-                        GpTaskScheduler::S().MakeTaskReady(taskGuid);
                         break;
                     }
                 } catch (const GpException& e)
                 {
-                    GpStringUtils::SCerr("[GpItcSharedCondition::WakeupOne]: "_sv + e.what() + "\n"_sv);
+                    GpStringUtils::SCerr(u8"[GpItcSharedCondition::Notify]: "_sv + GpUTF::S_STR_To_UTF8(e.what()));
                 } catch (const std::exception& e)
                 {
-                    GpStringUtils::SCerr("[GpItcSharedCondition::WakeupOne]: "_sv + e.what() + "\n"_sv);
+                    GpStringUtils::SCerr(u8"[GpItcSharedCondition::Notify]: "_sv + GpUTF::S_STR_To_UTF8(e.what()));
                 } catch (const boost::context::detail::forced_unwind&)
                 {
                     throw;
                 } catch (...)
                 {
-                    GpStringUtils::SCerr("[GpItcSharedCondition::WakeupOne]: unknown\n"_sv);
+                    GpStringUtils::SCerr(u8"[GpItcSharedCondition::Notify]: unknown"_sv);
                 }
             }
-        }
-    );
-}
 
-void    GpItcSharedCondition::WakeupAll (std::function<void()> aFn)
-{
-    iCV.WakeupAll
-    (
-        [&]()
-        {
-            aFn();
-
-            //Wakeup waiting task fibers
-            for (const GpUUID& taskGuid: iTaskFiberGuids)
+            // Notify threads
+            if (iThreadsWaiting.load(std::memory_order_acquire) > 0)
             {
-                try
+                GpUnlockGuard unlock(aLock);
+
+                if (aNotifyMode == NotifyMode::ALL)
                 {
-                    if (taskGuid.IsNotZero())
-                    {
-                        GpTaskScheduler::S().MakeTaskReady(taskGuid);
-                    }
-                } catch (const GpException& e)
+                    iThreadsFlagCV.NotifyAll();
+                } else// if (aNotifyMode == NotifyMode::ONE)
                 {
-                    GpStringUtils::SCerr("[GpItcSharedCondition::WakeupAll]: "_sv + e.what() + "\n"_sv);
-                } catch (const std::exception& e)
-                {
-                    GpStringUtils::SCerr("[GpItcSharedCondition::WakeupAll]: "_sv + e.what() + "\n"_sv);
-                } catch (const boost::context::detail::forced_unwind&)
-                {
-                    throw;
-                } catch (...)
-                {
-                    GpStringUtils::SCerr("[GpItcSharedCondition::WakeupAll]: unknown\n"_sv);
+                    iThreadsFlagCV.NotifyOne();
                 }
             }
         }
     );
 }
 
-GpItcSharedCondition::WaitForConditionResT  GpItcSharedCondition::_WaitForCondition
+bool    GpItcSharedCondition::WaitFor
 (
     const milliseconds_t    aTimeout,
-    ConditionFnT            aConditionFn,
-    ActionCondMetFnT        aOnConditionMetFn,
-    ActionCondNotMetFnT     aOnConditionNotMetFn
+    const CondFnT&          aCondFn
 )
 {
-    //Collect current task info
-    GpTask*             currentTask     = GpTask::SCurrent();
-    const GpTaskType    currentTaskType = (currentTask != nullptr) ? currentTask->TaskType() : GpTaskType::THREAD;
-    const GpUUID        currentTaskGuid = (currentTask != nullptr) ? currentTask->Guid() : GpUUID();
+    // Collect current task info
+    GpTaskScheduler::TaskOptRefT    taskOptRef  = GpTask::SCurrentTask();
+    GpTaskMode::EnumT               taskMode    = GpTaskMode::THREAD;
+    GpTask::IdT                     taskId      = {};
 
-    //On destruct
+    if (taskOptRef.has_value())
+    {
+        const GpTask& task = taskOptRef.value().get();
+
+        taskMode    = task.Mode();
+        taskId      = task.Id();
+    }
+
+    if (taskMode == GpTaskMode::FIBER)
+    {
+        return WaitForFiber
+        (
+            taskId,
+            aTimeout,
+            aCondFn
+        );
+    } else if (taskMode == GpTaskMode::THREAD)
+    {
+        return WaitForThread
+        (
+            aTimeout,
+            aCondFn
+        );
+    }
+
+    return false;
+}
+
+bool    GpItcSharedCondition::WaitForFiber
+(
+    const GpTask::IdT       aTaskId,
+    const milliseconds_t    aTimeout,
+    const CondFnT&          aCondFn
+)
+{
+    bool isFiberTaskAdded = false;
+
+    //Remove aTaskGuid from iFiberTaskGuids
     GpRAIIonDestruct onDestruct
     (
         [&]()
         {
-            if (currentTaskType == GpTaskType::FIBER)
+            if (isFiberTaskAdded)
             {
-                iCV.Do
+                iThreadsFlagCV.DoAtomic
                 (
-                    [&]()
+                    [&](std::mutex&)
                     {
-                        _RemoveTaskGuid(currentTaskGuid);
+                        iFiberTaskIds.erase(aTaskId);
                     }
                 );
             }
         }
     );
 
-    //Wait for
-    WaitForConditionResT waitForConditionRes = WaitForConditionResT::TIMEOUT;
+    const milliseconds_t startTs = GpDateTimeOps::SSteadyTS_ms();
+    bool isContinue     = true;
+    bool isConditionMet = true;
 
-    if (currentTaskType == GpTaskType::FIBER)
+    while (isContinue)
     {
-        //Subscribe
-        iCV.Do
+        iThreadsFlagCV.DoAtomic
         (
-            [&]()
+            [&](std::mutex& aLock)
             {
-                _AddTaskGuid(currentTaskGuid);
-            }
-        );
-
-        const milliseconds_t startTs = GpDateTimeOps::SSteadyTS_ms();
-
-        while (true)
-        {
-            //Check condition
-            iCV.Do
-            (
-                [&]()
+                if (aCondFn(aLock))
                 {
-                    const bool isConditionMet = aConditionFn();
-
-                    if (isConditionMet)
-                    {
-                        aOnConditionMetFn();
-                        waitForConditionRes = WaitForConditionResT::OK;
-                    } else
-                    {
-                        if (aOnConditionNotMetFn() == ActionCondNotMetRes::BREAK)
-                        {
-                            waitForConditionRes = WaitForConditionResT::OK;
-                        }
-                    }
+                    isConditionMet  = true;
+                    isContinue      = false;
+                    return;
                 }
-            );
 
-            //Check
-            if (waitForConditionRes == WaitForConditionResT::OK)
-            {
-                break;
-            }
-
-            //Check timeout
-            if ((GpDateTimeOps::SSteadyTS_ms() - startTs) >= aTimeout)
-            {
-                waitForConditionRes = WaitForConditionResT::TIMEOUT;
-                break;
-            }
-
-            //Wait
-            YELD_WAITING();
-        }
-    } else //currentTaskType == GpTaskType::THREAD
-    {
-        waitForConditionRes = iCV.WaitFor
-        (
-            [&]()
-            {
-                const bool isConditionMet = aConditionFn();
-
-                if (isConditionMet)
+                // Check for timeout
+                const milliseconds_t nowTs      = GpDateTimeOps::SSteadyTS_ms();
+                const milliseconds_t passedTime = nowTs - startTs;
+                if (aTimeout <= passedTime)
                 {
-                    aOnConditionMetFn();
-                    return true;
-                } else
-                {
-                    if (aOnConditionNotMetFn() == ActionCondNotMetRes::BREAK)
-                    {
-                        return true;
-                    } else
-                    {
-                        return false;
-                    }
+                    isConditionMet  = false;
+                    isContinue      = false;
+                    return;
                 }
-            },
-            aTimeout
+
+                // Add fiber taskId to waiting list
+                if (!isFiberTaskAdded)
+                {
+                    iFiberTaskIds.emplace(aTaskId);
+                    isFiberTaskAdded = true;
+                }
+
+                // Wait for
+                {
+                    GpUnlockGuard unlock(aLock);
+                    YELD_WAIT(aTimeout - passedTime);
+                }
+            }
         );
     }
 
-    return waitForConditionRes;
+    return isConditionMet;
 }
 
-void    GpItcSharedCondition::_AddTaskGuid (const GpUUID& aTaskGuid)
+bool    GpItcSharedCondition::WaitForThread
+(
+    const milliseconds_t    aTimeout,
+    const CondFnT&          aCondFn
+)
 {
-    if (aTaskGuid.IsZero())
-    {
-        return;
-    }
-
-    const size_t size = iTaskFiberGuids.size();
-
-    ssize_t freeSlotId = -1;
-
-    for (size_t id = 0; id < size; id++)
-    {
-        GpUUID& slotUid = iTaskFiberGuids[id];
-
-        if (slotUid == aTaskGuid)
+    GpRAIIonDestruct onDestruct
+    (
+        [&]()
         {
-            return;
-        } else if (slotUid.IsZero() && (freeSlotId == -1))
-        {
-            freeSlotId = ssize_t(id);
+            iThreadsWaiting.fetch_sub(1, std::memory_order_acq_rel);
         }
+    );
+
+    iThreadsWaiting.fetch_add(1, std::memory_order_acq_rel);
+
+    const milliseconds_t startTs = GpDateTimeOps::SSteadyTS_ms();
+    bool isContinue     = true;
+    bool isConditionMet = true;
+
+    while (isContinue)
+    {
+        iThreadsFlagCV.DoAtomic
+        (
+            [&](std::mutex& aLock)
+            {
+                if (aCondFn(aLock))
+                {
+                    isConditionMet  = true;
+                    isContinue      = false;
+                    return;
+                }
+
+                //Check for timeout
+                const milliseconds_t nowTs      = GpDateTimeOps::SSteadyTS_ms();
+                const milliseconds_t passedTime = nowTs - startTs;
+                if (aTimeout <= passedTime)
+                {
+                    isConditionMet  = false;
+                    isContinue      = false;
+                    return;
+                }
+
+                //Wait for
+                {
+                    GpUnlockGuard unlock(aLock);
+                    iThreadsFlagCV.WaitFor(aTimeout - passedTime);
+                }
+            }
+        );
     }
 
-    if (freeSlotId >= 0)
-    {
-        iTaskFiberGuids[size_t(freeSlotId)] = aTaskGuid;
-    } else
-    {
-        iTaskFiberGuids.emplace_back(aTaskGuid);
-    }
-}
-
-void    GpItcSharedCondition::_RemoveTaskGuid (const GpUUID& aTaskGuid)
-{
-    const size_t size = iTaskFiberGuids.size();
-
-    for (size_t id = 0; id < size; id++)
-    {
-        if (iTaskFiberGuids[id] == aTaskGuid)
-        {
-            iTaskFiberGuids[id].Zero();
-            return;
-        }
-    }
+    return isConditionMet;
 }
 
 }//namespace GPlatform

@@ -45,6 +45,25 @@ std::vector<std::u8string_view> GpStringOps::SSplit
     );
 }
 
+bool    GpStringOps::SIsEqualCaseInsensitive8bit
+(
+    std::u8string_view  aStr1,
+    std::u8string_view  aStr2
+) noexcept
+{
+    return std::equal
+    (
+        aStr1.begin(),
+        aStr1.end(),
+        aStr2.begin(),
+        aStr2.end(),
+        [](const char8_t a, const char8_t b)
+        {
+            return std::tolower(int(a)) == std::tolower(int(b));
+        }
+    );
+}
+
 size_t  GpStringOps::SFromUI64
 (
     const u_int_64  aValue,

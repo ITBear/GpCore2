@@ -15,7 +15,7 @@ GP_ENUM_IMPL(GpFileFlag)
 void    GpFile::Open
 (
     std::u8string_view  aName,
-     const GpFileFlags  aFlags
+    const GpFileFlags   aFlags
 )
 {
     if (iHandler != HandlerT())
@@ -44,7 +44,6 @@ void    GpFile::Flush (void)
 
 size_byte_t GpFile::Size (void) const
 {
-
     return GpFileImpl::SSize(iHandler);
 }
 

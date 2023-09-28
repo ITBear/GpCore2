@@ -5,7 +5,6 @@
 #if defined(GP_USE_MULTITHREADING)
 
 #include "../SyncPrimitives/GpConditionVarFlag.hpp"
-#include "GpThreadStopToken.hpp"
 
 namespace GPlatform {
 
@@ -15,21 +14,18 @@ public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpRunnable)
     CLASS_DD(GpRunnable)
 
-    using WaitForResT = GpConditionVar::WaitForResT;
-
 protected:
-    inline                              GpRunnable      (void) noexcept = default;
+    inline                      GpRunnable  (void) noexcept = default;
 
 public:
-    virtual                             ~GpRunnable     (void) noexcept = default;
+    virtual                     ~GpRunnable (void) noexcept = default;
 
-    GpConditionVarFlag&                 CVF             (void) {return iCVF;}
-
-public:
-    virtual void                        Run             (GpThreadStopToken aStopToken) noexcept = 0;
+    GpConditionVarFlag&         CVF         (void) noexcept {return iCVF;}
+    const GpConditionVarFlag&   CVF         (void) const noexcept{return iCVF;}
+    virtual void                Run         (std::atomic_flag& aStopRequest) noexcept = 0;
 
 private:
-    GpConditionVarFlag                  iCVF;
+    GpConditionVarFlag          iCVF;
 };
 
 }//GPlatform

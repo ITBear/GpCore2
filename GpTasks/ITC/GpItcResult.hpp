@@ -19,41 +19,68 @@ class GpItcResult
 public:
     CLASS_DD(GpItcResult<T>)
 
-    using ExceptionT                = std::tuple<std::u8string, SourceLocationT>;
-    using ExtractFnT_OnSuccess      = std::function<void(T&)>;
-    using ExtractFnT_OnException    = std::function<void(const ExceptionT&)>;
+    using OnSuccessFnT      = std::function<void(T&)>;
+    using OnEmptyFnT        = std::function<void()>;
+    using OnExceptionFnT    = std::function<void(const GpException&)>;
+
+    struct EmptyValue{};
 
     using VariantsT = std::variant
     <
-        ExceptionT,
-        T
+        EmptyValue,
+        T,
+        GpException
     >;
 
 public:
-                                GpItcResult     (void) noexcept = delete;
-                                GpItcResult     (const this_type& aRes) = delete;
-    inline                      GpItcResult     (this_type&& aRes);
-    inline                      GpItcResult     (const GpException& aException);
-    inline                      GpItcResult     (const std::exception&  aException,
-                                                 const SourceLocationT& aSourceLocation = SourceLocationT::current());
-    inline                      GpItcResult     (T aPayload);
-    virtual                     ~GpItcResult    (void) noexcept = default;
+                            GpItcResult     (void) noexcept;
+                            GpItcResult     (const EmptyValue&) noexcept;
+                            GpItcResult     (const this_type& aRes);
+                            GpItcResult     (this_type&& aRes);
+                            GpItcResult     (const GpException& aException);
+                            GpItcResult     (GpException&& aException);
+                            GpItcResult     (const T& aPayload);
+                            GpItcResult     (T&& aPayload);
+                            ~GpItcResult    (void) noexcept = default;
 
-    inline bool                 IsException     (void) const noexcept;
-    inline bool                 IsPayload       (void) const noexcept;
+    GpItcResult&            operator=       (const this_type& aRes);
+    GpItcResult&            operator=       (this_type&& aRes);
 
-    inline const ExceptionT&    Exception       (void) const;
-    inline const T&             Payload         (void) const;
-    inline T&                   Payload         (void);
-    inline VariantsT&           Variants        (void) noexcept;
+    bool                    IsException     (void) const noexcept;
+    bool                    IsPayload       (void) const noexcept;
+    bool                    IsEmpty         (void) const noexcept;
 
-    static void                 SExtract        (std::optional<this_type::SP>&  aRes,
-                                                 ExtractFnT_OnSuccess           aOnSuccessFn,
-                                                 ExtractFnT_OnException         aOnExceptionFn);
+    const GpException&      Exception       (void) const;
+    const T&                Payload         (void) const;
+    T&                      Payload         (void);
+    VariantsT&              Variants        (void) noexcept;
+
+    static void             SExtract        (this_type&             aRes,
+                                             const OnSuccessFnT&    aOnSuccessFn,
+                                             const OnEmptyFnT&      aOnEmptyFn,
+                                             const OnExceptionFnT&  aOnExceptionFn);
 
 private:
-    VariantsT                   iVariants;
+    VariantsT               iVariants;
 };
+
+template<typename T>
+GpItcResult<T>::GpItcResult (void) noexcept:
+iVariants(EmptyValue())
+{
+}
+
+template<typename T>
+GpItcResult<T>::GpItcResult (const EmptyValue&) noexcept:
+iVariants(EmptyValue())
+{
+}
+
+template<typename T>
+GpItcResult<T>::GpItcResult (const this_type& aRes):
+iVariants(aRes.iVariants)
+{
+}
 
 template<typename T>
 GpItcResult<T>::GpItcResult (this_type&& aRes):
@@ -63,41 +90,48 @@ iVariants(std::move(aRes.iVariants))
 
 template<typename T>
 GpItcResult<T>::GpItcResult (const GpException& aException):
-iVariants
-(
-    ExceptionT
-    (
-        GpUTF::S_STR_To_UTF8(aException.what()),
-        aException.SourceLocation()
-    )
-)
+iVariants(aException)
 {
 }
 
 template<typename T>
-GpItcResult<T>::GpItcResult
-(
-    const std::exception&   aException,
-    const SourceLocationT&  aSourceLocation
-):
-iVariants(ExceptionT
-(
-    GpUTF::S_STR_To_UTF8(aException.what()),
-    aSourceLocation
-))
+GpItcResult<T>::GpItcResult (GpException&& aException):
+iVariants(std::move(aException))
 {
 }
 
 template<typename T>
-GpItcResult<T>::GpItcResult (T aPayload):
+GpItcResult<T>::GpItcResult (const T& aPayload):
+iVariants(aPayload)
+{
+}
+
+template<typename T>
+GpItcResult<T>::GpItcResult (T&& aPayload):
 iVariants(std::move(aPayload))
 {
 }
 
 template<typename T>
+GpItcResult<T>& GpItcResult<T>::operator= (const this_type& aRes)
+{
+    iVariants = aRes.iVariants;
+
+    return *this;
+}
+
+template<typename T>
+GpItcResult<T>& GpItcResult<T>::operator= (this_type&& aRes)
+{
+    iVariants = std::move(aRes.iVariants);
+
+    return *this;
+}
+
+template<typename T>
 bool    GpItcResult<T>::IsException (void) const noexcept
 {
-    return std::holds_alternative<ExceptionT>(iVariants);
+    return std::holds_alternative<GpException>(iVariants);
 }
 
 template<typename T>
@@ -107,9 +141,15 @@ bool    GpItcResult<T>::IsPayload (void) const noexcept
 }
 
 template<typename T>
-const typename GpItcResult<T>::ExceptionT&  GpItcResult<T>::Exception (void) const
+bool    GpItcResult<T>::IsEmpty (void) const noexcept
 {
-    return std::get<ExceptionT>(iVariants);
+    return std::holds_alternative<EmptyValue>(iVariants);
+}
+
+template<typename T>
+const GpException&  GpItcResult<T>::Exception (void) const
+{
+    return std::get<GpException>(iVariants);
 }
 
 template<typename T>
@@ -133,38 +173,34 @@ typename GpItcResult<T>::VariantsT& GpItcResult<T>::Variants (void) noexcept
 template<typename T>
 void    GpItcResult<T>::SExtract
 (
-    std::optional<this_type::SP>&   aRes,
-    ExtractFnT_OnSuccess            aOnSuccessFn,
-    ExtractFnT_OnException          aOnExceptionFn
+    this_type&              aRes,
+    const OnSuccessFnT&     aOnSuccessFn,
+    const OnEmptyFnT&       aOnEmptyFn,
+    const OnExceptionFnT&   aOnExceptionFn
 )
 {
-    if (aRes.has_value() == false)
+    if (aRes.IsException())
     {
-        aOnExceptionFn(ExceptionT{u8"Result is std::nullopt"_sv, SourceLocationT::current()});
+        aOnExceptionFn(aRes.Exception());
         return;
-    }
-
-    this_type::SP& resSP = aRes.value();
-
-    if (resSP.IsNULL())
-    {
-        aOnExceptionFn(ExceptionT{u8"Result is nullptr"_sv, SourceLocationT::current()});
-        return;
-    }
-
-    this_type& res = resSP.Vn();
-
-    if (res.IsException())
-    {
-        return aOnExceptionFn(res.Exception());
     }
 
     try
     {
-        return aOnSuccessFn(res.Payload());
+        if (aRes.IsPayload())
+        {
+            aOnSuccessFn(aRes.Payload());
+            return;
+        }
+
+        if (aRes.IsEmpty())
+        {
+            aOnEmptyFn();
+            return;
+        }
     } catch (const std::exception& e)
     {
-        return aOnExceptionFn(ExceptionT{GpUTF::S_STR_To_UTF8(e.what()), SourceLocationT::current()});
+        aOnExceptionFn(GpException{GpUTF::S_STR_To_UTF8(e.what())});
     }
 }
 

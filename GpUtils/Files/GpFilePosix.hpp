@@ -2,7 +2,7 @@
 
 #define __USE_FILE_OFFSET64
 
-#include "../Types/GpTypes.hpp"
+#include "../../Config/GpConfig.hpp"
 
 #if defined(GP_POSIX)
 

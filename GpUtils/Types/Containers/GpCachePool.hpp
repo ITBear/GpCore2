@@ -6,7 +6,6 @@
 
 #include "../../SyncPrimitives/GpSpinlock.hpp"
 #include "../Strings/GpStringOps.hpp"
-#include "../Strings/GpUTF.hpp"
 #include "../Strings/GpStringUtils.hpp"
 
 #include <mutex>
@@ -133,6 +132,8 @@ class GpCachePool
 {
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpCachePool)
 
+    TAG_SET(THREAD_SAFE)
+
 public:
     using this_type                 = GpCachePool<KeyT, ValueT>;
     using key_type                  = KeyT;
@@ -221,7 +222,7 @@ typename GpCachePool<KeyT, ValueT>::CachePoolElementGuardOptT   GpCachePool<KeyT
     //Check limits
     if ((iContainerAcquire.size() + iContainerRelease.size()) >= iCountLimit)
     {
-        if (iContainerRelease.size() > 0)
+        if (!iContainerRelease.empty())
         {
             _EliminateOne();
         } else

@@ -4,43 +4,45 @@
 
 #if defined(GP_USE_MULTITHREADING)
 
+#include <shared_mutex>
+
 #include "GpItcSharedCondition.hpp"
 #include "GpItcResult.hpp"
+#include "../../GpUtils/SyncPrimitives/GpRWSpinLock.hpp"
+#include "../../GpUtils/Types/Strings/GpStringOps.hpp"
+#include "../../GpUtils/Types/Strings/GpStringUtils.hpp"
+#include "../../GpUtils/SyncPrimitives/GpUnlockGuard.hpp"
 
 namespace GPlatform {
 
 template<typename T>
-class GpItcProducer;
-
-template<typename T>
-class GpItcConsumer;
-
-template<typename T>
 class GpItcProducerConsumer
 {
-    friend class GpItcProducer<T>;
-    friend class GpItcConsumer<T>;
-
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpItcProducerConsumer)
     CLASS_DD(GpItcProducerConsumer<T>)
 
-    using ItcResultT = GpItcResult<T>;
+    using value_type    = T;
+    using ItcResultT    = GpItcResult<T>;
 
 public:
-    inline                                          GpItcProducerConsumer   (const size_t aQueueMaxSize) noexcept;
-                                                    ~GpItcProducerConsumer  (void) noexcept = default;
+    inline                              GpItcProducerConsumer   (const size_t aQueueMaxSize) noexcept;
+    inline                              ~GpItcProducerConsumer  (void) noexcept;
 
-    [[nodiscard]] bool                              Produce                 (typename ItcResultT::SP    aResult,
-                                                                             const milliseconds_t       aWaitTimeout);
-    [[nodiscard]] typename ItcResultT::C::Opt::SP   Consume                 (const milliseconds_t       aWaitTimeout);
+    bool                                Produce                 (ItcResultT&&           aResult,
+                                                                 const milliseconds_t   aWaitTimeout);
+    typename ItcResultT::C::Opt::Val    Consume                 (const milliseconds_t   aWaitTimeout);
+    typename ItcResultT::C::Deque::Val  ExtractQueue            (void) noexcept;
 
-    void                                            Wakeup                  (void);
+    void                                NotifyAll               (void);
 
 private:
-    size_t                                          iQueueMaxSize = 0;
-    typename ItcResultT::C::Deque::SP               iQueue;
-    GpItcSharedCondition                            iReadySC;
+    const size_t                        iQueueMaxSize = 0;
+    typename ItcResultT::C::Deque::Val  iQueue;
+    mutable GpRWSpinLock                iQueueLock;
+
+    GpItcSharedCondition                iProducersSC;
+    GpItcSharedCondition                iConsumersSC;
 };
 
 template<typename T>
@@ -50,76 +52,98 @@ iQueueMaxSize(aQueueMaxSize)
 }
 
 template<typename T>
-bool    GpItcProducerConsumer<T>::Produce
-(
-    typename ItcResultT::SP aResult,
-    const milliseconds_t    aWaitTimeout
-)
+GpItcProducerConsumer<T>::~GpItcProducerConsumer (void) noexcept
 {
-    GpItcSharedCondition::WaitForConditionResT waitRes = iReadySC.WaitForCondition
-    (
-        aWaitTimeout,
-        [&]()//Condition
-        {
-            return iQueue.size() < iQueueMaxSize;
-        },
-        [&]()//Action on condition met
-        {
-            iQueue.emplace_back(std::move(aResult));
-        },
-        [&]()//Action on condition not met
-        {
-            return GpItcSharedCondition::ActionCondNotMetRes::CONTINUE;
-        }
-    );
-
-    if (waitRes == GpItcSharedCondition::WaitForConditionResT::OK)
+    try
     {
-        iReadySC.WakeupAll([](){});
-        return true;
-    } else
+        iProducersSC.Notify(GpItcSharedCondition::NotifyMode::ALL);
+        iConsumersSC.Notify(GpItcSharedCondition::NotifyMode::ALL);
+    } catch (const GpException& e)
     {
-        return false;
+        GpStringUtils::SCerr(u8"[GpItcProducerConsumer::~GpItcProducerConsumer]: exception: "_sv + e.what());
+    } catch (const std::exception& e)
+    {
+        GpStringUtils::SCerr(u8"[GpItcProducerConsumer::~GpItcProducerConsumer]: exception: "_sv + e.what());
+    } catch (...)
+    {
+        GpStringUtils::SCerr(u8"[GpItcProducerConsumer::~GpItcProducerConsumer]: unknown exception"_sv);
     }
 }
 
 template<typename T>
-typename GpItcProducerConsumer<T>::ItcResultT::C::Opt::SP   GpItcProducerConsumer<T>::Consume (const milliseconds_t aWaitTimeout)
+bool    GpItcProducerConsumer<T>::Produce
+(
+    ItcResultT&&            aResult,
+    const milliseconds_t    aWaitTimeout
+)
 {
-    typename ItcResultT::C::Opt::SP res;
-
-    GpItcSharedCondition::WaitForConditionResT waitRes = iReadySC.WaitForCondition
+    return iProducersSC.WaitFor
     (
         aWaitTimeout,
-        [&]()//Condition
+        [&](std::mutex& aLock)//Condition
         {
-            return iQueue.size() > 0;
-        },
-        [&]()//Action on condition met
-        {
-            typename ItcResultT::SP result = iQueue.front();
-            iQueue.pop_front();
+            std::shared_lock lock(iQueueLock);
+            if (iQueue.size() >= iQueueMaxSize)
+            {
+                return false;
+            }
 
-            res = std::move(result);
-        },
-        [&]()//Action on condition not met
-        {
-            return GpItcSharedCondition::ActionCondNotMetRes::CONTINUE;
+            iQueue.emplace_back(std::move(aResult));
+
+            {
+                GpUnlockGuard unlock(aLock);
+                iConsumersSC.Notify(GpItcSharedCondition::NotifyMode::ONE);
+            }
+
+            return true;
         }
     );
+}
 
-    if (waitRes == GpItcSharedCondition::WaitForConditionResT::OK)
-    {
-        iReadySC.WakeupAll([](){});
-    }
+template<typename T>
+typename GpItcProducerConsumer<T>::ItcResultT::C::Opt::Val  GpItcProducerConsumer<T>::Consume (const milliseconds_t aWaitTimeout)
+{
+    typename ItcResultT::C::Opt::Val res;
+
+    iConsumersSC.WaitFor
+    (
+        aWaitTimeout,
+        [&](std::mutex& aLock)//Condition
+        {
+            std::shared_lock lock(iQueueLock);
+
+            if (iQueue.empty())
+            {
+                return false;
+            }
+
+            res = std::move(iQueue.front());
+            iQueue.pop_front();
+
+            {
+                GpUnlockGuard unlock(aLock);
+                iProducersSC.Notify(GpItcSharedCondition::NotifyMode::ONE);
+            }
+
+            return true;
+        }
+    );
 
     return res;
 }
 
 template<typename T>
-void    GpItcProducerConsumer<T>::Wakeup (void)
+typename GpItcProducerConsumer<T>::ItcResultT::C::Deque::Val    GpItcProducerConsumer<T>::ExtractQueue (void) noexcept
 {
-    iReadySC.WakeupAll([](){});
+    std::scoped_lock lock(iQueueLock);
+    return std::move(iQueue);
+}
+
+template<typename T>
+void    GpItcProducerConsumer<T>::NotifyAll (void)
+{
+    iProducersSC.Notify(GpItcSharedCondition::NotifyMode::ALL);
+    iConsumersSC.Notify(GpItcSharedCondition::NotifyMode::ALL);
 }
 
 }//namespace GPlatform

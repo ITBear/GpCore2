@@ -4,7 +4,6 @@
 #include "GpBytesArray.hpp"
 #include "GpSpanPtrNumerics.hpp"
 #include "GpTypeShell.hpp"
-#include "GpFlatMap.hpp"
 #include "GpDictionary.hpp"
 #include "GpElementsPool.hpp"
 #include "GpCachePool.hpp"

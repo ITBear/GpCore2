@@ -17,78 +17,56 @@ class GpConditionVar
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpConditionVar)
     CLASS_DD(GpConditionVar)
-
     TAG_SET(THREAD_SAFE)
 
-    using OnWakeupFnT   = std::function<void()>;
-    using OnCheckFnT    = std::function<bool()>;
+    using AtomicFnT = std::function<void(std::mutex&)>;
+    using CheckFnT  = std::function<bool()>;
 
-    enum class WaitForResT
-    {
-        TIMEOUT,
-        OK
-    };
+                            GpConditionVar  (void) noexcept = default;
+                            ~GpConditionVar (void) noexcept = default;
 
-                                        GpConditionVar  (void) noexcept = default;
-                                        ~GpConditionVar (void) noexcept = default;
-
-    inline void                         Do              (std::function<void()> aFn) const;
-
-    inline void                         WakeupAll       (OnWakeupFnT aOnWakeupFn);
-    inline void                         WakeupOne       (OnWakeupFnT aOnWakeupFn);
-    inline void                         Wait            (OnCheckFnT             aOnCheckFn);
-    [[nodiscard]] inline WaitForResT    WaitFor         (OnCheckFnT             aOnCheckFn,
-                                                         const milliseconds_t   aTimeout);
+    inline void             DoAtomic        (const AtomicFnT& aFn) const;
+    inline void             NotifyAll       (void);
+    inline void             NotifyOne       (void);
+    inline void             Wait            (const CheckFnT&        aCheckFn);
+    inline bool             WaitFor         (const CheckFnT&        aCheckFn,
+                                             const milliseconds_t   aTimeout);
 
 private:
-    mutable std::mutex                  iMutex;
-    std::condition_variable             iCV;
+    mutable std::mutex      iMutex;
+    std::condition_variable iCV;
 };
 
-void    GpConditionVar::Do (std::function<void()> aFn) const
+void    GpConditionVar::DoAtomic (const AtomicFnT& aFn) const
 {
     std::scoped_lock lock(iMutex);
-
-    aFn();
+    aFn(iMutex);
 }
 
-void    GpConditionVar::WakeupAll (OnWakeupFnT aOnWakeupFn)
+void    GpConditionVar::NotifyAll (void)
 {
-    {
-        std::scoped_lock lock(iMutex);
-        aOnWakeupFn();
-    }
-
     iCV.notify_all();
 }
 
-void    GpConditionVar::WakeupOne (OnWakeupFnT aOnWakeupFn)
+void    GpConditionVar::NotifyOne (void)
 {
-    {
-        std::scoped_lock lock(iMutex);
-        aOnWakeupFn();
-    }
-
     iCV.notify_one();
 }
 
-void    GpConditionVar::Wait (OnCheckFnT aOnCheckFn)
+void    GpConditionVar::Wait (const CheckFnT& aCheckFn)
 {
     std::unique_lock lock(iMutex);
 
     iCV.wait
     (
         lock,
-        [&]
-        {
-            return aOnCheckFn();
-        }
+        aCheckFn
     );
 }
 
-GpConditionVar::WaitForResT GpConditionVar::WaitFor
+bool    GpConditionVar::WaitFor
 (
-    OnCheckFnT              aOnCheckFn,
+    const CheckFnT&         aCheckFn,
     const milliseconds_t    aTimeout
 )
 {
@@ -98,11 +76,8 @@ GpConditionVar::WaitForResT GpConditionVar::WaitFor
     (
         lock,
         std::chrono::milliseconds(aTimeout.As<ssize_t>()),
-        [&]
-        {
-            return aOnCheckFn();
-        }
-    ) ? WaitForResT::OK : WaitForResT::TIMEOUT;
+        aCheckFn
+    );
 }
 
 }//GPlatform

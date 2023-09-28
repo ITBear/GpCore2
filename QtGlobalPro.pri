@@ -20,11 +20,13 @@ compiler_gcc{
 	QMAKE_CXX		=	clang++-15
 	QMAKE_LINK		=	clang++-15
 
-	QMAKE_CXXFLAGS	+= -stdlib=libc++
-	QMAKE_LFLAGS    += -stdlib=libc++
+	#QMAKE_CXXFLAGS	+= -stdlib=libc++
+	#QMAKE_LFLAGS   += -stdlib=libc++
 
-	#QMAKE_CXXFLAGS	+= -stdlib=libstdc++
-	#QMAKE_LFLAGS   += -stdlib=libstdc++
+	QMAKE_CXXFLAGS	+= -stdlib=libstdc++
+	QMAKE_LFLAGS    += -stdlib=libstdc++
+
+	QMAKE_CXXFLAGS	+= -Werror -Wthread-safety-analysis
 
 }else:compiler_emscripten{
 }else{
@@ -110,6 +112,9 @@ debug_build {
 	TARGET_POSTFIX		=
 	OUT_BUILD_MODE_PATH	= Release
 	BOOST_POSTFIX		= _fcontext
+
+	QMAKE_CXXFLAGS	+= -flto
+	QMAKE_LFLAGS    += -flto
 } else {
 	error("Unknown build mode. Set CONFIG+=debug_build CONFIG+=profile_build OR CONFIG+=release_build")
 }
@@ -134,7 +139,7 @@ os_linux {
 #------------------------ ARC ---------------------
 arc_x86_64 {
 	OUT_BUILD_ARCH_PATH = x86_64
-	QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v2
+	QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
 } else:arc_x86 {
 	OUT_BUILD_ARCH_PATH = x86
 	QMAKE_CXXFLAGS	+= -mtune=generic -march=i686
@@ -170,6 +175,5 @@ LIBS += -L$$DESTDIR
 
 INCLUDEPATH += \
     $$DIR_LEVEL/../Extras \
-	$$DIR_LEVEL/../Extras/Boost/boost_1_81_0$$BOOST_POSTFIX \
-	$$DIR_LEVEL/../Extras/Vulkan/1.3.239.0/x86_64/include
+    $$DIR_LEVEL/../Extras/Boost/boost_1_83_0$$BOOST_POSTFIX
 

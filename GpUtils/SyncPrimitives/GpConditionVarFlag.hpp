@@ -15,55 +15,53 @@ public:
     CLASS_DD(GpConditionVarFlag)
     TAG_SET(THREAD_SAFE)
 
-    using WaitForResT = GpConditionVar::WaitForResT;
+    using AtomicFnT = GpConditionVar::AtomicFnT;
 
 public:
-                                        GpConditionVarFlag  (void) noexcept = default;
-                                        ~GpConditionVarFlag (void) noexcept = default;
+                        GpConditionVarFlag  (void) noexcept = default;
+                        ~GpConditionVarFlag (void) noexcept = default;
 
-    inline void                         Reset               (void);
-    inline void                         WakeupAll           (void);
-    inline void                         WakeupOne           (void);
-    inline void                         Wait                (void);
-    [[nodiscard]] inline WaitForResT    WaitFor             (const milliseconds_t aTimeout);
-    [[nodiscard]] inline WaitForResT    WaitForAndReset     (const milliseconds_t aTimeout);
+    inline void         DoAtomic            (const AtomicFnT& aFn) const;
+    inline void         NotifyAll           (void);
+    inline void         NotifyOne           (void);
+    inline void         Wait                (void);
+    inline bool         WaitFor             (const milliseconds_t aTimeout);
+    inline bool         WaitForAndReset     (const milliseconds_t aTimeout);
 
 private:
-    bool                                iFlag = false;
-    GpConditionVar                      iCV;
+    GpConditionVar      iCV;
+    bool                iFlag = false;
 };
 
-void    GpConditionVarFlag::Reset (void)
+void    GpConditionVarFlag::DoAtomic (const AtomicFnT& aFn) const
 {
-    iCV.Do
-    (
-        [&]()
-        {
-            iFlag = false;
-        }
-    );
+    iCV.DoAtomic(aFn);
 }
 
-void    GpConditionVarFlag::WakeupAll (void)
+void    GpConditionVarFlag::NotifyAll (void)
 {
-    iCV.WakeupAll
+    iCV.DoAtomic
     (
-        [&]()
+        [&](std::mutex&)
         {
             iFlag = true;
         }
     );
+
+    iCV.NotifyAll();
 }
 
-void    GpConditionVarFlag::WakeupOne (void)
+void    GpConditionVarFlag::NotifyOne (void)
 {
-    iCV.WakeupOne
+    iCV.DoAtomic
     (
-        [&]()
+        [&](std::mutex&)
         {
             iFlag = true;
         }
     );
+
+    iCV.NotifyOne();
 }
 
 void    GpConditionVarFlag::Wait (void)
@@ -77,7 +75,7 @@ void    GpConditionVarFlag::Wait (void)
     );
 }
 
-GpConditionVarFlag::WaitForResT GpConditionVarFlag::WaitFor (const milliseconds_t aTimeout)
+bool    GpConditionVarFlag::WaitFor (const milliseconds_t aTimeout)
 {
     return iCV.WaitFor
     (
@@ -89,7 +87,7 @@ GpConditionVarFlag::WaitForResT GpConditionVarFlag::WaitFor (const milliseconds_
     );
 }
 
-GpConditionVarFlag::WaitForResT GpConditionVarFlag::WaitForAndReset (const milliseconds_t aTimeout)
+bool    GpConditionVarFlag::WaitForAndReset (const milliseconds_t aTimeout)
 {
     return iCV.WaitFor
     (

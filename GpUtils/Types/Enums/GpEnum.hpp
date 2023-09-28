@@ -149,8 +149,8 @@ public: \
         return EnumFlagsT(value_type(value_type(1) << aFlagLeft) | value_type(value_type(1) << aFlagRight)); \
     } \
 \
-private: \
     static const NamesListT&    SNames      (void) noexcept;\
+    static value_type           SID_at      (const size_t aPos) {return std::get<1>(SNames().at(aPos));} \
     static std::u8string_view   STypeName   (void) noexcept;\
 }
 

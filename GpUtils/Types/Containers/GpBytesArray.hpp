@@ -13,7 +13,7 @@ using GpSpanPtrCharRW   = GpSpanPtr<char8_t*>;
 using GpSpanPtrByteR    = GpSpanPtr<const u_int_8*>;
 using GpSpanPtrByteRW   = GpSpanPtr<u_int_8*>;
 
-using GpBytesArray      = std::vector<u_int_8>;//TODO test and reimplement with no default value type
+using GpBytesArray      = std::vector<u_int_8>;//TODO: test and reimplement with no default value type
 
 class GpBytesArrayUtils
 {

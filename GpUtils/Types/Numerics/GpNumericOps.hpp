@@ -126,6 +126,30 @@ public:
     }
 
     template<Concepts::IsArithmetic T>
+    [[nodiscard]] static constexpr T SMin (const T aValueA, const T aValueB) noexcept
+    {
+        if (aValueA > aValueB)
+        {
+            return aValueB;
+        } else
+        {
+            return aValueA;
+        }
+    }
+
+    template<Concepts::IsArithmetic T>
+    [[nodiscard]] static constexpr T SMax (const T aValueA, const T aValueB) noexcept
+    {
+        if (aValueA > aValueB)
+        {
+            return aValueA;
+        } else
+        {
+            return aValueB;
+        }
+    }
+
+    template<Concepts::IsArithmetic T>
     [[nodiscard]] static constexpr std::tuple<T, T> SMinMax (const T aValueA, const T aValueB) noexcept
     {
         if (aValueA > aValueB)

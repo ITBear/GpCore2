@@ -13,16 +13,38 @@ namespace GPlatform {
 class GpDoOnceInPeriod
 {
 public:
+    enum class Mode
+    {
+        AT_FIRST_CALL,
+        AT_TIMEOUT
+    };
+
+public:
                             GpDoOnceInPeriod    (void) noexcept = delete;
-                            GpDoOnceInPeriod    (const milliseconds_t aPeriod) noexcept: iPeriod(aPeriod){}
+    inline                  GpDoOnceInPeriod    (const milliseconds_t   aPeriod,
+                                                 const Mode             aMode) noexcept;
                             ~GpDoOnceInPeriod   (void) noexcept {}
 
     inline bool             Do                  (std::function<void()> aFn);
+    inline void             ResetCounter        (void) noexcept;
 
 private:
     const milliseconds_t    iPeriod;
     milliseconds_t          iLastDoSTS = 0.0_si_ms;
 };
+
+GpDoOnceInPeriod::GpDoOnceInPeriod
+(
+    const milliseconds_t    aPeriod,
+    const Mode              aMode
+) noexcept:
+iPeriod(aPeriod)
+{
+    if (aMode == Mode::AT_TIMEOUT)
+    {
+        iLastDoSTS = GpDateTimeOps::SSteadyTS_ms();
+    }
+}
 
 bool    GpDoOnceInPeriod::Do (std::function<void()> aFn)
 {
@@ -37,6 +59,11 @@ bool    GpDoOnceInPeriod::Do (std::function<void()> aFn)
     {
         return false;
     }
+}
+
+void    GpDoOnceInPeriod::ResetCounter (void) noexcept
+{
+    iLastDoSTS = GpDateTimeOps::SSteadyTS_ms();
 }
 
 }//namespace GPlatform

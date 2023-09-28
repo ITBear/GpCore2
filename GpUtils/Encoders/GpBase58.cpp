@@ -204,7 +204,7 @@ void    GpBase58::SDecodePrecalc
 {
     THROW_COND_GP
     (
-        aBase58Str.size() > 0,
+        !aBase58Str.empty(),
         u8"Data is empty"_sv
     );
 

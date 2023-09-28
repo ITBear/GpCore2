@@ -13,11 +13,11 @@ template<typename T> class GpUnlockGuard
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpUnlockGuard)
 
 public:
-                            GpUnlockGuard       (T& aLock) noexcept;
-                            ~GpUnlockGuard      (void) noexcept;
+                GpUnlockGuard   (T& aLock) noexcept;
+                ~GpUnlockGuard  (void) noexcept;
 
 private:
-    T&                      iLock;
+    T&          iLock;
 };
 
 template<typename T>

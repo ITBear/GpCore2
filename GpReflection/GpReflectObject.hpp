@@ -18,14 +18,14 @@
 
 namespace GPlatform {
 
-TAG_REGISTER(GpReflectObject);
+TAG_REGISTER(GpReflectObject)
 
 class GP_REFLECTION_API GpReflectObject
 {
 public:
     CLASS_DD(GpReflectObject)
 
-    TAG_SET(GpReflectObject);
+    TAG_SET(GpReflectObject)
 
     struct  _type_id_tag_t{};
     template<typename T> static T& SBaseType(void(T::*)(typename T::_type_id_tag_t&) const);
@@ -35,9 +35,9 @@ public:
     class Factory final: public GpReflectObjectFactory
     {
     public:
-        virtual GpReflectObject::SP NewInstance         (const GpUUID& aModelUid) const override final;
-        virtual void                Construct           (void* aDataPtr) const override final;
-        virtual void                Destruct            (void* aDataPtr) const override final;
+        virtual GpReflectObject::SP NewInstance             (const GpUUID& aModelUid) const override final;
+        virtual void                Construct               (void* aDataPtr) const override final;
+        virtual void                Destruct                (void* aDataPtr) const override final;
     };
 
 public:
@@ -49,7 +49,7 @@ public:
     static const GpReflectModel&    SReflectModel           (void) noexcept {return GpReflectObject::_sReflectModel;}
     static constexpr GpUUID         SReflectModelUid        (void) noexcept
     {
-        constexpr const GpUUID uid = GpUUID::CE_FromString(u8"10000000-0000-0000-0000-000000000001"_sv);
+        constexpr const GpUUID uid = "10000000-0000-0000-0000-000000000001"_uuid;
         return uid;
     }
 
@@ -75,7 +75,7 @@ protected:
 
 private:
     static const GpReflectModel&    _SReflectCreateModel    (void);
-    GP_REFLECTION_STATIC_TYPE_REG_DECL;
+    GP_REFLECTION_STATIC_TYPE_REG_DECL
 };
 
 template<typename T>
@@ -118,7 +118,7 @@ private: \
     static const ::GPlatform::GpReflectModel&   _SReflectCreateModel    (const ::GPlatform::GpReflectModel& aBaseReflectionModel); \
     static void                                 _SReflectCollectProps   (::GPlatform::GpReflectProp::C::Vec::Val& aPropsOut);\
 \
-    GP_REFLECTION_STATIC_TYPE_REG_DECL;
+    GP_REFLECTION_STATIC_TYPE_REG_DECL
 
 //------------------------- REFLECT_IMPLEMENT -------------------------
 #define MACRO_D_TO_STR(VAL) #VAL

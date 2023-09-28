@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpUtils/GpUtils_global.hpp"
+#include "../GpUtils/Macro/GpMacroImportExport.hpp"
 #include <cstddef>
 
 #if defined(GP_TASKS_LIBRARY)

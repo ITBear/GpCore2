@@ -12,18 +12,22 @@ template<typename T>
 class GpItcProducer
 {
 public:
-    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpItcProducer)
     CLASS_DD(GpItcProducer<T>)
 
     using ItcProducerConsumerT  = GpItcProducerConsumer<T>;
     using ItcResultT            = GpItcResult<T>;
 
 public:
-    inline                              GpItcProducer   (typename ItcProducerConsumerT::SP aProducerConsumer) noexcept;
-    inline                              ~GpItcProducer  (void) noexcept;
+                                        GpItcProducer       (void) noexcept = delete;
+    inline                              GpItcProducer       (typename ItcProducerConsumerT::SP aProducerConsumer) noexcept;
+    inline                              GpItcProducer       (const GpItcProducer& aProducer) noexcept;
+    inline                              GpItcProducer       (GpItcProducer&& aProducer) noexcept;
+    inline                              ~GpItcProducer      (void) noexcept;
 
-    [[nodiscard]] inline bool           Produce         (typename ItcResultT::SP    aResult,
-                                                         const milliseconds_t       aWaitTimeout);
+    inline bool                         Produce             (ItcResultT&&           aResult,
+                                                             const milliseconds_t   aWaitTimeout);
+
+    typename ItcProducerConsumerT::SP   ProducerConsumer    (void) noexcept {return iProducerConsumer;}
 
 private:
     typename ItcProducerConsumerT::SP   iProducerConsumer;
@@ -36,6 +40,19 @@ iProducerConsumer(std::move(aProducerConsumer))
 }
 
 template<typename T>
+GpItcProducer<T>::GpItcProducer (const GpItcProducer& aProducer) noexcept:
+iProducerConsumer(aProducer.iProducerConsumer)
+{
+
+}
+
+template<typename T>
+GpItcProducer<T>::GpItcProducer (GpItcProducer&& aProducer) noexcept:
+iProducerConsumer(std::move(aProducer.iProducerConsumer))
+{
+}
+
+template<typename T>
 GpItcProducer<T>::~GpItcProducer (void) noexcept
 {
 }
@@ -43,15 +60,17 @@ GpItcProducer<T>::~GpItcProducer (void) noexcept
 template<typename T>
 bool    GpItcProducer<T>::Produce
 (
-    typename ItcResultT::SP aResult,
+    ItcResultT&&            aResult,
     const milliseconds_t    aWaitTimeout
 )
 {
-    return iProducerConsumer.Vn().Produce
-    (
-        std::move(aResult),
-        aWaitTimeout
-    );
+    if (iProducerConsumer.IsNotNULL()) [[likely]]
+    {
+        return iProducerConsumer.Vn().Produce(std::move(aResult), aWaitTimeout);
+    } else
+    {
+        return false;
+    }
 }
 
 }//namespace GPlatform

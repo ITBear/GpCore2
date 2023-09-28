@@ -2336,7 +2336,7 @@ GpReflectObjectDynamic::SP  GpReflectObjectDynamicUtils::SConstruct (const GpRef
     //Props
     const GpReflectProp::C::Vec::Val& props = aModel.Props();
 
-    if (props.size() > 0)
+    if (!props.empty())
     {
         //Calc size and max align
         const size_t objectSize     = aModel.Size();

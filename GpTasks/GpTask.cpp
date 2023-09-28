@@ -2,43 +2,59 @@
 
 #if defined(GP_USE_MULTITHREADING)
 
-#include "../GpUtils/Other/GpRAIIonDestruct.hpp"
-#include "GpTaskScheduler.hpp"
-
 namespace GPlatform {
 
-decltype(GpTask::sTasksByThreadId)  GpTask::sTasksByThreadId;
+thread_local GpTask::C::Opt::Ref    __GpTask__thread_current_task;
+std::atomic<GpTask::IdT>            GpTask::sIdCounter = GpTask::IdT(1);
 
 GpTask::~GpTask (void) noexcept
 {
-    CompletePromise(MakeSP<CompleteItcResultT>(size_t(0)));
+    const auto taskId = GpTask::IdT();
+
+    try
+    {
+        GpTaskVarStorage::S().RemoveTask(taskId);
+    } catch (const GpException& e)
+    {
+        GpStringUtils::SCerr(u8"[GpTask::~GpTask]: GpTaskVarStorage::RemoveTask exception: "_sv + e.what());
+    } catch (const std::exception& e)
+    {
+        GpStringUtils::SCerr(u8"[GpTask::~GpTask]: GpTaskVarStorage::RemoveTask exception: "_sv + e.what());
+    } catch (...)
+    {
+        GpStringUtils::SCerr(u8"[GpTask::~GpTask]: GpTaskVarStorage::RemoveTask unknown exception"_sv);
+    }
+
+    try
+    {
+        GpTaskPayloadStorage::S().RemoveTask(taskId);
+    } catch (const GpException& e)
+    {
+        GpStringUtils::SCerr(u8"[GpTask::~GpTask]: GpTaskPayloadStorage::RemoveTask exception: "_sv + e.what());
+    } catch (const std::exception& e)
+    {
+        GpStringUtils::SCerr(u8"[GpTask::~GpTask]: GpTaskPayloadStorage::RemoveTask exception: "_sv + e.what());
+    } catch (...)
+    {
+        GpStringUtils::SCerr(u8"[GpTask::~GpTask]: GpTaskPayloadStorage::RemoveTask unknown exception"_sv);
+    }
+
+    StartPromiseHolder().Fulfill();
+    DonePromiseHolder().Fulfill();
 }
 
-void    GpTask::OnPushEvent (void)
+GpTask::C::Opt::Ref GpTask::SCurrentTask (void) noexcept
 {
-    GpTaskScheduler::S().MakeTaskReady(Guid());
+    return __GpTask__thread_current_task;
 }
 
-GpTaskDoRes GpTask::Run (GpThreadStopToken aStopToken) noexcept
+GpTaskRunRes::EnumT GpTask::Execute (void) noexcept
 {
-    GpRAIIonDestruct onDestruct
-    ([](){
-        SClearCurrent();
-    });
+    __GpTask__thread_current_task = *this;
+    const GpTaskRunRes::EnumT runRes = Run();
+    __GpTask__thread_current_task.reset();
 
-    SSetCurrent(this);
-    return _Run(std::move(aStopToken));
-}
-
-void    GpTask::SAddExecutorThreadId (const std::thread::id& aThreadId)
-{
-    GpTask* taskNullPtr = nullptr;
-
-    sTasksByThreadId.Insert
-    (
-        aThreadId,
-        taskNullPtr
-    );
+    return runRes;
 }
 
 }//GPlatform

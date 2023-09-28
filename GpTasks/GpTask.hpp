@@ -4,168 +4,196 @@
 
 #if defined(GP_USE_MULTITHREADING)
 
-#include "GpTaskState.hpp"
-#include "ITC/GpItcPromise.hpp"
-#include "../GpUtils/EventBus/GpEventSubscriber.hpp"
-#include "../GpUtils/Types/Containers/GpFlatMap.hpp"
-#include "../GpUtils/Types/Containers/GpDictionary.hpp"
-#include "../GpUtils/Types/Containers/GpAny.hpp"
-#include "../GpUtils/Threads/GpThreadStopToken.hpp"
+#include "GpTaskEnums.hpp"
+#include "GpTaskVarStorage.hpp"
+#include "GpTaskPayloadStorage.hpp"
+#include "ITC/GpItcSharedPromiseHolder.hpp"
 
 namespace GPlatform {
 
-class GpTaskAccessor;
-class GpTaskScheduler;
-
-enum class GpTaskDoRes
+class GP_TASKS_API GpTask
 {
-    READY_TO_EXEC,
-    WAITING,
-    DONE
-};
-
-enum class GpTaskType
-{
-    THREAD,
-    FIBER
-};
-
-class GP_TASKS_API GpTask: public GpEventSubscriber
-{
-    friend class GpTaskAccessor;
-
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTask)
     CLASS_DD(GpTask)
 
-    using StateT                = GpTaskState;
-    using StateTE               = StateT::EnumT;
-    using SchedulerRefT         = std::optional<std::reference_wrapper<GpTaskScheduler>>;
-    using TasksByThreadIdT      = GpFlatMap<std::thread::id, GpTask*, GpTasksSettings::SMaxCoresCount()>;
-    using CompleteItcPromiseT   = GpItcPromise<size_t>;
-    using CompleteItcFutureT    = GpItcFuture<size_t>;
-    using CompleteItcResultT    = GpItcResult<size_t>;
-    using VarsT                 = GpDictionary<std::u8string, GpAny>;
+    using IdT                   = u_int_64;
+
+    using StartPromiseHolderT   = GpItcSharedPromiseHolder<GpAny>;
+    using StartFutureT          = typename StartPromiseHolderT::FutureT;
+
+    using DonePromiseHolderT    = GpItcSharedPromiseHolder<GpAny>;
+    using DoneFutureT           = typename DonePromiseHolderT::FutureT;
 
 protected:
-    inline                          GpTask                  (std::u8string      aName,
-                                                             const GpTaskType   aTaskType) noexcept;
+    inline                                  GpTask              (std::u8string              aName,
+                                                                 const GpTaskMode::EnumT    aTaskMode) noexcept;
+    inline                                  GpTask              (const GpTaskMode::EnumT    aTaskMode) noexcept;
+
 public:
-    virtual                         ~GpTask                 (void) noexcept override;
+    virtual                                 ~GpTask             (void) noexcept;
 
-    std::u8string_view              Name                    (void) const noexcept {return iName;}
-    GpUUID                          Guid                    (void) const noexcept {return iGuid;}
-    GpTaskType                      TaskType                (void) const noexcept {return iTaskType;}
-    bool                            IsStopRequested         (void) const noexcept {return iIsStopRequested.load(std::memory_order_acquire);}
-    const GpTask*                   ParentTask              (void) const noexcept {return iParentTask;}
-    GpTask*                         ParentTask              (void) noexcept {return iParentTask;}
-    size_t                          ChildTasksCount         (void) const noexcept {return iChildTasksCount.load(std::memory_order_acquire);}
-    size_t                          ChildTasksInc           (void) noexcept {return iChildTasksCount.fetch_add(1, std::memory_order_release)+1;}
-    size_t                          ChildTasksDec           (void) noexcept {return iChildTasksCount.fetch_sub(1, std::memory_order_release)-1;}
+    static GpTask::C::Opt::Ref              SCurrentTask        (void) noexcept;
 
-    inline CompleteItcFutureT::SP   Future                  (void);
+    inline std::u8string_view               Name                (void) const noexcept;
+    inline IdT                              Id                  (void) const noexcept;
+    inline GpUUID                           IdAsUUID            (void) const noexcept;
+    inline GpTaskMode::EnumT                Mode                (void) const noexcept;
 
-    inline static GpTask*           SCurrent                (void) noexcept;
-    inline static GpUUID            SCurrentUID             (void) noexcept;
-    inline static void              SSetCurrent             (GpTask* aTask);
-    inline static void              SClearCurrent           (void);
+    // Payload (Scheduler::MakeTaskReady)
+    inline void                             PushPayload         (GpAny aPayload);
+    inline GpTaskPayloadStorage::AnyOptT    PopPayload          (void);
 
-    bool                            RunRequestFlag          (void) const noexcept {return iRunRequestFlag.load(std::memory_order_acquire);}
-    void                            UpRunRequestFlag        (void) noexcept {iRunRequestFlag.store(true, std::memory_order_release);}
-    void                            DownRunRequestFlag      (void) noexcept {iRunRequestFlag.store(false, std::memory_order_release);}
+    // Vars
+    inline void                             SetVar              (std::u8string  aKey,
+                                                                 GpAny          aValue);
+    inline GpTaskVarStorage::AnyOptT        GetVarCopy          (std::u8string_view aKey) const;
+    inline GpTaskVarStorage::AnyOptCRefT    GetVarRef           (std::u8string_view aKey) const;
 
-    const VarsT&                    Vars                    (void) const noexcept {return iVars;}
-    VarsT&                          Vars                    (void) noexcept {return iVars;}
+    // Use only from Task Executor or Task Scheduler
+    GpTaskRunRes::EnumT                     Execute             (void) noexcept;
+    inline bool                             IsStopRequested     (void) const noexcept;
+    inline void                             UpStopRequestFlag   (void) noexcept;
+
+    // Task Start/Done promise
+    inline StartFutureT::SP                 GetStartFuture      (void);
+    inline DoneFutureT::SP                  GetDoneFuture       (void);
 
 protected:
-    virtual void                    OnPushEvent             (void) override final;
-    inline void                     CompletePromise         (CompleteItcResultT::SP aResult) noexcept;
+    virtual GpTaskRunRes::EnumT             Run                 (void) noexcept = 0;
 
-    GpTaskDoRes                     Run                     (GpThreadStopToken aStopToken) noexcept;
-    virtual GpTaskDoRes             _Run                    (GpThreadStopToken aStopToken) noexcept = 0;
-
-    void                            RequestStop             (void) noexcept {iIsStopRequested.store(true, std::memory_order_release);}
+    inline StartPromiseHolderT&             StartPromiseHolder  (void) noexcept;
+    inline DonePromiseHolderT&              DonePromiseHolder   (void) noexcept;
 
 private:
-    StateTE                         State                   (void) const noexcept {return iState;}
-    void                            UpdateState             (StateTE aNewState) noexcept {iState = aNewState;}
-    void                            SetParentTask           (GpTask* aTask) noexcept {iParentTask = aTask;}
-
-    static void                     SAddExecutorThreadId    (const std::thread::id& aThreadId);
+    inline static IdT                       SNextId             (void) noexcept;
 
 private:
-    const std::u8string             iName;
-    const GpUUID                    iGuid;
-    const GpTaskType                iTaskType;
-    StateTE                         iState              = StateTE::NOT_ASSIGNED_TO_SCHEDULER;
-    CompleteItcPromiseT             iCompletePromise;
-    std::atomic_bool                iIsStopRequested    = false;
-    GpTask*                         iParentTask         = nullptr;
-    std::atomic_size_t              iChildTasksCount    = 0;
-    std::atomic_bool                iRunRequestFlag     = false;
-    VarsT                           iVars;
+    const std::u8string                     iName;
+    const IdT                               iId;
+    const GpTaskMode::EnumT                 iMode;
+    std::atomic_bool                        iIsStopRequested    = false;
+    StartPromiseHolderT                     iStartPromiseHolder;
+    DonePromiseHolderT                      iDonePromiseHolder;
 
-    static TasksByThreadIdT         sTasksByThreadId;
+    static std::atomic<IdT>                 sIdCounter;
 };
 
 GpTask::GpTask
 (
-    std::u8string       aName,
-    const GpTaskType    aTaskType
+    std::u8string           aName,
+    const GpTaskMode::EnumT aTaskMode
 ) noexcept:
-iName    (std::move(aName)),
-iGuid    (GpUUID::SGenRandomV4()),
-iTaskType(aTaskType)
+iName(std::move(aName)),
+iId  (SNextId()),
+iMode(aTaskMode)
 {
 }
 
-GpTask::CompleteItcFutureT::SP  GpTask::Future (void)
+GpTask::GpTask (const GpTaskMode::EnumT aTaskMode) noexcept:
+iId  (SNextId()),
+iMode(aTaskMode)
 {
-    if (iParentTask != nullptr)
-    {
-        return iCompletePromise.Future(iParentTask->Guid());
-    } else
-    {
-        return iCompletePromise.Future(GpUUID());
-    }
 }
 
-GpTask* GpTask::SCurrent (void) noexcept
+std::u8string_view  GpTask::Name (void) const noexcept
 {
-    const std::thread::id threadId = std::this_thread::get_id();
-    return sTasksByThreadId.FindCopyOrDefault(threadId);
+    return iName;
 }
 
-GpUUID  GpTask::SCurrentUID (void) noexcept
+GpTask::IdT GpTask::Id (void) const noexcept
 {
-    const GpTask* task = GpTask::SCurrent();
-
-    if (task != nullptr)
-    {
-        return task->Guid();
-    } else
-    {
-        return GpUUID();
-    }
+    return iId;
 }
 
-void    GpTask::SSetCurrent (GpTask* aTask)
+GpUUID  GpTask::IdAsUUID (void) const noexcept
 {
-    const std::thread::id threadId = std::this_thread::get_id();
-    sTasksByThreadId.Update(threadId, aTask);
+    GpUUID::DataT uuid;
+
+    const u_int_64 id = Id();
+
+    std::memcpy(uuid.data() + 0, "GpTask::", 8);
+    std::memcpy(uuid.data() + 8, &id, 8);
+
+    return GpUUID(uuid);
 }
 
-void    GpTask::SClearCurrent (void)
+GpTaskMode::EnumT   GpTask::Mode (void) const noexcept
 {
-    const std::thread::id threadId = std::this_thread::get_id();
-
-    GpTask* task = nullptr;
-    sTasksByThreadId.Update(threadId, task);
+    return iMode;
 }
 
-void    GpTask::CompletePromise (CompleteItcResultT::SP aResult) noexcept
+void    GpTask::PushPayload (GpAny aPayload)
 {
-    iCompletePromise.Complete(std::move(aResult));
+    GpTaskPayloadStorage::S().PushPayload
+    (
+        Id(),
+        std::move(aPayload)
+    );
+}
+
+GpTaskPayloadStorage::AnyOptT   GpTask::PopPayload (void)
+{
+    return GpTaskPayloadStorage::S().PopPayload(Id());
+}
+
+void    GpTask::SetVar
+(
+    std::u8string   aKey,
+    GpAny           aValue
+)
+{
+    GpTaskVarStorage::S().SetVar
+    (
+        Id(),
+        std::move(aKey),
+        std::move(aValue)
+    );
+}
+
+GpTaskVarStorage::AnyOptT   GpTask::GetVarCopy (std::u8string_view aKey) const
+{
+    return GpTaskVarStorage::S().GetVarCopy(Id(), aKey);
+}
+
+GpTaskVarStorage::AnyOptCRefT   GpTask::GetVarRef (std::u8string_view aKey) const
+{
+    return GpTaskVarStorage::S().GetVarRef(Id(), aKey);
+}
+
+bool    GpTask::IsStopRequested (void) const noexcept
+{
+    return iIsStopRequested.load(std::memory_order_acquire);
+}
+
+void    GpTask::UpStopRequestFlag (void) noexcept
+{
+    iIsStopRequested.store(true, std::memory_order_release);
+}
+
+GpTask::StartFutureT::SP    GpTask::GetStartFuture (void)
+{
+    return iStartPromiseHolder.Future();
+}
+
+GpTask::DoneFutureT::SP GpTask::GetDoneFuture (void)
+{
+    return iDonePromiseHolder.Future();
+}
+
+GpTask::StartPromiseHolderT&    GpTask::StartPromiseHolder (void) noexcept
+{
+    return iStartPromiseHolder;
+}
+
+GpTask::DonePromiseHolderT& GpTask::DonePromiseHolder (void) noexcept
+{
+    return iDonePromiseHolder;
+}
+
+GpTask::IdT GpTask::SNextId (void) noexcept
+{
+    return sIdCounter.fetch_add(1, std::memory_order_relaxed);
 }
 
 }//GPlatform

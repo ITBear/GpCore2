@@ -47,6 +47,7 @@ private:
 };
 
 template <typename T>
+
 GpSet<T>::GpSet (void) noexcept
 {
 }

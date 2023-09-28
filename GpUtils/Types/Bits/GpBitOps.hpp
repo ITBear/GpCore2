@@ -367,14 +367,14 @@ public:
     TValue                          SHL_C               (const TValue aValue, const size_t aShift) noexcept
     {
         if (aShift == 0) return aValue;
-        return (aValue << aShift) | (aValue >> ((sizeof(aValue) * CHAR_BIT) - aShift));
+        return (aValue << aShift) | (aValue >> ((sizeof(aValue) * size_t(8)) - aShift));
     }
 
     template<Concepts::IsIntegralUpTo128 TValue> [[nodiscard]] static constexpr
     TValue                          SHR_C               (const TValue aValue, const size_t aShift) noexcept
     {
         if (aShift == 0) return aValue;
-        return (aValue >> aShift) | (aValue << ((sizeof(aValue) * CHAR_BIT) - aShift));
+        return (aValue >> aShift) | (aValue << ((sizeof(aValue) * size_t(8)) - aShift));
     }
 
     template<Concepts::IsIntegralUpTo64 T> [[nodiscard]] static constexpr

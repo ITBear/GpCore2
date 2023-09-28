@@ -48,6 +48,7 @@ public:
     virtual                 ~GpDictionary   (void) noexcept;
 
     size_t                  Size            (void) const noexcept;
+    bool                    Empty           (void) const noexcept;
 
     void                    Clear           (void) noexcept;
 
@@ -79,12 +80,12 @@ public:
 
     template<typename K>
     ValueT&                 GetOrSet        (K&&            aKey,
-                                             ValueGenFnT    aGenFn);
+                                             ValueGenFnT&&  aGenFn);
 
     template<typename K>
-    ValueT&                 UpdateOrSet     (K&&            aKey,
-                                             ValueGenFnT    aGenFn,
-                                             ValueUpdateFnT aUpdateFn);
+    ValueT&                 UpdateOrSet     (K&&                aKey,
+                                             ValueGenFnT&&      aGenFn,
+                                             ValueUpdateFnT&&   aUpdateFn);
 
     template<typename K>
     ValueT                  Erase           (K&& aKey);
@@ -94,8 +95,13 @@ public:
 
     this_type               EraseAll        (void) noexcept;
 
-    void                    Process         (std::function<void(container_type&)> aFn);
-    void                    Apply           (std::function<void(ValueT&)> aFn);
+    void                    Process         (std::function<void(container_type&)>&& aFn);
+    void                    Apply           (std::function<void(ValueT&)>&& aFn);
+
+    template<typename K>
+    void                    ApplyToElement  (const K&                       aKey,
+                                             std::function<void(ValueT&)>&& aOnFoundFn,
+                                             std::function<void()>&&        aOnNotFoundFn);
 
 private:
     mutable GpRWSpinLock    iLock;
@@ -125,6 +131,15 @@ size_t  GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Size (void) const noex
 {
     std::shared_lock lock(iLock);
     return iElements.size();
+}
+
+template<typename KeyT,
+         typename ValueT,
+         typename UnderlyingContainerT>
+bool    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Empty (void) const noexcept
+{
+    std::shared_lock lock(iLock);
+    return iElements.empty();
 }
 
 template<typename KeyT,
@@ -304,8 +319,8 @@ template<typename KeyT,
 template<typename K>
 ValueT& GpDictionary<KeyT, ValueT, UnderlyingContainerT>::GetOrSet
 (
-    K&&         aKey,
-    ValueGenFnT aGenFn
+    K&&             aKey,
+    ValueGenFnT&&   aGenFn
 )
 {
     //Try find (shared lock)
@@ -343,9 +358,9 @@ template<typename KeyT,
 template<typename K>
 ValueT& GpDictionary<KeyT, ValueT, UnderlyingContainerT>::UpdateOrSet
 (
-    K&&             aKey,
-    ValueGenFnT     aGenFn,
-    ValueUpdateFnT  aUpdateFn
+    K&&                 aKey,
+    ValueGenFnT&&       aGenFn,
+    ValueUpdateFnT&&    aUpdateFn
 )
 {
     std::scoped_lock lock(iLock);
@@ -421,7 +436,7 @@ auto    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::EraseAll (void) noexce
 template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
-void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Process (std::function<void(container_type&)> aFn)
+void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Process (std::function<void(container_type&)>&& aFn)
 {
     std::scoped_lock lock(iLock);
     aFn(iElements);
@@ -430,13 +445,37 @@ void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Process (std::function
 template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
-void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Apply (std::function<void(ValueT&)> aFn)
+void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Apply (std::function<void(ValueT&)>&& aFn)
 {
     std::shared_lock lock(iLock);
 
     for (auto& e: iElements)
     {
         aFn(e.second);
+    }
+}
+
+template<typename KeyT,
+         typename ValueT,
+         typename UnderlyingContainerT>
+template<typename K>
+void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::ApplyToElement
+(
+    const K&                        aKey,
+    std::function<void(ValueT&)>&&  aOnFoundFn,
+    std::function<void()>&&         aOnNotFoundFn
+)
+{
+    std::shared_lock lock(iLock);
+
+    auto iter = iElements.find(aKey);
+
+    if (iter != iElements.end())
+    {
+        aOnFoundFn(iter->second);
+    } else
+    {
+        aOnNotFoundFn();
     }
 }
 

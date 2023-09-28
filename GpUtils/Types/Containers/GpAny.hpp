@@ -10,7 +10,6 @@
 #include "../../Exceptions/GpException.hpp"
 #include "../../TypeTraits/GpTypeInfoUtils.hpp"
 #include "../Strings/GpStringOps.hpp"
-#include "../Strings/GpUTF.hpp"
 
 #include <tuple>
 
@@ -104,7 +103,7 @@ private:
 GpAny::GpAny (const GpAny& aAny):
 iPtrHolder
 (
-    (aAny.iPtrHolder != nullptr) ?
+     (aAny.iPtrHolder != nullptr) ?
       aAny.iPtrHolder->Copy()
     : nullptr
 )
@@ -149,7 +148,7 @@ GpAny::~GpAny (void) noexcept
 
 void    GpAny::Clear (void) noexcept
 {
-    if (iPtrHolder)
+    if (iPtrHolder) [[likely]]
     {
         delete iPtrHolder;
         iPtrHolder = nullptr;
@@ -209,7 +208,7 @@ GpAny&  GpAny::operator= (T&& aValue)
 
 const std::type_info&   GpAny::TypeInfo (void) const noexcept
 {
-    if (iPtrHolder)
+    if (iPtrHolder) [[likely]]
     {
         return std::get<0>(iPtrHolder->TypeInfoAndPtr());
     } else

@@ -4,9 +4,9 @@
 
 #if defined(GP_USE_SYNC_PRIMITIVES)
 
-#include <atomic>
-#include "GpAsmSpinPause.hpp"
 #include "../Macro/GpMacroClass.hpp"
+#include "GpAsmSpinPause.hpp"
+#include <atomic>
 
 namespace GPlatform{
 
@@ -15,39 +15,43 @@ class GpSpinlock
     CLASS_REMOVE_CTRS_MOVE_COPY(GpSpinlock)
 
 public:
-            GpSpinlock  (void) noexcept = default;
-            ~GpSpinlock (void) noexcept = default;
+                        GpSpinlock  (void) noexcept = default;
+                        ~GpSpinlock (void) noexcept = default;
 
-    void    lock        (void) noexcept
-    {
-        for (;;)
-        {
-            if (!iState.exchange(true, std::memory_order_acquire))
-            {
-                return;
-            }
-
-            while (iState.load(std::memory_order_relaxed))
-            {
-                GP_ASM_SPIN_PAUSE();
-            }
-        }
-    }
-
-    void    unlock      (void) noexcept
-    {
-        iState.store(false, std::memory_order_release);
-    }
-
-    bool    try_lock    (void) noexcept
-    {
-        return     (!iState.load(std::memory_order_relaxed))
-                && (!iState.exchange(true, std::memory_order_acquire));
-    }
+    inline void         lock        (void) noexcept;
+    inline void         unlock      (void) noexcept;
+    inline bool         try_lock    (void) noexcept;
 
 private:
     std::atomic<bool>   iState = {0};
 };
+
+void    GpSpinlock::lock (void) noexcept
+{
+    for (;;)
+    {
+        if (!iState.exchange(true, std::memory_order_acquire))
+        {
+            return;
+        }
+
+        while (iState.load(std::memory_order_relaxed))
+        {
+            GP_ASM_SPIN_PAUSE();
+        }
+    }
+}
+
+void    GpSpinlock::unlock (void) noexcept
+{
+    iState.store(false, std::memory_order_release);
+}
+
+bool    GpSpinlock::try_lock (void) noexcept
+{
+    return     (!iState.load(std::memory_order_relaxed))
+            && (!iState.exchange(true, std::memory_order_acquire));
+}
 
 }//GPlatform
 

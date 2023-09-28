@@ -156,6 +156,7 @@ public:
 
         return ptr;
     }
+
     [[nodiscard]] const_value_type* P               (void) const {return const_cast<this_type&>(*this).P();}
 
     [[nodiscard]] value_type*       Pn              (void) noexcept
@@ -273,34 +274,39 @@ GpSharedPtrBase<T, _IsWeak>::~GpSharedPtrBase (void) noexcept
 template <typename T, bool _IsWeak>
 void    GpSharedPtrBase<T, _IsWeak>::Clear (void) noexcept
 {
-    if (iRefCounter)
+    if (!iRefCounter) [[unlikely]]
     {
-        const size_t refCount = iRefCounter->template Release<_IsWeak>();
-
-        if (refCount == 0)
-        {
-            if constexpr(!_IsWeak)
-            {
-                MemOps::SDelete(iRefCounter);
-            }
-        }
-
-        iRefCounter = nullptr;
+        return;
     }
+
+    const size_t refCount = iRefCounter->template Release<_IsWeak>();
+
+    if (refCount == 0)
+    {
+        if constexpr(!_IsWeak)
+        {
+            MemOps::SDelete(iRefCounter);
+        }
+    }
+
+    iRefCounter = nullptr;
 }
 
 template <typename T, bool _IsWeak>
 void    GpSharedPtrBase<T, _IsWeak>::Set (const this_type& aSharedPtr) noexcept
 {
-    if (iRefCounter != aSharedPtr.iRefCounter)
+    if (iRefCounter == aSharedPtr.iRefCounter) [[unlikely]]
     {
-        Clear();
-        iRefCounter = aSharedPtr.iRefCounter;
+        return;
+    }
 
-        if (iRefCounter)
-        {
-            iRefCounter->template Acquire<_IsWeak>();
-        }
+    Clear();
+
+    iRefCounter = aSharedPtr.iRefCounter;
+
+    if (iRefCounter) [[likely]]
+    {
+        iRefCounter->template Acquire<_IsWeak>();
     }
 }
 

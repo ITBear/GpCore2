@@ -4,10 +4,14 @@
 
 #if defined(GP_USE_CONTAINERS)
 
-#include "GpContainersT.hpp"
 #include "../../SyncPrimitives/GpSpinlock.hpp"
+#include "../../Macro/GpMacroTags.hpp"
+#include "../../Types/Strings/GpStringLiterals.hpp"
+#include "../../Exceptions/GpException.hpp"
 
 #include <mutex>
+#include <queue>
+#include <optional>
 
 namespace GPlatform {
 
@@ -38,7 +42,7 @@ public:
     void                                Clear                   (void) noexcept;
 
     std::optional<value_type>           Acquire                 (void);
-    void                                Release                 (value_type aElement);
+    void                                Release                 (value_type&& aElement);
 
     size_t                              InitCount               (void) const noexcept;
     size_t                              MaxCount                (void) const noexcept;
@@ -49,7 +53,7 @@ protected:
     virtual void                        PreInit                 (const size_t aCount);
     virtual value_type                  NewElement              (GpSpinlock& aLocked);
     virtual void                        OnClear                 (void) noexcept;
-    virtual bool                        Validate                (value_type aElement) noexcept;
+    virtual bool                        Validate                (value_type& aElement) noexcept;
 
     virtual void                        OnAcquire               (value_type& aValue,
                                                                  GpSpinlock& aLocked);
@@ -129,7 +133,7 @@ typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T
 {
     std::scoped_lock lock(iLock);
 
-    if (iElements.size() == 0)
+    if (iElements.empty())
     {
         if (iAcquiredCount < iMaxCount)
         {
@@ -151,7 +155,7 @@ typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T
         }
     } else
     {
-        value_type e = iElements.front();
+        value_type e = std::move(iElements.front());
         iElements.pop();
         OnAcquire(e, iLock);
         iAcquiredCount++;
@@ -161,7 +165,7 @@ typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T
 }
 
 template<typename T>
-void    GpElementsPool<T>::Release (value_type aElement)
+void    GpElementsPool<T>::Release (value_type&& aElement)
 {
     std::scoped_lock lock(iLock);
 
@@ -177,7 +181,7 @@ void    GpElementsPool<T>::Release (value_type aElement)
     {
         if (OnRelease(aElement, iLock) == ReleaseAct::PUSH_TO_ELEMENTS)
         {
-            iElements.push(aElement);
+            iElements.push(std::move(aElement));
         }
     }
 }
@@ -229,7 +233,7 @@ void    GpElementsPool<T>::OnClear (void) noexcept
 }
 
 template<typename T>
-bool    GpElementsPool<T>::Validate (value_type /*aElement*/) noexcept
+bool    GpElementsPool<T>::Validate (value_type& /*aElement*/) noexcept
 {
     return true;
 }
