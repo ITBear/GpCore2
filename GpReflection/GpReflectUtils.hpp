@@ -15,48 +15,49 @@ class GP_REFLECTION_API GpReflectUtils
 
 public:
     [[nodiscard]] inline static
-    GpReflectProp::C::Vec::CRef     SPropsFlagFilter        (const GpReflectProp::C::Vec::Val&  aProps,
-                                                             const GpReflectPropFlag::EnumT     aFlag);
+    GpReflectProp::C::Vec::CRef     SPropsFlagFilter            (const GpReflectProp::C::Vec::Val&  aProps,
+                                                                 const GpReflectPropFlag::EnumT     aFlag);
 
     template<typename T> [[nodiscard]] static
-    constexpr std::string_view      SModelName              (void) noexcept;
+    constexpr std::string_view      SModelName                  (void) noexcept;
 
     template<typename T, typename ValT> [[nodiscard]] static
-    constexpr std::ptrdiff_t        SOffsetOf               (ValT T::*element);
+    constexpr std::ptrdiff_t        SOffsetOf                   (ValT T::*element);
 
     template<typename T> [[nodiscard]] static
-    constexpr GpReflectType::EnumT  SDetectType             (void);
+    constexpr GpReflectType::EnumT  SDetectType                 (void);
 
     template<typename T> [[nodiscard]] static
     constexpr std::tuple<GpReflectType::EnumT, GpReflectType::EnumT, GpReflectContainerType::EnumT>
-                                    SDetectContainerType    (void);
+                                    SDetectContainerType        (void);
 
     template<typename T, GpReflectType::EnumT Type> [[nodiscard]] static
-    constexpr GpUUID                SGetModelUid            (void);
+    constexpr GpUUID                SGetModelUid                (void);
 
     template<typename T> [[nodiscard]] static
-    constexpr GpUUID                SDetectModelUid         (void);
+    constexpr GpUUID                SDetectModelUid             (void);
 
     template<typename T> static
-    GpReflectProp&                  SAddProp                (std::u8string&&                    aPropName,
-                                                             const std::ptrdiff_t               aOffset,
-                                                             const GpReflectPropFlags           aFlags,
-                                                             GpReflectProp::FlagArgsT&&         aFlagArgs,
-                                                             GpReflectProp::GenFnOptT           aGenFn,
-                                                             GpReflectProp::C::Vec::Val&        aPropsOut,
-                                                             GpReflectProp::FromStringFnMapT    aFromStringFns);
+    GpReflectProp&                  SAddProp                    (std::u8string&&                    aPropName,
+                                                                 const std::ptrdiff_t               aOffset,
+                                                                 const GpReflectPropFlags           aFlags,
+                                                                 GpReflectProp::FlagArgsT&&         aFlagArgs,
+                                                                 GpReflectProp::GenFnOptT           aGenFn,
+                                                                 GpReflectProp::C::Vec::Val&        aPropsOut,
+                                                                 GpReflectProp::FromStringFnMapT    aFromStringFns);
     template<typename T> static
-    void                            SReflectModelInit       (void);
+    void                            SReflectModelInit           (void);
 
-    inline static constexpr bool    SCheckContainerValueType(const GpReflectType::EnumT aType);
-    inline static constexpr bool    SCheckContainerKeyType  (const GpReflectType::EnumT aType);
+    inline static constexpr bool    SCheckContainerValueType    (const GpReflectType::EnumT aType);
+    inline static constexpr bool    SCheckVectorWrapValueType   (const GpReflectType::EnumT aType);
+    inline static constexpr bool    SCheckContainerKeyType      (const GpReflectType::EnumT aType);
 
     template<typename T> [[nodiscard]] static
-    T                               SCopyValue              (const T& aValue);
+    T                               SCopyValue                  (const T& aValue);
 
-    static void                     SGenerateOnce           (const GpReflectModel&          aModel,
-                                                             GpReflectObject::C::Vec::SP&   aItems);
-    static void                     SGenerateOnce           (GpReflectObject&               aItem);
+    static void                     SGenerateOnce               (const GpReflectModel&          aModel,
+                                                                 GpReflectObject::C::Vec::SP&   aItems);
+    static void                     SGenerateOnce               (GpReflectObject&               aItem);
 };
 
 GpReflectProp::C::Vec::CRef GpReflectUtils::SPropsFlagFilter
@@ -199,7 +200,18 @@ constexpr std::tuple<GpReflectType::EnumT, GpReflectType::EnumT, GpReflectContai
         return {t, GpReflectType::NOT_SET, GpReflectContainerType::NO};
     } else
     {
-        if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
+        if constexpr (std::is_same_v<T, GpVectorReflectObjWrap<typename T::value_type>>)
+        {
+            constexpr std::tuple<GpReflectType::EnumT, GpReflectType::EnumT, GpReflectContainerType::EnumT> res
+                = {SDetectType<typename T::value_type>(), GpReflectType::NOT_SET, GpReflectContainerType::VECTOR_WRAP};
+
+            if constexpr (!SCheckVectorWrapValueType(std::get<0>(res)))
+            {
+                GpThrowCe<GpException>(u8"Unsupported type '"_sv + SModelName<T>() + u8"' for vector wrap value");
+            }
+
+            return res;
+        } else if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
         {
             constexpr std::tuple<GpReflectType::EnumT, GpReflectType::EnumT, GpReflectContainerType::EnumT> res
                 = {SDetectType<typename T::value_type>(), GpReflectType::NOT_SET, GpReflectContainerType::VECTOR};
@@ -262,7 +274,11 @@ constexpr GpUUID    GpReflectUtils::SDetectModelUid (void)
         return SGetModelUid<T, t>();
     } else
     {
-        if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
+        if constexpr (std::is_same_v<T, GpVectorReflectObjWrap<typename T::value_type>>)
+        {
+            constexpr GpReflectType::EnumT et = SDetectType<typename T::value_type>();
+            return SGetModelUid<typename T::value_type, et>();
+        } else if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
         {
             constexpr GpReflectType::EnumT et = SDetectType<typename T::value_type>();
             return SGetModelUid<typename T::value_type, et>();
@@ -349,9 +365,13 @@ GpReflectProp&  GpReflectUtils::SAddProp
 
 constexpr bool  GpReflectUtils::SCheckContainerValueType (const GpReflectType::EnumT aType)
 {
-    return (aType != GpReflectType::OBJECT)
-        && (aType != GpReflectType::ENUM)
+    return (aType != GpReflectType::ENUM)
         && (aType != GpReflectType::ENUM_FLAGS);
+}
+
+constexpr bool  GpReflectUtils::SCheckVectorWrapValueType (const GpReflectType::EnumT aType)
+{
+    return (aType == GpReflectType::OBJECT);
 }
 
 constexpr bool  GpReflectUtils::SCheckContainerKeyType (const GpReflectType::EnumT aType)
@@ -385,7 +405,16 @@ T   GpReflectUtils::SCopyValue (const T& aValue)
     } else if constexpr (GpHasTag_GpUnit<VT>()) return aValue;
     else if constexpr (GpHasTag_GpEnum<VT>()) return aValue;
     else if constexpr (GpHasTag_GpEnumFlags<VT>()) return aValue;
-    else if constexpr (std::is_same_v<VT, std::vector<typename VT::value_type>>)
+    else if constexpr (std::is_same_v<VT, GpVectorReflectObjWrap<typename VT::value_type>>)
+    {
+        if constexpr (GpHasTag_GpReflectObject<typename VT::value_type>())
+        {
+            return aValue;
+        } else
+        {
+            GpThrowCe<GpException>(u8"Unknown type");
+        }
+    } else if constexpr (std::is_same_v<VT, std::vector<typename VT::value_type>>)
     {
         if constexpr (GpHasTag_GpSharedPtrBase<typename VT::value_type>())
         {

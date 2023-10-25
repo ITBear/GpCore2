@@ -5,6 +5,10 @@
 #include "GpTaskExecutorV1.hpp"
 #include "../../../GpUtils/Exceptions/GpExceptionUtils.hpp"
 #include "../../../../GpLog/GpLogCore/GpLog.hpp"
+#include "GpTaskExecutorV1.hpp"
+#include <tuple>
+#include <utility>
+#include <iostream>
 
 namespace GPlatform {
 
@@ -50,9 +54,6 @@ void    GpTaskSchedulerV1::Start
     );
 
     //------------------ Create executors -------------------
-    TaskProducerConsumerT::SP tasksProducerConsumer = MakeSP<TaskProducerConsumerT>(aTasksMaxCount);
-    iTasksProducer = MakeSP<TaskProducerT>(tasksProducerConsumer);
-
     iExecutorThreads.reserve(aExecutorsCount);
 
     for (size_t id = 0; id < aExecutorsCount; id++)
@@ -61,18 +62,16 @@ void    GpTaskSchedulerV1::Start
 
         iExecutorDoneFutures.emplace_back(executorDonePromise.Future());
 
-        GpThread& executorThread = iExecutorThreads.emplace_back(MakeSP<GpThread>(u8"Task exec: "_sv + id)).V();
-
-        executorThread.Run
+        GpThread&               executorThread  = iExecutorThreads.emplace_back(MakeSP<GpThread>(u8"Task exec: "_sv + id)).V();
+        GpTaskExecutorV1::SP    executorSP      = MakeSP<GpTaskExecutorV1>
         (
-            MakeSP<GpTaskExecutorV1>
-            (
-                id,
-                GpTaskExecutorV1::ConsumerT(tasksProducerConsumer),
-                *this,
-                std::move(executorDonePromise)
-            )
+            id,
+            *this,
+            iReadyTasks,
+            std::move(executorDonePromise)
         );
+
+        executorThread.Run(executorSP);
     }
 }
 
@@ -113,17 +112,9 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
             iExecutorThreads.clear();
         }
 
-        // Extract all redy tasks from iTasksProducer to local readyTasksQueue
-        GpStringUtils::SCout(u8"[GpTaskSchedulerV1::RequestStopAndJoin]: Extract all redy tasks from iTasksProducer to local readyTasksQueue...");
-        typename TaskProducerConsumerT::ItcResultT::C::Deque::Val readyTasksQueue;
-        if (iTasksProducer.IsNotNULL())
-        {
-            readyTasksQueue = iTasksProducer.Vn().ProducerConsumer().V().ExtractQueue();
-        }
-
         // Check excutor threads done result
         {
-            GpStringUtils::SCout(u8"[GpTaskSchedulerV1::RequestStopAndJoin]: JCheck excutor threads done result...");
+            GpStringUtils::SCout(u8"[GpTaskSchedulerV1::RequestStopAndJoin]: Check excutor threads done result...");
 
             while (!iExecutorDoneFutures.empty())
             {
@@ -144,11 +135,11 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
                         {
                             std::u8string exStr = GpExceptionUtils::SToString(aException);
 
-                            LOG_ERROR(u8"[GpUnitTestManager::WaitForRunners]: done with error: "_sv + exStr);
+                            LOG_ERROR(u8"[GpTaskSchedulerV1::WaitForRunners]: done with error: "_sv + exStr);
 
                             THROW_GP
                             (
-                                u8"Unit Test Runner finished with error: "_sv + exStr,
+                                u8"[GpTaskSchedulerV1::WaitForRunners]: done with error: "_sv + exStr,
                                 aException.SourceLocation()
                             );
                         }
@@ -168,18 +159,20 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
         // UpStopRequestFlag for all ready tasks
         {
             GpStringUtils::SCout(u8"[GpTaskSchedulerV1::RequestStopAndJoin]: UpStopRequestFlag for all ready tasks...");
-            while (!readyTasksQueue.empty())
+            while (!iReadyTasks.Empty())
             {
-                typename TaskProducerConsumerT::ItcResultT  taskRes = std::move(readyTasksQueue.front());
-                GpTask::SP                                  taskSP  = std::move(taskRes.Payload());
+                GpTask::C::Opt::SP taskOpt = iReadyTasks.WaitAndPop(0.0_si_s).value();
 
-                readyTasksQueue.pop_front();
+                if (taskOpt.has_value())
+                {
+                    GpTask& task = taskOpt.value().V();
 
-                taskSP->UpStopRequestFlag();
-                taskSP->Execute();
+                    task.UpStopRequestFlag();
+                    task.Execute();
+                }
             }
 
-            readyTasksQueue.clear();
+            iReadyTasks.Clear();
         }
 
         // UpStopRequestFlag for all waiting tasks
@@ -211,13 +204,13 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
     }
 }
 
-void    GpTaskSchedulerV1::NewToReady
-(
-    GpTask::SP              aTask,
-    const milliseconds_t    aWaitTimeout
-)
+void    GpTaskSchedulerV1::NewToReady (GpTask::SP aTask)
 {
+    std::cout << "[GpTaskSchedulerV1::NewToReady]: " << GpUTF::S_UTF8_To_STR(aTask->Name()) << std::endl;
+
     std::scoped_lock lock(iLock);
+
+    std::cout << "[GpTaskSchedulerV1::NewToReady]: 1..." << std::endl;
 
     THROW_COND_GP
     (
@@ -225,7 +218,11 @@ void    GpTaskSchedulerV1::NewToReady
         u8"Task scheduler stopped"_sv
     );
 
-    _MoveToReady(std::move(aTask), aWaitTimeout);
+    std::cout << "[GpTaskSchedulerV1::NewToReady]: 2..." << std::endl;
+
+    _MoveToReady(std::move(aTask));
+
+    std::cout << "[GpTaskSchedulerV1::NewToReady]: 3..." << std::endl;
 }
 
 void    GpTaskSchedulerV1::NewToWaiting (GpTask::SP aTask)
@@ -280,13 +277,15 @@ bool    GpTaskSchedulerV1::Reschedule
         {
             case GpTaskRunRes::READY_TO_RUN:
             {
-                _MoveToReady(std::move(aTask), 0.0_si_ms);
+                // TODO: reimplement iTasksProducer with...
+                _MoveToReady(std::move(aTask));
             } break;
             case GpTaskRunRes::WAIT:
             {
                 if (iMarkedAsReadyIds.contains(aTask->Id()))
                 {
-                    _MoveToReady(std::move(aTask), 0.0_si_ms);
+                    // TODO: reimplement iTasksProducer with...
+                    _MoveToReady(std::move(aTask));
                 } else
                 {
                     _MoveToWaiting(std::move(aTask));
@@ -327,7 +326,7 @@ void    GpTaskSchedulerV1::_MakeTaskReady (const GpTask::IdT aTaskId)
     if (waitingTaskIter != iWaitingTasks.end())
     {
         //Move task to ready
-        _MoveToReady(waitingTaskIter->second, 0.0_si_ms);
+        _MoveToReady(waitingTaskIter->second);
         iWaitingTasks.erase(waitingTaskIter);
     } else
     {
@@ -336,20 +335,10 @@ void    GpTaskSchedulerV1::_MakeTaskReady (const GpTask::IdT aTaskId)
     }
 }
 
-void    GpTaskSchedulerV1::_MoveToReady
-(
-    GpTask::SP              aTask,
-    const milliseconds_t    aWaitTimeout
-)
+void    GpTaskSchedulerV1::_MoveToReady (GpTask::SP aTask)
 {
-    const GpTask::IdT       taskId = aTask->Id();
-    GpItcResult<GpTask::SP> itcRes(std::move(aTask));
-
-    if (iTasksProducer->Produce(std::move(itcRes), aWaitTimeout) == false)
-    {
-        THROW_GP(u8"Produce timeout"_sv);
-    }
-
+    const GpTask::IdT taskId = aTask->Id();
+    iReadyTasks.PushAndNotifyOne(std::move(aTask));
     iMarkedAsReadyIds.erase(taskId);
 }
 

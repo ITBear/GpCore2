@@ -13,6 +13,7 @@ namespace GPlatform {
 GP_ENUM(GP_REFLECTION_API, GpReflectContainerType,
     NO,
     VECTOR,
+    VECTOR_WRAP,
     MAP
 );
 

@@ -10,7 +10,7 @@ void    GpEnum::FromID (const value_type aId)
 {
     for (const auto& item: Names())
     {
-        if (aId == std::get<1>(item))
+        if (aId == std::get<1>(item)) [[unlikely]]
         {
             _SetID(aId);
             return;

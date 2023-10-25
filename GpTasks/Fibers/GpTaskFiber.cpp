@@ -3,6 +3,9 @@
 #if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
+//#include <fmt/include/fmt/core.h>
+#include <iostream>
+
 GP_WARNING_PUSH()
 GP_WARNING_DISABLE(shadow)
 
@@ -18,7 +21,13 @@ GpTaskFiber::~GpTaskFiber (void) noexcept
 {
     if (iCtx.IsNotNULL())
     {
-        GpStringUtils::SCerr(u8"[GpTaskFiber::~GpTaskFiber]: iCtx is not null!"_sv);
+        //__builtin_trap();
+
+        //std::cout.flush();
+        //std::cout << boost::stacktrace::stacktrace() << std::endl;
+
+        //GpStringUtils::SCerr(fmt::format("[GpTaskFiber::~GpTaskFiber]: iCtx is not null!. Task '{}'", GpUTF::S_UTF8_To_STR(Name())));
+        GpStringUtils::SCerr(u8"[GpTaskFiber::~GpTaskFiber]: iCtx is not null!. Task '"_sv + Name() + u8"'");
 
         //Yes, app will crash
         std::terminate();

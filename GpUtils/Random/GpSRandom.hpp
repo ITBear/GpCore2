@@ -42,6 +42,10 @@ public:
                                                          const s_int_64 aMax = NumOps::SMax<s_int_64>()) noexcept;
     [[nodiscard]] inline u_int_64       UI64            (const u_int_64 aMin = NumOps::SMin<u_int_64>(),
                                                          const u_int_64 aMax = NumOps::SMax<u_int_64>()) noexcept;
+    [[nodiscard]] inline ssize_t        SSizeT          (const ssize_t  aMin = NumOps::SMin<ssize_t>(),
+                                                         const ssize_t  aMax = NumOps::SMax<ssize_t>()) noexcept;
+    [[nodiscard]] inline size_t         SizeT           (const size_t   aMin = NumOps::SMin<size_t>(),
+                                                         const size_t   aMax = NumOps::SMax<size_t>()) noexcept;
     [[nodiscard]] inline bool           Bool            (void) noexcept;
     [[nodiscard]] inline double         Double          (const double   aMin,
                                                          const double   aMax) noexcept;
@@ -123,6 +127,18 @@ u_int_64    GpSRandom::UI64 (const u_int_64 aMin, const u_int_64 aMax) noexcept
 {
     std::scoped_lock l(iLock);
     return iRandom.UI64(aMin, aMax);
+}
+
+ssize_t GpSRandom::SSizeT (const ssize_t aMin, const ssize_t aMax) noexcept
+{
+    std::scoped_lock l(iLock);
+    return iRandom.SSizeT(aMin, aMax);
+}
+
+size_t  GpSRandom::SizeT (const size_t aMin, const size_t aMax) noexcept
+{
+    std::scoped_lock l(iLock);
+    return iRandom.SizeT(aMin, aMax);
 }
 
 bool    GpSRandom::Bool (void) noexcept

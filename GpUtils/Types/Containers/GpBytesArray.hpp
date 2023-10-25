@@ -21,8 +21,10 @@ class GpBytesArrayUtils
 
 public:
     template<typename FROM>
-    requires Concepts::HasRandomAccessIter<FROM>
-    static GpBytesArray SMake (const FROM& aContainer)
+    requires
+           Concepts::HasRandomAccessIter<FROM>
+        && Concepts::SizeOfValueType<FROM, 1>
+    static GpBytesArray SConvert (const FROM& aContainer)
     {
         GpBytesArray res;
 
@@ -36,6 +38,54 @@ public:
         );
 
         return res;
+    }
+
+    template<typename T1, typename T2>
+    requires
+       Concepts::HasRandomAccessIter<T1>
+    && Concepts::SizeOfValueType<T1, 1>
+    && Concepts::HasRandomAccessIter<T2>
+    && Concepts::SizeOfValueType<T2, 1>
+    static T1&  SAppend
+    (
+        T1&         aDst,
+        const T2&   aSrc
+    )
+    {
+        const size_t oldSize = aDst.size();
+        const size_t srcSize = aSrc.size();
+        const size_t newSize = NumOps::SAdd(oldSize, srcSize);
+
+        aDst.resize(newSize);
+        MemOps::SCopy
+        (
+            aDst.data() + oldSize,
+            reinterpret_cast<const std::byte*>(aSrc.data()),
+            srcSize
+        );
+
+        return aDst;
+    }
+
+    static GpBytesArray&    SAppend
+    (
+        GpBytesArray&   aDst,
+        GpSpanPtrByteR  aSrc
+    )
+    {
+        const size_t oldSize = aDst.size();
+        const size_t srcSize = aSrc.Size().Value();
+        const size_t newSize = NumOps::SAdd(oldSize, srcSize);
+
+        aDst.resize(newSize);
+        MemOps::SCopy
+        (
+            aDst.data() + oldSize,
+            aSrc.Ptr(),
+            srcSize
+        );
+
+        return aDst;
     }
 };
 

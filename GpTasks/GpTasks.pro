@@ -59,6 +59,7 @@ HEADERS += \
 	ITC/GpItcSharedFuture.hpp \
 	ITC/GpItcSharedPromise.hpp \
     ITC/GpItcSharedPromiseHolder.hpp \
+    ITC/GpItcThreadSharedQueue.hpp \
     Scheduler/GpTaskScheduler.hpp \
     Scheduler/GpTaskSchedulerFactory.hpp \
 	GpTaskVarStorage.hpp \

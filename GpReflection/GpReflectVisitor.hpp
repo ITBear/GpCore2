@@ -33,6 +33,10 @@ private:
                                              const GpReflectProp&           aProp,
                                              typename VisitorT::VisitCtx&   aCtx);
 
+    void                VisitValueVecWrap   (DataPtrT                       aDataPtr,
+                                             const GpReflectProp&           aProp,
+                                             typename VisitorT::VisitCtx&   aCtx);
+
     template<typename ValGetterT>
     void                ProcessContainer    (DataPtrT                       aDataPtr,
                                              const GpReflectProp&           aProp,
@@ -77,6 +81,9 @@ void    GpReflectVisitor<T, VisitorT>::Visit
             } else if (containerType == GpReflectContainerType::VECTOR)
             {
                 VisitValueVec(aDataPtr, prop, aCtx);
+            } else if (containerType == GpReflectContainerType::VECTOR_WRAP)
+            {
+                VisitValueVecWrap(aDataPtr, prop, aCtx);
             } else if (containerType == GpReflectContainerType::MAP)
             {
                 VisitValueMap(aDataPtr, prop, aCtx);
@@ -149,6 +156,18 @@ void    GpReflectVisitor<T, VisitorT>::VisitValueVec
 
 template<typename T,
          typename VisitorT>
+void    GpReflectVisitor<T, VisitorT>::VisitValueVecWrap
+(
+    DataPtrT                        aDataPtr,
+    const GpReflectProp&            aProp,
+    typename VisitorT::VisitCtx&    aCtx
+)
+{
+    ProcessContainer<GpReflectPropGetter_VecWrap>(aDataPtr, aProp, aCtx);
+}
+
+template<typename T,
+         typename VisitorT>
 template<typename ValGetterT>
 void    GpReflectVisitor<T, VisitorT>::ProcessContainer
 (
@@ -186,7 +205,7 @@ void    GpReflectVisitor<T, VisitorT>::ProcessContainer
         case GpReflectType::OBJECT_SP:  visitContainerCtx.template Value_ObjectSP<ValGetterT>(aDataPtr, aProp, aCtx);   break;
         case GpReflectType::ENUM:       visitContainerCtx.template Value_Enum<ValGetterT>(aDataPtr, aProp, aCtx);       break;
         case GpReflectType::ENUM_FLAGS: visitContainerCtx.template Value_EnumFlags<ValGetterT>(aDataPtr, aProp, aCtx);  break;
-        case GpReflectType::NOT_SET:    THROW_GP(u8"Type "_sv + GpReflectType::SToString(aProp.Type()));                    break;
+        case GpReflectType::NOT_SET:    THROW_GP(u8"Type "_sv + GpReflectType::SToString(aProp.Type()));                break;
         default:                        THROW_GP(u8"Unsupported type "_sv + GpReflectType::SToString(aProp.Type()));
     }
 

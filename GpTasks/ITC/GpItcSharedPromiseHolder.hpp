@@ -13,6 +13,8 @@ template<typename T>
 class GpItcSharedPromiseHolder
 {
 public:
+    TAG_SET(THREAD_SAFE)
+
     using value_t   = T;
     using PromiseT  = GpItcSharedPromise<T>;
     using FutureT   = GpItcSharedFuture<T>;

@@ -280,7 +280,7 @@ void    Visitor_VisitValueCtx::Value_Object
 )
 {
     const GpReflectModel& model = GpReflectManager::S().Find(aProp.ModelUid());
-    model.Construct(&(aProp.Value_Object(aDataPtr)));
+    model.ConstructInplace(&(aProp.Value_Object(aDataPtr)));
 }
 
 void    Visitor_VisitValueCtx::Value_ObjectSP
@@ -1431,7 +1431,7 @@ void    Visitor_VisitValueCtx::Value_Object
 )
 {
     const GpReflectModel& model = GpReflectManager::S().Find(aProp.ModelUid());
-    model.Destruct(&(aProp.Value_Object(aDataPtr)));
+    model.DestructInplace(&(aProp.Value_Object(aDataPtr)));
 }
 
 void    Visitor_VisitValueCtx::Value_ObjectSP

@@ -3,20 +3,21 @@
 #if defined(GP_USE_MULTITHREADING)
 
 #include "../../../../GpService/GpService.hpp"
+#include "GpTaskSchedulerV1.hpp"
 
 namespace GPlatform {
 
 GpTaskExecutorV1::GpTaskExecutorV1
 (
     const size_t        aId,
-    ConsumerT&&         aTasksConsumer,
-    GpTaskScheduler&    aTasksScheduler,
+    GpTaskSchedulerV1&  aTasksScheduler,
+    ReadyTasksQueueT&   aReadyTasksQueue,
     DonePromiseT&&      aDonePromise
 ) noexcept:
-iId            (aId),
-iTasksConsumer (std::move(aTasksConsumer)),
-iTasksScheduler(aTasksScheduler),
-iDonePromise   (std::move(aDonePromise))
+iId             (aId),
+iTasksScheduler (aTasksScheduler),
+iReadyTasksQueue(aReadyTasksQueue),
+iDonePromise    (std::move(aDonePromise))
 {
 }
 
@@ -34,25 +35,14 @@ void    GpTaskExecutorV1::Run (std::atomic_flag& aStopRequest) noexcept
         while (!aStopRequest.test())
         {
             // Consume next task
-            typename ConsumerT::ItcResultT::C::Opt::Val nextTaskItcResOpt = iTasksConsumer.Consume(500.0_si_ms);
+            GpTask::C::Opt::SP  taskOpt = iReadyTasksQueue.WaitAndPop(0.5_si_s);
 
-            // No task
-            if (!nextTaskItcResOpt.has_value())
+            if (!taskOpt.has_value())
             {
                 continue;
             }
 
-            // Get consume result value
-            GpItcResult<GpTask::SP>& nextTaskItcRes = nextTaskItcResOpt.value();
-
-            // Check if result is payload (actualy a task)
-            if (!nextTaskItcRes.IsPayload())
-            {
-                continue;
-            }
-
-            // Extract task
-            GpTask::SP  taskSP  = std::move(nextTaskItcRes.Payload());
+            GpTask::SP& taskSP  = taskOpt.value();
             GpTask&     task    = taskSP.V();
 
             // Run task

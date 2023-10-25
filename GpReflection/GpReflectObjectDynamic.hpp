@@ -19,9 +19,10 @@ public:
     class Factory final: public GpReflectObjectFactory
     {
     public:
-        virtual GpReflectObject::SP NewInstance (const GpUUID& aModelUid) const override final;
-        virtual void                Construct   (void* aDataPtr) const override final;
-        virtual void                Destruct    (void* aDataPtr) const override final;
+        virtual GpReflectObject::SP NewInstanceSP       (const GpUUID& aModelUid) const override final;
+        virtual void                ConstructInplace    (void* aDataPtr) const override final;
+        virtual void                DestructInplace     (void* aDataPtr) const override final;
+        virtual const VecWrapInfoT& VecWrapInfo         (void) const noexcept override final;
     };
 
 public:

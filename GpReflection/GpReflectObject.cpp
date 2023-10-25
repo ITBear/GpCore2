@@ -8,12 +8,12 @@ namespace GPlatform {
 
 GP_REFLECTION_STATIC_TYPE_REG_IMPL(GpReflectObject)
 
-GpReflectObject::SP GpReflectObject::Factory::NewInstance (const GpUUID& /*aModelUid*/) const
+GpReflectObject::SP GpReflectObject::Factory::NewInstanceSP (const GpUUID& /*aModelUid*/) const
 {
     return MakeSP<GpReflectObject>();
 }
 
-void    GpReflectObject::Factory::Construct (void* aDataPtr) const
+void    GpReflectObject::Factory::ConstructInplace (void* aDataPtr) const
 {
     MemOps::SConstruct<GpReflectObject>
     (
@@ -22,13 +22,18 @@ void    GpReflectObject::Factory::Construct (void* aDataPtr) const
     );
 }
 
-void    GpReflectObject::Factory::Destruct (void* aDataPtr) const
+void    GpReflectObject::Factory::DestructInplace (void* aDataPtr) const
 {
     MemOps::SDestruct<GpReflectObject>
     (
         static_cast<GpReflectObject*>(aDataPtr),
         1
     );
+}
+
+const GpReflectObjectFactory::VecWrapInfoT& GpReflectObject::Factory::VecWrapInfo (void) const noexcept
+{
+    return iVecWrapInfo;
 }
 
 const GpReflectModel&   GpReflectObject::_SReflectModelInit (void)

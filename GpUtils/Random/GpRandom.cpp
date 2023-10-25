@@ -75,6 +75,16 @@ u_int_64    GpRandom::UI64 (const u_int_64 aMin, const u_int_64 aMax) noexcept
     return Next<u_int_64>(aMin, aMax);
 }
 
+ssize_t GpRandom::SSizeT (const ssize_t aMin, const ssize_t aMax) noexcept
+{
+    return Next<ssize_t>(aMin, aMax);
+}
+
+size_t  GpRandom::SizeT (const size_t aMin, const size_t aMax) noexcept
+{
+    return Next<size_t>(aMin, aMax);
+}
+
 bool    GpRandom::Bool (void) noexcept
 {
     return Next<u_int_64>(0, 1) == 0;

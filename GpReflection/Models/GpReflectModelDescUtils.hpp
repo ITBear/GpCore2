@@ -27,6 +27,8 @@ private:
                                                                      GpReflectPropBuilder&      aPropBuilder);
     static void                             SAddProps_Vec           (const GpReflectPropDesc&   aPropDesc,
                                                                      GpReflectPropBuilder&      aPropBuilder);
+    static void                             SAddProps_VecWrap       (const GpReflectPropDesc&   aPropDesc,
+                                                                     GpReflectPropBuilder&      aPropBuilder);
     static void                             SAddProps_Map           (const GpReflectPropDesc&   aPropDesc,
                                                                      GpReflectPropBuilder&      aPropBuilder);
 };

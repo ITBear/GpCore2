@@ -193,6 +193,15 @@ GpReflectPropBuilder&   GpReflectPropBuilder::Vec_ObjectSP
     return AddProp<GpReflectObject::SP, GpReflectType::OBJECT_SP, GpReflectContainerType::VECTOR>(aName, aModel);
 }
 
+GpReflectPropBuilder&   GpReflectPropBuilder::VecWrap_Object
+(
+    std::u8string_view      aName,
+    const GpReflectModel&   aModel
+)
+{
+    return AddProp<std::nullopt_t, GpReflectType::OBJECT, GpReflectContainerType::VECTOR_WRAP>(aName, aModel);
+}
+
 GpReflectPropBuilder&   GpReflectPropBuilder::Map_UI8
 (
     std::u8string_view      aName,

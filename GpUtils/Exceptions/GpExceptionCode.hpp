@@ -151,10 +151,10 @@ inline void THROW_COND_##SHORT_NAME \
  \
 inline void THROW_COND_##SHORT_NAME \
 ( \
-    const bool                      aCondition, \
-    const NAME##Code::EnumT         aCode, \
-    std::function<std::u8string()>  aMsgGenFn, \
-    const SourceLocationT&          aSourceLocation = SourceLocationT::current() \
+    const bool                          aCondition, \
+    const NAME##Code::EnumT             aCode, \
+    std::function<std::u8string()>&&    aMsgGenFn, \
+    const SourceLocationT&              aSourceLocation = SourceLocationT::current() \
 ) \
 { \
     if (!aCondition) [[unlikely]] \
@@ -167,7 +167,7 @@ inline void THROW_COND_##SHORT_NAME \
 ( \
     const bool                      aCondition, \
     const NAME##Code::EnumT         aCode, \
-    std::function<std::string()>    aMsgGenFn, \
+    std::function<std::string()>&&  aMsgGenFn, \
     const SourceLocationT&          aSourceLocation = SourceLocationT::current() \
 ) \
 { \

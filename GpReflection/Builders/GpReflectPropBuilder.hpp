@@ -53,7 +53,7 @@ public:
     template<typename EnumFlagsT>
     GpReflectPropBuilder&               EnumFlags               (std::u8string_view aName);
 
-    //Vector
+    // Vector
     GpReflectPropBuilder&               Vec_UI8                 (std::u8string_view aName);
     GpReflectPropBuilder&               Vec_SI8                 (std::u8string_view aName);
     GpReflectPropBuilder&               Vec_UI16                (std::u8string_view aName);
@@ -71,7 +71,11 @@ public:
     GpReflectPropBuilder&               Vec_ObjectSP            (std::u8string_view     aName,
                                                                  const GpReflectModel&  aModel);
 
-    //Map
+    // Vecrtor wrapper
+    GpReflectPropBuilder&               VecWrap_Object          (std::u8string_view     aName,
+                                                                 const GpReflectModel&  aModel);
+
+    // Map
     GpReflectPropBuilder&               Map_UI8                 (std::u8string_view     aName,
                                                                  GpReflectType::EnumT   aKeyType);
     GpReflectPropBuilder&               Map_SI8                 (std::u8string_view     aName,
@@ -307,6 +311,9 @@ GpReflectPropBuilder&   GpReflectPropBuilder::AddProp (std::u8string_view aName)
     {
         align   = alignof(std::vector<T>);
         size    = sizeof(std::vector<T>);
+    } else if constexpr (TC == GpReflectContainerType::VECTOR_WRAP)
+    {
+        GpThrowCe<GpException>(u8"Unsupported type for vector wrap container");
     } else
     {
         GpThrowCe<GpException>(u8"Unsupported container");
@@ -361,6 +368,13 @@ GpReflectPropBuilder&   GpReflectPropBuilder::AddProp
     {
         align   = alignof(std::vector<T>);
         size    = sizeof(std::vector<T>);
+    } else if constexpr (TC == GpReflectContainerType::VECTOR_WRAP)
+    {
+        const GpReflectObjectFactory&               factory     = aModel.Factory();
+        const GpReflectObjectFactory::VecWrapInfoT& vecWrapInfo = factory.VecWrapInfo();
+
+        align   = vecWrapInfo._align_of;
+        size    = vecWrapInfo._size_of;
     } else
     {
         GpThrowCe<GpException>(u8"Unsupported container");
@@ -389,8 +403,8 @@ GpReflectPropBuilder&   GpReflectPropBuilder::AddProp
         )
     );
 
-    iOffset += size;
-    iMaxAlign = std::max(iMaxAlign, align);
+    iOffset     += size;
+    iMaxAlign   = std::max(iMaxAlign, align);
 
     return *this;
 }

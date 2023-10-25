@@ -48,6 +48,10 @@ public:
                                                  const s_int_64 aMax = NumOps::SMax<s_int_64>()) noexcept;
     [[nodiscard]] u_int_64      UI64            (const u_int_64 aMin = NumOps::SMin<u_int_64>(),
                                                  const u_int_64 aMax = NumOps::SMax<u_int_64>()) noexcept;
+    [[nodiscard]] ssize_t       SSizeT          (const ssize_t  aMin = NumOps::SMin<ssize_t>(),
+                                                 const ssize_t  aMax = NumOps::SMax<ssize_t>()) noexcept;
+    [[nodiscard]] size_t        SizeT           (const size_t   aMin = NumOps::SMin<size_t>(),
+                                                 const size_t   aMax = NumOps::SMax<size_t>()) noexcept;
     [[nodiscard]] bool          Bool            (void) noexcept;
     [[nodiscard]] double        Double          (const double   aMin,
                                                  const double   aMax) noexcept;

@@ -4,19 +4,25 @@
 
 namespace GPlatform {
 
-GpReflectObject::SP GpReflectObjectDynamic::Factory::NewInstance (const GpUUID& aModelUid) const
+GpReflectObject::SP GpReflectObjectDynamic::Factory::NewInstanceSP (const GpUUID& aModelUid) const
 {
     return GpReflectObjectDynamicUtils::SConstruct(aModelUid);
 }
 
-void    GpReflectObjectDynamic::Factory::Construct (void* /*aDataPtr*/) const
+void    GpReflectObjectDynamic::Factory::ConstructInplace (void* /*aDataPtr*/) const
 {
     THROW_GP(u8"Use GpReflectObjectDynamic::SP"_sv);
 }
 
-void    GpReflectObjectDynamic::Factory::Destruct (void* /*aDataPtr*/) const
+void    GpReflectObjectDynamic::Factory::DestructInplace (void* /*aDataPtr*/) const
 {
     THROW_GP(u8"Use GpReflectObjectDynamic::SP"_sv);
+}
+
+const GpReflectObjectFactory::VecWrapInfoT& GpReflectObjectDynamic::Factory::VecWrapInfo (void) const noexcept
+{
+    // TODO: implement
+    THROW_GP_NOT_IMPLEMENTED();
 }
 
 GpReflectObjectDynamic::~GpReflectObjectDynamic (void) noexcept
@@ -37,7 +43,7 @@ const GpReflectModel&   GpReflectObjectDynamic::_ReflectModel (void) const
 GpReflectObject::SP GpReflectObjectDynamic::_ReflectNewInstance (void) const
 {
     Factory factory;
-    return factory.NewInstance(iModelUid);
+    return factory.NewInstanceSP(iModelUid);
 }
 
 GpReflectObject::SP GpReflectObjectDynamic::_ReflectClone (void) const

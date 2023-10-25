@@ -79,10 +79,10 @@ inline void THROW_COND_TEXT_CODE_GP
 
 inline void THROW_COND_TEXT_CODE_GP
 (
-    const bool                      aCondition,
-    std::function<std::u8string()>  aMsgGenFn,
-    std::u8string                   aCode,
-    const SourceLocationT&          aSourceLocation = SourceLocationT::current()
+    const bool                          aCondition,
+    std::function<std::u8string()>&&    aMsgGenFn,
+    std::u8string                       aCode,
+    const SourceLocationT&              aSourceLocation = SourceLocationT::current()
 )
 {
     if (!aCondition) [[unlikely]]

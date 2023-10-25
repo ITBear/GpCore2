@@ -8,6 +8,7 @@
 #include "GpTaskVarStorage.hpp"
 #include "GpTaskPayloadStorage.hpp"
 #include "ITC/GpItcSharedPromiseHolder.hpp"
+#include "../GpUtils/Macro/GpMacroTags.hpp"
 
 namespace GPlatform {
 
@@ -16,6 +17,7 @@ class GP_TASKS_API GpTask
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpTask)
     CLASS_DD(GpTask)
+    TAG_SET(THREAD_SAFE)
 
     using IdT                   = u_int_64;
 

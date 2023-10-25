@@ -15,6 +15,7 @@ class GP_TASKS_API GpTaskFiber: public GpTask
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskFiber)
     CLASS_DD(GpTaskFiber)
+    TAG_SET(THREAD_SAFE)
 
 public:
     inline                              GpTaskFiber     (void) noexcept;

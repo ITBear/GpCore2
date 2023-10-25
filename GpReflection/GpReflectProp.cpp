@@ -26,20 +26,20 @@ GpReflectProp::GpReflectProp
     ProcessCustomFnOptT     aDestructCustomFn,
     FromStringFnMapT&&      aFromStringFns
 ) noexcept:
-iType(aType),
-iModelUid(aModelUid),
-iContainer(aContainer),
-iContainerKeyType(aContainerKeyType),
-iName(std::move(aName)),
-iAlign(aAlign),
-iSize(aSize),
-iOffset(aOffset),
-iFlags(std::move(aFlags)),
-iFlagArgs(aFlagArgs),
-iGenFn(aGenFn),
+iType             (aType),
+iModelUid         (aModelUid),
+iContainer        (aContainer),
+iContainerKeyType (aContainerKeyType),
+iName             (std::move(aName)),
+iAlign            (aAlign),
+iSize             (aSize),
+iOffset           (aOffset),
+iFlags            (std::move(aFlags)),
+iFlagArgs         (aFlagArgs),
+iGenFn            (aGenFn),
 iConstructCustomFn(aConstructCustomFn),
-iDestructCustomFn(aDestructCustomFn),
-iFromStringFns(std::move(aFromStringFns))
+iDestructCustomFn (aDestructCustomFn),
+iFromStringFns    (std::move(aFromStringFns))
 {
 }
 

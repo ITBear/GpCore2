@@ -16,7 +16,7 @@ public:
     CLASS_DD(GpEnum)
     TAG_SET(GpEnum)
 
-    using value_type    = s_int_16;
+    using value_type    = s_int_32;
     using NamesListT    = std::vector<std::tuple<std::u8string_view, value_type>>;
 
 protected:
@@ -94,6 +94,8 @@ public: \
     }\
 \
     virtual ~TYPE_NAME (void) noexcept override final {}\
+\
+    static TYPE_NAME SFromID (const value_type aId) {TYPE_NAME e; e.FromID(aId); return e;} \
 \
     static std::u8string_view SEnumValuesStr (void)\
     {\

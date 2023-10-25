@@ -35,9 +35,20 @@ public:
     class Factory final: public GpReflectObjectFactory
     {
     public:
-        virtual GpReflectObject::SP NewInstance             (const GpUUID& aModelUid) const override final;
-        virtual void                Construct               (void* aDataPtr) const override final;
-        virtual void                Destruct                (void* aDataPtr) const override final;
+        using VecWrapT = GpVectorReflectObjWrap<GpReflectObject>;
+
+    public:
+        virtual GpReflectObject::SP NewInstanceSP           (const GpUUID& aModelUid) const override final;
+        virtual void                ConstructInplace        (void* aDataPtr) const override final;
+        virtual void                DestructInplace         (void* aDataPtr) const override final;
+        virtual const VecWrapInfoT& VecWrapInfo             (void) const noexcept override final;
+
+    private:
+        const VecWrapInfoT          iVecWrapInfo =
+        {
+            ._align_of  = alignof(VecWrapT),
+            ._size_of   = sizeof(VecWrapT)
+        };
     };
 
 public:
@@ -94,13 +105,24 @@ typename T::SP  GpReflectObject::ReflectClone (void) const
     class Factory final: public ::GPlatform::GpReflectObjectFactory \
     { \
     public: \
-        virtual ::GPlatform::GpSP<::GPlatform::GpReflectObject> NewInstance (const GpUUID& aModelUid) const override final; \
-        virtual void                                            Construct   (void* aDataPtr) const override final; \
-        virtual void                                            Destruct    (void* aDataPtr) const override final; \
+        using VecWrapT = GpVectorReflectObjWrap<this_type>; \
+    \
+    public: \
+        virtual ::GPlatform::GpSP<::GPlatform::GpReflectObject> NewInstanceSP       (const GpUUID& aModelUid) const override final; \
+        virtual void                                            ConstructInplace    (void* aDataPtr) const override final; \
+        virtual void                                            DestructInplace     (void* aDataPtr) const override final; \
+        virtual const VecWrapInfoT&                             VecWrapInfo         (void) const noexcept override final; \
+    \
+    private: \
+        const VecWrapInfoT iVecWrapInfo = \
+        { \
+            ._align_of  = alignof(VecWrapT), \
+            ._size_of   = sizeof(VecWrapT) \
+        }; \
     }; \
 \
-    static const ::GPlatform::GpReflectModel&   SReflectModel           (void) noexcept {return this_type::_sReflectModel;} \
-    static constexpr const ::GPlatform::GpUUID  SReflectModelUid        (void) noexcept \
+    static const ::GPlatform::GpReflectModel&                   SReflectModel       (void) noexcept {return this_type::_sReflectModel;} \
+    static constexpr const ::GPlatform::GpUUID                  SReflectModelUid    (void) noexcept \
     { \
         constexpr const ::GPlatform::GpUUID uid(TUUID); \
         return uid; \
@@ -127,11 +149,13 @@ private: \
 \
     GP_REFLECTION_STATIC_TYPE_REG_IMPL(T); \
 \
-    ::GPlatform::GpSP<::GPlatform::GpReflectObject> T::Factory::NewInstance (const GpUUID& /*aModelUid*/) const {return MakeSP<T>();} \
+    ::GPlatform::GpSP<::GPlatform::GpReflectObject> T::Factory::NewInstanceSP (const GpUUID& /*aModelUid*/) const {return MakeSP<T>();} \
 \
-    void    T::Factory::Construct (void* aDataPtr) const {MemOps::SConstruct<T>(static_cast<T*>(aDataPtr), 1);} \
+    void    T::Factory::ConstructInplace (void* aDataPtr) const {MemOps::SConstruct<T>(static_cast<T*>(aDataPtr), 1);} \
 \
-    void    T::Factory::Destruct (void* aDataPtr) const {MemOps::SDestruct<T>(static_cast<T*>(aDataPtr), 1);} \
+    void    T::Factory::DestructInplace (void* aDataPtr) const {MemOps::SDestruct<T>(static_cast<T*>(aDataPtr), 1);} \
+\
+    const ::GPlatform::GpReflectObjectFactory::VecWrapInfoT&    T::Factory::VecWrapInfo (void) const noexcept {return iVecWrapInfo;} \
 \
     const ::GPlatform::GpReflectModel&  T::_SReflectModelInit (void) \
     { \

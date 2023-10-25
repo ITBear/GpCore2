@@ -23,6 +23,8 @@ public:
     using value_ref_opt         = std::optional<std::reference_wrapper<const value_type>>;
     using value_opt             = std::optional<value_type>;
 
+    TAG_SET(THREAD_SAFE)
+
 public:
                                 GpSet               (void) noexcept;
                                 GpSet               (const GpSet& aSet) = delete;

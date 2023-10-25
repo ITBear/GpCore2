@@ -188,9 +188,9 @@ inline void THROW_COND_GP
 
 inline void THROW_COND_GP
 (
-    const bool                      aCondition,
-    std::function<std::u8string()>  aMsgGenFn,
-    const SourceLocationT&          aSourceLocation = SourceLocationT::current()
+    const bool                          aCondition,
+    std::function<std::u8string()>&&    aMsgGenFn,
+    const SourceLocationT&              aSourceLocation = SourceLocationT::current()
 )
 {
     if (!aCondition) [[unlikely]]
@@ -202,7 +202,7 @@ inline void THROW_COND_GP
 inline void THROW_COND_GP
 (
     const bool                      aCondition,
-    std::function<std::string()>    aMsgGenFn,
+    std::function<std::string()>&&  aMsgGenFn,
     const SourceLocationT&          aSourceLocation = SourceLocationT::current()
 )
 {

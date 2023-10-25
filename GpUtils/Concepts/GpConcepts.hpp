@@ -19,6 +19,12 @@ concept HasForwardIter = requires(T t)
     requires std::forward_iterator<typename T::iterator>;
 };
 
+template <typename T, size_t Size>
+concept SizeOfValueType = requires()
+{
+    requires sizeof(typename T::value_type) == Size;
+};
+
 template <typename T>
 concept IsPointer = requires()
 {

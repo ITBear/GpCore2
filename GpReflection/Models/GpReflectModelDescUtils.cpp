@@ -68,6 +68,10 @@ GpReflectPropBuilder    GpReflectModelDescUtils::SDescToModelPropBuilder (const 
             {
                 SAddProps_Vec(propDesc, propBuilder);
             } break;
+            case GpReflectContainerType::VECTOR_WRAP:
+            {
+                SAddProps_VecWrap(propDesc, propBuilder);
+            } break;
             case GpReflectContainerType::MAP:
             {
                 SAddProps_Map(propDesc, propBuilder);
@@ -257,6 +261,24 @@ void    GpReflectModelDescUtils::SAddProps_Vec
         {
             THROW_GP(u8"Unsupported value type"_sv);
         }
+    }
+}
+
+void    GpReflectModelDescUtils::SAddProps_VecWrap
+(
+    const GpReflectPropDesc&    aPropDesc,
+    GpReflectPropBuilder&       aPropBuilder
+)
+{
+    std::u8string_view name = aPropDesc.name;
+
+    if (aPropDesc.val_type.Value() == GpReflectType::OBJECT) [[likely]]
+    {
+        const GpReflectModel& model = GpReflectManager::S().Find(aPropDesc.model_uid);
+        aPropBuilder.VecWrap_Object(name, model);
+    } else
+    {
+        THROW_GP(u8"Unsupported value type"_sv);
     }
 }
 

@@ -39,11 +39,9 @@ public:
     size_t                          ExecutorsCount      (void) const noexcept {return iExecutorsCount;}
     size_t                          TasksMaxCount       (void) const noexcept {return iTasksMaxCount;}
 
-    inline GpTask::DoneFutureT::SP  NewToReadyDepend    (GpSP<GpTask>           aTask,
-                                                         const milliseconds_t   aWaitTimeout);
+    inline GpTask::DoneFutureT::SP  NewToReadyDepend    (GpSP<GpTask> aTask);
 
-    virtual void                    NewToReady          (GpSP<GpTask>           aTask,
-                                                         const milliseconds_t   aWaitTimeout) = 0;
+    virtual void                    NewToReady          (GpSP<GpTask> aTask) = 0;
     virtual void                    NewToWaiting        (GpSP<GpTask> aTask) = 0;
     virtual void                    MakeTaskReady       (const GpTask::IdT  aTaskGuid) = 0;
     virtual void                    MakeTaskReady       (const GpTask::IdT  aTaskGuid,
@@ -64,14 +62,10 @@ private:
     static GpTaskScheduler::SP      sInstance;
 };
 
-GpTask::DoneFutureT::SP GpTaskScheduler::NewToReadyDepend
-(
-    GpSP<GpTask>            aTask,
-    const milliseconds_t    aWaitTimeout
-)
+GpTask::DoneFutureT::SP GpTaskScheduler::NewToReadyDepend (GpSP<GpTask> aTask)
 {
     GpTask::DoneFutureT::SP doneFuture = aTask->GetDoneFuture();
-    NewToReady(aTask, aWaitTimeout);
+    NewToReady(aTask);
     return doneFuture;
 }
 

@@ -154,6 +154,7 @@ HEADERS += \
     Types/Containers/GpSet.hpp \
     Types/Containers/GpSpanPtrNumerics.hpp \
     Types/Containers/GpTypeShell.hpp \
+    Types/Containers/GpVectorWrapper.hpp \
     Types/Enums/GpEnum.hpp \
     Types/Enums/GpEnumFlags.hpp \
     Types/Numerics/GpMath.hpp \
