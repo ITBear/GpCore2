@@ -7,7 +7,7 @@
 #include "../Macro/GpMacroClass.hpp"
 #include "../Macro/GpMacroTags.hpp"
 #include "../Types/Containers/GpContainersT.hpp"
-#include "../SyncPrimitives/GpSpinlock.hpp"
+#include "../SyncPrimitives/GpSpinLock.hpp"
 #include <mutex>
 
 namespace GPlatform {
@@ -44,7 +44,7 @@ public:
     size_t              Unsubscribe     (const KeyT&    aSubscriberUid);
 
 private:
-    mutable GpSpinlock  iLock;
+    mutable GpSpinLock  iLock;
     SubscribersT        iSubscribers;
 };
 

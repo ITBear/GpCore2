@@ -69,6 +69,7 @@ public:
     inline                          ~GpAny          (void) noexcept;
 
     inline void                     Clear           (void) noexcept;
+    inline bool                     Empty           (void) const noexcept;
 
     template<typename T>
     GpAny&                          operator=       (const T& aValue);
@@ -153,6 +154,11 @@ void    GpAny::Clear (void) noexcept
         delete iPtrHolder;
         iPtrHolder = nullptr;
     }
+}
+
+bool    GpAny::Empty (void) const noexcept
+{
+    return iPtrHolder == nullptr;
 }
 
 template<typename T>

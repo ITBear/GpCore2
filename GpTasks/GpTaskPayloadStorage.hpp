@@ -10,7 +10,7 @@
 #include "GpTasks_global.hpp"
 #include "../GpUtils/Macro/GpMacroClass.hpp"
 #include "../GpUtils/Types/Containers/GpContainersT.hpp"
-#include "../GpUtils/SyncPrimitives/GpSpinlock.hpp"
+#include "../GpUtils/SyncPrimitives/GpSpinLock.hpp"
 #include "../GpUtils/Types/Containers/GpAny.hpp"
 
 namespace GPlatform {
@@ -39,7 +39,7 @@ public:
     inline AnyOptT                  PopPayload              (const TaskIdT  aTaskId);
 
 private:
-    mutable GpSpinlock              iLock;
+    mutable GpSpinLock              iLock;
     ContainerT                      iPayload;
     static GpTaskPayloadStorage     sInstance;
 };

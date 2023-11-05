@@ -4,7 +4,7 @@
 
 #if defined(GP_USE_RANDOM_GENERATORS)
 
-#include "../SyncPrimitives/GpSpinlock.hpp"
+#include "../SyncPrimitives/GpSpinLock.hpp"
 #include "GpRandom.hpp"
 #include <mutex>
 
@@ -21,7 +21,7 @@ private:
 public:
     static GpSRandom&                   S               (void) noexcept {return sInstance;}
 
-    GpSpinlock&                         Lock            (void) noexcept {return iLock;}
+    GpSpinLock&                         Lock            (void) noexcept {return iLock;}
 
     inline void                         SetSeedFromRD   (void);
     inline void                         SetSeed         (const random_mt19937::result_type aSeed);
@@ -64,7 +64,7 @@ public:
 
 private:
     GpRandom                            iRandom;
-    mutable GpSpinlock                  iLock;
+    mutable GpSpinLock                  iLock;
 
     static GpSRandom                    sInstance;
 };

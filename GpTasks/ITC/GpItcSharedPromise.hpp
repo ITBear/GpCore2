@@ -7,7 +7,6 @@
 #include "../../GpUtils/Macro/GpMacroClass.hpp"
 #include "../../GpUtils/Types/Strings/GpStringOps.hpp"
 #include "../../GpUtils/Types/Strings/GpStringUtils.hpp"
-#include "../../GpUtils/SyncPrimitives/GpSpinlock.hpp"
 
 #include "GpItcSharedFuture.hpp"
 
@@ -18,32 +17,33 @@ class GpItcSharedPromise
 {
 public:
     CLASS_DD(GpItcSharedPromise<T>)
+    TAG_SET(THREAD_SAFE)
 
-    using value_type        = T;
-    using ItcSharedFutureT  = GpItcSharedFuture<T>;
-    using ItcResultT        = GpItcResult<T>;
+    using value_type    = T;
+    using FutureT       = GpItcSharedFuture<T>;
+    using ResultT       = GpItcResult<T>;
 
 public:
-                                    GpItcSharedPromise  (void);
-                                    GpItcSharedPromise  (const GpItcSharedPromise& aPromise);
-                                    GpItcSharedPromise  (GpItcSharedPromise&& aPromise) noexcept;
-                                    ~GpItcSharedPromise (void) noexcept;
+                            GpItcSharedPromise  (void);
+                            GpItcSharedPromise  (const GpItcSharedPromise& aPromise);
+                            GpItcSharedPromise  (GpItcSharedPromise&& aPromise) noexcept;
+                            ~GpItcSharedPromise (void) noexcept;
 
-    bool                            Fulfill             (const typename ItcResultT::EmptyValue&);
-    bool                            Fulfill             (const T& aResult);
-    bool                            Fulfill             (T&& aResult);
-    bool                            Fulfill             (const GpException& aException);
-    bool                            Fulfill             (GpException&& aException);
-    bool                            Fulfill             (ItcResultT&& aItcResult);
-    typename ItcSharedFutureT::SP   Future              (void);
+    bool                    Fulfill             (const T& aResult);
+    bool                    Fulfill             (T&& aResult);
+    bool                    Fulfill             (const GpException& aException);
+    bool                    Fulfill             (GpException&& aException);
+    bool                    Fulfill             (ResultT&& aResult);
+
+    typename FutureT::SP    Future              (void);
 
 private:
-    mutable GpSpinlock              iLock;
-    typename ItcSharedFutureT::SP   iFuture;
+    typename FutureT::SP    iFuture;
 };
 
 template<typename T>
-GpItcSharedPromise<T>::GpItcSharedPromise (void)
+GpItcSharedPromise<T>::GpItcSharedPromise (void):
+iFuture(MakeSP<FutureT>())
 {
 }
 
@@ -64,12 +64,7 @@ GpItcSharedPromise<T>::~GpItcSharedPromise (void) noexcept
 {
     try
     {
-        std::scoped_lock lock(iLock);
-
-        if (iFuture.IsNotNULL())
-        {
-            iFuture.Vn().SetEmptyResult();
-        }
+        Fulfill(GpException("Empty result"));
     } catch (const GpException& e)
     {
         GpStringUtils::SCerr(u8"[GpItcSharedPromise::~GpItcSharedPromise]: exception: "_sv + e.what());
@@ -83,43 +78,35 @@ GpItcSharedPromise<T>::~GpItcSharedPromise (void) noexcept
 }
 
 template<typename T>
-bool    GpItcSharedPromise<T>::Fulfill (const typename ItcResultT::EmptyValue&)
-{
-    return Fulfill(ItcResultT());
-}
-
-template<typename T>
 bool    GpItcSharedPromise<T>::Fulfill (const T& aResult)
 {
-    return Fulfill(ItcResultT(aResult));
+    return Fulfill(ResultT(aResult));
 }
 
 template<typename T>
 bool    GpItcSharedPromise<T>::Fulfill (T&& aResult)
 {
-    return Fulfill(ItcResultT(std::move(aResult)));
+    return Fulfill(ResultT(std::move(aResult)));
 }
 
 template<typename T>
 bool    GpItcSharedPromise<T>::Fulfill (const GpException& aException)
 {
-    return Fulfill(ItcResultT(aException));
+    return Fulfill(ResultT(aException));
 }
 
 template<typename T>
 bool    GpItcSharedPromise<T>::Fulfill (GpException&& aException)
 {
-    return Fulfill(ItcResultT(std::move(aException)));
+    return Fulfill(ResultT(std::move(aException)));
 }
 
 template<typename T>
-bool    GpItcSharedPromise<T>::Fulfill (ItcResultT&& aItcResult)
+bool    GpItcSharedPromise<T>::Fulfill (ResultT&& aResult)
 {
-    std::scoped_lock lock(iLock);
-
     if (iFuture.IsNotNULL())
     {
-        return iFuture.Vn().SetResult(std::move(aItcResult));
+        return iFuture.Vn().SetResult(std::move(aResult));
     } else
     {
         return false;
@@ -127,15 +114,8 @@ bool    GpItcSharedPromise<T>::Fulfill (ItcResultT&& aItcResult)
 }
 
 template<typename T>
-typename GpItcSharedPromise<T>::ItcSharedFutureT::SP    GpItcSharedPromise<T>::Future (void)
+typename GpItcSharedPromise<T>::FutureT::SP GpItcSharedPromise<T>::Future (void)
 {
-    std::scoped_lock lock(iLock);
-
-    if (iFuture.IsNULL())
-    {
-        iFuture = MakeSP<ItcSharedFutureT>();
-    }
-
     return iFuture;
 }
 

@@ -4,6 +4,8 @@
 
 #if defined(GP_USE_MULTITHREADING)
 
+#include "../Macro/GpMacroClass.hpp"
+#include "../Types/Containers/GpContainersT.hpp"
 #include "../SyncPrimitives/GpConditionVarFlag.hpp"
 
 namespace GPlatform {
@@ -15,18 +17,30 @@ public:
     CLASS_DD(GpRunnable)
 
 protected:
-    inline                      GpRunnable  (void) noexcept = default;
+                                GpRunnable      (void) noexcept = default;
 
 public:
-    virtual                     ~GpRunnable (void) noexcept = default;
+    virtual                     ~GpRunnable     (void) noexcept = default;
 
-    GpConditionVarFlag&         CVF         (void) noexcept {return iCVF;}
-    const GpConditionVarFlag&   CVF         (void) const noexcept{return iCVF;}
-    virtual void                Run         (std::atomic_flag& aStopRequest) noexcept = 0;
+
+    virtual void                Run             (std::atomic_flag& aStopRequest) noexcept = 0;
+
+    inline void                 Notify          (void) noexcept;
+    inline bool                 WaitForAndReset (const milliseconds_t aTimeout) noexcept;
 
 private:
-    GpConditionVarFlag          iCVF;
+    mutable GpConditionVarFlag  iCVF;
 };
+
+void    GpRunnable::Notify (void) noexcept
+{
+    iCVF.NotifyAll();
+}
+
+bool    GpRunnable::WaitForAndReset (const milliseconds_t aTimeout) noexcept
+{
+    return iCVF.WaitForAndReset(aTimeout);
+}
 
 }//GPlatform
 

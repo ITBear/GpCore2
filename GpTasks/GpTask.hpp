@@ -7,7 +7,7 @@
 #include "GpTaskEnums.hpp"
 #include "GpTaskVarStorage.hpp"
 #include "GpTaskPayloadStorage.hpp"
-#include "ITC/GpItcSharedPromiseHolder.hpp"
+#include "ITC/GpItcSharedPromise.hpp"
 #include "../GpUtils/Macro/GpMacroTags.hpp"
 
 namespace GPlatform {
@@ -19,13 +19,11 @@ public:
     CLASS_DD(GpTask)
     TAG_SET(THREAD_SAFE)
 
-    using IdT                   = u_int_64;
+    using StartPromiseT = GpItcSharedPromise<GpAny>;
+    using StartFutureT  = typename StartPromiseT::FutureT;
 
-    using StartPromiseHolderT   = GpItcSharedPromiseHolder<GpAny>;
-    using StartFutureT          = typename StartPromiseHolderT::FutureT;
-
-    using DonePromiseHolderT    = GpItcSharedPromiseHolder<GpAny>;
-    using DoneFutureT           = typename DonePromiseHolderT::FutureT;
+    using DonePromiseT  = GpItcSharedPromise<GpAny>;
+    using DoneFutureT   = typename DonePromiseT::FutureT;
 
 protected:
     inline                                  GpTask              (std::u8string              aName,
@@ -38,7 +36,7 @@ public:
     static GpTask::C::Opt::Ref              SCurrentTask        (void) noexcept;
 
     inline std::u8string_view               Name                (void) const noexcept;
-    inline IdT                              Id                  (void) const noexcept;
+    inline GpTaskId                         Id                  (void) const noexcept;
     inline GpUUID                           IdAsUUID            (void) const noexcept;
     inline GpTaskMode::EnumT                Mode                (void) const noexcept;
 
@@ -64,21 +62,21 @@ public:
 protected:
     virtual GpTaskRunRes::EnumT             Run                 (void) noexcept = 0;
 
-    inline StartPromiseHolderT&             StartPromiseHolder  (void) noexcept;
-    inline DonePromiseHolderT&              DonePromiseHolder   (void) noexcept;
+    inline StartPromiseT&                   StartPromise        (void) noexcept;
+    inline DonePromiseT&                    DonePromise         (void) noexcept;
 
 private:
-    inline static IdT                       SNextId             (void) noexcept;
+    inline static GpTaskId                  SNextId             (void) noexcept;
 
 private:
     const std::u8string                     iName;
-    const IdT                               iId;
+    const GpTaskId                          iId;
     const GpTaskMode::EnumT                 iMode;
     std::atomic_bool                        iIsStopRequested    = false;
-    StartPromiseHolderT                     iStartPromiseHolder;
-    DonePromiseHolderT                      iDonePromiseHolder;
+    StartPromiseT                           iStartPromise;
+    DonePromiseT                            iDonePromise;
 
-    static std::atomic<IdT>                 sIdCounter;
+    static std::atomic<GpTaskId>            sIdCounter;
 };
 
 GpTask::GpTask
@@ -103,7 +101,7 @@ std::u8string_view  GpTask::Name (void) const noexcept
     return iName;
 }
 
-GpTask::IdT GpTask::Id (void) const noexcept
+GpTaskId    GpTask::Id (void) const noexcept
 {
     return iId;
 }
@@ -175,25 +173,25 @@ void    GpTask::UpStopRequestFlag (void) noexcept
 
 GpTask::StartFutureT::SP    GpTask::GetStartFuture (void)
 {
-    return iStartPromiseHolder.Future();
+    return iStartPromise.Future();
 }
 
 GpTask::DoneFutureT::SP GpTask::GetDoneFuture (void)
 {
-    return iDonePromiseHolder.Future();
+    return iDonePromise.Future();
 }
 
-GpTask::StartPromiseHolderT&    GpTask::StartPromiseHolder (void) noexcept
+GpTask::StartPromiseT&  GpTask::StartPromise (void) noexcept
 {
-    return iStartPromiseHolder;
+    return iStartPromise;
 }
 
-GpTask::DonePromiseHolderT& GpTask::DonePromiseHolder (void) noexcept
+GpTask::DonePromiseT&   GpTask::DonePromise (void) noexcept
 {
-    return iDonePromiseHolder;
+    return iDonePromise;
 }
 
-GpTask::IdT GpTask::SNextId (void) noexcept
+GpTaskId    GpTask::SNextId (void) noexcept
 {
     return sIdCounter.fetch_add(1, std::memory_order_relaxed);
 }

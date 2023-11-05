@@ -27,7 +27,7 @@ public:
                                 ~TimersPoolT        (void) noexcept = default;
 
     protected:
-        virtual value_type      NewElement          (GpSpinlock& /*aLocked*/) override final
+        virtual value_type      NewElement          (void) override final
         {
             return MakeSP<GpTimer>();
         }

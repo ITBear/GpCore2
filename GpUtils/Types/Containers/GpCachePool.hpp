@@ -4,7 +4,7 @@
 
 #if defined(GP_USE_CONTAINERS)
 
-#include "../../SyncPrimitives/GpSpinlock.hpp"
+#include "../../SyncPrimitives/GpSpinLock.hpp"
 #include "../Strings/GpStringOps.hpp"
 #include "../Strings/GpStringUtils.hpp"
 
@@ -159,7 +159,7 @@ private:
     void                        _EliminateOne   (void);
 
 private:
-    mutable GpSpinlock          iLock;
+    mutable GpSpinLock          iLock;
     ContainerAcquireT           iContainerAcquire;
     ContainerReleaseT           iContainerRelease;
     size_t                      iCountLimit = 0;

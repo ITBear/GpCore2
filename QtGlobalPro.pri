@@ -26,7 +26,7 @@ compiler_gcc{
 	QMAKE_CXXFLAGS	+= -stdlib=libstdc++
 	QMAKE_LFLAGS    += -stdlib=libstdc++
 
-	QMAKE_CXXFLAGS	+= -Werror -Wthread-safety-analysis
+	QMAKE_CXXFLAGS	+= -Werror -Wthread-safety-analysis -Wthread-safety
 
 }else:compiler_emscripten{
 }else{
@@ -174,6 +174,6 @@ message([$$PACKET_NAME]: -------------------------------------------------)
 LIBS += -L$$DESTDIR
 
 INCLUDEPATH += \
-    $$DIR_LEVEL/../Extras \
-    $$DIR_LEVEL/../Extras/Boost/boost_1_83_0$$BOOST_POSTFIX
+    $$DIR_LEVEL/../Extras/Boost/boost_1_83_0$$BOOST_POSTFIX \
+    $$DIR_LEVEL/../Extras
 

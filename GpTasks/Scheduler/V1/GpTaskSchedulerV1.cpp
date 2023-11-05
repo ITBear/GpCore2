@@ -123,13 +123,9 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
                     const bool isReady = ExecutorDoneFutureT::SCheckIfReady
                     (
                         iter->V(),
-                        [](const ssize_t& aExecutorId)
+                        [](ssize_t& aExecutorId)
                         {
                             LOG_INFO(u8"[GpTaskSchedulerV1::RequestStopAndJoin]: executor done: "_sv + aExecutorId);
-                        },
-                        []()
-                        {
-                            LOG_INFO(u8"[GpTaskSchedulerV1::RequestStopAndJoin]: done, empty result"_sv);
                         },
                         [](const GpException& aException)
                         {
@@ -238,7 +234,7 @@ void    GpTaskSchedulerV1::NewToWaiting (GpTask::SP aTask)
     _MoveToWaiting(std::move(aTask));
 }
 
-void    GpTaskSchedulerV1::MakeTaskReady (const GpTask::IdT aTaskId)
+void    GpTaskSchedulerV1::MakeTaskReady (const GpTaskId aTaskId)
 {
     std::scoped_lock lock(iLock);
 
@@ -247,8 +243,8 @@ void    GpTaskSchedulerV1::MakeTaskReady (const GpTask::IdT aTaskId)
 
 void    GpTaskSchedulerV1::MakeTaskReady
 (
-    const GpTask::IdT   aTaskId,
-    GpAny               aPayload
+    const GpTaskId  aTaskId,
+    GpAny           aPayload
 )
 {
     std::scoped_lock lock(iLock);
@@ -312,7 +308,7 @@ bool    GpTaskSchedulerV1::Reschedule
     return false;
 }
 
-void    GpTaskSchedulerV1::_MakeTaskReady (const GpTask::IdT aTaskId)
+void    GpTaskSchedulerV1::_MakeTaskReady (const GpTaskId aTaskId)
 {
     THROW_COND_GP
     (
@@ -337,14 +333,19 @@ void    GpTaskSchedulerV1::_MakeTaskReady (const GpTask::IdT aTaskId)
 
 void    GpTaskSchedulerV1::_MoveToReady (GpTask::SP aTask)
 {
-    const GpTask::IdT taskId = aTask->Id();
-    iReadyTasks.PushAndNotifyOne(std::move(aTask));
+    const GpTaskId taskId = aTask->Id();
+
+    if (iReadyTasks.PushAndNotifyOne(std::move(aTask)) == false) [[unlikely]]
+    {
+        THROW_GP(u8"Ready tasks queue is full"_sv);
+    }
+
     iMarkedAsReadyIds.erase(taskId);
 }
 
 void    GpTaskSchedulerV1::_MoveToWaiting (GpTask::SP aTask)
 {
-    const GpTask::IdT taskId = aTask->Id();
+    const GpTaskId taskId = aTask->Id();
     iWaitingTasks.emplace(taskId, std::move(aTask));
 }
 

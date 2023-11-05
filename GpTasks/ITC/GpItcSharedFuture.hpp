@@ -20,169 +20,104 @@ class GpItcSharedFuture
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpItcSharedFuture)
     CLASS_DD(GpItcSharedFuture<T>)
+    TAG_SET(THREAD_SAFE)
 
     using value_type        = T;
     using ItcResultT        = GpItcResult<T>;
-    using ItcResultOptValT  = typename ItcResultT::C::Opt::Val;
-    using ItcResultOptRefT  = typename ItcResultT::C::Opt::Ref;
-
-    using OnSuccessFnT      = typename ItcResultT::OnSuccessFnT;
-    using OnEmptyFnT        = typename ItcResultT::OnEmptyFnT;
-    using OnExceptionFnT    = typename ItcResultT::OnExceptionFnT;
 
 public:
-                            GpItcSharedFuture   (void) noexcept = default;
-                            ~GpItcSharedFuture  (void) noexcept = default;
+                                            GpItcSharedFuture   (void) noexcept = default;
+                                            ~GpItcSharedFuture  (void) noexcept = default;
 
-    bool                    IsReady             (void) const noexcept;
-    bool                    WaitFor             (const milliseconds_t aWaitTimeout);
-    ItcResultOptRefT        Result              (void) noexcept;
+    bool                                    WaitFor             (const milliseconds_t   aTimeout);
+    [[nodiscard]] std::optional<ItcResultT> TryGetResult        (void);
+    bool                                    IsReady             (void) const noexcept;
 
-    static bool             SCheckIfReady       (this_type&             aFuture,
-                                                 const OnSuccessFnT&    aOnSuccessFn,
-                                                 const OnEmptyFnT&      aOnEmptyFn,
-                                                 const OnExceptionFnT&  aOnExceptionFn);
-
-private:
-    bool                    SetResult           (ItcResultT&& aResult);
-    bool                    SetEmptyResult      (void);
+    static bool                             SCheckIfReady       (GpItcSharedFuture&                             aFuture,
+                                                                 const std::function<void(T&)>&                 aOnValueFn,
+                                                                 const std::function<void(const GpException&)>& aOnExceptionFn);
 
 private:
-    GpItcSharedCondition    iSharedCondition;
-    ItcResultOptValT        iResultOpt;
+    bool                                    SetResult           (ItcResultT&& aResult);
+
+private:
+    mutable GpItcSharedCondition            iSC;
+    std::optional<ItcResultT>               iResultOpt  GUARDED_BY(iSC.Mutex());
+    bool                                    iIsSet      GUARDED_BY(iSC.Mutex()) = false;
 };
+
+template<typename T>
+bool    GpItcSharedFuture<T>::WaitFor (const milliseconds_t aTimeout)
+{
+    return iSC.WaitFor
+    (
+        [&]() NO_THREAD_SAFETY_ANALYSIS
+        {
+            return iIsSet;
+        },
+        aTimeout
+    );
+}
+
+template<typename T>
+std::optional<typename GpItcSharedFuture<T>::ItcResultT>    GpItcSharedFuture<T>::TryGetResult (void)
+{
+    GpUniqueLock<GpMutex> lock(iSC.Mutex());
+    return std::move(iResultOpt);
+}
 
 template<typename T>
 bool    GpItcSharedFuture<T>::IsReady (void) const noexcept
 {
-    bool isReady = false;
-
-    iSharedCondition.DoAtomic
-    (
-        [&](std::mutex&)
-        {
-            isReady = iResultOpt.has_value();
-        }
-    );
-
-    return isReady;
-}
-
-template<typename T>
-bool    GpItcSharedFuture<T>::WaitFor (const milliseconds_t aWaitTimeout)
-{
-    return iSharedCondition.WaitFor
-    (
-        aWaitTimeout,
-        [&](std::mutex&)// Condition
-        {
-            return iResultOpt.has_value();
-        }
-    );
-}
-
-template<typename T>
-typename GpItcSharedFuture<T>::ItcResultOptRefT GpItcSharedFuture<T>::Result (void) noexcept
-{
-    ItcResultOptRefT res;
-
-    iSharedCondition.DoAtomic
-    (
-        [&](std::mutex&)
-        {
-            if (iResultOpt.has_value())
-            {
-                res = ItcResultOptRefT(iResultOpt.value());
-            } else
-            {
-                res = std::nullopt;
-            }
-        }
-    );
-
-    return res;
+    GpUniqueLock<GpMutex> lock(iSC.Mutex());
+    return iIsSet;
 }
 
 template<typename T>
 bool    GpItcSharedFuture<T>::SCheckIfReady
 (
-    this_type&              aFuture,
-    const OnSuccessFnT&     aOnSuccessFn,
-    const OnEmptyFnT&       aOnEmptyFn,
-    const OnExceptionFnT&   aOnExceptionFn
+    GpItcSharedFuture&                              aFuture,
+    const std::function<void(T&)>&                  aOnValueFn,
+    const std::function<void(const GpException&)>&  aOnExceptionFn
 )
 {
-    bool isReady = false;
+    std::optional<ItcResultT> resOpt = aFuture.TryGetResult();
 
-    aFuture.iSharedCondition.DoAtomic
-    (
-        [&aFuture, &isReady, &aOnSuccessFn, &aOnEmptyFn, &aOnExceptionFn](std::mutex&)
-        {
-            isReady = aFuture.iResultOpt.has_value();
-            if (isReady == false)
-            {
-                return;
-            }
+    if (!resOpt.has_value()) [[likely]]
+    {
+        return false;
+    }
 
-            ItcResultT& result = aFuture.iResultOpt.value();
+    ItcResultT& res = resOpt.value();
 
-            ItcResultT::SExtract
-            (
-                result,
-                aOnSuccessFn,
-                aOnEmptyFn,
-                aOnExceptionFn
-            );
-        }
-    );
+    if (res.IsPayload()) [[likely]]
+    {
+        T& payload = res.PayloadOrThrow();
+        aOnValueFn(payload);
+    } else
+    {
+        aOnExceptionFn(res.Exception());
+    }
 
-    return isReady;
+    return true;
 }
 
 template<typename T>
 bool    GpItcSharedFuture<T>::SetResult (ItcResultT&& aResult)
 {
-    bool isSet = false;
+    GpUniqueLock<GpMutex> lock(iSC.Mutex());
 
-    GpItcSharedCondition::AtomicFnT fn = [&, resultSrc = std::move(aResult)](std::mutex&)
+    if (iIsSet)
     {
-        if (iResultOpt.has_value() == false)
-        {
-            iResultOpt  = std::move(resultSrc);
-            isSet       = true;
-        }
-    };
+        return false;
+    }
 
-    iSharedCondition.Notify
-    (
-        GpItcSharedCondition::NotifyMode::ALL,
-        fn
-    );
+    iResultOpt  = std::move(aResult);
+    iIsSet      = true;
 
-    return isSet;
-}
+    iSC.NotifyAll();
 
-template<typename T>
-bool    GpItcSharedFuture<T>::SetEmptyResult (void)
-{
-    bool isSet = false;
-
-    GpItcSharedCondition::AtomicFnT fn = [&](std::mutex&)
-    {
-        if (iResultOpt.has_value() == false)
-        {
-            iResultOpt  = ItcResultT();
-            isSet       = true;
-        }
-    };
-
-    iSharedCondition.Notify
-    (
-        GpItcSharedCondition::NotifyMode::ALL,
-        fn
-    );
-
-    return isSet;
+    return true;
 }
 
 }//namespace GPlatform

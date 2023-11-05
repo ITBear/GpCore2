@@ -30,7 +30,7 @@ public:
 
 protected:
     inline virtual void             PreInit                 (const size_t aCount) override final;
-    inline virtual value_type       NewElement              (GpSpinlock& aLocked) override final;
+    inline virtual value_type       NewElement              (void) override final;
     inline virtual void             OnClear                 (void) noexcept override final;
 
 private:
@@ -54,7 +54,7 @@ void    GpStackImplPoolBoost::PreInit (const size_t /*aCount*/)
     //NOP
 }
 
-GpStackImplPoolBoost::value_type    GpStackImplPoolBoost::NewElement (GpSpinlock& /*aLocked*/)
+GpStackImplPoolBoost::value_type    GpStackImplPoolBoost::NewElement (void)
 {
     return GpStackBoost::StackImplT(iStackSize.As<size_t>());
 }

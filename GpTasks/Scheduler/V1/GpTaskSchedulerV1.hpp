@@ -5,7 +5,7 @@
 #if defined(GP_USE_MULTITHREADING)
 
 #include "../../../GpUtils/Threads/GpThread.hpp"
-#include "../../../GpUtils/SyncPrimitives/GpSpinlock.hpp"
+#include "../../../GpUtils/SyncPrimitives/GpSpinLock.hpp"
 
 #include "../GpTaskScheduler.hpp"
 #include "../../GpTask.hpp"
@@ -26,8 +26,8 @@ public:
     TAG_SET(THREAD_SAFE)
 
     using ExecutorDoneFutureT   = GpItcSharedFuture<ssize_t>;
-    using ReadyTasksQueueT      = GpItcThreadSharedQueue<GpTask::SP>;
-    using WaitingTasksT         = std::unordered_map<GpTask::IdT, GpTask::SP>;
+    using ReadyTasksQueueT      = GpItcSharedQueue<GpTask::SP>;
+    using WaitingTasksT         = std::unordered_map<GpTaskId, GpTask::SP>;
 
 public:
                                         GpTaskSchedulerV1       (void) noexcept;
@@ -39,25 +39,25 @@ public:
 
     virtual void                        NewToReady              (GpTask::SP aTask) override final;
     virtual void                        NewToWaiting            (GpTask::SP aTask) override final;
-    virtual void                        MakeTaskReady           (const GpTask::IdT aTaskId) override final;
-    virtual void                        MakeTaskReady           (const GpTask::IdT aTaskId,
+    virtual void                        MakeTaskReady           (const GpTaskId aTaskId) override final;
+    virtual void                        MakeTaskReady           (const GpTaskId aTaskId,
                                                                  GpAny              aPayload) override final;
 
     virtual bool                        Reschedule              (const GpTaskRunRes::EnumT  aRunRes,
                                                                  GpTask::SP&&               aTask) noexcept override final;
 
 private:
-    void                                _MakeTaskReady          (const GpTask::IdT  aTaskId);
-    void                                _MoveToReady            (GpTask::SP         aTask);
-    void                                _MoveToWaiting          (GpTask::SP         aTask);
+    void                                _MakeTaskReady          (const GpTaskId aTaskId);
+    void                                _MoveToReady            (GpTask::SP     aTask);
+    void                                _MoveToWaiting          (GpTask::SP     aTask);
 
 private:
-    mutable GpSpinlock                  iLock;
+    mutable GpSpinLock                  iLock;
     GpThread::C::Vec::SP                iExecutorThreads;
     ExecutorDoneFutureT::C::Vec::SP     iExecutorDoneFutures;
     ReadyTasksQueueT                    iReadyTasks;
     WaitingTasksT                       iWaitingTasks;
-    std::unordered_set<GpTask::IdT>     iMarkedAsReadyIds;
+    std::unordered_set<GpTaskId>        iMarkedAsReadyIds;
     bool                                iIsRequestStopAndJoin   = false;
 };
 

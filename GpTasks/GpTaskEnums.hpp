@@ -21,6 +21,8 @@ GP_ENUM(GP_TASKS_API, GpTaskMode,
     FIBER
 );
 
+using GpTaskId = u_int_64;
+
 }//GPlatform
 
 #endif//#if defined(GP_USE_MULTITHREADING)

@@ -7,7 +7,6 @@
 #include "../../GpUtils/Exceptions/GpException.hpp"
 #include "../../GpUtils/Macro/GpMacroClass.hpp"
 #include "../../GpUtils/Types/Containers/GpContainersT.hpp"
-#include "../../GpUtils/Types/Strings/GpUTF.hpp"
 
 #include <variant>
 
@@ -19,22 +18,14 @@ class GpItcResult
 public:
     CLASS_DD(GpItcResult<T>)
 
-    using OnSuccessFnT      = std::function<void(T&)>;
-    using OnEmptyFnT        = std::function<void()>;
-    using OnExceptionFnT    = std::function<void(const GpException&)>;
-
-    struct EmptyValue{};
-
     using VariantsT = std::variant
     <
-        EmptyValue,
-        T,
-        GpException
+        GpException,
+        T
     >;
 
 public:
-                            GpItcResult     (void) noexcept;
-                            GpItcResult     (const EmptyValue&) noexcept;
+                            GpItcResult     (void) noexcept = delete;
                             GpItcResult     (const this_type& aRes);
                             GpItcResult     (this_type&& aRes);
                             GpItcResult     (const GpException& aException);
@@ -48,33 +39,16 @@ public:
 
     bool                    IsException     (void) const noexcept;
     bool                    IsPayload       (void) const noexcept;
-    bool                    IsEmpty         (void) const noexcept;
 
     const GpException&      Exception       (void) const;
-    const T&                Payload         (void) const;
-    T&                      Payload         (void);
-    VariantsT&              Variants        (void) noexcept;
+    T&                      PayloadOrThrow  (const SourceLocationT& aSourceLocation = SourceLocationT::current());
+    const T&                PayloadOrThrow  (const SourceLocationT& aSourceLocation = SourceLocationT::current()) const;
 
-    static void             SExtract        (this_type&             aRes,
-                                             const OnSuccessFnT&    aOnSuccessFn,
-                                             const OnEmptyFnT&      aOnEmptyFn,
-                                             const OnExceptionFnT&  aOnExceptionFn);
+    VariantsT&              Variants        (void) noexcept;
 
 private:
     VariantsT               iVariants;
 };
-
-template<typename T>
-GpItcResult<T>::GpItcResult (void) noexcept:
-iVariants(EmptyValue())
-{
-}
-
-template<typename T>
-GpItcResult<T>::GpItcResult (const EmptyValue&) noexcept:
-iVariants(EmptyValue())
-{
-}
 
 template<typename T>
 GpItcResult<T>::GpItcResult (const this_type& aRes):
@@ -141,26 +115,42 @@ bool    GpItcResult<T>::IsPayload (void) const noexcept
 }
 
 template<typename T>
-bool    GpItcResult<T>::IsEmpty (void) const noexcept
-{
-    return std::holds_alternative<EmptyValue>(iVariants);
-}
-
-template<typename T>
 const GpException&  GpItcResult<T>::Exception (void) const
 {
     return std::get<GpException>(iVariants);
 }
 
 template<typename T>
-const T&    GpItcResult<T>::Payload (void) const
+const T&    GpItcResult<T>::PayloadOrThrow (const SourceLocationT& aSourceLocation) const
 {
+    const auto index = iVariants.index();
+
+    if (index == 0) [[unlikely]] //GpException
+    {
+        THROW_GP
+        (
+            u8"Result is exception: "_sv + std::get<GpException>(iVariants).what(),
+            aSourceLocation
+        );
+    }
+
     return std::get<T>(iVariants);
 }
 
 template<typename T>
-T&  GpItcResult<T>::Payload (void)
+T&  GpItcResult<T>::PayloadOrThrow (const SourceLocationT& aSourceLocation)
 {
+    const auto index = iVariants.index();
+
+    if (index == 0) [[unlikely]] //GpException
+    {
+        THROW_GP
+        (
+            u8"Result is exception: "_sv + std::get<GpException>(iVariants).what(),
+            aSourceLocation
+        );
+    }
+
     return std::get<T>(iVariants);
 }
 
@@ -168,40 +158,6 @@ template<typename T>
 typename GpItcResult<T>::VariantsT& GpItcResult<T>::Variants (void) noexcept
 {
     return iVariants;
-}
-
-template<typename T>
-void    GpItcResult<T>::SExtract
-(
-    this_type&              aRes,
-    const OnSuccessFnT&     aOnSuccessFn,
-    const OnEmptyFnT&       aOnEmptyFn,
-    const OnExceptionFnT&   aOnExceptionFn
-)
-{
-    if (aRes.IsException())
-    {
-        aOnExceptionFn(aRes.Exception());
-        return;
-    }
-
-    try
-    {
-        if (aRes.IsPayload())
-        {
-            aOnSuccessFn(aRes.Payload());
-            return;
-        }
-
-        if (aRes.IsEmpty())
-        {
-            aOnEmptyFn();
-            return;
-        }
-    } catch (const std::exception& e)
-    {
-        aOnExceptionFn(GpException{GpUTF::S_STR_To_UTF8(e.what())});
-    }
 }
 
 }//namespace GPlatform

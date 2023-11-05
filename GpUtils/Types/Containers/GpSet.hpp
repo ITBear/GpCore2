@@ -17,13 +17,13 @@ template <typename T>
 class GpSet
 {
 public:
+    CLASS_DD(GpSet<T>)
+    TAG_SET(THREAD_SAFE)
+
     using value_type            = T;
-    using this_type             = GpSet<value_type>;
     using underlying_container  = std::set<value_type, std::less<>>;
     using value_ref_opt         = std::optional<std::reference_wrapper<const value_type>>;
     using value_opt             = std::optional<value_type>;
-
-    TAG_SET(THREAD_SAFE)
 
 public:
                                 GpSet               (void) noexcept;

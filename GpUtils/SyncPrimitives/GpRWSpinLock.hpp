@@ -8,15 +8,16 @@
 #include "GpAsmSpinPause.hpp"
 #include "../Macro/GpMacroClass.hpp"
 #include "../Types/Numerics/GpNumericTypes.hpp"
+#include "../Threads/GpThreadsSafety.hpp"
 
 namespace GPlatform{
 
-class GpRWSpinLock
+class GpRWSpinLockImpl
 {
-    CLASS_REMOVE_CTRS_MOVE_COPY(GpRWSpinLock)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpRWSpinLockImpl)
 
 public:
-    GpRWSpinLock (void) noexcept = default;
+    GpRWSpinLockImpl (void) noexcept = default;
 
     void    lock_shared (void) noexcept
     {
@@ -55,6 +56,8 @@ public:
 private:
     std::atomic_int32_t iLocksCounter = 0;  // 0 = unlocked, positive values = read count, -1 = write lock
 };
+
+using GpRWSpinLock = ThreadSafety::SharedMutexWrap<GpRWSpinLockImpl>;
 
 }//GPlatform
 

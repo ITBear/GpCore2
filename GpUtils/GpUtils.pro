@@ -124,13 +124,14 @@ HEADERS += \
     SyncPrimitives/GpAsmSpinPause.hpp \
     SyncPrimitives/GpConditionVar.hpp \
     SyncPrimitives/GpConditionVarFlag.hpp \
+    SyncPrimitives/GpMutex.hpp \
     SyncPrimitives/GpRWSpinLock.hpp \
-    SyncPrimitives/GpSpinlock.hpp \
-    SyncPrimitives/GpTryLockGuard.hpp \
+    SyncPrimitives/GpSharedMutex.hpp \
+    SyncPrimitives/GpSpinLock.hpp \
     SyncPrimitives/GpUnlockGuard.hpp \
     Threads/GpRunnable.hpp \
     Threads/GpThread.hpp \
-    Threads/GpThreads.hpp \
+    Threads/GpThreadsSafety.hpp \
     Threads/Timers/GpDoOnceInPeriod.hpp \
     Threads/Timers/GpTimer.hpp \
     Threads/Timers/GpTimersManager.hpp \
@@ -152,6 +153,7 @@ HEADERS += \
     Types/Containers/GpElementsPool.hpp \
     Types/Containers/GpGlobalStructCatalogC.hpp \
     Types/Containers/GpSet.hpp \
+    Types/Containers/GpSharedQueue.hpp \
     Types/Containers/GpSpanPtrNumerics.hpp \
     Types/Containers/GpTypeShell.hpp \
     Types/Containers/GpVectorWrapper.hpp \

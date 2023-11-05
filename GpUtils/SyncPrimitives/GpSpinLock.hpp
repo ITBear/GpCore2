@@ -5,28 +5,29 @@
 #if defined(GP_USE_SYNC_PRIMITIVES)
 
 #include "../Macro/GpMacroClass.hpp"
+#include "../Threads/GpThreadsSafety.hpp"
 #include "GpAsmSpinPause.hpp"
 #include <atomic>
 
 namespace GPlatform{
 
-class GpSpinlock
+class GpSpinLockImpl
 {
-    CLASS_REMOVE_CTRS_MOVE_COPY(GpSpinlock)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpSpinLockImpl)
 
 public:
-                        GpSpinlock  (void) noexcept = default;
-                        ~GpSpinlock (void) noexcept = default;
+                        GpSpinLockImpl  (void) noexcept = default;
+                        ~GpSpinLockImpl (void) noexcept = default;
 
-    inline void         lock        (void) noexcept;
-    inline void         unlock      (void) noexcept;
-    inline bool         try_lock    (void) noexcept;
+    inline void         lock            (void) noexcept;
+    inline void         unlock          (void) noexcept;
+    inline bool         try_lock        (void) noexcept;
 
 private:
     std::atomic<bool>   iState = {0};
 };
 
-void    GpSpinlock::lock (void) noexcept
+void    GpSpinLockImpl::lock (void) noexcept
 {
     for (;;)
     {
@@ -42,16 +43,18 @@ void    GpSpinlock::lock (void) noexcept
     }
 }
 
-void    GpSpinlock::unlock (void) noexcept
+void    GpSpinLockImpl::unlock (void) noexcept
 {
     iState.store(false, std::memory_order_release);
 }
 
-bool    GpSpinlock::try_lock (void) noexcept
+bool    GpSpinLockImpl::try_lock (void) noexcept
 {
     return     (!iState.load(std::memory_order_relaxed))
             && (!iState.exchange(true, std::memory_order_acquire));
 }
+
+using GpSpinLock = ThreadSafety::MutexWrap<GpSpinLockImpl>;
 
 }//GPlatform
 

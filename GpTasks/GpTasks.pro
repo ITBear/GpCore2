@@ -51,15 +51,11 @@ HEADERS += \
     GpTaskPayloadStorage.hpp \
 	GpTaskThread.hpp \
     GpTasks_global.hpp \
-    ITC/GpItcConsumer.hpp \
-    ITC/GpItcProducer.hpp \
-    ITC/GpItcProducerConsumer.hpp \
     ITC/GpItcResult.hpp \
     ITC/GpItcSharedCondition.hpp \
 	ITC/GpItcSharedFuture.hpp \
 	ITC/GpItcSharedPromise.hpp \
-    ITC/GpItcSharedPromiseHolder.hpp \
-    ITC/GpItcThreadSharedQueue.hpp \
+    ITC/GpItcSharedQueue.hpp \
     Scheduler/GpTaskScheduler.hpp \
     Scheduler/GpTaskSchedulerFactory.hpp \
 	GpTaskVarStorage.hpp \

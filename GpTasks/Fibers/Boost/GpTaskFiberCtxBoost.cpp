@@ -144,7 +144,7 @@ void    GpTaskFiberCtxBoost::Yield (const GpTaskRunRes::EnumT aRunRes)
 
 void    GpTaskFiberCtxBoost::Yield (const milliseconds_t aTimeout)
 {
-    const GpTask::IdT taskId = GpTaskFiber::SCurrentFiber().Id();
+    const GpTaskId taskId = GpTaskFiber::SCurrentFiber().Id();
 
     GpTimersManager::SSingleShot
     (

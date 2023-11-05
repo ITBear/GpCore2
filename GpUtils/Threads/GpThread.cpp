@@ -70,28 +70,11 @@ void    GpThread::RequestStop (void) noexcept
 {
     std::scoped_lock lock(iRWLock);
 
-    if (iThreadStopRequestF.test())
-    {
-        return;
-    }
-
     iThreadStopRequestF.test_and_set();
 
     if (iRunnable.IsNotNULL())
     {
-        try
-        {
-            iRunnable->CVF().NotifyAll();
-        } catch (const GpException& e)
-        {
-            GpStringUtils::SCerr(u8"[GpThread::RequestStop]: "_sv + e.what());
-        } catch (const std::exception& e)
-        {
-            GpStringUtils::SCerr(u8"[GpThread::RequestStop]: "_sv + e.what());
-        } catch (...)
-        {
-            GpStringUtils::SCerr(u8"[GpThread::RequestStop]: Unknown exception"_sv);
-        }
+        iRunnable.Vn().Notify();
     }
 }
 
@@ -104,7 +87,7 @@ void    GpThread::Join (void) noexcept
 
             if (iRunnable.IsNotNULL())
             {
-                iRunnable->CVF().NotifyAll();
+                iRunnable.Vn().Notify();
             }
         }
 

@@ -109,7 +109,7 @@ void    GpTimersManager::Run (std::atomic_flag& aStopRequest) noexcept
 
             if (waitTimeout > 0.0_si_ms) [[likely]]
             {
-                CVF().WaitFor(waitTimeout);
+                WaitForAndReset(waitTimeout);
             }
         }
     } catch (const GpException& e)

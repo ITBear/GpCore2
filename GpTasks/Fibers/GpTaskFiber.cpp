@@ -72,12 +72,12 @@ GpTaskRunRes::EnumT GpTaskFiber::Run (void) noexcept
 
         if (clearExOpt.has_value())
         {
-            StartPromiseHolder().Fulfill(clearExOpt.value());
-            DonePromiseHolder().Fulfill(clearExOpt.value());
+            StartPromise().Fulfill(clearExOpt.value());
+            DonePromise().Fulfill(clearExOpt.value());
         } else
         {
-            StartPromiseHolder().Fulfill(ex.value());
-            DonePromiseHolder().Fulfill(ex.value());
+            StartPromise().Fulfill(ex.value());
+            DonePromise().Fulfill(ex.value());
         }
     } else if (res == GpTaskRunRes::DONE) // Check if result is DONE
     {
@@ -85,12 +85,12 @@ GpTaskRunRes::EnumT GpTaskFiber::Run (void) noexcept
 
         if (clearExOpt.has_value())
         {
-            StartPromiseHolder().Fulfill(clearExOpt.value());
-            DonePromiseHolder().Fulfill(clearExOpt.value());
+            StartPromise().Fulfill(clearExOpt.value());
+            DonePromise().Fulfill(clearExOpt.value());
         } else
         {
-            StartPromiseHolder().Fulfill();
-            DonePromiseHolder().Fulfill();
+            StartPromise().Fulfill(GpAny{});
+            DonePromise().Fulfill(GpAny{});
         }
     }
 
@@ -107,7 +107,7 @@ GpTaskRunRes::EnumT GpTaskFiber::FiberRun (void)
             OnStart();
 
             iIsStartCalled = true;
-            StartPromiseHolder().Fulfill();
+            StartPromise().Fulfill(GpAny{});
         }
 
         // Do Step

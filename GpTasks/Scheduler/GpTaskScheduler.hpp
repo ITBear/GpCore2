@@ -24,8 +24,6 @@ public:
     CLASS_DD(GpTaskScheduler)
     TAG_SET(THREAD_SAFE)
 
-    using TaskOptRefT = std::optional<std::reference_wrapper<GpTask>>;
-
 public:
                                     GpTaskScheduler     (void) noexcept = default;
     virtual                         ~GpTaskScheduler    (void) noexcept = default;
@@ -43,9 +41,9 @@ public:
 
     virtual void                    NewToReady          (GpSP<GpTask> aTask) = 0;
     virtual void                    NewToWaiting        (GpSP<GpTask> aTask) = 0;
-    virtual void                    MakeTaskReady       (const GpTask::IdT  aTaskGuid) = 0;
-    virtual void                    MakeTaskReady       (const GpTask::IdT  aTaskGuid,
-                                                         GpAny              aPayload) = 0;
+    virtual void                    MakeTaskReady       (const GpTaskId aTaskGuid) = 0;
+    virtual void                    MakeTaskReady       (const GpTaskId aTaskGuid,
+                                                         GpAny          aPayload) = 0;
 
     virtual bool                    Reschedule          (const GpTaskRunRes::EnumT  aRunRes,
                                                          GpSP<GpTask>&&             aTask) noexcept = 0;

@@ -5,7 +5,7 @@
 #if defined(GP_USE_MULTITHREADING)
 
 #include "../../../GpUtils/Threads/GpRunnable.hpp"
-#include "../../ITC/GpItcThreadSharedQueue.hpp"
+#include "../../../GpTasks/ITC/GpItcSharedQueue.hpp"
 #include "../../GpTask.hpp"
 
 namespace GPlatform {
@@ -19,7 +19,7 @@ public:
     CLASS_DD(GpTaskExecutorV1)
     TAG_SET(THREAD_SAFE)
 
-    using ReadyTasksQueueT  = GpItcThreadSharedQueue<GpTask::SP>;
+    using ReadyTasksQueueT  = GpItcSharedQueue<GpTask::SP>;
     using DonePromiseT      = GpItcSharedPromise<ssize_t>;
 
 public:

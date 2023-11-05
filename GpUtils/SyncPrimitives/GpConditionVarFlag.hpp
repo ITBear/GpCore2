@@ -15,95 +15,61 @@ public:
     CLASS_DD(GpConditionVarFlag)
     TAG_SET(THREAD_SAFE)
 
-    using AtomicFnT = GpConditionVar::AtomicFnT;
-
 public:
-                        GpConditionVarFlag  (void) noexcept = default;
-                        ~GpConditionVarFlag (void) noexcept = default;
+                            GpConditionVarFlag  (void) noexcept = default;
+                            ~GpConditionVarFlag (void) noexcept = default;
 
-    inline void         DoAtomic            (const AtomicFnT& aFn) const;
-    inline void         NotifyAll           (void);
-    inline void         NotifyOne           (void);
-    inline void         Wait                (void);
-    inline bool         WaitFor             (const milliseconds_t aTimeout);
-    inline bool         WaitForAndReset     (const milliseconds_t aTimeout);
+    inline void             NotifyOne           (void) noexcept;
+    inline void             NotifyAll           (void) noexcept;
+
+    inline void             WaitAndReset        (void) noexcept;
+    inline bool             WaitForAndReset     (const milliseconds_t aTimeout) noexcept;
 
 private:
-    GpConditionVar      iCV;
-    bool                iFlag = false;
+    mutable GpConditionVar  iCV;
+    bool                    iFlag GUARDED_BY(iCV.Mutex()) = false;
 };
 
-void    GpConditionVarFlag::DoAtomic (const AtomicFnT& aFn) const
+void    GpConditionVarFlag::NotifyOne (void) noexcept
 {
-    iCV.DoAtomic(aFn);
-}
+    GpUniqueLock<GpMutex> lock(iCV.Mutex());
 
-void    GpConditionVarFlag::NotifyAll (void)
-{
-    iCV.DoAtomic
-    (
-        [&](std::mutex&)
-        {
-            iFlag = true;
-        }
-    );
-
-    iCV.NotifyAll();
-}
-
-void    GpConditionVarFlag::NotifyOne (void)
-{
-    iCV.DoAtomic
-    (
-        [&](std::mutex&)
-        {
-            iFlag = true;
-        }
-    );
+    iFlag = true;
 
     iCV.NotifyOne();
 }
 
-void    GpConditionVarFlag::Wait (void)
+void    GpConditionVarFlag::NotifyAll (void) noexcept
 {
-    iCV.Wait
+    GpUniqueLock<GpMutex> lock(iCV.Mutex());
+
+    iFlag = true;
+
+    iCV.NotifyOne();
+}
+
+void    GpConditionVarFlag::WaitAndReset (void) noexcept
+{
+    iCV.Wait<bool>
     (
-        [&]()
-        {
-            return iFlag;
-        }
+        []() {}, // at begin
+        [&]() NO_THREAD_SAFETY_ANALYSIS {iFlag = false;}, // at end
+        [&]() NO_THREAD_SAFETY_ANALYSIS {return iFlag;}, // check
+        []() {return true;} // condition met
     );
 }
 
-bool    GpConditionVarFlag::WaitFor (const milliseconds_t aTimeout)
+bool    GpConditionVarFlag::WaitForAndReset (const milliseconds_t aTimeout) noexcept
 {
-    return iCV.WaitFor
+    return iCV.WaitFor<bool>
     (
-        [&]()
-        {
-            return iFlag;
-        },
+        []() {}, // at begin
+        [&]() NO_THREAD_SAFETY_ANALYSIS {iFlag = false;}, // at end
+        [&]() NO_THREAD_SAFETY_ANALYSIS {return iFlag;}, // check
+        []() {return true;}, // condition met
+        []() {return false;}, // condition not met
         aTimeout
-    );
-}
-
-bool    GpConditionVarFlag::WaitForAndReset (const milliseconds_t aTimeout)
-{
-    return iCV.WaitFor
-    (
-        [&]()
-        {
-            if (iFlag)
-            {
-                iFlag = false;
-                return true;
-            } else
-            {
-                return false;
-            }
-        },
-        aTimeout
-    );
+    ).value();
 }
 
 }//GPlatform

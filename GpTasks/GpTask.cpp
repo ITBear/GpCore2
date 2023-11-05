@@ -5,11 +5,11 @@
 namespace GPlatform {
 
 thread_local GpTask::C::Opt::Ref    __GpTask__thread_current_task;
-std::atomic<GpTask::IdT>            GpTask::sIdCounter = GpTask::IdT(1);
+std::atomic<GpTaskId>               GpTask::sIdCounter = GpTaskId(1);
 
 GpTask::~GpTask (void) noexcept
 {
-    const auto taskId = GpTask::IdT();
+    const GpTaskId taskId = {};
 
     try
     {
@@ -39,8 +39,8 @@ GpTask::~GpTask (void) noexcept
         GpStringUtils::SCerr(u8"[GpTask::~GpTask]: GpTaskPayloadStorage::RemoveTask unknown exception"_sv);
     }
 
-    StartPromiseHolder().Fulfill();
-    DonePromiseHolder().Fulfill();
+    StartPromise().Fulfill(GpAny{});
+    DonePromise().Fulfill(GpAny{});
 }
 
 GpTask::C::Opt::Ref GpTask::SCurrentTask (void) noexcept

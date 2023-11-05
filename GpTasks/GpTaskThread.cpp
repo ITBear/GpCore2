@@ -18,7 +18,7 @@ GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
             OnStart();
 
             iIsStartCalled = true;
-            StartPromiseHolder().Fulfill();
+            StartPromise().Fulfill(GpAny{});
         }
 
         //
@@ -78,12 +78,12 @@ GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
         GpStringUtils::SCerr(ex->what());
         res = GpTaskRunRes::DONE;
 
-        StartPromiseHolder().Fulfill(ex.value());
-        DonePromiseHolder().Fulfill(ex.value());
+        StartPromise().Fulfill(ex.value());
+        DonePromise().Fulfill(ex.value());
     } else if (res == GpTaskRunRes::DONE) // Check if result is DONE
     {
-        StartPromiseHolder().Fulfill();
-        DonePromiseHolder().Fulfill();
+        StartPromise().Fulfill(GpAny{});
+        DonePromise().Fulfill(GpAny{});
     }
 
     return res;
