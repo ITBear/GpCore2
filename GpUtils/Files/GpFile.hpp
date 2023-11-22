@@ -4,10 +4,11 @@
 
 #if defined(GP_USE_FILE_UTILS)
 
-#include "../Types/Containers/GpDictionary.hpp"
-#include "../Types/Enums/GpEnumFlags.hpp"
+#include "../Types/Enums/GpEnum.hpp"
 #include "../Types/Units/Other/size_byte_t.hpp"
 #include "../Types/Strings/GpUTF.hpp"
+#include "../Types/Strings/GpStringOps.hpp"
+#include "../Types/Containers/GpBytesArray.hpp"
 
 namespace GPlatform {
 

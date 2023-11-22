@@ -5,7 +5,7 @@
 #if defined(GP_USE_MULTITHREADING)
 
 #include "../../../GpUtils/Threads/GpThread.hpp"
-#include "../../../GpUtils/SyncPrimitives/GpSpinLock.hpp"
+#include "../../../GpUtils/SyncPrimitives/GpMutex.hpp"
 
 #include "../GpTaskScheduler.hpp"
 #include "../../GpTask.hpp"
@@ -41,24 +41,25 @@ public:
     virtual void                        NewToWaiting            (GpTask::SP aTask) override final;
     virtual void                        MakeTaskReady           (const GpTaskId aTaskId) override final;
     virtual void                        MakeTaskReady           (const GpTaskId aTaskId,
-                                                                 GpAny              aPayload) override final;
+                                                                 GpAny          aPayload) override final;
 
     virtual bool                        Reschedule              (const GpTaskRunRes::EnumT  aRunRes,
                                                                  GpTask::SP&&               aTask) noexcept override final;
 
 private:
-    void                                _MakeTaskReady          (const GpTaskId aTaskId);
-    void                                _MoveToReady            (GpTask::SP     aTask);
-    void                                _MoveToWaiting          (GpTask::SP     aTask);
+    void                                _MakeTaskReady          (const GpTaskId aTaskId) REQUIRES(iMutex);
+    void                                _MoveToReady            (GpTask::SP     aTask)   REQUIRES(iMutex);
+    void                                _MoveToWaiting          (GpTask::SP     aTask)   REQUIRES(iMutex);
 
 private:
-    mutable GpSpinLock                  iLock;
-    GpThread::C::Vec::SP                iExecutorThreads;
     ExecutorDoneFutureT::C::Vec::SP     iExecutorDoneFutures;
     ReadyTasksQueueT                    iReadyTasks;
-    WaitingTasksT                       iWaitingTasks;
-    std::unordered_set<GpTaskId>        iMarkedAsReadyIds;
-    bool                                iIsRequestStopAndJoin   = false;
+
+    mutable GpMutex                     iMutex;
+    GpThread::C::Vec::SP                iExecutorThreads        GUARDED_BY(iMutex);
+    WaitingTasksT                       iWaitingTasks           GUARDED_BY(iMutex);
+    std::unordered_set<GpTaskId>        iMarkedAsReadyIds       GUARDED_BY(iMutex);
+    bool                                iIsRequestStopAndJoin   GUARDED_BY(iMutex) = false;
 };
 
 }//GPlatform

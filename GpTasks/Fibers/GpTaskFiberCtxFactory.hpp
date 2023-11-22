@@ -32,7 +32,7 @@ private:
     static GpTaskFiberCtxFactory::SP    sInstance;
 };
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_MULTITHREADING_FIBERS)
-#endif//#if defined(GP_USE_MULTITHREADING)
+#endif// #if defined(GP_USE_MULTITHREADING_FIBERS)
+#endif// #if defined(GP_USE_MULTITHREADING)

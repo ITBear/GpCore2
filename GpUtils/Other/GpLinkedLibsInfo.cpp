@@ -1,0 +1,61 @@
+#include "GpLinkedLibsInfo.hpp"
+
+#include <fmt/include/fmt/core.h>
+
+namespace GPlatform {
+
+GpLinkedLibsInfo::GpLinkedLibsInfo (void) noexcept
+{
+}
+
+GpLinkedLibsInfo::~GpLinkedLibsInfo (void) noexcept
+{
+}
+
+GpLinkedLibsInfo&   GpLinkedLibsInfo::S (void) noexcept
+{
+    static GpLinkedLibsInfo sInstance;
+    return sInstance;
+}
+
+void    GpLinkedLibsInfo::Register
+(
+    std::u8string   aName,
+    const size_t    aVersionMaj,
+    const size_t    aVersionMin,
+    const size_t    aVersionPat
+)
+{
+    GpUniqueLock<GpMutex> lock(iMutex);
+
+    iLibs.emplace_back
+    (
+        GpLinkedLibInfo{
+            .iName          = aName,
+            .iVersionMaj    = aVersionMaj,
+            .iVersionMin    = aVersionMin,
+            .iVersionPat    = aVersionPat
+        }
+    );
+}
+
+GpLinkedLibsInfo::InfoAsTextT   GpLinkedLibsInfo::InfoAsText (void) const
+{
+    GpUniqueLock<GpMutex> lock(iMutex);
+
+    InfoAsTextT infoAsText;
+    infoAsText.reserve(iLibs.size());
+
+    for (const GpLinkedLibInfo& info: iLibs)
+    {
+        infoAsText.emplace_back
+        (
+            info.iName,
+            GpUTF::S_STR_To_UTF8(fmt::format("{}.{}.{}", info.iVersionMaj, info.iVersionMin, info.iVersionPat))
+        );
+    }
+
+    return infoAsText;
+}
+
+}// GPlatform

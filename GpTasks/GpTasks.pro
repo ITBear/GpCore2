@@ -2,12 +2,17 @@ TEMPLATE        = lib
 #CONFIG         += staticlib
 VER_MAJ		    = 2
 VER_MIN		    = 1
-VER_PAT		    = 0
+VER_PAT		    = 4
 QMAKE_CXXFLAGS += -DGP_MODULE_UUID=8124a79f-f6fd-4fa8-6a92-b6727a037ddb
 QMAKE_CXXFLAGS += -DGP_REFLECTION_STATIC_ADD_TO_MANAGER
-DEFINES        += GP_TASKS_LIBRARY
 PACKET_NAME     = GpTasks
 DIR_LEVEL       = ./../..
+
+DEFINES        += GP_TASKS_LIBRARY
+DEFINES        += "GP_CURRENT_LIB_VER_MAJ=\\\"$$VER_MAJ\\\""
+DEFINES        += "GP_CURRENT_LIB_VER_MIN=\\\"$$VER_MIN\\\""
+DEFINES        += "GP_CURRENT_LIB_VER_PAT=\\\"$$VER_PAT\\\""
+DEFINES        += "GP_CURRENT_LIB_PACKET_NAME=\\\"$$PACKET_NAME\\\""
 
 include(../../../QtGlobalPro.pri)
 
@@ -25,6 +30,7 @@ SOURCES += \
 	Fibers/Boost/GpTaskFiberCtxFactoryBoost.cpp \
 	Fibers/GpTaskFiber.cpp \
 	Fibers/GpTaskFiberCtxFactory.cpp \
+    Fibers/GpTaskFiberCtxForceUnwind.cpp \
     GpTask.cpp \
     GpTaskEnums.cpp \
     GpTaskPayloadStorage.cpp \
@@ -45,6 +51,7 @@ HEADERS += \
 	Fibers/GpTaskFiber.hpp \
 	Fibers/GpTaskFiberCtx.hpp \
 	Fibers/GpTaskFiberCtxFactory.hpp \
+    Fibers/GpTaskFiberCtxForceUnwind.hpp \
     GpTask.hpp \
     GpTaskEnums.hpp \
     GpTaskFactory.hpp \

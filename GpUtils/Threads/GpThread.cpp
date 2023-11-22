@@ -11,30 +11,34 @@
 
 namespace GPlatform {
 
+GpThread::GpThread (std::u8string aName) noexcept:
+iName(std::move(aName))
+{
+}
+
 GpThread::~GpThread (void) noexcept
 {
     GpStringUtils::SCout(u8"[GpThread::~GpThread]: "_sv + Name());
     RequestStop();
-
     iThread = {};
 }
 
 std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
 {
-    {
-        std::scoped_lock lock(iRWLock);
+    GpUniqueLock<GpMutex> lock(iMutex);
 
-        THROW_COND_GP
-        (
-            iRunnable.IsNULL(),
-            u8"Already run"_sv
-        );
+    // Check if started
+    THROW_COND_GP
+    (
+        iRunnable.IsNULL(),
+        u8"Already run"_sv
+    );
 
-        iThreadRunnableDoneF.clear();
-        iRunnable = std::move(aRunnable);
-    }
+    iThreadRunnableDoneF.clear();
+    iRunnable = std::move(aRunnable);
 
 #if defined(GP_USE_MULTITHREADING_IMPL_STD_THREAD)
+
     iThread = std::thread
     (
         [
@@ -59,22 +63,22 @@ std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
 #   error Unimplemented
 #endif
 
-    {
-        std::scoped_lock lock(iRWLock);
-        iThreadId = iThread.get_id();
-        return iThreadId;
-    }
+    iThreadId = iThread.get_id();
+
+    return iThreadId;
 }
 
 void    GpThread::RequestStop (void) noexcept
 {
-    std::scoped_lock lock(iRWLock);
-
     iThreadStopRequestF.test_and_set();
 
-    if (iRunnable.IsNotNULL())
     {
-        iRunnable.Vn().Notify();
+        GpUniqueLock<GpMutex> lock(iMutex);
+
+        if (iRunnable.IsNotNULL())
+        {
+            iRunnable.Vn().Notify();
+        }
     }
 }
 
@@ -82,22 +86,13 @@ void    GpThread::Join (void) noexcept
 {
     try
     {
-        {
-            std::scoped_lock lock(iRWLock);
-
-            if (iRunnable.IsNotNULL())
-            {
-                iRunnable.Vn().Notify();
-            }
-        }
-
         while (!iThreadRunnableDoneF.test())
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
 
         {
-            std::scoped_lock lock(iRWLock);
+            GpUniqueLock<GpMutex> lock(iMutex);
 
             if (iRunnable.IsNotNULL())
             {

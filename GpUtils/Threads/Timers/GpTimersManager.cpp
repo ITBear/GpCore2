@@ -6,6 +6,8 @@
 #include "../../Types/Strings/GpStringOps.hpp"
 #include "../../DateTime/GpDateTimeOps.hpp"
 
+#include <iostream>
+
 namespace GPlatform {
 
 GpTimersManager::SP     GpTimersManager::sTimersManager;
@@ -31,13 +33,20 @@ void    GpTimersManager::SStop (void)
     }
 }
 
-void    GpTimersManager::SSingleShot
+bool    GpTimersManager::SSingleShot
 (
     GpTimer::CallbackFnT&&  aCallbackFn,
     const milliseconds_t    aDelayBeforeShot
 )
 {
-    GpTimersManager&    manager         = GpTimersManager::SManager();
+    GpTimersManager::SP managerSP = GpTimersManager::SManager();
+
+    if (managerSP.IsNULL()) [[unlikely]]
+    {
+        return false;
+    }
+
+    GpTimersManager&    manager         = managerSP.Vn();
     GpTimer::C::Opt::SP timerOpt        = manager.iTimersPool.Acquire();
     const bool          isReturnToPool  = timerOpt.has_value();
     GpTimer::SP         timer;
@@ -61,6 +70,8 @@ void    GpTimersManager::SSingleShot
 
     manager.AddTimer(timer);
     timer->Start();
+
+    return true;
 }
 
 void    GpTimersManager::AddTimer (GpTimer::SP aTimer)

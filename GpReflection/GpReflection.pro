@@ -2,12 +2,17 @@ TEMPLATE        = lib
 #CONFIG         += staticlib
 VER_MAJ		    = 2
 VER_MIN		    = 1
-VER_PAT		    = 0
+VER_PAT		    = 4
 QMAKE_CXXFLAGS += -DGP_MODULE_UUID=d2333437-f0d4-42ff-e703-fba6f2e7b8e8
 QMAKE_CXXFLAGS += -DGP_REFLECTION_STATIC_ADD_TO_MANAGER
-DEFINES        += GP_REFLECTION_LIBRARY
 PACKET_NAME     = GpReflection
 DIR_LEVEL       = ./../..
+
+DEFINES        += GP_REFLECTION_LIBRARY
+DEFINES        += "GP_CURRENT_LIB_VER_MAJ=\\\"$$VER_MAJ\\\""
+DEFINES        += "GP_CURRENT_LIB_VER_MIN=\\\"$$VER_MIN\\\""
+DEFINES        += "GP_CURRENT_LIB_VER_PAT=\\\"$$VER_PAT\\\""
+DEFINES        += "GP_CURRENT_LIB_PACKET_NAME=\\\"$$PACKET_NAME\\\""
 
 include(../../../QtGlobalPro.pri)
 
@@ -32,6 +37,7 @@ SOURCES += \
     GpReflectPropFlags.cpp \
     GpReflectType.cpp \
     GpReflectUtils.cpp \
+    GpReflection.cpp \
     Models/GpExceptionDesc.cpp \
     Models/GpReflectDemoDesc.cpp \
     Models/GpReflectModelDesc.cpp \

@@ -6,7 +6,7 @@
 
 #include <version>
 
-#endif//#if defined (__cplusplus)
+#endif// #if defined (__cplusplus)
 
 //************************ STRICT ALIASING *********************************
 #if defined(GP_COMPILER_ICC)
@@ -34,7 +34,7 @@
 #define CPP_VERSION_14 201402L
 #define CPP_VERSION_17 201703L
 #define CPP_VERSION_20 202002L
-#define CPP_VERSION_23 202303L //TODO: check
+#define CPP_VERSION_23 202303L // TODO: check
 
 #if __cplusplus < CPP_VERSION_20
 #   define consteval constexpr

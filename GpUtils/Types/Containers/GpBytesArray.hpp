@@ -8,8 +8,10 @@
 
 namespace GPlatform {
 
-using GpSpanPtrCharR    = GpSpanPtr<const char8_t*>;
-using GpSpanPtrCharRW   = GpSpanPtr<char8_t*>;
+using GpSpanPtrCharU8R  = GpSpanPtr<const char8_t*>;
+using GpSpanPtrCharU8RW = GpSpanPtr<char8_t*>;
+using GpSpanPtrCharR    = GpSpanPtr<const char*>;
+using GpSpanPtrCharRW   = GpSpanPtr<char*>;
 using GpSpanPtrByteR    = GpSpanPtr<const u_int_8*>;
 using GpSpanPtrByteRW   = GpSpanPtr<u_int_8*>;
 

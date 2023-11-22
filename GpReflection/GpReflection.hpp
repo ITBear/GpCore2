@@ -1,20 +1,10 @@
 #pragma once
 
-#include "Models/GpReflectModels.hpp"
-#include "Builders/GpReflectBuilders.hpp"
-#include "Serializers/GpReflectSerializers.hpp"
-#include "GpReflectModelSource.hpp"
-#include "GpReflectModelSourceFactory.hpp"
-#include "GpReflectObjectDynamic.hpp"
-#include "GpReflectObjectDynamicUtils.hpp"
-#include "GpReflectObjectFactory.hpp"
-#include "GpReflectPropGetter.hpp"
-#include "GpReflectVisitor.hpp"
-#include "GpReflectContainerType.hpp"
-#include "GpReflectManager.hpp"
-#include "GpReflectModel.hpp"
-#include "GpReflectObject.hpp"
-#include "GpReflectProp.hpp"
-#include "GpReflectPropFlags.hpp"
-#include "GpReflectType.hpp"
-#include "GpReflectUtils.hpp"
+#include "GpReflection_global.hpp"
+#include "../GpUtils/Other/GpLinkedLibsInfo.hpp"
+
+namespace GPlatform {
+
+GP_DECLARE_LIB(GP_REFLECTION_API, GpReflectionLib)
+
+}// GPlatform

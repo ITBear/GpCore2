@@ -39,12 +39,29 @@ public:
                                                              const size_t           aDelimCountLimit,
                                                              const Algo::SplitMode  aSplitMode);
 
+    static std::vector<std::string_view>    SSplit          (std::string_view       aSourceStr,
+                                                             const char             aDelim,
+                                                             const size_t           aReturnPartsCountLimit,
+                                                             const size_t           aDelimCountLimit,
+                                                             const Algo::SplitMode  aSplitMode);
+
+    static std::vector<std::string_view>    SSplit          (std::string_view       aSourceStr,
+                                                             std::string_view       aDelim,
+                                                             const size_t           aReturnPartsCountLimit,
+                                                             const size_t           aDelimCountLimit,
+                                                             const Algo::SplitMode  aSplitMode);
+
     static inline std::u8string_view        SFromChar       (const char8_t* aStrPtr);
+    static inline std::string_view          SFromChar       (const char* aStrPtr);
 
     static inline std::u8string             STrimLeft       (std::u8string_view aStr,
                                                              const char8_t      aChar);
+    static inline std::string               STrimLeft       (std::string_view   aStr,
+                                                             const char         aChar);
     static inline std::u8string             STrimRight      (std::u8string_view aStr,
                                                              const char8_t      aChar);
+    static inline std::string               STrimRight      (std::string_view   aStr,
+                                                             const char         aChar);
 
     //-------------------------------- Compare ----------------------------------
     static bool                             SIsEqualCaseInsensitive8bit
@@ -53,15 +70,15 @@ public:
 
     //------------------------- Numeric from/to string --------------------------
     static size_t                           SFromUI64       (const u_int_64     aValue,
-                                                             GpSpanPtrCharRW    aStrOut);
+                                                             GpSpanPtrCharU8RW  aStrOut);
     static std::u8string                    SFromUI64       (const u_int_64     aValue);
 
     static size_t                           SFromSI64       (const s_int_64     aValue,
-                                                             GpSpanPtrCharRW    aStrOut);
+                                                             GpSpanPtrCharU8RW  aStrOut);
     static std::u8string                    SFromSI64       (const s_int_64     aValue);
 
     static size_t                           SFromDouble     (const double       aValue,
-                                                             GpSpanPtrCharRW    aStrOut);
+                                                             GpSpanPtrCharU8RW  aStrOut);
     static std::u8string                    SFromDouble     (const double aValue);
 
     static u_int_64                         SToUI64         (std::u8string_view                             aStr,
@@ -80,7 +97,7 @@ public:
 
     //------------------------- Bytes from/to string --------------------------
     static size_t                           SFromBytesHex   (GpSpanPtrByteR     aData,
-                                                             GpSpanPtrCharRW    aStrOut);
+                                                             GpSpanPtrCharU8RW  aStrOut);
     static std::u8string                    SFromBytesHex   (GpSpanPtrByteR     aData);
     static inline std::array<char8_t, 2>    SFromByteHex    (const u_int_8  aData) noexcept;
 
@@ -142,7 +159,7 @@ public:
 
 private:
     static void                             _SFromUI64      (const u_int_64     aValue,
-                                                             GpSpanPtrCharRW    aStrOut);
+                                                             GpSpanPtrCharU8RW  aStrOut);
 
 private:
     static const std::array<char, 201>&     SDigits         (void) noexcept;
@@ -156,6 +173,17 @@ std::u8string_view  GpStringOps::SFromChar (const char8_t* aStrPtr)
     } else
     {
         return std::u8string_view();
+    }
+}
+
+std::string_view    GpStringOps::SFromChar (const char* aStrPtr)
+{
+    if (aStrPtr != nullptr)
+    {
+        return std::string_view(aStrPtr);
+    } else
+    {
+        return std::string_view();
     }
 }
 
@@ -175,6 +203,22 @@ std::u8string   GpStringOps::STrimLeft
     return std::u8string();
 }
 
+std::string GpStringOps::STrimLeft
+(
+    std::string_view    aStr,
+    const char          aChar
+)
+{
+    const size_t id = aStr.find_first_not_of(aChar);
+
+    if (id != std::string::npos)
+    {
+        return std::string(aStr.substr(id));
+    }
+
+    return std::string();
+}
+
 std::u8string   GpStringOps::STrimRight
 (
     std::u8string_view  aStr,
@@ -189,6 +233,22 @@ std::u8string   GpStringOps::STrimRight
     }
 
     return std::u8string();
+}
+
+std::string GpStringOps::STrimRight
+(
+    std::string_view    aStr,
+    const char          aChar
+)
+{
+    size_t id = aStr.find_last_not_of(aChar);
+
+    if (id != std::string::npos)
+    {
+        return  std::string(aStr.substr(0, id + 1));
+    }
+
+    return std::string();
 }
 
 std::array<char8_t, 2>  GpStringOps::SFromByteHex (const u_int_8 aData) noexcept

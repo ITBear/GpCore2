@@ -4,6 +4,8 @@
 
 namespace GPlatform {
 
+GP_IMPLEMENT_LIB(GpTaskLib)
+
 thread_local GpTask::C::Opt::Ref    __GpTask__thread_current_task;
 std::atomic<GpTaskId>               GpTask::sIdCounter = GpTaskId(1);
 

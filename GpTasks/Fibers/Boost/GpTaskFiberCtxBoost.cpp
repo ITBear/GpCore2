@@ -10,6 +10,7 @@
 #include "../../../GpUtils/Threads/Timers/GpTimersManager.hpp"
 #include "../../Scheduler/GpTaskScheduler.hpp"
 #include "../GpTaskFiber.hpp"
+#include "../GpTaskFiberCtxForceUnwind.hpp"
 
 namespace GPlatform {
 
@@ -128,17 +129,8 @@ void    GpTaskFiberCtxBoost::Yield (const GpTaskRunRes::EnumT aRunRes)
         if (iTaskFiber->IsStopRequested()) [[unlikely]]
         {
             iTaskFiber->CallStop();
-
-            std::u8string_view taskName = iTaskFiber->Name();
-
-            if (taskName.empty())
-            {
-                THROW_GP(u8"Task fiber interrupted"_sv);
-            } else
-            {
-                THROW_GP(u8"Task fiber interrupted: '"_sv + taskName + u8"'"_sv);
-            }
-        }
+            throw GpTaskFiberCtxForceUnwind(iTaskFiber->Name());
+        }           
     }
 }
 
@@ -146,7 +138,7 @@ void    GpTaskFiberCtxBoost::Yield (const milliseconds_t aTimeout)
 {
     const GpTaskId taskId = GpTaskFiber::SCurrentFiber().Id();
 
-    GpTimersManager::SSingleShot
+    const bool isSuccess = GpTimersManager::SSingleShot
     (
         [taskId](const GpTimer& /*aTimer*/)
         {
@@ -155,7 +147,13 @@ void    GpTaskFiberCtxBoost::Yield (const milliseconds_t aTimeout)
         aTimeout
     );
 
-    Yield(GpTaskRunRes::WAIT);
+    if (isSuccess) [[likely]]
+    {
+        Yield(GpTaskRunRes::WAIT);
+    } else
+    {
+        Yield(GpTaskRunRes::READY_TO_RUN);
+    }
 }
 
 boost::context::fiber   GpTaskFiberCtxBoost::SFiberFn

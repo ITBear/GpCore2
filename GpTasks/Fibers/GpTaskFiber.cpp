@@ -14,6 +14,7 @@ GP_WARNING_DISABLE(shadow)
 GP_WARNING_POP()
 
 #include "GpTaskFiberCtxFactory.hpp"
+#include "GpTaskFiberCtxForceUnwind.hpp"
 
 namespace GPlatform {
 
@@ -51,6 +52,9 @@ GpTaskRunRes::EnumT GpTaskFiber::Run (void) noexcept
 
         // Enter to fiber
         res = iCtx->Enter(*this);
+    } catch (const GpTaskFiberCtxForceUnwind&)
+    {
+        // NOP
     } catch (const GpException& e)
     {
         ex = e;

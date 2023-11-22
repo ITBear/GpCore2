@@ -18,8 +18,8 @@ std::vector<std::u8string_view> GpStringOps::SSplit
 {
     return Algo::Split<char, std::vector<std::u8string_view>>
     (
-        GpSpanPtrCharR(aSourceStr),
-        GpSpanPtrCharR(&aDelim, 1),
+        GpSpanPtrCharU8R(aSourceStr),
+        GpSpanPtrCharU8R(&aDelim, 1),
         aReturnPartsCountLimit,
         aDelimCountLimit,
         aSplitMode
@@ -36,6 +36,44 @@ std::vector<std::u8string_view> GpStringOps::SSplit
 )
 {
     return Algo::Split<char, std::vector<std::u8string_view>>
+    (
+        GpSpanPtrCharU8R(aSourceStr),
+        GpSpanPtrCharU8R(aDelim),
+        aReturnPartsCountLimit,
+        aDelimCountLimit,
+        aSplitMode
+    );
+}
+
+std::vector<std::string_view>   GpStringOps::SSplit
+(
+    std::string_view        aSourceStr,
+    const char              aDelim,
+    const size_t            aReturnPartsCountLimit,
+    const size_t            aDelimCountLimit,
+    const Algo::SplitMode   aSplitMode
+)
+{
+    return Algo::Split<char, std::vector<std::string_view>>
+    (
+        GpSpanPtrCharR(aSourceStr),
+        GpSpanPtrCharR(&aDelim, 1),
+        aReturnPartsCountLimit,
+        aDelimCountLimit,
+        aSplitMode
+    );
+}
+
+std::vector<std::string_view>   GpStringOps::SSplit
+(
+    std::string_view        aSourceStr,
+    std::string_view        aDelim,
+    const size_t            aReturnPartsCountLimit,
+    const size_t            aDelimCountLimit,
+    const Algo::SplitMode   aSplitMode
+)
+{
+    return Algo::Split<char, std::vector<std::string_view>>
     (
         GpSpanPtrCharR(aSourceStr),
         GpSpanPtrCharR(aDelim),
@@ -66,8 +104,8 @@ bool    GpStringOps::SIsEqualCaseInsensitive8bit
 
 size_t  GpStringOps::SFromUI64
 (
-    const u_int_64  aValue,
-    GpSpanPtrCharRW aStrOut
+    const u_int_64      aValue,
+    GpSpanPtrCharU8RW   aStrOut
 )
 {
     const size_t length = GpNumericOps::SDecDigsCountUI64(aValue);
@@ -78,7 +116,7 @@ size_t  GpStringOps::SFromUI64
         u8"aStrOut size are too small"_sv
     );
 
-    _SFromUI64(aValue, GpSpanPtrCharRW(aStrOut.Ptr(), length));
+    _SFromUI64(aValue, GpSpanPtrCharU8RW(aStrOut.Ptr(), length));
 
     return length;
 }
@@ -96,8 +134,8 @@ std::u8string   GpStringOps::SFromUI64 (const u_int_64 aValue)
 
 size_t  GpStringOps::SFromSI64
 (
-    const s_int_64  aValue,
-    GpSpanPtrCharRW aStrOut
+    const s_int_64      aValue,
+    GpSpanPtrCharU8RW   aStrOut
 )
 {
     size_t length = 0;
@@ -113,7 +151,7 @@ size_t  GpStringOps::SFromSI64
             u8"aStrOut size are too small"_sv
         );
 
-        _SFromUI64(v, GpSpanPtrCharRW(aStrOut.Ptr(), length));
+        _SFromUI64(v, GpSpanPtrCharU8RW(aStrOut.Ptr(), length));
     } else
     {
         const u_int_64 v =std::bit_cast<u_int_64>(-aValue);
@@ -126,7 +164,7 @@ size_t  GpStringOps::SFromSI64
         );
 
         *aStrOut++ = '-';
-        _SFromUI64(v, GpSpanPtrCharRW(aStrOut.Ptr(), length));
+        _SFromUI64(v, GpSpanPtrCharU8RW(aStrOut.Ptr(), length));
         length++;
     }
 
@@ -144,7 +182,7 @@ std::u8string   GpStringOps::SFromSI64 (const s_int_64 aValue)
         length = GpNumericOps::SDecDigsCountUI64(v);
         s.resize(length);
 
-        _SFromUI64(v, GpSpanPtrCharRW(s));
+        _SFromUI64(v, GpSpanPtrCharU8RW(s));
     } else
     {
         const u_int_64 v = std::bit_cast<u_int_64>(-aValue);
@@ -152,7 +190,7 @@ std::u8string   GpStringOps::SFromSI64 (const s_int_64 aValue)
         s.resize(length + 1);
 
         *s.data() = '-';
-        _SFromUI64(v, GpSpanPtrCharRW(s.data() + 1, length));
+        _SFromUI64(v, GpSpanPtrCharU8RW(s.data() + 1, length));
     }
 
     return s;
@@ -160,8 +198,8 @@ std::u8string   GpStringOps::SFromSI64 (const s_int_64 aValue)
 
 size_t  GpStringOps::SFromDouble
 (
-    const double    aValue,
-    GpSpanPtrCharRW aStrOut
+    const double        aValue,
+    GpSpanPtrCharU8RW   aStrOut
 )
 {
     //TODO reimplement
@@ -363,8 +401,8 @@ std::variant<s_int_64, double>  GpStringOps::SToNumeric
 
 size_t  GpStringOps::SFromBytesHex
 (
-    GpSpanPtrByteR  aData,
-    GpSpanPtrCharRW aStrOut
+    GpSpanPtrByteR      aData,
+    GpSpanPtrCharU8RW   aStrOut
 )
 {
     const size_t dataLength     = aData.Count();
@@ -589,8 +627,8 @@ std::u8string   GpStringOps::SToString (const void* aPtr)
 
 void    GpStringOps::_SFromUI64
 (
-    const u_int_64  aValue,
-    GpSpanPtrCharRW aStrOut
+    const u_int_64      aValue,
+    GpSpanPtrCharU8RW   aStrOut
 )
 {
     u_int_64        value   = aValue;

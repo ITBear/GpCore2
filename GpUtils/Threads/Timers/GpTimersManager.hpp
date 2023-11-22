@@ -39,9 +39,8 @@ public:
 
     static void                 SStart              (void);
     static void                 SStop               (void);
-    static GpTimersManager&     SManager            (void) {return sTimersManager.V();}
-
-    static void                 SSingleShot         (GpTimer::CallbackFnT&& aCallbackFn,
+    static GpTimersManager::SP  SManager            (void) {return sTimersManager;}
+    [[nodiscard]] static bool   SSingleShot         (GpTimer::CallbackFnT&& aCallbackFn,
                                                      const milliseconds_t   aDelayBeforeShot);
 
     void                        AddTimer            (GpTimer::SP aTimer);

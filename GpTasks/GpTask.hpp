@@ -9,8 +9,11 @@
 #include "GpTaskPayloadStorage.hpp"
 #include "ITC/GpItcSharedPromise.hpp"
 #include "../GpUtils/Macro/GpMacroTags.hpp"
+#include "../GpUtils/Other/GpLinkedLibsInfo.hpp"
 
 namespace GPlatform {
+
+GP_DECLARE_LIB(GP_TASKS_API, GpTaskLib)
 
 class GP_TASKS_API GpTask
 {
