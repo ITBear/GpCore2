@@ -83,7 +83,7 @@ public:
                                              ValueGenFnT&&  aGenFn);
 
     template<typename K>
-    ValueT&                 UpdateOrSet     (K&&                aKey,
+    ValueT&                 SetOrUpdate     (K&&                aKey,
                                              ValueGenFnT&&      aGenFn,
                                              ValueUpdateFnT&&   aUpdateFn);
 
@@ -356,7 +356,7 @@ template<typename KeyT,
          typename ValueT,
          typename UnderlyingContainerT>
 template<typename K>
-ValueT& GpDictionary<KeyT, ValueT, UnderlyingContainerT>::UpdateOrSet
+ValueT& GpDictionary<KeyT, ValueT, UnderlyingContainerT>::SetOrUpdate
 (
     K&&                 aKey,
     ValueGenFnT&&       aGenFn,

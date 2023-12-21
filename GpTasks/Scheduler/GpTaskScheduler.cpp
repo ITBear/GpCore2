@@ -33,6 +33,12 @@ void    GpTaskScheduler::SStopAndClear (void)
     }
 }
 
+void    GpTaskScheduler::RequestStop (GpTask& aTask)
+{
+    aTask.UpStopRequestFlag();
+    MakeTaskReady(aTask.Id());
+}
+
 void    GpTaskScheduler::Start
 (
     const size_t aExecutorsCount,

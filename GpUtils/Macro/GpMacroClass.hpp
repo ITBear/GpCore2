@@ -42,4 +42,4 @@ namespace GPlatform {
     using WP        = typename C::WP; \
     using CWP       = typename C::CWP;
 
-}//namespace GPlatform
+}// namespace GPlatform

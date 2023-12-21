@@ -46,11 +46,10 @@ protected:
                                         {
                                         }
 
-    constexpr                           GpEnumFlags (const value_type aValue) noexcept:
+    constexpr explicit                  GpEnumFlags (const value_type aValue) noexcept:
                                         iValue(aValue)
                                         {
                                         }
-
 
 public:
     virtual                             ~GpEnumFlags(void) noexcept
@@ -113,9 +112,19 @@ public:
                                     Set(aFlags);
                                 }
 
-    constexpr                   GpEnumFlagsST   (const value_type aFlagsRaw) noexcept:
+    constexpr explicit          GpEnumFlagsST   (const value_type aFlagsRaw) noexcept:
                                 GpEnumFlags(aFlagsRaw)
                                 {
+                                }
+
+    constexpr                   GpEnumFlagsST   (const EnumT& aEnumT) noexcept
+                                {
+                                    Set(aEnumT.Value());
+                                }
+
+    constexpr explicit          GpEnumFlagsST   (const EnumTE aEnumTE) noexcept
+                                {
+                                    Set(aEnumTE);
                                 }
 
     virtual                     ~GpEnumFlagsST  (void) noexcept override final

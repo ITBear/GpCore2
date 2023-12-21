@@ -8,30 +8,28 @@
 #include "../Macro/GpMacroTags.hpp"
 #include "../Types/Containers/GpContainersT.hpp"
 #include "../SyncPrimitives/GpSpinLock.hpp"
-#include <mutex>
+#include "../SyncPrimitives/GpMutex.hpp"
+
+#include <boost/container/flat_map.hpp>
 
 namespace GPlatform {
 
-template<typename KeyT,
+template<typename UidT,
          typename ValueT>
 class GpEventChannel
 {
 public:
-    using EventChannelT = GpEventChannel<KeyT, ValueT>;
+    using EventChannelT = GpEventChannel<UidT, ValueT>;
 
     CLASS_DD(EventChannelT)
     CLASS_REMOVE_CTRS_COPY(GpEventChannel)
     TAG_SET(THREAD_SAFE)
 
-    using key_type      = KeyT;
+    using key_type      = UidT;
     using value_type    = ValueT;
 
-    using CallbackFnT   = std::function<void(const ValueT& aEvent)>;
-    using SubscribersT  = std::variant
-    <
-        std::tuple<KeyT, CallbackFnT>,
-        std::map<KeyT, CallbackFnT>
-    >;
+    using CallbackFnT   = std::function<void(const UidT& aUid, const ValueT& aEvent)>;
+    using SubscribersT  = boost::container::flat_map<UidT, CallbackFnT>;// TODO: add underlying container like boost::small_container
 
 public:
                         GpEventChannel  (void) noexcept = default;
@@ -39,126 +37,70 @@ public:
                         ~GpEventChannel (void) noexcept = default;
 
     void                PushEvent       (const ValueT& aEvent) const;
-    bool                Subscribe       (const KeyT&    aSubscriberUid,
-                                         CallbackFnT&&  aCallbackFn);
-    size_t              Unsubscribe     (const KeyT&    aSubscriberUid);
+    bool                Subscribe       (const UidT&    aSubscriberUid,
+                                         CallbackFnT    aCallbackFn);
+    size_t              Unsubscribe     (const UidT&    aSubscriberUid);
 
 private:
-    mutable GpSpinLock  iLock;
-    SubscribersT        iSubscribers;
+    mutable GpSpinLock  iSpinLock;
+    SubscribersT        iSubscribers GUARDED_BY(iSpinLock);
 };
 
-template<typename KeyT,
+template<typename UidT,
          typename ValueT>
-GpEventChannel<KeyT, ValueT>::GpEventChannel (GpEventChannel&& aEventChannel) noexcept
+GpEventChannel<UidT, ValueT>::GpEventChannel (GpEventChannel&& aEventChannel) noexcept
 {
-    std::scoped_lock lock(aEventChannel.iLock);
+    GpUniqueLock<GpSpinLock> lock(aEventChannel.iSpinLock);
 
     iSubscribers = std::move(aEventChannel.iSubscribers);
 }
 
-template<typename KeyT,
+template<typename UidT,
          typename ValueT>
-void    GpEventChannel<KeyT, ValueT>::PushEvent (const ValueT& aEvent) const
+void    GpEventChannel<UidT, ValueT>::PushEvent (const ValueT& aEvent) const
 {
-    std::scoped_lock lock(iLock);
+    GpUniqueLock<GpSpinLock> lock(iSpinLock);
 
-    if (iSubscribers.index() == 0) [[likely]] // EventCallbackFnT
+    for (const auto&[uid, fn]: iSubscribers)
     {
-        const auto&[uid, fn] = std::get<0>(iSubscribers);
         if (fn)
         {
-            fn(aEvent);
-        }
-    } else//std::map<KeyT, CallbackFnT>
-    {
-        const std::map<KeyT, CallbackFnT>& subscribersMap = std::get<1>(iSubscribers);
-
-        for (const auto&[uid, fn]: subscribersMap)
-        {
-            if (fn)
-            {
-                fn(aEvent);
-            }
+            fn(uid, aEvent);
         }
     }
 }
 
-template<typename KeyT,
+template<typename UidT,
          typename ValueT>
-bool    GpEventChannel<KeyT, ValueT>::Subscribe
+bool    GpEventChannel<UidT, ValueT>::Subscribe
 (
-    const KeyT&     aSubscriberUid,
-    CallbackFnT&&   aCallbackFn
+    const UidT& aSubscriberUid,
+    CallbackFnT aCallbackFn
 )
 {
-    std::scoped_lock lock(iLock);
+    GpUniqueLock<GpSpinLock> lock(iSpinLock);
 
-    if (iSubscribers.index() == 0) [[likely]] // std::tuple<KeyT, CallbackFnT>
-    {
-        auto&[uid, fn] = std::get<0>(iSubscribers);
+    const auto[iter, isInsertedNew] = iSubscribers.insert_or_assign(aSubscriberUid, std::move(aCallbackFn));
 
-        if (!fn)
-        {
-            iSubscribers = std::make_tuple(aSubscriberUid, std::move(aCallbackFn));
-
-            return true;
-        } else if (uid == aSubscriberUid)
-        {
-            fn = std::move(aCallbackFn);
-
-            return false;
-        } else
-        {
-            KeyT        subscriberId    = std::move(uid);
-            CallbackFnT callbackFn      = std::move(fn);
-
-            iSubscribers = std::map<KeyT, CallbackFnT>();
-            std::map<KeyT, CallbackFnT>& subscribersMap = std::get<1>(iSubscribers);
-            subscribersMap.emplace(std::move(subscriberId), std::move(callbackFn));
-            subscribersMap.emplace(aSubscriberUid, std::move(aCallbackFn));
-
-            return true;
-        }
-    } else//std::map<KeyT, CallbackFnT>
-    {
-        std::map<KeyT, CallbackFnT>& subscribersMap = std::get<1>(iSubscribers);
-        const auto[iter, isInsertNew] = subscribersMap.insert_or_assign(aSubscriberUid, std::move(aCallbackFn));
-        return isInsertNew;
-    }
+    return isInsertedNew;
 }
 
-template<typename KeyT,
+template<typename UidT,
          typename ValueT>
-size_t  GpEventChannel<KeyT, ValueT>::Unsubscribe (const KeyT& aSubscriberUid)
+size_t  GpEventChannel<UidT, ValueT>::Unsubscribe (const UidT& aSubscriberUid)
 {
-    std::scoped_lock lock(iLock);
+    GpUniqueLock<GpSpinLock> lock(iSpinLock);
 
-    if (iSubscribers.index() == 0) [[likely]] // std::tuple<KeyT, CallbackFnT>
+    auto iter = iSubscribers.find(aSubscriberUid);
+
+    if (iter != iSubscribers.end()) [[likely]]
     {
-        auto&[uid, fn] = std::get<0>(iSubscribers);
-
-        if (uid == aSubscriberUid)
-        {
-            uid = KeyT();
-            fn  = CallbackFnT();
-            return 0;
-        } else if (fn)
-        {
-            return 1;
-        } else
-        {
-            return 0;
-        }
-    } else//std::map<KeyT, CallbackFnT>
-    {
-        std::map<KeyT, CallbackFnT>& subscribersMap = std::get<1>(iSubscribers);
-        subscribersMap.erase(aSubscriberUid);
-
-        return subscribersMap.size();
+        iSubscribers.erase(iter);
     }
+
+    return iSubscribers.size();
 }
 
-}//GPlatform
+}// namespace GPlatform
 
 #endif//#if defined (GP_USE_EVENT_BUS)

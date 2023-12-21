@@ -6,6 +6,7 @@
 
 #include "GpEnumFlags.hpp"
 #include <bit>
+#include <initializer_list>
 
 namespace GPlatform {
 
@@ -21,7 +22,7 @@ public:
 
 protected:
                                 GpEnum              (void) noexcept:iId(value_type()) {}
-                                GpEnum              (value_type aId) noexcept:iId(aId) {}
+    explicit                    GpEnum              (value_type aId) noexcept:iId(aId) {}
                                 GpEnum              (const GpEnum& aEnum) noexcept:iId(aEnum.iId) {}
 
 public:
@@ -68,9 +69,6 @@ private:
 class PREFIX TYPE_NAME final: public GpEnum \
 { \
 public: \
-    using EnumFlagsT = GpEnumFlagsST<TYPE_NAME>; \
-\
-public: \
     CLASS_DD(TYPE_NAME) \
 \
     enum EnumT: value_type \
@@ -78,28 +76,31 @@ public: \
         __VA_ARGS__ \
     }; \
 \
+public: \
+    using EnumFlagsT = GpEnumFlagsST<TYPE_NAME>; \
+\
     TYPE_NAME (void) noexcept: \
     GpEnum(value_type(EnumT())) \
     { \
     } \
 \
-    TYPE_NAME (const TYPE_NAME& aTypeName) noexcept:\
-    GpEnum(aTypeName)\
-    {\
-    }\
+    TYPE_NAME (const TYPE_NAME& aTypeName) noexcept: \
+    GpEnum(aTypeName) \
+    { \
+    } \
 \
-    TYPE_NAME (const TYPE_NAME::EnumT aEnumValue) noexcept:\
-    GpEnum(value_type(aEnumValue))\
-    {\
-    }\
+    TYPE_NAME (const TYPE_NAME::EnumT aEnumValue) noexcept: \
+    GpEnum(value_type(aEnumValue)) \
+    { \
+    } \
 \
-    virtual ~TYPE_NAME (void) noexcept override final {}\
+    virtual ~TYPE_NAME (void) noexcept override final {} \
 \
     static TYPE_NAME SFromID (const value_type aId) {TYPE_NAME e; e.FromID(aId); return e;} \
 \
-    static std::u8string_view SEnumValuesStr (void)\
+    static std::u8string_view SEnumValuesStr (void) \
     {\
-        static const std::u8string s = std::u8string(GpUTF::S_STR_To_UTF8(#__VA_ARGS__));\
+        static const std::u8string s = std::u8string(GpUTF::S_STR_To_UTF8(#__VA_ARGS__)); \
         return s;\
     }\
 \

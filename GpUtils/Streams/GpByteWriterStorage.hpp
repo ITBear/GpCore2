@@ -17,7 +17,7 @@ public:
     inline GpSpanPtrByteRW  StoragePtr              (void) const noexcept;
     inline size_t           SizeLeft                (void) const noexcept;
     inline size_t           TotalWrite              (void) const noexcept;
-    inline void             ShrinkToFit             (void);
+    inline void             OnEnd                   (void);
     inline void             ReserveNext             (const size_t aSize);
     inline void             Write                   (GpSpanPtrByteR aData);
     void                    Write                   (const void*    aPtr,
@@ -34,7 +34,7 @@ public:
 protected:
     virtual void            AllocateAdd             (const size_t       aSizeToAdd,
                                                      GpSpanPtrByteRW&   aStoragePtr) = 0;
-    virtual void            OnShrinkToFit           (void) = 0;
+    virtual void            _OnEnd                  (void) = 0;
 
 private:
     GpSpanPtrByteRW         iStoragePtr;
@@ -61,16 +61,16 @@ size_t  GpByteWriterStorage::TotalWrite (void) const noexcept
     return iTotalWrite;
 }
 
-void    GpByteWriterStorage::ShrinkToFit (void)
+void    GpByteWriterStorage::OnEnd (void)
 {
-    OnShrinkToFit();
+    _OnEnd();
 }
 
 void    GpByteWriterStorage::ReserveNext (const size_t aSize)
 {
     const size_t sizeLeft = SizeLeft();
 
-    if (sizeLeft < aSize)
+    if (sizeLeft < aSize) [[unlikely]]
     {
         AllocateAdd(aSize - sizeLeft, iStoragePtr);
     }
@@ -86,4 +86,4 @@ void    GpByteWriterStorage::OffsetToEnd (void)
     iStoragePtr.OffsetAdd(iStoragePtr.Count());
 }
 
-}//GPlatform
+}// namespace GPlatform

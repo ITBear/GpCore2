@@ -18,7 +18,7 @@ GpBytesArray    GpReflectSerializer::FromObject (const GpReflectObject& aObject)
 
         FromObject(aObject, dataWriter);
 
-        dataWriter.ShrinkToFit();
+        dataWriter.OnEnd();
     }
 
     return data;

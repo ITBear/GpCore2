@@ -15,16 +15,23 @@ public:
 protected:
     virtual void            AllocateAdd                     (const size_t       aSizeToAdd,
                                                              GpSpanPtrByteRW&   aStoragePtr) override final;
-    virtual void            OnShrinkToFit                   (void) override final;
+    virtual void            _OnEnd                          (void) override final;
 
 private:
     GpBytesArray&           iStorage;
 };
 
 GpByteWriterStorageByteArray::GpByteWriterStorageByteArray (GpBytesArray& aStorage) noexcept:
-GpByteWriterStorage(GpSpanPtrByteRW(aStorage.data(), aStorage.size())),
+GpByteWriterStorage
+(
+    GpSpanPtrByteRW
+    (
+        aStorage.data(),
+        aStorage.size()
+    )
+),
 iStorage(aStorage)
 {
 }
 
-}//GPlatform
+}// namespace GPlatform

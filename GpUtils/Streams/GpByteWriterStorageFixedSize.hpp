@@ -15,7 +15,7 @@ public:
 protected:
     virtual void            AllocateAdd                     (const size_t       aSizeToAdd,
                                                              GpSpanPtrByteRW&   aStoragePtr) override final;
-    virtual void            OnShrinkToFit                   (void) override final;
+    virtual void            _OnEnd                          (void) override final;
 };
 
 GpByteWriterStorageFixedSize::GpByteWriterStorageFixedSize (GpSpanPtrByteRW aDataOut) noexcept:
@@ -23,4 +23,4 @@ GpByteWriterStorage(aDataOut)
 {
 }
 
-}//GPlatform
+}// namespace GPlatform

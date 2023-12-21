@@ -21,9 +21,9 @@ void    GpByteWriterStorageByteArray::AllocateAdd
     aStoragePtr.Set(iStorage.data() + usedSize, newFreeSize);
 }
 
-void    GpByteWriterStorageByteArray::OnShrinkToFit (void)
+void    GpByteWriterStorageByteArray::_OnEnd (void)
 {
     iStorage.resize(TotalWrite());
 }
 
-}//namespace GPlatform
+}// namespace GPlatform

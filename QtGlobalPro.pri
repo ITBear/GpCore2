@@ -8,17 +8,17 @@ DEFINES		+= HAVE_NETINET_IN_H \
 			   _GLIBCXX_USE_NANOSLEEP
 
 compiler_gcc{
-	QMAKE_CC		=	gcc-11
-	QMAKE_CXX		=	g++-11
-	QMAKE_LINK		=	g++-11
+	QMAKE_CC		=	gcc-12
+	QMAKE_CXX		=	g++-12
+	QMAKE_LINK		=	g++-12
 
 	QMAKE_CXXFLAGS	+= -fstack-clash-protection -Wplacement-new -Wlogical-op -Wduplicated-cond -Wduplicated-branches\
 					   -Wrestrict -Wno-terminate
 
 }else:compiler_clang{
-	QMAKE_CC		=	clang-15
-	QMAKE_CXX		=	clang++-15
-	QMAKE_LINK		=	clang++-15
+	QMAKE_CC		=	clang-16
+	QMAKE_CXX		=	clang++-16
+	QMAKE_LINK		=	clang++-16
 
 	#QMAKE_CXXFLAGS	+= -stdlib=libc++
 	#QMAKE_LFLAGS   += -stdlib=libc++

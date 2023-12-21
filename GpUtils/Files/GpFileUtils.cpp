@@ -42,7 +42,7 @@ void    GpFileUtils::SWriteAll
 )
 {
     GpFile  file;
-    file.Open(aFileName, {GpFileFlag::WRITE, GpFileFlag::CREATE, GpFileFlag::TRUNCATE});
+    file.Open(aFileName, {GpFileFlag::WRITE | GpFileFlag::CREATE | GpFileFlag::TRUNCATE});
     file.Write(aData);
     file.Close();
 }

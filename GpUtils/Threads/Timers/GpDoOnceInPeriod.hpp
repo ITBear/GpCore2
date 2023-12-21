@@ -50,7 +50,7 @@ bool    GpDoOnceInPeriod::Do (std::function<void()> aFn)
 {
     const milliseconds_t nowSTS = GpDateTimeOps::SSteadyTS_ms();
 
-    if ((nowSTS - iLastDoSTS) >= iPeriod)
+    if ((nowSTS - iLastDoSTS) >= iPeriod) [[unlikely]]
     {
         aFn();
         iLastDoSTS = nowSTS;

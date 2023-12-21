@@ -168,11 +168,11 @@ public:
                         SharedMutexLockerWrap   (MutexWrapT& aMutexWrap,
                                                  std::try_to_lock_t)        TRY_ACQUIRE_SHARED(true, aMutexWrap)
                                                 : iLockerInternal(aMutexWrap.internal(), std::try_to_lock)      {}
-                        ~SharedMutexLockerWrap  (void)                      RELEASE_SHARED()                    {}
+                        ~SharedMutexLockerWrap  (void)                      RELEASE()                   {}
 
     void                lock                    (void)                      ACQUIRE_SHARED()                    {       iLockerInternal.lock();}
     bool                try_lock                (void)                      TRY_ACQUIRE_SHARED(true)            {return iLockerInternal.try_lock();}
-    void                unlock                  (void)                      RELEASE_SHARED()                    {       iLockerInternal.unlock();}
+    void                unlock                  (void)                      RELEASE()                           {       iLockerInternal.unlock();}
     LockerInternalT&    internal_lock           (void) noexcept             RETURN_CAPABILITY(iLockerInternal)  {return iLockerInternal;}
 
 private:

@@ -7,7 +7,6 @@
 #include "../../GpUtils/Macro/GpMacroTags.hpp"
 #include "../../GpUtils/Macro/GpMacroClass.hpp"
 #include "../../GpUtils/Types/Containers/GpContainersT.hpp"
-#include "../../GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp"
 #include "../../GpUtils/Types/Containers/GpAny.hpp"
 
 #include "../GpTaskEnums.hpp"
@@ -44,6 +43,7 @@ public:
     virtual void                    MakeTaskReady       (const GpTaskId aTaskGuid) = 0;
     virtual void                    MakeTaskReady       (const GpTaskId aTaskGuid,
                                                          GpAny          aPayload) = 0;
+    void                            RequestStop         (GpTask& aTask);
 
     virtual bool                    Reschedule          (const GpTaskRunRes::EnumT  aRunRes,
                                                          GpSP<GpTask>&&             aTask) noexcept = 0;

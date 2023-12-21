@@ -2,46 +2,6 @@
 
 namespace GPlatform {
 
-u_int_8 GpByteReader::GpByteReader::UInt8 (void)
-{
-    return ReadPOD<u_int_8>();
-}
-
-s_int_8 GpByteReader::GpByteReader::SInt8 (void)
-{
-    return ReadPOD<s_int_8>();
-}
-
-u_int_16    GpByteReader::GpByteReader::UInt16 (void)
-{
-    return ReadPOD<u_int_16>();
-}
-
-s_int_16    GpByteReader::GpByteReader::SInt16 (void)
-{
-    return ReadPOD<s_int_16>();
-}
-
-u_int_32    GpByteReader::GpByteReader::UInt32 (void)
-{
-    return ReadPOD<u_int_32>();
-}
-
-s_int_32    GpByteReader::GpByteReader::SInt32 (void)
-{
-    return ReadPOD<s_int_32>();
-}
-
-u_int_64    GpByteReader::GpByteReader::UInt64 (void)
-{
-    return ReadPOD<u_int_64>();
-}
-
-s_int_64    GpByteReader::GpByteReader::SInt64 (void)
-{
-    return ReadPOD<s_int_64>();
-}
-
 u_int_64    GpByteReader::CompactUInt64 (void)
 {
     u_int_64 val = 0;

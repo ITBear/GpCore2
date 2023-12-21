@@ -11,9 +11,9 @@ void    GpByteWriterStorageFixedSize::AllocateAdd
     THROW_GP(u8"Out of range"_sv);
 }
 
-void    GpByteWriterStorageFixedSize::OnShrinkToFit (void)
+void    GpByteWriterStorageFixedSize::_OnEnd (void)
 {
     //NOP
 }
 
-}//namespace GPlatform
+}// namespace GPlatform

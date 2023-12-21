@@ -387,15 +387,15 @@ template<typename T>
 using GpCWP = GpSharedPtrBase<const T, true>;
 
 template<typename T, typename... Ts>
-[[nodiscard]] typename T::SP    MakeSP (Ts&&... aArgs)
+[[nodiscard]] GpSP<T>   MakeSP (Ts&&... aArgs)
 {
-    return T::SP::SNew(std::forward<Ts>(aArgs)...);
+    return GpSP<T>::SNew(std::forward<Ts>(aArgs)...);
 }
 
 template<typename T, typename... Ts>
-[[nodiscard]] typename T::CSP   MakeCSP (Ts&&... aArgs)
+[[nodiscard]] GpCSP<T>  MakeCSP (Ts&&... aArgs)
 {
-    return T::CSP::SNew(std::forward<Ts>(aArgs)...);
+    return GpCSP<T>::SNew(std::forward<Ts>(aArgs)...);
 }
 
 }//namespace GPlatform

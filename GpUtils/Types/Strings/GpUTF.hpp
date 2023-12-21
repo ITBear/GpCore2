@@ -31,11 +31,13 @@ public:
     static std::u32string               S_UTF8_To_UTF32     (std::u8string_view aStr);
     static std::u8string                S_UTF16_To_UTF8     (std::u16string_view aStr);
     static std::u8string                S_UTF32_To_UTF8     (std::u32string_view aStr);
-    static inline std::u8string_view    S_STR_To_UTF8       (std::string_view aStr);
-    static inline std::u8string_view    S_STR_To_UTF8       (const char* aStr);
+    static inline std::u8string_view    S_STR_To_UTF8       (std::string_view aStr) noexcept;
+    static inline std::u8string_view    S_STR_To_UTF8       (const char* aStr) noexcept;
     static inline std::u8string_view    S_STR_To_UTF8       (const char*    aStr,
-                                                             const size_t   aSize);
-    static inline std::string_view      S_UTF8_To_STR       (std::u8string_view aStr);
+                                                             const size_t   aSize) noexcept;
+    static inline std::string_view      S_UTF8_To_STR       (std::u8string_view aStr) noexcept;
+    static inline std::u8string_view    S_To_UTF8           (std::u8string_view aStr) noexcept;
+    static inline std::u8string_view    S_To_UTF8           (std::string_view aStr) noexcept;
 
     static size_t                       SCharsCount         (std::u8string_view aStr);
     static size_t                       SCharsCount         (std::u16string_view aStr);
@@ -56,7 +58,7 @@ public:
     constexpr inline static GpUtf16Type SUtf16Type          (const char16_t aUTF16_char);
 };
 
-std::u8string_view  GpUTF::S_STR_To_UTF8 (std::string_view aStr)
+std::u8string_view  GpUTF::S_STR_To_UTF8 (std::string_view aStr) noexcept
 {
     return std::u8string_view
     (
@@ -65,7 +67,7 @@ std::u8string_view  GpUTF::S_STR_To_UTF8 (std::string_view aStr)
     );
 }
 
-std::u8string_view  GpUTF::S_STR_To_UTF8 (const char* aStr)
+std::u8string_view  GpUTF::S_STR_To_UTF8 (const char* aStr) noexcept
 {
     if (aStr == nullptr)
     {
@@ -83,7 +85,7 @@ std::u8string_view  GpUTF::S_STR_To_UTF8
 (
     const char*     aStr,
     const size_t    aSize
-)
+) noexcept
 {
     if (aStr == nullptr)
     {
@@ -97,7 +99,7 @@ std::u8string_view  GpUTF::S_STR_To_UTF8
     );
 }
 
-std::string_view    GpUTF::S_UTF8_To_STR (std::u8string_view aStr)
+std::string_view    GpUTF::S_UTF8_To_STR (std::u8string_view aStr) noexcept
 {
     return std::string_view
     (
@@ -106,13 +108,23 @@ std::string_view    GpUTF::S_UTF8_To_STR (std::u8string_view aStr)
     );
 }
 
+std::u8string_view  GpUTF::S_To_UTF8 (std::u8string_view aStr) noexcept
+{
+    return aStr;
+}
+
+std::u8string_view  GpUTF::S_To_UTF8 (std::string_view aStr) noexcept
+{
+    return S_STR_To_UTF8(aStr);
+}
+
 constexpr size_t    GpUTF::SCharsCount
 (
     std::u8string_view  aStr,
     const char8_t       aChar
 ) noexcept
 {
-    //TODO: reimplement char8_t -> std::<char8_t, 4>
+    //TODO: change aChar type from 'char8_t' to 'std::<char8_t, 4>'
 
     size_t              count       = 0;
     const char8_t* _R_  data        = aStr.data();
@@ -143,6 +155,6 @@ constexpr GpUtf16Type   GpUTF::SUtf16Type (const char16_t   aUTF16_char)
     }
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_STRINGS)
+#endif// #if defined(GP_USE_STRINGS)

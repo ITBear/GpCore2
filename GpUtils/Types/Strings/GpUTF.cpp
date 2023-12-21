@@ -551,4 +551,4 @@ size_t  GpUTF::S_UTF32_To_UTF8
 }
 */
 
-#endif//#if defined(GP_USE_STRINGS)
+#endif// #if defined(GP_USE_STRINGS)

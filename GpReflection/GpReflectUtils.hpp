@@ -397,7 +397,13 @@ T   GpReflectUtils::SCopyValue (const T& aValue)
     {
         if constexpr (GpHasTag_GpReflectObject<typename VT::value_type>())
         {
-            return aValue.V().template ReflectClone<typename VT::value_type>();
+            if (aValue.IsNotNULL())
+            {
+                return aValue.Vn().template ReflectClone<typename VT::value_type>();
+            } else
+            {
+                return {};
+            }
         } else
         {
             GpThrowCe<GpException>(u8"Unknown type");
@@ -425,8 +431,14 @@ T   GpReflectUtils::SCopyValue (const T& aValue)
 
                 for (const auto& e: aValue)
                 {
-                    GpReflectObject::SP val = e.V().ReflectClone();
-                    tmp.emplace_back(val.CastUpAs<typename T::value_type>());
+                    if (e.IsNotNULL())
+                    {
+                        GpReflectObject::SP val = e.Vn().ReflectClone();
+                        tmp.emplace_back(val.CastUpAs<typename T::value_type>());
+                    } else
+                    {
+                        tmp.emplace_back(typename T::value_type{});
+                    }
                 }
 
                 return tmp;
@@ -448,8 +460,14 @@ T   GpReflectUtils::SCopyValue (const T& aValue)
 
                 for (const auto& [key, value]: aValue)
                 {
-                    GpReflectObject::SP val = value.V().ReflectClone();
-                    tmp.try_emplace(key, val.CastUpAs<typename T::mapped_type>());
+                    if (value.IsNotNULL())
+                    {
+                        GpReflectObject::SP val = value.V().ReflectClone();
+                        tmp.try_emplace(key, val.CastUpAs<typename T::mapped_type>());
+                    } else
+                    {
+                        tmp.try_emplace(key, typename T::mapped_type{});
+                    }
                 }
 
                 return tmp;

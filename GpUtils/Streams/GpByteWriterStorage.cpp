@@ -27,4 +27,4 @@ GpSpanPtrByteRW GpByteWriterStorage::Offset (const size_t aOffset)
     return storagePtrBeforeOffset;
 }
 
-}//GPlatform
+}// namespace GPlatform

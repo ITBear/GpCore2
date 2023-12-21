@@ -2,54 +2,6 @@
 
 namespace GPlatform {
 
-GpByteWriter&   GpByteWriter::UInt8 (const u_int_8 aValue)
-{
-    WritePOD<decltype(aValue)>(aValue);
-    return *this;
-}
-
-GpByteWriter&   GpByteWriter::SInt8 (const s_int_8 aValue)
-{
-    WritePOD<decltype(aValue)>(aValue);
-    return *this;
-}
-
-GpByteWriter&   GpByteWriter::UInt16 (const u_int_16 aValue)
-{
-    WritePOD<decltype(aValue)>(aValue);
-    return *this;
-}
-
-GpByteWriter&   GpByteWriter::SInt16 (const s_int_16 aValue)
-{
-    WritePOD<decltype(aValue)>(aValue);
-    return *this;
-}
-
-GpByteWriter&   GpByteWriter::UInt32 (const u_int_32 aValue)
-{
-    WritePOD<decltype(aValue)>(aValue);
-    return *this;
-}
-
-GpByteWriter&   GpByteWriter::SInt32 (const s_int_32 aValue)
-{
-    WritePOD<decltype(aValue)>(aValue);
-    return *this;
-}
-
-GpByteWriter&   GpByteWriter::UInt64 (const u_int_64 aValue)
-{
-    WritePOD<decltype(aValue)>(aValue);
-    return *this;
-}
-
-GpByteWriter&   GpByteWriter::SInt64 (const s_int_64 aValue)
-{
-    WritePOD<decltype(aValue)>(aValue);
-    return *this;
-}
-
 GpByteWriter&   GpByteWriter::BytesWithLen (GpSpanPtrByteR aData)
 {
     const u_int_64 size = NumOps::SConvert<u_int_64>(aData.Count());
