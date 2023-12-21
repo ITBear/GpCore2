@@ -16,9 +16,9 @@ compiler_gcc{
 					   -Wrestrict -Wno-terminate
 
 }else:compiler_clang{
-	QMAKE_CC		=	clang-16
-	QMAKE_CXX		=	clang++-16
-	QMAKE_LINK		=	clang++-16
+	QMAKE_CC		=	clang-15
+	QMAKE_CXX		=	clang++-15
+	QMAKE_LINK		=	clang++-15
 
 	#QMAKE_CXXFLAGS	+= -stdlib=libc++
 	#QMAKE_LFLAGS   += -stdlib=libc++
