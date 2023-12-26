@@ -174,8 +174,8 @@ message([$$PACKET_NAME]: -------------------------------------------------)
 LIBS += -L$$DESTDIR
 
 INCLUDEPATH += \
-	$$DIR_LEVEL/.. \
+	$$DIR_LEVEL/../../Extras/Boost/boost_1_83_0$$BOOST_POSTFIX \
+	$$DIR_LEVEL/../../Extras/fmt/inсlude \
+	$$DIR_LEVEL/../../Extras \
 	$$DIR_LEVEL/../GPlatform \
-	$$DIR_LEVEL/../Extras/Boost/boost_1_83_0$$BOOST_POSTFIX \
-    $$DIR_LEVEL/../Extras
-
+	$$DIR_LEVEL/../
