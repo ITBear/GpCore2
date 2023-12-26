@@ -86,6 +86,9 @@ public:
     inline const std::type_info&    TypeInfo        (void) const noexcept;
 
     template<typename T>
+    bool                            IsContatinType  (void) const noexcept;
+
+    template<typename T>
     const T&                        Value           (void) const;
 
     template<typename T>
@@ -221,6 +224,20 @@ const std::type_info&   GpAny::TypeInfo (void) const noexcept
     {
         return typeid(nullptr);
     }
+}
+
+template<typename T>
+bool    GpAny::IsContatinType (void) const noexcept
+{
+    if (iPtrHolder == nullptr) [[unlikely]]
+    {
+        return false;
+    }
+
+    const auto              fromTypeInfoAndPtr  = iPtrHolder->TypeInfoAndPtr();
+    const std::type_info&   toTypeInfo          = typeid(T);
+
+    return GpTypeInfoUtils::SIsSame(std::get<0>(fromTypeInfoAndPtr), toTypeInfo);
 }
 
 template<typename T>

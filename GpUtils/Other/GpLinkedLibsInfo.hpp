@@ -49,10 +49,10 @@ inline void GP_REGISTER_CURRENT_LIB_TO_LINKED_LIBS_INFO (void)
 {
     GpLinkedLibsInfo::S().Register
     (
-        std::u8string(GpUTF::S_STR_To_UTF8(std::string_view(GP_CURRENT_LIB_PACKET_NAME))),
-        NumOps::SConvert<size_t>(StrOps::SToUI64(GpUTF::S_STR_To_UTF8(std::string_view(GP_CURRENT_LIB_VER_MAJ)))),
-        NumOps::SConvert<size_t>(StrOps::SToUI64(GpUTF::S_STR_To_UTF8(std::string_view(GP_CURRENT_LIB_VER_MIN)))),
-        NumOps::SConvert<size_t>(StrOps::SToUI64(GpUTF::S_STR_To_UTF8(std::string_view(GP_CURRENT_LIB_VER_PAT))))
+        std::u8string(GpUTF::S_As_UTF8(std::string_view(GP_CURRENT_LIB_PACKET_NAME))),
+        NumOps::SConvert<size_t>(StrOps::SToUI64(GpUTF::S_As_UTF8(std::string_view(GP_CURRENT_LIB_VER_MAJ)))),
+        NumOps::SConvert<size_t>(StrOps::SToUI64(GpUTF::S_As_UTF8(std::string_view(GP_CURRENT_LIB_VER_MIN)))),
+        NumOps::SConvert<size_t>(StrOps::SToUI64(GpUTF::S_As_UTF8(std::string_view(GP_CURRENT_LIB_VER_PAT))))
     );
 }
 

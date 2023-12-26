@@ -118,7 +118,7 @@ iCode(aCode) \
     const SourceLocationT&  aSourceLocation = SourceLocationT::current() \
 ) \
 { \
-    throw NAME(aCode, ::GPlatform::GpUTF::S_STR_To_UTF8(aMsg), aSourceLocation); \
+    throw NAME(aCode, ::GPlatform::GpUTF::S_As_UTF8(aMsg), aSourceLocation); \
 } \
  \
 inline void THROW_COND_##SHORT_NAME \
@@ -145,7 +145,7 @@ inline void THROW_COND_##SHORT_NAME \
 { \
     if (!aCondition) [[unlikely]] \
     { \
-        throw NAME(aCode, ::GPlatform::GpUTF::S_STR_To_UTF8(aMsg), aSourceLocation); \
+        throw NAME(aCode, ::GPlatform::GpUTF::S_As_UTF8(aMsg), aSourceLocation); \
     } \
 } \
  \
@@ -174,7 +174,7 @@ inline void THROW_COND_##SHORT_NAME \
     if (!aCondition) [[unlikely]] \
     { \
         const auto msg = aMsgGenFn(); \
-        throw NAME(aCode, GpUTF::S_STR_To_UTF8(msg), aSourceLocation); \
+        throw NAME(aCode, GpUTF::S_As_UTF8(msg), aSourceLocation); \
     } \
 } \
  \

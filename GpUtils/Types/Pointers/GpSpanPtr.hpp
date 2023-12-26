@@ -245,6 +245,7 @@ public:
     constexpr this_type&                        OffsetAdd       (const size_t aOffset);
     constexpr this_type                         SubspanBegin    (const size_t aOffset,
                                                                  const size_t aCount) const;
+    constexpr this_type                         SubspanBegin    (const size_t aOffset) const;
 
     template<typename SpanT>
     requires SpanPtrConcepts::IsConvertableFromSpan<this_type, SpanT>
@@ -308,16 +309,20 @@ public:
 
     constexpr std::u8string_view                AsStringViewU8      (void) const;
     std::span<value_type>                       AsStdSpan           (void) const;
-    std::span<u_int_8>                          AsStdSpanByte       (void) const;
-    std::span<const u_int_8>                    AsStdSpanConstByte  (void) const;
+    std::span<std::byte>                        AsStdSpanByte       (void) const;
+    std::span<const std::byte>                  AsStdSpanConstByte  (void) const;
 
-    std::vector<u_int_8>                        ToByteArray         (void) const;
+    std::vector<std::byte>                      ToByteArray         (void) const;
+    std::vector<u_int_8>                        ToUI8Array          (void) const;
 
     template<typename SpanT>
     this_type&                                  CopyFrom            (const SpanT& aSpan);
 
+    //for static_cast<std::vector<std::byte>>
+    operator                                    std::vector<std::byte>() const  {return ToByteArray();}
+
     //for static_cast<std::vector<u_int_8>>
-    operator                                    std::vector<u_int_8>() const    {return ToByteArray();}
+    operator                                    std::vector<u_int_8>() const    {return ToUI8Array();}
 
 private:
     template<typename PtrToT, typename PtrFromT>
@@ -552,6 +557,12 @@ constexpr typename GpSpanPtr<T>::this_type  GpSpanPtr<T>::SubspanBegin
 }
 
 template<Concepts::IsPointer T>
+constexpr typename GpSpanPtr<T>::this_type  GpSpanPtr<T>::SubspanBegin (const size_t aOffset) const
+{
+    return SubspanBeginAs<this_type>(aOffset, NumOps::SSub<size_t>(iCount, aOffset));
+}
+
+template<Concepts::IsPointer T>
 constexpr typename GpSpanPtr<T>::this_type  GpSpanPtr<T>::SubspanEnd
 (
     const size_t aOffset,
@@ -577,23 +588,39 @@ std::span<typename GpSpanPtr<T>::value_type>    GpSpanPtr<T>::AsStdSpan (void) c
 }
 
 template<Concepts::IsPointer T>
-std::span<u_int_8>  GpSpanPtr<T>::AsStdSpanByte (void) const
+std::span<std::byte>    GpSpanPtr<T>::AsStdSpanByte (void) const
 {
     const size_byte_t size = Size();
-    return std::span<u_int_8>(PtrAs<u_int_8*>(), size.As<size_t>());
+    return std::span<std::byte>(PtrAs<std::byte*>(), size.As<size_t>());
 }
 
 template<Concepts::IsPointer T>
-std::span<const u_int_8>    GpSpanPtr<T>::AsStdSpanConstByte (void) const
+std::span<const std::byte>  GpSpanPtr<T>::AsStdSpanConstByte (void) const
 {
     const size_byte_t size = Size();
-    return std::span<const u_int_8>(PtrAs<const u_int_8*>(), size.As<size_t>());
+    return std::span<const std::byte>(PtrAs<const std::byte*>(), size.As<size_t>());
 }
 
 #endif//#if (__cplusplus >= CPP_VERSION_20)
 
 template<Concepts::IsPointer T>
-std::vector<u_int_8>        GpSpanPtr<T>::ToByteArray (void) const
+std::vector<std::byte>      GpSpanPtr<T>::ToByteArray (void) const
+{
+    std::vector<std::byte> res;
+
+    const size_byte_t size = Size();
+
+    if (size > 0_byte)
+    {
+        res.resize(size.As<size_t>());
+        std::memcpy(res.data(), PtrAs<const std::byte*>(), size.As<size_t>());
+    }
+
+    return res;
+}
+
+template<Concepts::IsPointer T>
+std::vector<u_int_8>        GpSpanPtr<T>::ToUI8Array (void) const
 {
     std::vector<u_int_8> res;
 

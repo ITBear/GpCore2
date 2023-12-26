@@ -163,6 +163,7 @@ HEADERS += \
     Types/Containers/GpGlobalStructCatalogC.hpp \
     Types/Containers/GpSet.hpp \
     Types/Containers/GpSharedQueue.hpp \
+    Types/Containers/GpSharedQueueFast.hpp \
     Types/Containers/GpSpanPtrNumerics.hpp \
     Types/Containers/GpTypeShell.hpp \
     Types/Containers/GpVectorWrapper.hpp \

@@ -50,6 +50,7 @@ private:
     GpStackBoost::StackImplT            iStack;
     GpTaskFiber*                        iTaskFiber  = nullptr;
     std::optional<std::exception_ptr>   iException;
+    bool                                iIsCallStopInProgress = false;
 };
 
 }//namespace GPlatform

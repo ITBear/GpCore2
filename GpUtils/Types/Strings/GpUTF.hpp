@@ -31,13 +31,34 @@ public:
     static std::u32string               S_UTF8_To_UTF32     (std::u8string_view aStr);
     static std::u8string                S_UTF16_To_UTF8     (std::u16string_view aStr);
     static std::u8string                S_UTF32_To_UTF8     (std::u32string_view aStr);
-    static inline std::u8string_view    S_STR_To_UTF8       (std::string_view aStr) noexcept;
-    static inline std::u8string_view    S_STR_To_UTF8       (const char* aStr) noexcept;
-    static inline std::u8string_view    S_STR_To_UTF8       (const char*    aStr,
+
+    static inline std::u8string_view    S_As_UTF8           (std::string_view aStr) noexcept;
+    static inline std::u8string_view    S_As_UTF8           (std::u8string_view aStr) noexcept;
+    static inline std::u8string_view    S_As_UTF8           (const char* aStr) noexcept;
+    static inline std::u8string_view    S_As_UTF8           (const char*    aStr,
                                                              const size_t   aSize) noexcept;
-    static inline std::string_view      S_UTF8_To_STR       (std::u8string_view aStr) noexcept;
-    static inline std::u8string_view    S_To_UTF8           (std::u8string_view aStr) noexcept;
-    static inline std::u8string_view    S_To_UTF8           (std::string_view aStr) noexcept;
+
+    static inline std::u8string         S_To_UTF8           (std::string_view aStr);
+    static inline std::u8string         S_To_UTF8           (std::string aStr);
+    static inline std::u8string         S_To_UTF8           (std::u8string_view aStr);
+    static inline std::u8string         S_To_UTF8           (std::u8string aStr);
+    static inline std::u8string         S_To_UTF8           (const char* aStr);
+    static inline std::u8string         S_To_UTF8           (const char*    aStr,
+                                                             const size_t   aSize);
+
+    static inline std::string_view      S_As_STR            (std::string_view aStr) noexcept;
+    static inline std::string_view      S_As_STR            (std::u8string_view aStr) noexcept;
+    static inline std::string_view      S_As_STR            (const char* aStr) noexcept;
+    static inline std::string_view      S_As_STR            (const char*    aStr,
+                                                             const size_t   aSize) noexcept;
+
+    static inline std::string           S_To_STR            (std::string_view aStr);
+    static inline std::string           S_To_STR            (std::string aStr);
+    static inline std::string           S_To_STR            (std::u8string_view aStr);
+    static inline std::string           S_To_STR            (std::u8string aStr);
+    static inline std::string           S_To_STR            (const char* aStr);
+    static inline std::string           S_To_STR            (const char*    aStr,
+                                                             const size_t   aSize);
 
     static size_t                       SCharsCount         (std::u8string_view aStr);
     static size_t                       SCharsCount         (std::u16string_view aStr);
@@ -58,7 +79,7 @@ public:
     constexpr inline static GpUtf16Type SUtf16Type          (const char16_t aUTF16_char);
 };
 
-std::u8string_view  GpUTF::S_STR_To_UTF8 (std::string_view aStr) noexcept
+std::u8string_view  GpUTF::S_As_UTF8 (std::string_view aStr) noexcept
 {
     return std::u8string_view
     (
@@ -67,9 +88,14 @@ std::u8string_view  GpUTF::S_STR_To_UTF8 (std::string_view aStr) noexcept
     );
 }
 
-std::u8string_view  GpUTF::S_STR_To_UTF8 (const char* aStr) noexcept
+std::u8string_view  GpUTF::S_As_UTF8 (std::u8string_view aStr) noexcept
 {
-    if (aStr == nullptr)
+    return aStr;
+}
+
+std::u8string_view  GpUTF::S_As_UTF8 (const char* aStr) noexcept
+{
+    if (aStr == nullptr) [[unlikely]]
     {
         return {};
     }
@@ -81,13 +107,13 @@ std::u8string_view  GpUTF::S_STR_To_UTF8 (const char* aStr) noexcept
     );
 }
 
-std::u8string_view  GpUTF::S_STR_To_UTF8
+std::u8string_view  GpUTF::S_As_UTF8
 (
     const char*     aStr,
     const size_t    aSize
 ) noexcept
 {
-    if (aStr == nullptr)
+    if (aStr == nullptr) [[unlikely]]
     {
         return {};
     }
@@ -99,7 +125,69 @@ std::u8string_view  GpUTF::S_STR_To_UTF8
     );
 }
 
-std::string_view    GpUTF::S_UTF8_To_STR (std::u8string_view aStr) noexcept
+std::u8string   GpUTF::S_To_UTF8 (std::string_view aStr)
+{
+    return std::u8string
+    (
+        reinterpret_cast<const char8_t*>(aStr.data()),
+        aStr.size()
+    );
+}
+
+std::u8string   GpUTF::S_To_UTF8 (std::string aStr)
+{
+    std::u8string& s = reinterpret_cast<std::u8string&>(aStr);// Dirty hack (UB)
+    return std::u8string(std::move(s));
+}
+
+std::u8string   GpUTF::S_To_UTF8 (std::u8string_view aStr)
+{
+    return std::u8string(aStr);
+}
+
+std::u8string   GpUTF::S_To_UTF8 (std::u8string aStr)
+{
+    return std::u8string(std::move(aStr));
+}
+
+std::u8string   GpUTF::S_To_UTF8 (const char* aStr)
+{
+    if (aStr == nullptr) [[unlikely]]
+    {
+        return {};
+    }
+
+    return std::u8string
+    (
+        reinterpret_cast<const char8_t*>(aStr),
+        std::strlen(aStr)
+    );
+}
+
+std::u8string   GpUTF::S_To_UTF8
+(
+    const char*     aStr,
+    const size_t    aSize
+)
+{
+    if (aStr == nullptr) [[unlikely]]
+    {
+        return {};
+    }
+
+    return std::u8string
+    (
+        reinterpret_cast<const char8_t*>(aStr),
+        aSize
+    );
+}
+
+std::string_view    GpUTF::S_As_STR (std::string_view aStr) noexcept
+{
+    return aStr;
+}
+
+std::string_view    GpUTF::S_As_STR (std::u8string_view aStr) noexcept
 {
     return std::string_view
     (
@@ -108,14 +196,93 @@ std::string_view    GpUTF::S_UTF8_To_STR (std::u8string_view aStr) noexcept
     );
 }
 
-std::u8string_view  GpUTF::S_To_UTF8 (std::u8string_view aStr) noexcept
+std::string_view    GpUTF::S_As_STR (const char* aStr) noexcept
+{
+    if (aStr == nullptr) [[unlikely]]
+    {
+        return {};
+    }
+
+    return std::string_view
+    (
+        reinterpret_cast<const char*>(aStr),
+        std::strlen(aStr)
+    );
+}
+
+std::string_view    GpUTF::S_As_STR
+(
+    const char*     aStr,
+    const size_t    aSize
+) noexcept
+{
+    if (aStr == nullptr) [[unlikely]]
+    {
+        return {};
+    }
+
+    return std::string_view
+    (
+        reinterpret_cast<const char*>(aStr),
+        aSize
+    );
+}
+
+std::string GpUTF::S_To_STR (std::string_view aStr)
+{
+    return std::string(aStr);
+}
+
+std::string GpUTF::S_To_STR (std::string aStr)
 {
     return aStr;
 }
 
-std::u8string_view  GpUTF::S_To_UTF8 (std::string_view aStr) noexcept
+std::string GpUTF::S_To_STR (std::u8string_view aStr)
 {
-    return S_STR_To_UTF8(aStr);
+    return std::string
+    (
+        reinterpret_cast<const char*>(aStr.data()),
+        aStr.size()
+    );
+}
+
+std::string GpUTF::S_To_STR (std::u8string aStr)
+{
+    std::string& s = reinterpret_cast<std::string&>(aStr);// Dirty hack (UB)
+    return std::string(std::move(s));
+}
+
+std::string GpUTF::S_To_STR (const char* aStr)
+{
+    if (aStr == nullptr) [[unlikely]]
+    {
+        return {};
+    }
+
+    return std::string
+    (
+        reinterpret_cast<const char*>(aStr),
+        std::strlen(aStr)
+    );
+}
+
+std::string GpUTF::S_To_STR
+(
+    const char*     aStr,
+    const size_t    aSize
+)
+{
+    if (aStr == nullptr) [[unlikely]]
+    {
+        return {};
+    }
+
+    return std::string
+    (
+        reinterpret_cast<const char*>(aStr),
+        aSize
+    );
 }
 
 constexpr size_t    GpUTF::SCharsCount
@@ -132,7 +299,7 @@ constexpr size_t    GpUTF::SCharsCount
 
     for (size_t id = 0; id < countLeft; ++id)
     {
-        if (*data++ == aChar)
+        if (*data++ == aChar) [[unlikely]]
         {
             count++;
         }

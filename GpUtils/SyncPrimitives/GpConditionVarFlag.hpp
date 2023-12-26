@@ -32,7 +32,7 @@ private:
 
 void    GpConditionVarFlag::NotifyOne (void) noexcept
 {
-    GpUniqueLock<GpMutex> lock(iCV.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
 
     iFlag = true;
 
@@ -41,7 +41,7 @@ void    GpConditionVarFlag::NotifyOne (void) noexcept
 
 void    GpConditionVarFlag::NotifyAll (void) noexcept
 {
-    GpUniqueLock<GpMutex> lock(iCV.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
 
     iFlag = true;
 

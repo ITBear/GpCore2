@@ -62,14 +62,14 @@ bool    GpItcSharedFuture<T>::WaitFor (const milliseconds_t aTimeout)
 template<typename T>
 std::optional<typename GpItcSharedFuture<T>::ItcResultT>    GpItcSharedFuture<T>::TryGetResult (void)
 {
-    GpUniqueLock<GpMutex> lock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
     return std::move(iResultOpt);
 }
 
 template<typename T>
 bool    GpItcSharedFuture<T>::IsReady (void) const noexcept
 {
-    GpUniqueLock<GpMutex> lock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
     return iIsSet;
 }
 
@@ -105,7 +105,7 @@ bool    GpItcSharedFuture<T>::SCheckIfReady
 template<typename T>
 bool    GpItcSharedFuture<T>::SetResult (ItcResultT&& aResult)
 {
-    GpUniqueLock<GpMutex> lock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
 
     if (iIsSet)
     {

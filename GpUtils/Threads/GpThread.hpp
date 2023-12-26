@@ -49,7 +49,7 @@ private:
 
 std::thread::id GpThread::ThreadId (void) const noexcept
 {
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
     return iThreadId;
 }
 

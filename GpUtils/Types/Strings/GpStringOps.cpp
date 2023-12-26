@@ -422,7 +422,7 @@ size_t  GpStringOps::SFromBytesHex
     );
 
     size_t              countLeft   = dataLength;
-    const u_int_8* _R_  dataPtr     = aData.Ptr();
+    const u_int_8* _R_  dataPtr     = aData.PtrAs<const u_int_8*>();
     char8_t* _R_        strPtr      = aStrOut.Ptr();
 
     THROW_COND_GP
@@ -508,7 +508,7 @@ size_byte_t GpStringOps::SToBytesHex
     {
         countLeft -= 2;
         std::array<char8_t, 2> s = {*str++, *str++};
-        *aDataOut++ = u_int_8(SToByteHex(s));
+        *aDataOut++ = std::byte(SToByteHex(s));
     }
 
     return size_byte_t::SMake(outSize);

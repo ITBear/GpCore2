@@ -100,7 +100,7 @@ public: \
 \
     static std::u8string_view SEnumValuesStr (void) \
     {\
-        static const std::u8string s = std::u8string(GpUTF::S_STR_To_UTF8(#__VA_ARGS__)); \
+        static const std::u8string s = std::u8string(GpUTF::S_As_UTF8(#__VA_ARGS__)); \
         return s;\
     }\
 \
@@ -163,7 +163,7 @@ const GpEnum::NamesListT& TYPE_NAME::SNames (void) noexcept \
 { \
     static NamesListT sNamesList = TYPE_NAME::_SParseEnumElements \
     ( \
-        GpUTF::S_STR_To_UTF8(#TYPE_NAME), \
+        GpUTF::S_As_UTF8(#TYPE_NAME), \
         TYPE_NAME::SEnumValuesStr() \
     ); \
     return sNamesList; \
@@ -171,7 +171,7 @@ const GpEnum::NamesListT& TYPE_NAME::SNames (void) noexcept \
  \
 std::u8string_view  TYPE_NAME::STypeName (void) noexcept \
 { \
-    static std::u8string sTypeName(GpUTF::S_STR_To_UTF8(#TYPE_NAME)); \
+    static std::u8string sTypeName(GpUTF::S_As_UTF8(#TYPE_NAME)); \
     return sTypeName; \
 } \
 \
@@ -182,7 +182,7 @@ std::u8string_view  TYPE_NAME::SToString (EnumT aEnumValue) noexcept\
 \
 TYPE_NAME::EnumT    TYPE_NAME::SFromString (std::u8string_view aName)\
 {\
-    return EnumT(_SFromString(SNames(), aName, GpUTF::S_STR_To_UTF8(#TYPE_NAME)));\
+    return EnumT(_SFromString(SNames(), aName, GpUTF::S_As_UTF8(#TYPE_NAME)));\
 }\
 \
 const TYPE_NAME::NamesListT& TYPE_NAME::Names (void) const noexcept\

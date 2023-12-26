@@ -499,7 +499,7 @@ inline std::u8string operator+
     res.reserve(aLeft.length() + aRight.length());
     res.append(aLeft.data(), aLeft.length());
 
-    std::u8string_view svRigth = ::GPlatform::GpUTF::S_STR_To_UTF8(aRight);
+    std::u8string_view svRigth = ::GPlatform::GpUTF::S_As_UTF8(aRight);
     res.append(svRigth.data(), svRigth.length());
 
     return res;
@@ -560,7 +560,7 @@ inline std::u8string operator+
     std::u8string res;
     res.reserve(aLeft.length() + aRight.length());
     res.append(aLeft.data(), aLeft.length());
-    res.append(GPlatform::GpUTF::S_STR_To_UTF8(aRight.data()), aRight.length());
+    res.append(GPlatform::GpUTF::S_As_UTF8(aRight.data()), aRight.length());
 
     return res;
 }
@@ -586,7 +586,7 @@ inline std::u8string operator+
     const char*         aRight
 )
 {
-    std::u8string_view  right(::GPlatform::GpUTF::S_STR_To_UTF8(aRight));
+    std::u8string_view  right(::GPlatform::GpUTF::S_As_UTF8(aRight));
     std::u8string       res;
     res.reserve(aLeft.length() + right.length());
     res.append(aLeft.data(), aLeft.length());

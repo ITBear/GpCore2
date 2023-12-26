@@ -90,10 +90,10 @@ GpFile::HandlerT    GpFileImpl::SOpen
 
     if (aFlags.Test(GpFileFlag::CREATE))
     {
-        fd = open64(GpUTF::S_UTF8_To_STR(fname.data()).data(), flags, 0666);
+        fd = open64(GpUTF::S_As_STR(fname.data()).data(), flags, 0666);
     } else
     {
-        fd = open64(GpUTF::S_UTF8_To_STR(fname.data()).data(), flags);
+        fd = open64(GpUTF::S_As_STR(fname.data()).data(), flags);
     }
 
     THROW_COND_GP

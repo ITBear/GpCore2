@@ -25,7 +25,7 @@ void    GpTaskSchedulerV1::Start
     const size_t aTasksMaxCount
 )
 {
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
     GpTaskScheduler::Start
     (
@@ -87,9 +87,9 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
 
             GpThread::C::Vec::SP executorThreads;
             {
-                GpUniqueLock<GpMutex> lock(iMutex);
-                executorThreads = iExecutorThreads;
-                iIsRequestStopAndJoin = true;
+                GpUniqueLock<GpMutex> uniqueLock(iMutex);
+                executorThreads         = iExecutorThreads;
+                iIsRequestStopAndJoin   = true;
             }
 
             for (GpThread::SP& executorThread: executorThreads)
@@ -104,7 +104,7 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
 
             GpThread::C::Vec::SP executorThreads;
             {
-                GpUniqueLock<GpMutex> lock(iMutex);
+                GpUniqueLock<GpMutex> uniqueLock(iMutex);
                 executorThreads = iExecutorThreads;
             }
 
@@ -118,7 +118,7 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
         // Clear executor threads
         {
             GpStringUtils::SCout(u8"[GpTaskSchedulerV1::RequestStopAndJoin]: Clear executor threads...");
-            GpUniqueLock<GpMutex> lock(iMutex);
+            GpUniqueLock<GpMutex> uniqueLock(iMutex);
             iExecutorThreads.clear();
         }
 
@@ -188,7 +188,7 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
 
             WaitingTasksT waitingTasks;
             {
-                GpUniqueLock<GpMutex> lock(iMutex);
+                GpUniqueLock<GpMutex> uniqueLock(iMutex);
                 waitingTasks = std::move(iWaitingTasks);
                 iWaitingTasks.clear();
             }
@@ -215,7 +215,7 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
 
 void    GpTaskSchedulerV1::NewToReady (GpTask::SP aTask)
 {
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
     THROW_COND_GP
     (
@@ -228,7 +228,7 @@ void    GpTaskSchedulerV1::NewToReady (GpTask::SP aTask)
 
 void    GpTaskSchedulerV1::NewToWaiting (GpTask::SP aTask)
 {
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
     THROW_COND_GP
     (
@@ -241,7 +241,7 @@ void    GpTaskSchedulerV1::NewToWaiting (GpTask::SP aTask)
 
 void    GpTaskSchedulerV1::MakeTaskReady (const GpTaskId aTaskId)
 {
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
     _MakeTaskReady(aTaskId);
 }
@@ -252,7 +252,7 @@ void    GpTaskSchedulerV1::MakeTaskReady
     GpAny           aPayload
 )
 {
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
     _MakeTaskReady(aTaskId);
 
@@ -272,7 +272,7 @@ bool    GpTaskSchedulerV1::Reschedule
 {
     try
     {
-        GpUniqueLock<GpMutex> lock(iMutex);
+        GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
         switch (aRunRes)
         {
@@ -315,6 +315,13 @@ bool    GpTaskSchedulerV1::Reschedule
 
 void    GpTaskSchedulerV1::_MakeTaskReady (const GpTaskId aTaskId)
 {
+#if defined(DEBUG_BUILD)
+    if (iIsRequestStopAndJoin)
+    {
+        __builtin_trap();
+    }
+#endif //#if defined(DEBUG_BUILD)
+
     THROW_COND_GP
     (
         iIsRequestStopAndJoin == false,

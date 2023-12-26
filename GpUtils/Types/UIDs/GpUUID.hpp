@@ -26,7 +26,7 @@ public:
 
 public:
     constexpr                           GpUUID          (void) noexcept:iData(CE_Zero()) {}
-    constexpr                           GpUUID          (const u_int_128 aRaw) noexcept:iData(std::bit_cast<DataT>(aRaw)) {}
+    explicit constexpr                  GpUUID          (const u_int_128 aRaw) noexcept:iData(std::bit_cast<DataT>(aRaw)) {}
     constexpr                           GpUUID          (const DataT& aData) noexcept:iData(aData) {}
     constexpr                           GpUUID          (const GpUUID& aUUID) noexcept:iData(aUUID.iData) {}
     constexpr                           GpUUID          (GpUUID&& aUUID) noexcept:iData(std::move(aUUID.iData)) {}

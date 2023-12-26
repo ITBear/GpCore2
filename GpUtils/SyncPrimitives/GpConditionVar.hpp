@@ -91,11 +91,11 @@ void    GpConditionVar::Wait
     CheckFnT aCheckFn
 )
 {
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
     iCV.wait
     (
-        lock.internal_lock(),
+        uniqueLock.internal_lock(),
         std::move(aCheckFn)
     );
 }
@@ -107,11 +107,11 @@ std::optional<T>    GpConditionVar::Wait
     ConditionMetFnT<T>  aConditionMetFn
 )
 {   
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
     iCV.wait
     (
-        lock.internal_lock(),
+        uniqueLock.internal_lock(),
         std::move(aCheckFn)
     );
 
@@ -127,7 +127,7 @@ std::optional<T>    GpConditionVar::Wait
     ConditionMetFnT<T>  aConditionMetFn
 )
 {
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
     GpRAIIonDestruct callOnDestruct
     (
@@ -141,7 +141,7 @@ std::optional<T>    GpConditionVar::Wait
 
     iCV.wait
     (
-        lock.internal_lock(),
+        uniqueLock.internal_lock(),
         std::move(aCheckFn)
     );
 
@@ -154,11 +154,11 @@ bool    GpConditionVar::WaitFor
     const milliseconds_t    aTimeout
 )
 {
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
     const bool checkFnRes = iCV.wait_for
     (
-        lock.internal_lock(),
+        uniqueLock.internal_lock(),
         std::chrono::milliseconds(aTimeout.As<ssize_t>()),
         std::move(aCheckFn)
     );
@@ -174,11 +174,11 @@ std::optional<T>    GpConditionVar::WaitFor
     const milliseconds_t    aTimeout
 )
 {
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
     const bool checkFnRes = iCV.wait_for
     (
-        lock.internal_lock(),
+        uniqueLock.internal_lock(),
         std::chrono::milliseconds(aTimeout.As<ssize_t>()),
         std::move(aCheckFn)
     );
@@ -202,7 +202,7 @@ std::optional<T>    GpConditionVar::WaitFor
     const milliseconds_t    aTimeout
 )
 {
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
     GpRAIIonDestruct callOnDestruct
     (
@@ -216,7 +216,7 @@ std::optional<T>    GpConditionVar::WaitFor
 
     const bool checkFnRes = iCV.wait_for
     (
-        lock.internal_lock(),
+        uniqueLock.internal_lock(),
         std::chrono::milliseconds(aTimeout.As<ssize_t>()),
         std::move(aCheckFn)
     );

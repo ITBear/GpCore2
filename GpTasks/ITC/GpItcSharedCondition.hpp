@@ -215,7 +215,7 @@ bool    GpItcSharedCondition::WaitForFiber
     (
         [&]()
         {
-            GpUniqueLock<GpMutex> lock(iThreadsCV.Mutex());
+            GpUniqueLock<GpMutex> uniqueLock(iThreadsCV.Mutex());
 
             if (isTaskIdRegistered) [[likely]]
             {
@@ -229,7 +229,7 @@ bool    GpItcSharedCondition::WaitForFiber
         milliseconds_t passedTime = 0.0_si_ms;
 
         {
-            GpUniqueLock<GpMutex> lock(iThreadsCV.Mutex());
+            GpUniqueLock<GpMutex> uniqueLock(iThreadsCV.Mutex());
 
             // Check condition
             if (aCheckFn()) [[unlikely]]
@@ -276,7 +276,7 @@ std::optional<T>    GpItcSharedCondition::WaitForFiber
     (
         [&]()
         {
-            GpUniqueLock<GpMutex> lock(iThreadsCV.Mutex());
+            GpUniqueLock<GpMutex> uniqueLock(iThreadsCV.Mutex());
 
             if (isTaskIdRegistered) [[likely]]
             {
@@ -290,7 +290,7 @@ std::optional<T>    GpItcSharedCondition::WaitForFiber
         milliseconds_t passedTime = 0.0_si_ms;
 
         {
-            GpUniqueLock<GpMutex> lock(iThreadsCV.Mutex());
+            GpUniqueLock<GpMutex> uniqueLock(iThreadsCV.Mutex());
 
             // Check condition
             if (aCheckFn()) [[unlikely]]
@@ -341,7 +341,7 @@ std::optional<T>    GpItcSharedCondition::WaitForFiber
     (
         [&]()
         {
-            GpUniqueLock<GpMutex> lock(iThreadsCV.Mutex());
+            GpUniqueLock<GpMutex> uniqueLock(iThreadsCV.Mutex());
 
             if (isTaskIdRegistered) [[likely]]
             {
@@ -357,7 +357,7 @@ std::optional<T>    GpItcSharedCondition::WaitForFiber
         milliseconds_t passedTime = 0.0_si_ms;
 
         {
-            GpUniqueLock<GpMutex> lock(iThreadsCV.Mutex());
+            GpUniqueLock<GpMutex> uniqueLock(iThreadsCV.Mutex());
 
             // At begin check
             if (!isAtBeginFnCalled) [[unlikely]]

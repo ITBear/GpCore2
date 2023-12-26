@@ -48,7 +48,7 @@ std::u8string   GpExceptionUtils::SToString
 {
     return SToString
     (
-        GpUTF::S_STR_To_UTF8(aException.what()),
+        GpUTF::S_As_UTF8(aException.what()),
         aSourceLocation,
         ExceptionType::STD,
         std::nullopt
@@ -57,7 +57,7 @@ std::u8string   GpExceptionUtils::SToString
 
 std::u8string   GpExceptionUtils::SToString (const GpException& aException)
 {
-    return std::u8string(GpUTF::S_STR_To_UTF8(aException.what()));
+    return std::u8string(GpUTF::S_As_UTF8(aException.what()));
 }
 
 }//GPlatform

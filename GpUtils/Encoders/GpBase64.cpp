@@ -38,7 +38,7 @@ void    GpBase64::SEncode
     const u_int_8* _R_  data            = aData.PtrAs<const u_int_8*>();
 
     GpSpanPtrByteRW base64StrOut    = aWriterBase64Str.Offset(encodedSize);
-    u_int_8*        encodedStr      = base64StrOut.Ptr();
+    u_int_8*        encodedStr      = base64StrOut.PtrAs<u_int_8*>();
 
     THROW_COND_GP
     (
@@ -147,7 +147,7 @@ void    GpBase64::SDecode
     const size_t        decodedSize     = SDecodedSize(aBase64Str);
 
     GpSpanPtrByteRW dataOut     = aWriterData.Offset(decodedSize);
-    u_int_8* _R_    decodedData = dataOut.Ptr();
+    u_int_8* _R_    decodedData = dataOut.PtrAs<u_int_8*>();
 
     THROW_COND_GP
     (

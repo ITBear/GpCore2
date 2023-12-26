@@ -40,11 +40,11 @@ unix_ts_ms_t    GpDateTimeOps::SUnixTsFromStr_ms
     std::u8string_view  aFormat
 )
 {
-    std::istringstream in{std::string(GpUTF::S_UTF8_To_STR(aStr))};
+    std::istringstream in{std::string(GpUTF::S_As_STR(aStr))};
 
     //std::chrono::sys_time<std::chrono::milliseconds> tp;
     std::chrono::sys_time<std::chrono::milliseconds> tp;
-    in >> date::parse(std::string(GpUTF::S_UTF8_To_STR(aFormat)), tp);//TODO replace with std::chrono::parse
+    in >> date::parse(std::string(GpUTF::S_As_STR(aFormat)), tp);//TODO replace with std::chrono::parse
 
     const auto val = tp.time_since_epoch();
     const auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(val).count();
@@ -135,9 +135,9 @@ std::u8string   GpDateTimeOps::SUnixTsToStr
 
     //std::chrono::sys_time<std::chrono::milliseconds> tp(std::chrono::milliseconds(aTs.Value()));
     std::chrono::sys_time<std::chrono::milliseconds> tp(std::chrono::milliseconds(aTs.Value()));
-    out << date::format(std::string(GpUTF::S_UTF8_To_STR(aFormat)), tp);
+    out << date::format(std::string(GpUTF::S_As_STR(aFormat)), tp);
 
-    return std::u8string(GpUTF::S_STR_To_UTF8(out.str()));
+    return std::u8string(GpUTF::S_As_UTF8(out.str()));
 }
 
 std::u8string   GpDateTimeOps::SUnixTsToStr

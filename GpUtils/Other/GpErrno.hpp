@@ -17,7 +17,7 @@ class GP_UTILS_API GpErrno
 public:
     static inline std::u8string_view    SGetAndClear (void)
     {
-        std::u8string_view sv = GpUTF::S_STR_To_UTF8(std::strerror(errno));
+        std::u8string_view sv = GpUTF::S_As_UTF8(std::strerror(errno));
         errno = 0;
         return sv;
     }

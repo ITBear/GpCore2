@@ -37,7 +37,7 @@ try
             .append(u8"\n    [")
             .append(StrOps::SToString(size - id))
             .append(u8"]: ")
-            .append(GpUTF::S_STR_To_UTF8(stackTracePtrs[id]));
+            .append(GpUTF::S_As_UTF8(stackTracePtrs[id]));
     }
 
     std::free(stackTracePtrs);

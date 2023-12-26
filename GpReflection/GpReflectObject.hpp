@@ -191,7 +191,7 @@ private: \
         (\
             modelUid, \
             aBaseReflectionModel.Uid(), \
-            std::u8string(::GPlatform::GpUTF::S_STR_To_UTF8(::GPlatform::GpReflectUtils::SModelName<T>())), \
+            std::u8string(::GPlatform::GpUTF::S_As_UTF8(::GPlatform::GpReflectUtils::SModelName<T>())), \
             std::move(props), \
             groupId, \
             std::move(factory), \
@@ -206,7 +206,7 @@ private: \
 #define PROP(PROP_NAME) \
     ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
-        std::u8string(GpUTF::S_STR_To_UTF8(#PROP_NAME)), \
+        std::u8string(GpUTF::S_As_UTF8(#PROP_NAME)), \
         ::GPlatform::GpReflectUtils::SOffsetOf(&this_type::PROP_NAME), \
         {}, \
         GpReflectProp::FlagArgsT(), \
@@ -218,7 +218,7 @@ private: \
 #define PROP_F(PROP_NAME, FLAGS) \
     ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
-        std::u8string(GpUTF::S_STR_To_UTF8(#PROP_NAME)), \
+        std::u8string(GpUTF::S_As_UTF8(#PROP_NAME)), \
         ::GPlatform::GpReflectUtils::SOffsetOf(&this_type::PROP_NAME), \
         FLAGS, \
         GpReflectProp::FlagArgsT(), \
@@ -230,7 +230,7 @@ private: \
 #define PROP_FG(PROP_NAME, FLAGS, GEN_FN) \
     ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
-        std::u8string(GpUTF::S_STR_To_UTF8(#PROP_NAME)), \
+        std::u8string(GpUTF::S_As_UTF8(#PROP_NAME)), \
         ::GPlatform::GpReflectUtils::SOffsetOf(&this_type::PROP_NAME), \
         FLAGS, \
         GpReflectProp::FlagArgsT(), \
@@ -242,7 +242,7 @@ private: \
 #define PROP_FA(PROP_NAME, FLAGS, FLAG_ARGS) \
     ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
-        std::u8string(GpUTF::S_STR_To_UTF8(#PROP_NAME)), \
+        std::u8string(GpUTF::S_As_UTF8(#PROP_NAME)), \
         ::GPlatform::GpReflectUtils::SOffsetOf(&this_type::PROP_NAME), \
         FLAGS, \
         std::move(FLAG_ARGS), \

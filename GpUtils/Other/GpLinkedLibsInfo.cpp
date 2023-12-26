@@ -1,6 +1,6 @@
 #include "GpLinkedLibsInfo.hpp"
 
-#include <fmt/include/fmt/core.h>
+#include <fmt/core.h>
 
 namespace GPlatform {
 
@@ -26,7 +26,7 @@ void    GpLinkedLibsInfo::Register
     const size_t    aVersionPat
 )
 {
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
     iLibs.emplace_back
     (
@@ -41,7 +41,7 @@ void    GpLinkedLibsInfo::Register
 
 GpLinkedLibsInfo::InfoAsTextT   GpLinkedLibsInfo::InfoAsText (void) const
 {
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
     InfoAsTextT infoAsText;
     infoAsText.reserve(iLibs.size());
@@ -51,7 +51,7 @@ GpLinkedLibsInfo::InfoAsTextT   GpLinkedLibsInfo::InfoAsText (void) const
         infoAsText.emplace_back
         (
             info.iName,
-            GpUTF::S_STR_To_UTF8(fmt::format("{}.{}.{}", info.iVersionMaj, info.iVersionMin, info.iVersionPat))
+            GpUTF::S_As_UTF8(fmt::format("{}.{}.{}", info.iVersionMaj, info.iVersionMin, info.iVersionPat))
         );
     }
 

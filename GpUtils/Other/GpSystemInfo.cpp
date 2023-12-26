@@ -1,7 +1,7 @@
 #include "GpSystemInfo.hpp"
 
 #include <thread>
-#include <fmt/include/fmt/core.h>
+#include <fmt/core.h>
 
 #include "../Exceptions/GpException.hpp"
 
@@ -29,7 +29,7 @@ std::u8string   GpSystemInfo::SOsInfo (void)
         u8"Failed to call uname()"_sv
     );
 
-    info = GpUTF::S_STR_To_UTF8
+    info = GpUTF::S_As_UTF8
     (
         fmt::format
         (

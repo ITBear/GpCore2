@@ -50,7 +50,7 @@ template<typename UidT,
          typename ValueT>
 GpEventChannel<UidT, ValueT>::GpEventChannel (GpEventChannel&& aEventChannel) noexcept
 {
-    GpUniqueLock<GpSpinLock> lock(aEventChannel.iSpinLock);
+    GpUniqueLock<GpSpinLock> uniqueLock(aEventChannel.iSpinLock);
 
     iSubscribers = std::move(aEventChannel.iSubscribers);
 }
@@ -59,7 +59,7 @@ template<typename UidT,
          typename ValueT>
 void    GpEventChannel<UidT, ValueT>::PushEvent (const ValueT& aEvent) const
 {
-    GpUniqueLock<GpSpinLock> lock(iSpinLock);
+    GpUniqueLock<GpSpinLock> uniqueLock(iSpinLock);
 
     for (const auto&[uid, fn]: iSubscribers)
     {
@@ -78,7 +78,7 @@ bool    GpEventChannel<UidT, ValueT>::Subscribe
     CallbackFnT aCallbackFn
 )
 {
-    GpUniqueLock<GpSpinLock> lock(iSpinLock);
+    GpUniqueLock<GpSpinLock> uniqueLock(iSpinLock);
 
     const auto[iter, isInsertedNew] = iSubscribers.insert_or_assign(aSubscriberUid, std::move(aCallbackFn));
 
@@ -89,7 +89,7 @@ template<typename UidT,
          typename ValueT>
 size_t  GpEventChannel<UidT, ValueT>::Unsubscribe (const UidT& aSubscriberUid)
 {
-    GpUniqueLock<GpSpinLock> lock(iSpinLock);
+    GpUniqueLock<GpSpinLock> uniqueLock(iSpinLock);
 
     auto iter = iSubscribers.find(aSubscriberUid);
 

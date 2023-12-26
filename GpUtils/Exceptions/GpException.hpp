@@ -110,7 +110,7 @@ GpException::GpException
 ) noexcept:
 GpException
 (
-    GpUTF::S_STR_To_UTF8(aMsg),
+    GpUTF::S_As_UTF8(aMsg),
     aSourceLocation
 )
 {
@@ -149,7 +149,7 @@ GpException&    GpException::operator= (GpException&& aException)
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
 )
 {
-    throw GpException(GpUTF::S_STR_To_UTF8(aMsg), aSourceLocation);
+    throw GpException(GpUTF::S_As_UTF8(aMsg), aSourceLocation);
 }
 
 [[noreturn]] inline void    THROW_GP_NOT_IMPLEMENTED
@@ -182,7 +182,7 @@ inline void THROW_COND_GP
 {
     if (!aCondition) [[unlikely]]
     {
-        throw GpException(GpUTF::S_STR_To_UTF8(aMsg), aSourceLocation);
+        throw GpException(GpUTF::S_As_UTF8(aMsg), aSourceLocation);
     }
 }
 
@@ -209,7 +209,7 @@ inline void THROW_COND_GP
     if (!aCondition) [[unlikely]]
     {
         const auto msg = aMsgGenFn();
-        throw GpException(GpUTF::S_STR_To_UTF8(msg), aSourceLocation);
+        throw GpException(GpUTF::S_As_UTF8(msg), aSourceLocation);
     }
 }
 

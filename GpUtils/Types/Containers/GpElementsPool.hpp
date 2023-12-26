@@ -101,7 +101,7 @@ void    GpElementsPool<T>::Init
 
     Clear();
 
-    GpUniqueLock<GpRWSpinLock> lock(iRWSpinLock);
+    GpUniqueLock<GpRWSpinLock> uniqueLock(iRWSpinLock);
 
     THROW_COND_GP
     (
@@ -131,7 +131,7 @@ void    GpElementsPool<T>::Clear (void) noexcept
 template<typename T>
 typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T>::Acquire (void)
 {
-    GpUniqueLock<GpRWSpinLock> lock(iRWSpinLock);
+    GpUniqueLock<GpRWSpinLock> uniqueLock(iRWSpinLock);
 
     if (iElements.empty())
     {
@@ -167,7 +167,7 @@ typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T
 template<typename T>
 void    GpElementsPool<T>::Release (value_type&& aElement)
 {
-    GpUniqueLock<GpRWSpinLock> lock(iRWSpinLock);
+    GpUniqueLock<GpRWSpinLock> uniqueLock(iRWSpinLock);
 
     THROW_COND_GP
     (
@@ -269,7 +269,7 @@ typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T
 template<typename T>
 void    GpElementsPool<T>::_Clear (bool aIsDestructorCall) noexcept
 {
-    GpUniqueLock<GpRWSpinLock> lock(iRWSpinLock);
+    GpUniqueLock<GpRWSpinLock> uniqueLock(iRWSpinLock);
 
     if (aIsDestructorCall == false)
     {

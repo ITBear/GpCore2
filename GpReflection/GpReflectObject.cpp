@@ -78,7 +78,7 @@ const GpReflectModel&   GpReflectObject::_SReflectCreateModel (void)
     (
         modelUid,
         GpUUID(),
-        std::u8string(GpUTF::S_STR_To_UTF8(GpReflectUtils::SModelName<GpReflectObject>())),
+        std::u8string(GpUTF::S_As_UTF8(GpReflectUtils::SModelName<GpReflectObject>())),
         std::move(props),
         groupId,
         std::move(factory),

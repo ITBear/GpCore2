@@ -25,24 +25,28 @@ public:
     using underlying_container  = std::queue<value_type>;
 
 public:
-                                    GpSharedQueue           (void) noexcept;
-                                    GpSharedQueue           (size_t aMaxSize) noexcept;
-                                    ~GpSharedQueue          (void) noexcept;
+                                    GpSharedQueue       (void) noexcept;
+                                    GpSharedQueue       (size_t aMaxSize) noexcept;
+                                    ~GpSharedQueue      (void) noexcept = default;
 
-    size_t                          MaxSize                 (void) const noexcept;
-    void                            SetMaxSize              (size_t aMaxSize) noexcept;
-    size_t                          Size                    (void) const noexcept;
-    bool                            Empty                   (void) const noexcept;
-    void                            Clear                   (void);
+    size_t                          MaxSize             (void) const noexcept;
+    void                            SetMaxSize          (size_t aMaxSize) noexcept;
+    size_t                          Size                (void) const noexcept;
+    bool                            Empty               (void) const noexcept;
+    void                            Clear               (void);
 
-    [[nodiscard]] bool              PushAndNotifyOne        (const value_type& aValue);
-    [[nodiscard]] bool              PushAndNotifyOne        (value_type&& aValue);
-    [[nodiscard]] bool              PushAndNotifyAll        (const value_type& aValue);
-    [[nodiscard]] bool              PushAndNotifyAll        (value_type&& aValue);
-    std::optional<value_type>       WaitAndPop              (const milliseconds_t aTimeout);
+    [[nodiscard]] bool              Push                (const value_type& aValue);
+    [[nodiscard]] bool              Push                (value_type&& aValue);
+    [[nodiscard]] bool              PushAndNotifyOne    (const value_type& aValue);
+    [[nodiscard]] bool              PushAndNotifyOne    (value_type&& aValue);
+    [[nodiscard]] bool              PushAndNotifyAll    (const value_type& aValue);
+    [[nodiscard]] bool              PushAndNotifyAll    (value_type&& aValue);
 
-    underlying_container&           UnderlyingContainer     (void) noexcept REQUIRES(iCV);
-    const underlying_container&     UnderlyingContainer     (void) const noexcept REQUIRES(iCV);
+    std::optional<value_type>       Pop                 (void);
+    std::optional<value_type>       WaitAndPop          (const milliseconds_t aTimeout);
+
+    underlying_container&           UnderlyingContainer (void) noexcept REQUIRES(iCV);
+    const underlying_container&     UnderlyingContainer (void) const noexcept REQUIRES(iCV);
 
 private:
     mutable GpConditionVar          iCV;
@@ -51,7 +55,6 @@ private:
 };
 
 template <typename T>
-
 GpSharedQueue<T>::GpSharedQueue (void) noexcept
 {
 }
@@ -63,14 +66,9 @@ iMaxSize(aMaxSize)
 }
 
 template <typename T>
-GpSharedQueue<T>::~GpSharedQueue (void) noexcept
-{
-}
-
-template <typename T>
 size_t  GpSharedQueue<T>::MaxSize (void) const noexcept
 {
-    GpUniqueLock<GpMutex> lock(iCV.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
 
     return iMaxSize;
 }
@@ -78,7 +76,7 @@ size_t  GpSharedQueue<T>::MaxSize (void) const noexcept
 template <typename T>
 void    GpSharedQueue<T>::SetMaxSize (size_t aMaxSize) noexcept
 {
-    GpUniqueLock<GpMutex> lock(iCV.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
 
     iMaxSize = aMaxSize;
 }
@@ -86,7 +84,7 @@ void    GpSharedQueue<T>::SetMaxSize (size_t aMaxSize) noexcept
 template <typename T>
 size_t  GpSharedQueue<T>::Size (void) const noexcept
 {
-    GpUniqueLock<GpMutex> lock(iCV.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
 
     return iContainer.size();
 }
@@ -94,7 +92,7 @@ size_t  GpSharedQueue<T>::Size (void) const noexcept
 template <typename T>
 bool    GpSharedQueue<T>::Empty (void) const noexcept
 {
-    GpUniqueLock<GpMutex> lock(iCV.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
 
     return iContainer.empty();
 }
@@ -102,7 +100,7 @@ bool    GpSharedQueue<T>::Empty (void) const noexcept
 template <typename T>
 void    GpSharedQueue<T>::Clear (void)
 {
-    GpUniqueLock<GpMutex> lock(iCV.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
 
     while (!iContainer.empty())
     {
@@ -113,9 +111,39 @@ void    GpSharedQueue<T>::Clear (void)
 }
 
 template <typename T>
+bool    GpSharedQueue<T>::Push (const value_type& aValue)
+{
+    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
+
+    if (iContainer.size() < iMaxSize) [[likely]]
+    {
+        iContainer.push(aValue);
+        return true;
+    } else
+    {
+        return false;
+    }
+}
+
+template <typename T>
+bool    GpSharedQueue<T>::Push (value_type&& aValue)
+{
+    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
+
+    if (iContainer.size() < iMaxSize) [[likely]]
+    {
+        iContainer.emplace(std::move(aValue));
+        return true;
+    } else
+    {
+        return false;
+    }
+}
+
+template <typename T>
 bool    GpSharedQueue<T>::PushAndNotifyOne (const value_type& aValue)
 {
-    GpUniqueLock<GpMutex> lock(iCV.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
 
     if (iContainer.size() < iMaxSize) [[likely]]
     {
@@ -132,7 +160,7 @@ bool    GpSharedQueue<T>::PushAndNotifyOne (const value_type& aValue)
 template <typename T>
 bool    GpSharedQueue<T>::PushAndNotifyOne (value_type&& aValue)
 {
-    GpUniqueLock<GpMutex> lock(iCV.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
 
     if (iContainer.size() < iMaxSize) [[likely]]
     {
@@ -149,7 +177,7 @@ bool    GpSharedQueue<T>::PushAndNotifyOne (value_type&& aValue)
 template <typename T>
 bool    GpSharedQueue<T>::PushAndNotifyAll (const value_type& aValue)
 {
-    GpUniqueLock<GpMutex> lock(iCV.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
 
     if (iContainer.size() < iMaxSize) [[likely]]
     {
@@ -166,7 +194,7 @@ bool    GpSharedQueue<T>::PushAndNotifyAll (const value_type& aValue)
 template <typename T>
 bool    GpSharedQueue<T>::PushAndNotifyAll (value_type&& aValue)
 {
-    GpUniqueLock<GpMutex> lock(iCV.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
 
     if (iContainer.size() < iMaxSize) [[likely]]
     {
@@ -178,6 +206,21 @@ bool    GpSharedQueue<T>::PushAndNotifyAll (value_type&& aValue)
     {
         return false;
     }
+}
+
+template <typename T>
+std::optional<typename GpSharedQueue<T>::value_type>    GpSharedQueue<T>::Pop (void)
+{
+    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
+
+    if (iContainer.empty()) [[unlikely]]
+    {
+        return std::nullopt;
+    }
+
+    value_type e = std::move(iContainer.front());
+    iContainer.pop();
+    return e;
 }
 
 template <typename T>
@@ -211,6 +254,6 @@ const typename GpSharedQueue<T>::underlying_container&  GpSharedQueue<T>::Underl
     return iContainer;
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_MULTITHREADING)
+#endif// #if defined(GP_USE_MULTITHREADING)

@@ -25,7 +25,7 @@ GpThread::~GpThread (void) noexcept
 
 std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
 {
-    GpUniqueLock<GpMutex> lock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
     // Check if started
     THROW_COND_GP
@@ -73,7 +73,7 @@ void    GpThread::RequestStop (void) noexcept
     iThreadStopRequestF.test_and_set();
 
     {
-        GpUniqueLock<GpMutex> lock(iMutex);
+        GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
         if (iRunnable.IsNotNULL())
         {
@@ -92,7 +92,7 @@ void    GpThread::Join (void) noexcept
         }
 
         {
-            GpUniqueLock<GpMutex> lock(iMutex);
+            GpUniqueLock<GpMutex> uniqueLock(iMutex);
 
             if (iRunnable.IsNotNULL())
             {
@@ -126,7 +126,7 @@ void    GpThread::SSetSysNameForCurrent (std::u8string_view aName)
     /*pthread_setname_np
     (
         pthread_self(),
-        GpUTF::S_UTF8_To_STR(name).data()
+        GpUTF::S_As_STR(name).data()
     );*/
 
     prctl(PR_SET_NAME, (unsigned long)name.data(), 0, 0, 0);
@@ -137,7 +137,7 @@ void    GpThread::SSetSysNameForCurrent (std::u8string_view aName)
     pthread_setname_np
     (
         pthread_self(),
-        GpUTF::S_UTF8_To_STR(name).data()
+        GpUTF::S_As_STR(name).data()
     );
 #elif defined(GP_OS_IOS)
 #   error Need to be implemented

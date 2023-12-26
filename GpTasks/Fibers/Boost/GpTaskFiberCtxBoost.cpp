@@ -58,9 +58,12 @@ std::optional<GpException>  GpTaskFiberCtxBoost::Clear (void) noexcept
 
     try
     {
-        iYieldRes   = GpTaskRunRes::DONE;
-        iTaskFiber  = nullptr;
+        iYieldRes               = GpTaskRunRes::DONE;
+        iTaskFiber              = nullptr;
+        iIsCallStopInProgress   = false;
+
         iException.reset();
+
 
         if (iFiber)
         {
@@ -116,6 +119,7 @@ void    GpTaskFiberCtxBoost::Yield (const GpTaskRunRes::EnumT aRunRes)
 {
     iYieldRes = aRunRes;
 
+
     //--------------- INSIDE FIBER ---------------
     //--------------- EXIT FROM FIBER ---------------
 
@@ -126,11 +130,15 @@ void    GpTaskFiberCtxBoost::Yield (const GpTaskRunRes::EnumT aRunRes)
 
     if (iTaskFiber != nullptr) [[likely]]
     {
-        if (iTaskFiber->IsStopRequested()) [[unlikely]]
+        if (iIsCallStopInProgress == false)
         {
-            iTaskFiber->CallStop();
-            throw GpTaskFiberCtxForceUnwind(iTaskFiber->Name());
-        }           
+            if (iTaskFiber->IsStopRequested()) [[unlikely]]
+            {
+                iIsCallStopInProgress = true;
+                iTaskFiber->CallStop();
+                throw GpTaskFiberCtxForceUnwind(iTaskFiber->Name());
+            }
+        }
     }
 }
 
