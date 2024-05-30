@@ -2,7 +2,7 @@
 
 #define __USE_FILE_OFFSET64
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_POSIX)
 
@@ -13,13 +13,14 @@
 #include <unistd.h>
 
 #include "GpFile.hpp"
+#include "../Other/GpErrno.hpp"
 
 namespace GPlatform {
 
 class GpFileImpl
 {
 public:
-    static inline GpFile::HandlerT  SOpen           (std::u8string_view aName,
+    static inline GpFile::HandlerT  SOpen           (std::string_view   aName,
                                                      const GpFileFlags  aFlags);
     static inline void              SClose          (GpFile::HandlerT aHandler) noexcept;
     static inline void              SFlush          (GpFile::HandlerT aHandler);
@@ -32,25 +33,25 @@ public:
     static inline size_byte_t       SCurrentPos     (GpFile::HandlerT aHandler);
 
     static inline size_byte_t       STryWrite       (GpFile::HandlerT   aHandler,
-                                                     GpSpanPtrByteR     aData);
+                                                     GpSpanByteR        aData);
 
     static inline void              SWrite          (GpFile::HandlerT   aHandler,
-                                                     GpSpanPtrByteR     aData);
+                                                     GpSpanByteR        aData);
 
      static inline size_byte_t      STryRead        (GpFile::HandlerT   aHandler,
-                                                     GpSpanPtrByteRW    aData);
+                                                     GpSpanByteRW       aData);
 
     static inline void              SRead           (GpFile::HandlerT   aHandler,
-                                                     GpSpanPtrByteRW    aData);
+                                                     GpSpanByteRW       aData);
 };
 
 GpFile::HandlerT    GpFileImpl::SOpen
 (
-    std::u8string_view  aName,
+    std::string_view    aName,
     const GpFileFlags   aFlags
 )
 {
-    std::u8string fname(aName);//fname must be 0-teminated string
+    std::string fname(aName);//fname must be 0-teminated string
 
     int flags = O_CLOEXEC;
 
@@ -86,20 +87,37 @@ GpFile::HandlerT    GpFileImpl::SOpen
         flags |= O_TRUNC;
     }
 
-    int fd = 0;
+    GpFile::HandlerT fd = {};
 
     if (aFlags.Test(GpFileFlag::CREATE))
     {
-        fd = open64(GpUTF::S_As_STR(fname.data()).data(), flags, 0666);
+        fd = open64
+        (
+            std::data(fname),
+            flags,
+            0666
+        );
     } else
     {
-        fd = open64(GpUTF::S_As_STR(fname.data()).data(), flags);
+        fd = open64
+        (
+            std::data(fname),
+            flags
+        );
     }
 
     THROW_COND_GP
     (
         fd >= 0,
-        [&aName](){return u8"Failed to open file '"_sv + aName + u8"', open64 return error code "_sv + errno;}
+        [&aName]()
+        {
+            return fmt::format
+            (
+                "Failed to open file '{}', open64 return error code {}",
+                aName,
+                GpErrno::SGetAndClear()
+            );
+        }
     );
 
     return fd;
@@ -117,7 +135,15 @@ void    GpFileImpl::SFlush (GpFile::HandlerT aHandler)
     THROW_COND_GP
     (
         res == 0,
-        [&aHandler](){return u8"Failed to flush data to file (fd = "_sv + aHandler + u8"), fsync return error code "_sv + errno;}
+        [&aHandler]()
+        {
+            return fmt::format
+            (
+                "Failed to flush data to file (fd = {}), fsync return error code {}",
+                aHandler,
+                GpErrno::SGetAndClear()
+            );
+        }
     );
 }
 
@@ -129,7 +155,15 @@ size_byte_t GpFileImpl::SSize (GpFile::HandlerT aHandler)
     THROW_COND_GP
     (
         res == 0,
-        [&aHandler](){return u8"Failed to get file info (fd = "_sv + aHandler + u8"), fstat return error code "_sv + errno;}
+        [&aHandler]()
+        {
+            return fmt::format
+            (
+                "Failed to get file info (fd = {}), fstat return error code {}",
+                aHandler,
+                GpErrno::SGetAndClear()
+            );
+        }
     );
 
     return size_byte_t::SMake(st.st_size);
@@ -153,8 +187,13 @@ void    GpFileImpl::SGoToPos
         res != -1,
         [&aPos, &aHandler]()
         {
-            return u8"Failed to set file position (target pos = "_sv + aPos.Value()
-                 + u8", fd = "_sv + aHandler + u8"), lseek64 return error code "_sv + errno;
+            return fmt::format
+            (
+                "Failed to set file position (target pos = {}, fd = {}), lseek64 return error code {}",
+                aPos.Value(),
+                aHandler,
+                GpErrno::SGetAndClear()
+            );
         }
     );
 }
@@ -176,7 +215,15 @@ size_byte_t GpFileImpl::SGoToEndPos (GpFile::HandlerT aHandler)
     THROW_COND_GP
     (
         res != -1,
-        [&aHandler](){return u8"Failed to set file position (target pos = END, fd = "_sv + aHandler + u8"), lseek64 return error code "_sv + errno;}
+        [&aHandler]()
+        {
+            return fmt::format
+            (
+                "Failed to set file position (target pos = END, fd = {}), lseek64 return error code {}",
+                aHandler,
+                GpErrno::SGetAndClear()
+            );
+        }
     );
 
     return size_byte_t::SMake(res);
@@ -194,7 +241,15 @@ size_byte_t GpFileImpl::SCurrentPos (GpFile::HandlerT aHandler)
     THROW_COND_GP
     (
         res != -1,
-        [&aHandler](){return u8"Failed to set file position (target pos = CURRENT, fd = "_sv + aHandler + u8"), lseek64 return error code "_sv + errno;}
+        [&aHandler]()
+        {
+            return fmt::format
+            (
+                "Failed to set file position (target pos = CURRENT, fd = {}), lseek64 return error code {}",
+                aHandler,
+                GpErrno::SGetAndClear()
+            );
+        }
     );
 
     return size_byte_t::SMake(res);
@@ -203,10 +258,10 @@ size_byte_t GpFileImpl::SCurrentPos (GpFile::HandlerT aHandler)
 size_byte_t GpFileImpl::STryWrite
 (
     GpFile::HandlerT    aHandler,
-    GpSpanPtrByteR      aData
+    GpSpanByteR         aData
 )
 {
-    const size_t sizeToWrite = NumOps::SConvert<size_t>(aData.Size().Value());
+    const size_t sizeToWrite = aData.SizeInBytes();
 
     const ssize_t res = write
     (
@@ -218,7 +273,15 @@ size_byte_t GpFileImpl::STryWrite
     THROW_COND_GP
     (
         res != -1,
-        [&aHandler](){return u8"Failed to write to file (fd = "_sv + aHandler + u8"), write return error code "_sv + errno;}
+        [&aHandler]()
+        {
+            return fmt::format
+            (
+                "Failed to write to file (fd = {}), write return error code {}",
+                aHandler,
+                GpErrno::SGetAndClear()
+            );
+        }
     );
 
     return size_byte_t::SMake(NumOps::SConvert<u_int_64>(res));
@@ -227,25 +290,33 @@ size_byte_t GpFileImpl::STryWrite
 void    GpFileImpl::SWrite
 (
     GpFile::HandlerT    aHandler,
-    GpSpanPtrByteR      aData
+    GpSpanByteR         aData
 )
 {
     const size_byte_t sizeWritten = STryWrite(aHandler, aData);
 
     THROW_COND_GP
     (
-        sizeWritten == aData.Size(),
-        [&sizeWritten, &aData](){return u8"Failed to write. Only "_sv + sizeWritten.Value() + u8" of "_sv + aData.Size().Value() + u8" bytes was written"_sv;}
+        sizeWritten == size_byte_t::SMake(aData.SizeInBytes()),
+        [&sizeWritten, &aData]()
+        {
+            return fmt::format
+            (
+                "Failed to write. Only {} of {} bytes was written",
+                sizeWritten.Value(),
+                aData.SizeInBytes()
+            );
+        }
     );
 }
 
 size_byte_t GpFileImpl::STryRead
 (
     GpFile::HandlerT    aHandler,
-    GpSpanPtrByteRW     aData
+    GpSpanByteRW        aData
 )
 {
-    const size_t sizeToRead = NumOps::SConvert<size_t>(aData.Size().Value());
+    const size_t sizeToRead = NumOps::SConvert<size_t>(aData.SizeInBytes());
 
     const ssize_t res = read
     (
@@ -257,7 +328,15 @@ size_byte_t GpFileImpl::STryRead
     THROW_COND_GP
     (
         res != -1,
-        [&aHandler](){return u8"Failed to read from file (fd = "_sv + aHandler + u8"), read return error code "_sv + errno;}
+        [&aHandler]()
+        {
+            return fmt::format
+            (
+                "Failed to read from file (fd = {}), read return error code {}",
+                aHandler,
+                GpErrno::SGetAndClear()
+            );
+        }
     );
 
     return size_byte_t::SMake(NumOps::SConvert<u_int_64>(res));
@@ -266,18 +345,26 @@ size_byte_t GpFileImpl::STryRead
 void    GpFileImpl::SRead
 (
     GpFile::HandlerT    aHandler,
-    GpSpanPtrByteRW     aData
+    GpSpanByteRW        aData
 )
 {
     const size_byte_t sizeRead = STryRead(aHandler, aData);
 
     THROW_COND_GP
     (
-        sizeRead == aData.Size(),
-        [&sizeRead, &aData](){return u8"Failed to read. Only "_sv + sizeRead.Value() + u8" of "_sv + aData.Size().Value() + u8" bytes was read"_sv;}
+        sizeRead == size_byte_t::SMake(aData.SizeInBytes()),
+        [&sizeRead, &aData]()
+        {
+            return fmt::format
+            (
+                "Failed to read. Only {} of {} bytes was read",
+                sizeRead.Value(),
+                aData.SizeInBytes()
+            );
+        }
     );
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_POSIX)
+#endif// #if defined(GP_POSIX)

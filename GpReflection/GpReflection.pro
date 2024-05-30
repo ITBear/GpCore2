@@ -1,32 +1,55 @@
+# ----------- Config -----------
 TEMPLATE        = lib
-#CONFIG         += staticlib
-VER_MAJ		    = 2
-VER_MIN		    = 1
-VER_PAT		    = 4
-QMAKE_CXXFLAGS += -DGP_MODULE_UUID=d2333437-f0d4-42ff-e703-fba6f2e7b8e8
+#CONFIG        += staticlib
 QMAKE_CXXFLAGS += -DGP_REFLECTION_STATIC_ADD_TO_MANAGER
+QMAKE_CXXFLAGS += -DGP_MODULE_UUID=d2333437-f0d4-42ff-e703-fba6f2e7b8e8
 PACKET_NAME     = GpReflection
+DEFINES        += GP_REFLECTION_LIBRARY
+_VER_MAJ        = 2
+_VER_MIN        = 1
+_VER_PAT        = 5
 DIR_LEVEL       = ./../..
 
-DEFINES        += GP_REFLECTION_LIBRARY
-DEFINES        += "GP_CURRENT_LIB_VER_MAJ=\\\"$$VER_MAJ\\\""
-DEFINES        += "GP_CURRENT_LIB_VER_MIN=\\\"$$VER_MIN\\\""
-DEFINES        += "GP_CURRENT_LIB_VER_PAT=\\\"$$VER_PAT\\\""
-DEFINES        += "GP_CURRENT_LIB_PACKET_NAME=\\\"$$PACKET_NAME\\\""
+include($$DIR_LEVEL/../QtGlobalPro.pri)
 
-include(../../../QtGlobalPro.pri)
-
-#------------------------------ LIBS BEGIN ---------------------------------
+# ----------- Libraries -----------
 os_windows{
+	LIBS += -lGpUtils$$TARGET_POSTFIX
 }
 
 os_linux{
 }
-#------------------------------- LIBS END ----------------------------------
 
+# ----------- Sources and headers -----------
 SOURCES += \
     Builders/GpReflectModelBuilder.cpp \
-    Builders/GpReflectPropBuilder.cpp \
+    Builders/GpReflectModelPropBuilder.cpp \
+    Builders/GpReflectObjectBuilder.cpp \
+    Diff/GpReflectDiffDelta.cpp \
+    Diff/GpReflectDiffPropBLOB.cpp \
+    Diff/GpReflectDiffPropEnum.cpp \
+    Diff/GpReflectDiffPropEnumFlags.cpp \
+    Diff/GpReflectDiffPropObject.cpp \
+    Diff/GpReflectDiffPropObjectSP.cpp \
+    Diff/GpReflectDiffPropString.cpp \
+    Diff/GpReflectDiffProp_Map.cpp \
+    Diff/GpReflectDiffProp_VecBLOB.cpp \
+    Diff/GpReflectDiffProp_VecDouble.cpp \
+    Diff/GpReflectDiffProp_VecFloat.cpp \
+    Diff/GpReflectDiffProp_VecObject.cpp \
+    Diff/GpReflectDiffProp_VecObjectSP.cpp \
+    Diff/GpReflectDiffProp_VecSI16.cpp \
+    Diff/GpReflectDiffProp_VecSI32.cpp \
+    Diff/GpReflectDiffProp_VecSI64.cpp \
+    Diff/GpReflectDiffProp_VecSI8.cpp \
+    Diff/GpReflectDiffProp_VecString.cpp \
+    Diff/GpReflectDiffProp_VecUI16.cpp \
+    Diff/GpReflectDiffProp_VecUI32.cpp \
+    Diff/GpReflectDiffProp_VecUI64.cpp \
+    Diff/GpReflectDiffProp_VecUI8.cpp \
+    Diff/GpReflectDiffProp_VecUUID.cpp \
+    Diff/GpReflectDiffUtils.cpp \
+    Diff/GpReflectDiffUtils_CalcDiff.cpp \
     GpReflectContainerType.cpp \
     GpReflectManager.cpp \
     GpReflectModel.cpp \
@@ -35,29 +58,63 @@ SOURCES += \
     GpReflectObjectDynamicUtils.cpp \
     GpReflectProp.cpp \
     GpReflectPropFlags.cpp \
+    GpReflectPropUtils.cpp \
     GpReflectType.cpp \
     GpReflectUtils.cpp \
-    GpReflection.cpp \
+    GpReflectUtils_AssignValue.cpp \
+    GpReflectUtils_IsEqual.cpp \
+    GpReflectUtils_TotalMemoryUse.cpp \
+    GpReflectionLib.cpp \
     Models/GpExceptionDesc.cpp \
-    Models/GpReflectDemoDesc.cpp \
     Models/GpReflectModelDesc.cpp \
     Models/GpReflectModelDescUtils.cpp \
     Models/GpReflectPropDesc.cpp \
     Serializers/GpReflectSerializer.cpp
 
 HEADERS += \
-    Builders/GpReflectBuilders.hpp \
     Builders/GpReflectModelBuilder.hpp \
-    Builders/GpReflectPropBuilder.hpp \
+    Builders/GpReflectModelPropBuilder.hpp \
+    Builders/GpReflectObjectBuilder.hpp \
+    Diff/GpReflectDiffArray.hpp \
+    Diff/GpReflectDiffDelta.hpp \
+    Diff/GpReflectDiffPropBLOB.hpp \
+    Diff/GpReflectDiffPropEnum.hpp \
+    Diff/GpReflectDiffPropEnumFlags.hpp \
+    Diff/GpReflectDiffPropObject.hpp \
+    Diff/GpReflectDiffPropObjectSP.hpp \
+    Diff/GpReflectDiffPropString.hpp \
+    Diff/GpReflectDiffProp_Map.hpp \
+    Diff/GpReflectDiffProp_VecBLOB.hpp \
+    Diff/GpReflectDiffProp_VecDouble.hpp \
+    Diff/GpReflectDiffProp_VecFloat.hpp \
+    Diff/GpReflectDiffProp_VecObject.hpp \
+    Diff/GpReflectDiffProp_VecObjectSP.hpp \
+    Diff/GpReflectDiffProp_VecSI16.hpp \
+    Diff/GpReflectDiffProp_VecSI32.hpp \
+    Diff/GpReflectDiffProp_VecSI64.hpp \
+    Diff/GpReflectDiffProp_VecSI8.hpp \
+    Diff/GpReflectDiffProp_VecString.hpp \
+    Diff/GpReflectDiffProp_VecUI16.hpp \
+    Diff/GpReflectDiffProp_VecUI32.hpp \
+    Diff/GpReflectDiffProp_VecUI64.hpp \
+    Diff/GpReflectDiffProp_VecUI8.hpp \
+    Diff/GpReflectDiffProp_VecUUID.hpp \
+    Diff/GpReflectDiffUtils.hpp \
+    Diff/GpReflectDiffUtils_CalcDiff.hpp \
     GpReflectConcepts.hpp \
     GpReflectModelSource.hpp \
     GpReflectModelSourceFactory.hpp \
+    GpReflectObjWrapVector.hpp \
     GpReflectObjectDynamic.hpp \
     GpReflectObjectDynamicUtils.hpp \
     GpReflectObjectFactory.hpp \
     GpReflectPropGetter.hpp \
+    GpReflectPropUtils.hpp \
+    GpReflectUtils_AssignValue.hpp \
+    GpReflectUtils_IsEqual.hpp \
+    GpReflectUtils_TotalMemoryUse.hpp \
     GpReflectVisitor.hpp \
-    GpReflection.hpp \
+    GpReflectionLib.hpp \
     GpReflection_global.hpp \
     GpReflectContainerType.hpp \
     GpReflectManager.hpp \
@@ -68,13 +125,10 @@ HEADERS += \
     GpReflectType.hpp \
     GpReflectUtils.hpp \
     Models/GpExceptionDesc.hpp \
-    Models/GpReflectDemoDesc.hpp \
     Models/GpReflectModelDesc.hpp \
     Models/GpReflectModelDescUtils.hpp \
-    Models/GpReflectModels.hpp \
     Models/GpReflectPropDesc.hpp \
     Serializers/GpReflectSerializer.hpp \
     Serializers/GpReflectSerializerCtx.hpp \
-    Serializers/GpReflectSerializerFactory.hpp \
-    Serializers/GpReflectSerializers.hpp
+    Serializers/GpReflectSerializerFactory.hpp
 

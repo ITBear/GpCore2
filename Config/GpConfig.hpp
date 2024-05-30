@@ -43,3 +43,14 @@
 #else
 #   error Current OS is not supported yet.
 #endif
+
+#if defined(GP_COMPILER_MSVC)
+#   pragma warning(disable : 4275)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4702)
+#   pragma warning(disable : 4710)
+#   pragma warning(disable : 4711)
+#   pragma warning(disable : 4868)
+#   pragma warning(disable : 5045)
+#   pragma warning(disable : 5246)
+#endif

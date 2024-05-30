@@ -16,11 +16,11 @@ void    GpByteWriterStorage::Write
     iTotalWrite = NumOps::SAdd(iTotalWrite, aSize);
 }
 
-GpSpanPtrByteRW GpByteWriterStorage::Offset (const size_t aOffset)
+GpSpanByteRW    GpByteWriterStorage::OffsetAdd (const size_t aOffset)
 {
     ReserveNext(aOffset);
 
-    GpSpanPtrByteRW storagePtrBeforeOffset = iStoragePtr;
+    GpSpanByteRW storagePtrBeforeOffset = iStoragePtr;
     iStoragePtr.OffsetAdd(aOffset);
     iTotalWrite = NumOps::SAdd(iTotalWrite, aOffset);
 

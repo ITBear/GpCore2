@@ -1,484 +1,693 @@
+// GTags:
+// #DOC_ADDED     (2024-05-24)
+// #DOC_VALIDATED (2024-05-24)
+
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_CONTAINERS)
 
-#include "../Strings/GpStringOps.hpp"
-#include "../../SyncPrimitives/GpRWSpinLock.hpp"
+#include <GpCore2/Config/IncludeExt/fmt.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSpinLockRW.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSharedMutex.hpp>
 
-#include <mutex>
-#include <shared_mutex>
 #include <functional>
+#include <optional>
 
 namespace GPlatform {
 
 TAG_REGISTER(GpDictionary)
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT = std::map<KeyT, ValueT, std::less<>>>
+/**
+ * @brief A thread-safe dictionary class.
+ *
+ * This class provides a thread-safe dictionary with various methods for accessing and modifying the data.
+ *
+ * @tparam ContainerT The type of the underlying container.
+ */
+template<typename ContainerT>
 class GpDictionary
 {
     CLASS_REMOVE_CTRS_COPY(GpDictionary)
-
-public:
-    using this_type         = GpDictionary<KeyT, ValueT, UnderlyingContainerT>;
-    using key_type          = KeyT;
-    using value_type        = ValueT;
-    using container_type    = UnderlyingContainerT;
-    using ValueRefOptT      = std::optional<std::reference_wrapper<ValueT>>;
-    using ValueCRefOptT     = std::optional<std::reference_wrapper<const ValueT>>;
-    using ValueOptT         = std::optional<ValueT>;
-    using ValueGenFnT       = std::function<ValueT()>;
-    using ValueUpdateFnT    = std::function<void(ValueT&)>;
-
-    template<typename T>
-    struct IsReferenceWrapper: std::false_type {};
-
-    template<typename T>
-    struct IsReferenceWrapper<std::reference_wrapper<T>> : std::true_type{};
-
-    TAG_SET(GpDictionary)
     TAG_SET(THREAD_SAFE)
+    TAG_SET(GpDictionary)
 
 public:
-                            GpDictionary    (GpDictionary&& aCatalog) noexcept;
-                            GpDictionary    (void) noexcept = default;
-    virtual                 ~GpDictionary   (void) noexcept;
+    using this_type         = GpDictionary<ContainerT>;
+    using container_type    = ContainerT;
+    using key_type          = typename ContainerT::key_type;
+    using mapped_type       = typename ContainerT::mapped_type;
 
-    size_t                  Size            (void) const noexcept;
-    bool                    Empty           (void) const noexcept;
+    template<typename T>
+    using ValueOnGetFnT     = std::function<T(mapped_type&)>;
+    using ValueGenerateFnT  = std::function<mapped_type()>;
 
-    void                    Clear           (void) noexcept;
+public:
+    /**
+     * @brief Default constructor.
+     */
+                                GpDictionary        (void) noexcept;
 
+    /**
+     * @brief Move constructor.
+     * @param aCatalog The dictionary to move.
+     */
+                                GpDictionary        (GpDictionary&& aCatalog) noexcept;
+    /**
+     * @brief Destructor.
+     */
+                                ~GpDictionary       (void) noexcept;
+
+    /**
+     * @brief Get the size of the dictionary.
+     * @return The number of elements in the dictionary.
+     */
+    size_t                      Size                (void) const noexcept;
+
+    /**
+     * @brief Check if the dictionary is empty.
+     * @return True if the dictionary is empty, otherwise false.
+     */
+    bool                        Empty               (void) const noexcept;
+
+    /**
+     * @brief Clear the dictionary.
+     */
+    void                        Clear               (void) noexcept;
+
+    /**
+     * @brief Get the value associated with the given key. Throws exception if not found.
+     * @tparam K The type of the key.
+     * @param aKey The key to look up.
+     * @return The value associated with the key.
+     */
     template<typename K>
-    const ValueT&           Get             (K&& aKey) const;
+    mapped_type                 Get                 (const K&           aKey) const;
 
+    /**
+     * @brief Get the value associated with the given key and apply a function to it. Throws exception if not found.
+     * @tparam K The type of the key.
+     * @tparam R The return type of the function.
+     * @param aKey The key to look up.
+     * @param aOnGetFn The function to apply to the value.
+     * @return The result of the function applied to the value.
+     */
+    template<typename K,
+             typename R>
+    R                           Get                 (const K&           aKey,
+                                                     ValueOnGetFnT<R>   aOnGetFn) const;
+
+    /**
+     * @brief Get the value associated with the given key if it exists.
+     * @tparam K The type of the key.
+     * @param aKey The key to look up.
+     * @return An optional containing the value if it exists, otherwise std::nullopt.
+     */
     template<typename K>
-    ValueT&                 Get             (K&& aKey);
+    std::optional<mapped_type>  GetOpt              (const K&           aKey) const;
 
+    /**
+     * @brief Get the value associated with the given key and apply a function to it if it exists.
+     * @tparam K The type of the key.
+     * @tparam R The return type of the function.
+     * @param aKey The key to look up.
+     * @param aOnGetFn The function to apply to the value.
+     * @return An optional containing the result of the function if the value exists, otherwise std::nullopt.
+     */
+    template<typename K,
+             typename R>
+    std::optional<R>            GetOpt              (const K&           aKey,
+                                                     ValueOnGetFnT<R>   aOnGetFn) const;
+
+    /**
+     * @brief Get the value associated with the given key or generate a new value if it does not exist.
+     * @tparam K The type of the key.
+     * @param aKey The key to look up.
+     * @param aGenerateFn The function to generate a new value if the key does not exist.
+     * @return The value associated with the key.
+     */
     template<typename K>
-    ValueCRefOptT           GetOpt          (K&& aKey) const noexcept;
+    mapped_type                 GetOrGenerateNew    (const K&           aKey,
+                                                     ValueGenerateFnT   aGenerateFn);
 
+    /**
+     * @brief Get the value associated with the given key or generate a new value if it does not exist, and apply a function to it.
+     * @tparam K The type of the key.
+     * @tparam R The return type of the function.
+     * @param aKey The key to look up.
+     * @param aGenerateFn The function to generate a new value if the key does not exist.
+     * @param aOnGetFn The function to apply to the value.
+     * @return The result of the function applied to the value.
+     */
+    template<typename K,
+             typename R>
+    R                           GetOrGenerateNew    (const K&           aKey,
+                                                     ValueGenerateFnT   aGenerateFn,
+                                                     ValueOnGetFnT<R>   aOnGetFn);
+
+    /**
+     * @brief Set or update the value associated with the given key.
+     * @tparam K The type of the key.
+     * @param aKey The key to set or update.
+     * @param aValue The value to set or update.
+     * @return The value associated with the key.
+     */
     template<typename K>
-    ValueRefOptT            GetOpt          (K&& aKey) noexcept;
+    mapped_type                 SetOrUpdate         (const K&           aKey,
+                                                     const mapped_type& aValue);
 
+    /**
+     * @brief Set or update the value associated with the given key.
+     * @tparam K The type of the key.
+     * @param aKey The key to set or update.
+     * @param aValue The value to set or update.
+     * @return The value associated with the key.
+     */
     template<typename K>
-    ValueT                  GetCopy         (K&& aKey) const;
+    mapped_type                 SetOrUpdate         (const K&           aKey,
+                                                     mapped_type&&      aValue);
 
+    /**
+     * @brief Set or update the value associated with the given key using a generate function.
+     * @tparam K The type of the key.
+     * @param aKey The key to set or update.
+     * @param aGenerateFn The function to generate a new value.
+     * @return The value associated with the key.
+     */
     template<typename K>
-    ValueOptT               GetCopyOpt      (K&& aKey) const;
+    mapped_type                 SetOrUpdate         (const K&           aKey,
+                                                     ValueGenerateFnT   aGenerateFn);
 
-    template<typename K, typename V>
-    void                    Set             (K&& aKey,
-                                             V&& aValue);
+    /**
+     * @brief Set or update the value associated with the given key using a generate function and apply a function to it.
+     * @tparam K The type of the key.
+     * @tparam R The return type of the function.
+     * @param aKey The key to set or update.
+     * @param aGenerateFn The function to generate a new value.
+     * @param aOnGetFn The function to apply to the value.
+     * @return The result of the function applied to the value.
+     */
+    template<typename K,
+             typename R>
+    R                           SetOrUpdate         (const K&           aKey,
+                                                     ValueGenerateFnT   aGenerateFn,
+                                                     ValueOnGetFnT<R>   aOnGetFn);
 
-    template<typename K, typename V>
-    [[nodiscard]] bool      TrySet          (K&& aKey,
-                                             V&& aValue);
-
+    /**
+     * @brief Try to set the value associated with the given key if it does not exist.
+     * @tparam K The type of the key.
+     * @param aKey The key to set.
+     * @param aValue The value to set.
+     * @return A tuple containing the value associated with the key and a boolean indicating whether the value was newly inserted.
+     */
     template<typename K>
-    ValueT&                 GetOrSet        (K&&            aKey,
-                                             ValueGenFnT&&  aGenFn);
+    std::tuple<mapped_type, bool>TrySet             (const K&           aKey,
+                                                     const mapped_type& aValue);
 
+    /**
+     * @brief Try to set the value associated with the given key if it does not exist.
+     * @tparam K The type of the key.
+     * @param aKey The key to set.
+     * @param aValue The value to set.
+     * @return A tuple containing the value associated with the key and a boolean indicating whether the value was newly inserted.
+     */
     template<typename K>
-    ValueT&                 SetOrUpdate     (K&&                aKey,
-                                             ValueGenFnT&&      aGenFn,
-                                             ValueUpdateFnT&&   aUpdateFn);
+    std::tuple<mapped_type, bool>TrySet             (const K&           aKey,
+                                                     mapped_type&&      aValue);
 
+    /**
+     * @brief Try to set the value associated with the given key using a generate function if it does not exist.
+     * @tparam K The type of the key.
+     * @param aKey The key to set.
+     * @param aGenerateFn The function to generate a new value.
+     * @return A tuple containing the value associated with the key and a boolean indicating whether the value was newly inserted.
+     */
     template<typename K>
-    ValueT                  Erase           (K&& aKey);
+    std::tuple<mapped_type, bool>TrySet             (const K&           aKey,
+                                                     ValueGenerateFnT   aGenerateFn);
 
+    /**
+     * @brief Try to set the value associated with the given key using a generator function and apply a function to it.
+     * @tparam K The type of the key.
+     * @tparam R The return type of the function.
+     * @param aKey The key to set in the dictionary.
+     * @param aGenerateFn The function to generate the value to associate with the key.
+     * @param aOnGetFn The function to apply to the value.
+     * @return A tuple containing the result of the function applied to the value and a boolean indicating whether the value was set.
+     */
+    template<typename K,
+             typename R>
+    std::tuple<R, bool>         TrySet              (const K&           aKey,
+                                                     ValueGenerateFnT   aGenerateFn,
+                                                     ValueOnGetFnT<R>   aOnGetFn);
+
+    /**
+     * @brief Erase the value associated with the given key. Throws exception if not found.
+     * @tparam K The type of the key.
+     * @param aKey The key to erase in the dictionary.
+     * @return The value that was associated with the key.
+     */
     template<typename K>
-    ValueOptT               EraseOpt        (K&& aKey);
+    mapped_type                 Erase               (const K& aKey);
 
-    this_type               EraseAll        (void) noexcept;
-
-    void                    Process         (std::function<void(container_type&)>&& aFn);
-    void                    Apply           (std::function<void(ValueT&)>&& aFn);
-
+    /**
+     * @brief Erase the value associated with the given key if it exists.
+     * @tparam K The type of the key.
+     * @param aKey The key to erase in the dictionary.
+     * @return An optional containing the value that was associated with the key if it exists, otherwise std::nullopt.
+     */
     template<typename K>
-    void                    ApplyToElement  (const K&                       aKey,
-                                             std::function<void(ValueT&)>&& aOnFoundFn,
-                                             std::function<void()>&&        aOnNotFoundFn);
+    std::optional<mapped_type>  EraseOpt            (const K& aKey);
+
+    /**
+     * @brief Extract all elements from the dictionary.
+     * @return A new dictionary containing all the elements.
+     */
+    this_type                   ExtractAll          (void) noexcept;
+
+    /**
+     * @brief Process the container with a given function.
+     * @param aFn The function to process the container.
+     */
+    void                        ProcessContainer    (std::function<void(ContainerT&)> aFn);
+
+
+    /**
+     * @brief Apply a function to all elements in the dictionary.
+     * @param aFn The function to apply to each element.
+     */
+    void                        ApplyToAll          (std::function<void(mapped_type&)> aFn);
 
 private:
-    mutable GpRWSpinLock    iLock;
-    container_type          iElements;
+    mutable GpSpinLockRW        iSpinLockRW;
+    ContainerT                  iContainer GUARDED_BY(iSpinLockRW);
 };
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-GpDictionary<KeyT, ValueT, UnderlyingContainerT>::GpDictionary (GpDictionary&& aCatalog) noexcept:
-iElements(std::move(aCatalog.iElements))
-{   
+template<typename ContainerT>
+GpDictionary<ContainerT>::GpDictionary (void) noexcept
+{
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-GpDictionary<KeyT, ValueT, UnderlyingContainerT>::~GpDictionary (void) noexcept
+template<typename ContainerT>
+GpDictionary<ContainerT>::GpDictionary (GpDictionary&& aCatalog) noexcept:
+iContainer{std::move(aCatalog.iContainer)}
+{
+}
+
+template<typename ContainerT>
+GpDictionary<ContainerT>::~GpDictionary (void) noexcept
 {
     Clear();
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-size_t  GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Size (void) const noexcept
+template<typename ContainerT>
+size_t  GpDictionary<ContainerT>::Size (void) const noexcept
 {
-    std::shared_lock lock(iLock);
-    return iElements.size();
+    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+
+    return std::size(iContainer);
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-bool    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Empty (void) const noexcept
+template<typename ContainerT>
+bool    GpDictionary<ContainerT>::Empty (void) const noexcept
 {
-    std::shared_lock lock(iLock);
-    return iElements.empty();
+    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+
+    return iContainer.empty();
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Clear (void) noexcept
+template<typename ContainerT>
+void    GpDictionary<ContainerT>::Clear (void) noexcept
 {
-    std::scoped_lock lock(iLock);
-    iElements.clear();
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+    iContainer.clear();
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
+template<typename ContainerT>
 template<typename K>
-const ValueT&   GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Get (K&& aKey) const
+typename GpDictionary<ContainerT>::mapped_type  GpDictionary<ContainerT>::Get (const K& aKey) const
 {
-    return const_cast<this_type&>(*this).Get<K>(aKey);
-}
+    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-template<typename K>
-ValueT& GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Get (K&& aKey)
-{
-    std::shared_lock lock(iLock);
-
-    auto iter = iElements.find(aKey);
+    auto iter = iContainer.find(aKey);
 
     THROW_COND_GP
     (
-        iter != iElements.end(),
-        [&](){return u8"Element not found by key '"_sv + StrOps::SToString(aKey) + u8"'"_sv;}
+        iter != std::end(iContainer),
+        [&]()
+        {
+            return fmt::format
+            (
+                "Element not found by key '{}'",
+                std::to_string(aKey)
+            );
+        }
     );
 
     return iter->second;
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-template<typename K>
-auto    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::GetOpt (K&& aKey) const noexcept -> ValueCRefOptT
-{
-    std::shared_lock lock(iLock);
-
-    auto iter = iElements.find(aKey);
-
-    if (iter != iElements.end())
-    {
-        if constexpr (IsReferenceWrapper<ValueT>::value)
-        {
-            return iter->second;
-        } else
-        {
-            return std::cref(iter->second);
-        }
-    } else
-    {
-        return std::nullopt;
-    }
-}
-
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-template<typename K>
-auto    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::GetOpt (K&& aKey) noexcept -> ValueRefOptT
-{
-    std::shared_lock lock(iLock);
-
-    auto iter = iElements.find(aKey);
-
-    if (iter != iElements.end())
-    {
-        if constexpr (IsReferenceWrapper<ValueT>::value)
-        {
-            return iter->second;
-        } else
-        {
-            return std::ref(iter->second);
-        }
-    } else
-    {
-        return std::nullopt;
-    }
-}
-
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-template<typename K>
-ValueT  GpDictionary<KeyT, ValueT, UnderlyingContainerT>::GetCopy (K&& aKey) const
-{
-    std::shared_lock lock(iLock);
-
-    auto iter = iElements.find(aKey);
-
-    THROW_COND_GP
-    (
-        iter != iElements.end(),
-        [&](){return u8"Element not found by key '"_sv + StrOps::SToString(aKey) + u8"'"_sv;}
-    );
-
-    return ValueT(iter->second);
-}
-
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-template<typename K>
-auto    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::GetCopyOpt (K&& aKey) const -> ValueOptT
-{
-    std::shared_lock lock(iLock);
-
-    auto iter = iElements.find(aKey);
-
-    if (iter != iElements.end())
-    {
-        return ValueT(iter->second);
-    } else
-    {
-        return std::nullopt;
-    }
-}
-
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
+template<typename ContainerT>
 template<typename K,
-         typename V>
-void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Set
+         typename R>
+R   GpDictionary<ContainerT>::Get
 (
-    K&& aKey,
-    V&& aValue
-)
+    const K&            aKey,
+    ValueOnGetFnT<R>    aOnGetFn
+) const
 {
+    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+
+    auto iter = iContainer.find(aKey);
+
     THROW_COND_GP
     (
-        TrySet
-        (
-            std::forward<K>(aKey),
-            std::forward<V>(aValue)
-        ),
-        [&](){return u8"Key '"_sv + StrOps::SToString(aKey) + u8"' is not unique"_sv;}
+        iter != std::end(iContainer),
+        [&]()
+        {
+            return fmt::format
+            (
+                "Element not found by key '{}'",
+                std::to_string(aKey)
+            );
+        }
     );
+
+    return aOnGetFn(iter->second);
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
+template<typename ContainerT>
+template<typename K>
+std::optional<typename GpDictionary<ContainerT>::mapped_type>   GpDictionary<ContainerT>::GetOpt (const K& aKey) const
+{
+    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+
+    auto iter = iContainer.find(aKey);
+
+    if (iter == std::end(iContainer)) [[unlikely]]
+    {
+        return std::nullopt;
+    }
+
+    return iter->second;
+}
+
+template<typename ContainerT>
 template<typename K,
-         typename V>
-bool    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::TrySet
+         typename R>
+std::optional<R>    GpDictionary<ContainerT>::GetOpt
 (
-    K&& aKey,
-    V&& aValue
-)
+    const K&            aKey,
+    ValueOnGetFnT<R>    aOnGetFn
+) const
 {
-    bool isInserted = false;
+    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+
+    auto iter = iContainer.find(aKey);
+
+    if (iter == std::end(iContainer)) [[unlikely]]
     {
-        std::scoped_lock lock(iLock);
-        isInserted = iElements.try_emplace
-        (
-            KeyT(std::forward<K>(aKey)),
-            std::forward<V>(aValue)
-        ).second;
+        return std::nullopt;
     }
 
-    return isInserted;
+    return aOnGetFn(iter->second);
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
+template<typename ContainerT>
 template<typename K>
-ValueT& GpDictionary<KeyT, ValueT, UnderlyingContainerT>::GetOrSet
+typename GpDictionary<ContainerT>::mapped_type  GpDictionary<ContainerT>::GetOrGenerateNew
 (
-    K&&             aKey,
-    ValueGenFnT&&   aGenFn
+    const K&            aKey,
+    ValueGenerateFnT    aGenerateFn
 )
 {
-    //Try find (shared lock)
+    // Try to find (shared lock)
     {
-        std::shared_lock lock(iLock);
-        auto iter = iElements.find(aKey);
-        if (iter != iElements.end())
+        GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+
+        auto iter = iContainer.find(aKey);
+        if (iter != std::end(iContainer))
         {
             return iter->second;
         }
     }
 
-    //Try find or register (scoped lock)
-    {
-        //Try find
-        std::scoped_lock lock(iLock);
-        auto iter = iElements.find(aKey);
-        if (iter != iElements.end())
-        {
-            return iter->second;
-        }
+    // Gen value
+    auto generatedValue = aGenerateFn();
 
-        //Set
-        return iElements.try_emplace
+    // Try to place into cache (unique lock)
+    {
+        GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+        mapped_type& val = iContainer.insert_or_assign
         (
-            KeyT(std::forward<K>(aKey)),
-            aGenFn()
+            key_type{aKey},
+            std::move(generatedValue)
         ).first->second;
+
+        return val;
     }
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-template<typename K>
-ValueT& GpDictionary<KeyT, ValueT, UnderlyingContainerT>::SetOrUpdate
+template<typename ContainerT>
+template<typename K,
+         typename R>
+R   GpDictionary<ContainerT>::GetOrGenerateNew
 (
-    K&&                 aKey,
-    ValueGenFnT&&       aGenFn,
-    ValueUpdateFnT&&    aUpdateFn
+    const K&            aKey,
+    ValueGenerateFnT    aGenerateFn,
+    ValueOnGetFnT<R>    aOnGetFn
 )
 {
-    std::scoped_lock lock(iLock);
-
-    auto iter = iElements.find(aKey);
-
-    if (iter != iElements.end())//Update
+    // Try to find (shared lock)
     {
-        aUpdateFn(iter->second);
-        return iter->second;
-    } else
+        GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+
+        auto iter = iContainer.find(aKey);
+        if (iter != std::end(iContainer))
+        {
+            return aOnGetFn(iter->second);
+        }
+    }
+
+    // Gen value
+    auto generatedValue = aGenerateFn();
+
+    // Try to place into cache (unique lock)
     {
-        return iElements.try_emplace
+        GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+        mapped_type& val = iContainer.insert_or_assign
         (
-            KeyT(std::forward<K>(aKey)),
-            aGenFn()
+            key_type{aKey},
+            std::move(generatedValue)
         ).first->second;
+
+        return aOnGetFn(val);
     }
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
+template<typename ContainerT>
 template<typename K>
-ValueT  GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Erase (K&& aKey)
+typename GpDictionary<ContainerT>::mapped_type  GpDictionary<ContainerT>::SetOrUpdate
+(
+    const K&            aKey,
+    const mapped_type&  aValue
+)
 {
-    std::scoped_lock lock(iLock);
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
-    auto iter = iElements.find(aKey);
+    auto [iter, isPlacedNew] = iContainer.insert_or_assign(key_type{aKey}, aValue);
+
+    return iter->second;
+}
+
+template<typename ContainerT>
+template<typename K>
+typename GpDictionary<ContainerT>::mapped_type  GpDictionary<ContainerT>::SetOrUpdate
+(
+    const K&        aKey,
+    mapped_type&&   aValue
+)
+{
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+    auto [iter, isPlacedNew] = iContainer.insert_or_assign(key_type{aKey}, std::move(aValue));
+
+    return iter->second;
+}
+
+template<typename ContainerT>
+template<typename K>
+typename GpDictionary<ContainerT>::mapped_type  GpDictionary<ContainerT>::SetOrUpdate
+(
+    const K&            aKey,
+    ValueGenerateFnT    aGenerateFn
+)
+{
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+    auto [iter, isPlacedNew] = iContainer.insert_or_assign(key_type{aKey}, aGenerateFn());
+
+    return iter->second;
+}
+
+template<typename ContainerT>
+template<typename K,
+         typename R>
+R   GpDictionary<ContainerT>::SetOrUpdate
+(
+    const K&            aKey,
+    ValueGenerateFnT    aGenerateFn,
+    ValueOnGetFnT<R>    aOnGetFn
+)
+{
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+    auto [iter, isPlacedNew] = iContainer.insert_or_assign(key_type{aKey}, aGenerateFn());
+
+    return aOnGetFn(iter->second);
+}
+
+template<typename ContainerT>
+template<typename K>
+std::tuple<typename GpDictionary<ContainerT>::mapped_type, bool>    GpDictionary<ContainerT>::TrySet
+(
+    const K&            aKey,
+    const mapped_type&  aValue
+)
+{
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+    auto [iter, isPlacedNew] = iContainer.try_emplace(key_type{aKey}, aValue);
+
+    return {iter->second, isPlacedNew};
+}
+
+template<typename ContainerT>
+template<typename K>
+std::tuple<typename GpDictionary<ContainerT>::mapped_type, bool>    GpDictionary<ContainerT>::TrySet
+(
+    const K&        aKey,
+    mapped_type&&   aValue
+)
+{
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+    auto [iter, isPlacedNew] = iContainer.try_emplace(key_type{aKey}, std::move(aValue));
+
+    return {iter->second, isPlacedNew};
+}
+
+template<typename ContainerT>
+template<typename K>
+std::tuple<typename GpDictionary<ContainerT>::mapped_type, bool>    GpDictionary<ContainerT>::TrySet
+(
+    const K&            aKey,
+    ValueGenerateFnT    aGenerateFn
+)
+{
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+    auto [iter, isPlacedNew] = iContainer.try_emplace(key_type{aKey}, aGenerateFn());
+
+    return {iter->second, isPlacedNew};
+}
+
+template<typename ContainerT>
+template<typename K,
+         typename R>
+std::tuple<R, bool> GpDictionary<ContainerT>::TrySet
+(
+    const K&            aKey,
+    ValueGenerateFnT    aGenerateFn,
+    ValueOnGetFnT<R>    aOnGetFn
+)
+{
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+    auto [iter, isPlacedNew] = iContainer.try_emplace(key_type{aKey}, aGenerateFn());
+
+    return {aOnGetFn(iter->second), isPlacedNew};
+}
+
+template<typename ContainerT>
+template<typename K>
+typename GpDictionary<ContainerT>::mapped_type  GpDictionary<ContainerT>::Erase (const K& aKey)
+{
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+    auto iter = iContainer.find(aKey);
 
     THROW_COND_GP
     (
-        iter != iElements.end(),
-        [&](){return u8"Element not found by key '"_sv + StrOps::SToString(aKey) + u8"'"_sv;}
+        iter != std::end(iContainer),
+        [&]()
+        {
+            return fmt::format
+            (
+                "Element not found by key '{}'",
+                std::to_string(aKey)
+            );
+        }
     );
 
-    ValueT val = std::move(iter->second);
-    iElements.erase(iter);
+    mapped_type val = std::move(iter->second);
+    iContainer.erase(iter);
 
     return val;
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
+template<typename ContainerT>
 template<typename K>
-auto    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::EraseOpt (K&& aKey) -> ValueOptT
+std::optional<typename GpDictionary<ContainerT>::mapped_type>   GpDictionary<ContainerT>::EraseOpt (const K& aKey)
 {
-    std::scoped_lock lock(iLock);
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
-    auto iter = iElements.find(aKey);
+    auto iter = iContainer.find(aKey);
 
-    if (iter == iElements.end())
+    if (iter == std::end(iContainer))
     {
         return std::nullopt;
     }
 
-    ValueT val = std::move(iter->second);
-    iElements.erase(iter);
+    mapped_type val = std::move(iter->second);
+    iContainer.erase(iter);
 
     return val;
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-auto    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::EraseAll (void) noexcept -> this_type
+template<typename ContainerT>
+GpDictionary<ContainerT>::this_type GpDictionary<ContainerT>::ExtractAll (void) noexcept
 {
-    std::scoped_lock lock(iLock);
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
     return this_type(std::move(*this));
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Process (std::function<void(container_type&)>&& aFn)
+template<typename ContainerT>
+void    GpDictionary<ContainerT>::ProcessContainer (std::function<void(ContainerT&)> aFn)
 {
-    std::scoped_lock lock(iLock);
-    aFn(iElements);
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+    aFn(iContainer);
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::Apply (std::function<void(ValueT&)>&& aFn)
+template<typename ContainerT>
+void    GpDictionary<ContainerT>::ApplyToAll (std::function<void(mapped_type&)> aFn)
 {
-    std::shared_lock lock(iLock);
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
-    for (auto& e: iElements)
+    for (auto& e: iContainer)
     {
         aFn(e.second);
     }
 }
 
-template<typename KeyT,
-         typename ValueT,
-         typename UnderlyingContainerT>
-template<typename K>
-void    GpDictionary<KeyT, ValueT, UnderlyingContainerT>::ApplyToElement
-(
-    const K&                        aKey,
-    std::function<void(ValueT&)>&&  aOnFoundFn,
-    std::function<void()>&&         aOnNotFoundFn
-)
-{
-    std::shared_lock lock(iLock);
+}// namespace GPlatform
 
-    auto iter = iElements.find(aKey);
-
-    if (iter != iElements.end())
-    {
-        aOnFoundFn(iter->second);
-    } else
-    {
-        aOnNotFoundFn();
-    }
-}
-
-}//GPlatform
-
-#endif//#if defined(GP_USE_CONTAINERS)
+#endif// #if defined(GP_USE_CONTAINERS)

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
+
 #include "../../../Config/GpCompilerFeatures.hpp"
 #include "../../Macro/GpMacroClass.hpp"
 #include "../../Concepts/GpConcepts.hpp"
@@ -8,13 +9,20 @@
 #include "../../Exceptions/GpException.hpp"
 #include "GpNumericTypes.hpp"
 
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <limits>
 #include <stdexcept>
 #include <tuple>
 #include <algorithm>
+#include <type_traits>
 
-namespace GPlatform{
+#if defined(GP_OS_WINDOWS)
+#   define ENABLE_INTSAFE_SIGNED_FUNCTIONS
+#   include <intsafe.h>
+#endif
+
+namespace GPlatform {
 
 class GpNumericOps;
 
@@ -24,8 +32,8 @@ class GpNumericOps
 {
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpNumericOps)
 
-    static_assert (sizeof(int) == sizeof(s_int_32), "sizeof(int) != sizeof (s_int_32)");
-    static_assert (sizeof(long long int) == sizeof(s_int_64), "sizeof(long long int) == sizeof (s_int_64)");
+    static_assert(sizeof(int) == sizeof(s_int_32), "sizeof(int) != sizeof (s_int_32)");
+    static_assert(sizeof(long long int) == sizeof(s_int_64), "sizeof(long long int) == sizeof (s_int_64)");
 
 public:
     [[nodiscard]] inline static
@@ -78,15 +86,24 @@ public:
     template<typename T>
     requires    Concepts::IsIntergal<T>
              || Concepts::IsFloatingPoint<T>
-    [[nodiscard]] static constexpr T SSign (const T aValue) noexcept
-    {
+    [[nodiscard]] static constexpr auto SSign ([[maybe_unused]] const T aValue) noexcept
+    {       
         if (std::is_constant_evaluated())
         {
-            return (T(0) < aValue) - (aValue < T(0));
+            return T(T(0) < aValue) - (aValue < T(0));
         } else
         {
-            return std::copysign(T(1), aValue);
+            if constexpr (std::is_floating_point_v<T>)
+            {
+                return T(std::copysign(T(1), aValue));
+            } else
+            {
+                using ST = std::make_signed_t<T>;
+                return aValue >= T(0) ? ST(1) : ST(-1);
+            }
         }
+
+        return T(0);
     }
 
     template<Concepts::IsIntergal T>
@@ -102,25 +119,25 @@ public:
     }
 
     template<Concepts::IsIntergal T>
-    [[nodiscard]] static consteval T SMin (void) noexcept
+    [[nodiscard]] static constexpr T SMin (void) noexcept
     {
         return std::numeric_limits<T>::min();
     }
 
     template<Concepts::IsIntergal T>
-    [[nodiscard]] static consteval T SMax (void) noexcept
+    [[nodiscard]] static constexpr T SMax (void) noexcept
     {
         return std::numeric_limits<T>::max();
     }
 
     template<Concepts::IsIntergal T>
-    [[nodiscard]] static consteval T SMin (const T aValue) noexcept
+    [[nodiscard]] static constexpr T SMin (const T aValue) noexcept
     {
         return std::numeric_limits<decltype(aValue)>::min();
     }
 
     template<Concepts::IsIntergal T>
-    [[nodiscard]] static consteval T SMax (const T aValue) noexcept
+    [[nodiscard]] static constexpr T SMax (const T aValue) noexcept
     {
         return std::numeric_limits<decltype(aValue)>::max();
     }
@@ -279,14 +296,37 @@ public:
         } else //if constexpr (std::is_integral<T>())
         {
 #if defined(BUILTIN_OVERFLOW_CONSTEXPR)
+#   if defined(GP_COMPILER_CLANG) || defined(GP_COMPILER_GCC)
             T res = a;
 
             if (__builtin_add_overflow(a, b, &res))
             {
-                GpThrowCe<GpException>(u8"Add overflow");
+                GpThrowCe<GpException>("Add overflow");
             }
 
             return res;
+#   elif defined(GP_COMPILER_MSVC)
+            T       res     = {};
+            HRESULT hres    = {};
+
+                 if constexpr(std::is_same_v<u_int_8, T>)   hres = UInt8Add(a, b, &res);
+            else if constexpr(std::is_same_v<s_int_8, T>)   hres = Int8Add(a, b, &res);
+            else if constexpr(std::is_same_v<u_int_16, T>)  hres = UInt16Add(a, b, &res);
+            else if constexpr(std::is_same_v<s_int_16, T>)  hres = Int16Add(a, b, &res);
+            else if constexpr(std::is_same_v<u_int_32, T>)  hres = UInt32Add(a, b, &res);
+            else if constexpr(std::is_same_v<s_int_32, T>)  hres = Int32Add(a, b, &res);
+            else if constexpr(std::is_same_v<u_int_64, T>)  hres = UInt64Add(a, b, &res);
+            else if constexpr(std::is_same_v<s_int_64, T>)  hres = Int64Add(a, b, &res);
+
+            if (hres != S_OK)
+            {
+                GpThrowCe<GpException>("Add overflow");
+            }
+
+            return res;
+#   else
+#       error Unsupported compiler
+#   endif
 #else
             return a + b;
 #endif
@@ -302,14 +342,37 @@ public:
         } else //if constexpr (std::is_integral<T>())
         {
 #if defined(BUILTIN_OVERFLOW_CONSTEXPR)
+#   if defined(GP_COMPILER_CLANG) || defined(GP_COMPILER_GCC)
             T res = a;
 
             if (__builtin_sub_overflow(a, b, &res))
             {
-                GpThrowCe<GpException>(u8"Sub overflow");
+                GpThrowCe<GpException>("Sub overflow");
             }
 
             return res;
+#   elif defined(GP_COMPILER_MSVC)
+            T       res     = {};
+            HRESULT hres    = {};
+
+                 if constexpr(std::is_same_v<u_int_8, T>)   hres = UInt8Sub(a, b, &res);
+            else if constexpr(std::is_same_v<s_int_8, T>)   hres = Int8Sub(a, b, &res);
+            else if constexpr(std::is_same_v<u_int_16, T>)  hres = UInt16Sub(a, b, &res);
+            else if constexpr(std::is_same_v<s_int_16, T>)  hres = Int16Sub(a, b, &res);
+            else if constexpr(std::is_same_v<u_int_32, T>)  hres = UInt32Sub(a, b, &res);
+            else if constexpr(std::is_same_v<s_int_32, T>)  hres = Int32Sub(a, b, &res);
+            else if constexpr(std::is_same_v<u_int_64, T>)  hres = UInt64Sub(a, b, &res);
+            else if constexpr(std::is_same_v<s_int_64, T>)  hres = Int64Sub(a, b, &res);
+
+            if (hres != S_OK)
+            {
+                GpThrowCe<GpException>("Sub overflow");
+            }
+
+            return res;
+#   else
+#       error Unsupported compiler
+#   endif
 #else
             return a - b;
 #endif
@@ -325,14 +388,37 @@ public:
         } else //if constexpr (std::is_integral<T>())
         {
 #if defined(BUILTIN_OVERFLOW_CONSTEXPR)
+#   if defined(GP_COMPILER_CLANG) || defined(GP_COMPILER_GCC)
             T res = a;
 
             if (__builtin_mul_overflow(a, b, &res))
             {
-                GpThrowCe<GpException>(u8"Mul overflow");
+                GpThrowCe<GpException>("Mul overflow");
             }
 
             return res;
+#   elif defined(GP_COMPILER_MSVC)
+            T       res     = {};
+            HRESULT hres    = {};
+
+                 if constexpr(std::is_same_v<u_int_8, T>)   hres = UInt8Mult(a, b, &res);
+            else if constexpr(std::is_same_v<s_int_8, T>)   hres = Int8Mult(a, b, &res);
+            else if constexpr(std::is_same_v<u_int_16, T>)  hres = UInt16Mult(a, b, &res);
+            else if constexpr(std::is_same_v<s_int_16, T>)  hres = Int16Mult(a, b, &res);
+            else if constexpr(std::is_same_v<u_int_32, T>)  hres = UInt32Mult(a, b, &res);
+            else if constexpr(std::is_same_v<s_int_32, T>)  hres = Int32Mult(a, b, &res);
+            else if constexpr(std::is_same_v<u_int_64, T>)  hres = UInt64Mult(a, b, &res);
+            else if constexpr(std::is_same_v<s_int_64, T>)  hres = Int64Mult(a, b, &res);
+
+            if (hres != S_OK)
+            {
+                GpThrowCe<GpException>("Mul overflow");
+            }
+
+            return res;
+#   else
+#       error Unsupported compiler
+#   endif
 #else
             return a * b;
 #endif
@@ -347,7 +433,7 @@ public:
             return a / b;
         } else
         {
-            GpThrowCe<GpException>(u8"Div by zero");
+            GpThrowCe<GpException>("Div by zero");
         }
 
         return 0;
@@ -370,7 +456,7 @@ public:
             }
         } else
         {
-            GpThrowCe<GpException>(u8"Div by zero");
+            GpThrowCe<GpException>("Div by zero");
         }
 
         return 0;
@@ -384,7 +470,7 @@ public:
             return a % b;
         } else
         {
-            GpThrowCe<GpException>(u8"Mod by zero");
+            GpThrowCe<GpException>("Mod by zero");
         }
 
         return 0;
@@ -461,7 +547,7 @@ public:
 
                     if (aValueFrom < FROM(0))
                     {
-                        GpThrowCe<GpException>(u8"GpNumericOps::SConvert out of range (A)");
+                        GpThrowCe<GpException>("GpNumericOps::SConvert out of range (A)");
                     }
 
                     return TO(aValueFrom);
@@ -475,7 +561,7 @@ public:
                     if ((aValueFrom > FROM(GpNumericOps::SMax<TO>())) ||
                         (aValueFrom < FROM(GpNumericOps::SMin<TO>())))
                     {
-                        GpThrowCe<GpException>(u8"GpNumericOps::SConvert out of range (B)");
+                        GpThrowCe<GpException>("GpNumericOps::SConvert out of range (B)");
                     }
 
                     return TO(aValueFrom);
@@ -484,7 +570,7 @@ public:
                     //Check TO upper bound
                     if (aValueFrom > FROM(GpNumericOps::SMax<TO>()))
                     {
-                        GpThrowCe<GpException>(u8"GpNumericOps::SConvert out of range (C)");
+                        GpThrowCe<GpException>("GpNumericOps::SConvert out of range (C)");
                     }
 
                     return TO(aValueFrom);
@@ -501,7 +587,7 @@ public:
             if ((aValueFrom > FROM(GpNumericOps::SMax<TO>())) ||
                 (aValueFrom < FROM(GpNumericOps::SMin<TO>())))
             {
-                GpThrowCe<GpException>(u8"GpNumericOps::SConvert out of range (B)");
+                GpThrowCe<GpException>("GpNumericOps::SConvert out of range (B)");
             }
 
             return TO(aValueFrom);
@@ -661,4 +747,4 @@ constexpr double    GpNumericOps::_SNewtonSqrtDouble
     }
 }
 
-}//GPlatform
+}// namespace GPlatform

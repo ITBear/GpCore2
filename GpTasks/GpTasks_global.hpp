@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpUtils/Macro/GpMacroImportExport.hpp"
+#include <GpCore2/GpUtils/Macro/GpMacroImportExport.hpp>
 #include <cstddef>
 
 #if defined(GP_TASKS_LIBRARY)
@@ -9,7 +9,7 @@
     #define GP_TASKS_API GP_DECL_IMPORT
 #endif
 
-#include "../GpUtils/Types/Numerics/GpNumericTypes.hpp"
+#include <GpCore2/GpUtils/Types/Numerics/GpNumericTypes.hpp>
 
 namespace GPlatform {
 
@@ -22,4 +22,4 @@ public:
     static constexpr size_t SMaxCoresCount  (void) noexcept {return sizeof(bistset_type)*8;}
 };
 
-}//namespace GPlatform
+}// namespace GPlatform

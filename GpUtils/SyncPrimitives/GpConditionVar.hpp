@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_SYNC_PRIMITIVES)
 
@@ -91,7 +91,7 @@ void    GpConditionVar::Wait
     CheckFnT aCheckFn
 )
 {
-    GpUniqueLock<GpMutex> uniqueLock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
     iCV.wait
     (
@@ -107,7 +107,7 @@ std::optional<T>    GpConditionVar::Wait
     ConditionMetFnT<T>  aConditionMetFn
 )
 {   
-    GpUniqueLock<GpMutex> uniqueLock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
     iCV.wait
     (
@@ -127,7 +127,7 @@ std::optional<T>    GpConditionVar::Wait
     ConditionMetFnT<T>  aConditionMetFn
 )
 {
-    GpUniqueLock<GpMutex> uniqueLock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
     GpRAIIonDestruct callOnDestruct
     (
@@ -154,7 +154,7 @@ bool    GpConditionVar::WaitFor
     const milliseconds_t    aTimeout
 )
 {
-    GpUniqueLock<GpMutex> uniqueLock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
     const bool checkFnRes = iCV.wait_for
     (
@@ -174,7 +174,7 @@ std::optional<T>    GpConditionVar::WaitFor
     const milliseconds_t    aTimeout
 )
 {
-    GpUniqueLock<GpMutex> uniqueLock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
     const bool checkFnRes = iCV.wait_for
     (
@@ -202,7 +202,7 @@ std::optional<T>    GpConditionVar::WaitFor
     const milliseconds_t    aTimeout
 )
 {
-    GpUniqueLock<GpMutex> uniqueLock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
     GpRAIIonDestruct callOnDestruct
     (
@@ -229,6 +229,6 @@ std::optional<T>    GpConditionVar::WaitFor
     return aConditionNotMetFn();
 }
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_SYNC_PRIMITIVES)
+#endif// #if defined(GP_USE_SYNC_PRIMITIVES)

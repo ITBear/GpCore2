@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_RANDOM_GENERATORS)
 
@@ -33,7 +33,7 @@ public:
     }
 };
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_RANDOM_GENERATORS)
+#endif// #if defined(GP_USE_RANDOM_GENERATORS)
 

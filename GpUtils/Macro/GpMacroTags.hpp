@@ -17,4 +17,4 @@ constexpr bool GpHasTag_##TAG_NAME (void) \
     return __gp_has_tag__##TAG_NAME##__<T>::value; \
 }
 
-}//namespace GPlatform
+}// namespace GPlatform

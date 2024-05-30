@@ -25,10 +25,10 @@ GpBitWriterStorageByteArray::GpBitWriterStorageByteArray
     GpBytesArray&       aOut,
     const size_bit_t    aOffset
 ) noexcept:
-GpBitWriterStorage(GpSpanPtrByteRW(aOut.data(), aOut.size()), aOffset),
+GpBitWriterStorage(GpSpanByteRW(std::data(aOut), std::size(aOut)), aOffset),
 iOut(aOut)
 {
 }
 
-}//GPlatform
+}// namespace GPlatform
 */

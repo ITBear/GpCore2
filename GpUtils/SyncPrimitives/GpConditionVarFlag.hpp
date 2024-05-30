@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_SYNC_PRIMITIVES)
 
@@ -32,7 +32,7 @@ private:
 
 void    GpConditionVarFlag::NotifyOne (void) noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
 
     iFlag = true;
 
@@ -41,7 +41,7 @@ void    GpConditionVarFlag::NotifyOne (void) noexcept
 
 void    GpConditionVarFlag::NotifyAll (void) noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock(iCV.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
 
     iFlag = true;
 
@@ -72,6 +72,6 @@ bool    GpConditionVarFlag::WaitForAndReset (const milliseconds_t aTimeout) noex
     ).value();
 }
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_SYNC_PRIMITIVES)
+#endif// #if defined(GP_USE_SYNC_PRIMITIVES)

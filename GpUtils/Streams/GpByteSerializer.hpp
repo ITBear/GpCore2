@@ -22,4 +22,4 @@ public:
                                                  GpByteWriter&  aWriter) const = 0;
 };
 
-}//namespace GPlatform
+}// namespace GPlatform

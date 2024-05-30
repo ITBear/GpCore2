@@ -32,12 +32,12 @@ ContainerRes    Split
 
     ContainerRes res;
 
-    if (aElements.IsEmpty())
+    if (aElements.Empty())
     {
         return res;
     }
 
-    if (aDelim.IsEmpty())
+    if (aDelim.Empty())
     {
         res.emplace_back(aElements.Ptr(), aElements.Count());
         return res;
@@ -45,7 +45,7 @@ ContainerRes    Split
 
     while (aElements.Count() >= delimLength)
     {
-        if (MemOps::SCompare(aElements.Ptr(), aDelim.Ptr(), delimLength) != 0)
+        if (!MemOps::SIsEqual(aElements.Ptr(), delimLength, aDelim.Ptr(), delimLength))
         {
             aElements++;
             partLength++;
@@ -59,7 +59,7 @@ ContainerRes    Split
             res.emplace_back(partPtr, partLength);
 
             if (   (aReturnPartsCountLimit > 0)
-                && (res.size() >= aReturnPartsCountLimit))
+                && (std::size(res) >= aReturnPartsCountLimit))
             {
                 return res;
             }
@@ -87,4 +87,4 @@ ContainerRes    Split
     return res;
 }
 
-}//namespace GPlatform::Algo
+}// namespace GPlatform::Algo

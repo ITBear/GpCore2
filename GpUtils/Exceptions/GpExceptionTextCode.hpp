@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_EXCEPTIONS)
 
@@ -12,22 +12,22 @@ namespace GPlatform {
 class GP_UTILS_API GpExceptionTextCode: public GpException
 {
 private:
-                                GpExceptionTextCode     (void) noexcept = delete;
+                            GpExceptionTextCode     (void) noexcept = delete;
 
 public:
-    inline explicit             GpExceptionTextCode     (const GpExceptionTextCode& aException);
-    inline explicit             GpExceptionTextCode     (GpExceptionTextCode&& aException);
-    inline explicit             GpExceptionTextCode     (std::u8string_view     aMsg,
-                                                         std::u8string          aCode,
-                                                         const SourceLocationT& aSourceLocation) noexcept;
+    inline explicit         GpExceptionTextCode     (const GpExceptionTextCode& aException);
+    inline explicit         GpExceptionTextCode     (GpExceptionTextCode&& aException);
+    inline explicit         GpExceptionTextCode     (std::string_view       aMsg,
+                                                     std::string            aCode,
+                                                     const SourceLocationT& aSourceLocation) noexcept;
 
 public:
-    virtual                     ~GpExceptionTextCode    (void) noexcept override;
+    virtual                 ~GpExceptionTextCode    (void) noexcept override;
 
-    std::u8string_view          Code                    (void) const noexcept {return iCode;}
+    std::string_view        Code                    (void) const noexcept {return iCode;}
 
 private:
-    std::u8string               iCode;
+    std::string             iCode;
 };
 
 GpExceptionTextCode::GpExceptionTextCode (const GpExceptionTextCode& aException):
@@ -44,8 +44,8 @@ iCode(std::move(aException.iCode))
 
 GpExceptionTextCode::GpExceptionTextCode
 (
-    std::u8string_view      aMsg,
-    std::u8string           aCode,
+    std::string_view        aMsg,
+    std::string             aCode,
     const SourceLocationT&  aSourceLocation
 ) noexcept:
 GpException(aMsg, aSourceLocation),
@@ -55,8 +55,8 @@ iCode(std::move(aCode))
 
 [[noreturn]] inline void    THROW_TEXT_CODE_GP
 (
-    std::u8string_view      aMsg,
-    std::u8string           aCode,
+    std::string_view        aMsg,
+    std::string             aCode,
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
 )
 {
@@ -66,8 +66,8 @@ iCode(std::move(aCode))
 inline void THROW_COND_TEXT_CODE_GP
 (
     const bool              aCondition,
-    std::u8string_view      aMsg,
-    std::u8string           aCode,
+    std::string_view        aMsg,
+    std::string             aCode,
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
 )
 {
@@ -79,10 +79,10 @@ inline void THROW_COND_TEXT_CODE_GP
 
 inline void THROW_COND_TEXT_CODE_GP
 (
-    const bool                          aCondition,
-    std::function<std::u8string()>&&    aMsgGenFn,
-    std::u8string                       aCode,
-    const SourceLocationT&              aSourceLocation = SourceLocationT::current()
+    const bool                      aCondition,
+    std::function<std::string()>&&  aMsgGenFn,
+    std::string                     aCode,
+    const SourceLocationT&          aSourceLocation = SourceLocationT::current()
 )
 {
     if (!aCondition) [[unlikely]]
@@ -91,6 +91,6 @@ inline void THROW_COND_TEXT_CODE_GP
     }
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_EXCEPTIONS)
+#endif// #if defined(GP_USE_EXCEPTIONS)

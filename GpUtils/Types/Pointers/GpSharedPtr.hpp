@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_SHARED_POINTERS)
 
@@ -57,7 +57,7 @@ concept Castable = requires()
    && !(FROM::SIsConst() && !TO::SIsConst());
 };
 
-}//namespace Concepts::SharedPtr
+}// namespace Concepts::SharedPtr
 
 template <typename  T,
           bool      _IsWeak>
@@ -143,7 +143,7 @@ public:
         THROW_COND_GP
         (
             iRefCounter != nullptr,
-            u8"Shared pointer is empty"_sv
+            "Shared pointer is empty"_sv
         );
 
         T* ptr = Pn();
@@ -151,7 +151,7 @@ public:
         THROW_COND_GP
         (
             ptr != nullptr,
-            u8"Shared pointer value is null"_sv
+            "Shared pointer value is null"_sv
         );
 
         return ptr;
@@ -398,7 +398,7 @@ template<typename T, typename... Ts>
     return GpCSP<T>::SNew(std::forward<Ts>(aArgs)...);
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
 //********************** Hash *********************
 namespace std {
@@ -412,6 +412,6 @@ struct hash<GPlatform::GpSharedPtrBase<T, _IsWeak>>
     }
 };
 
-}//std
+}// namespace std
 
-#endif//#if defined(GP_USE_SHARED_POINTERS)
+#endif// #if defined(GP_USE_SHARED_POINTERS)

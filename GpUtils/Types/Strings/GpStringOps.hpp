@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_STRINGS)
 
@@ -11,14 +11,9 @@
 #include <thread>
 #include <set>
 
-#include "../../GpUtils_global.hpp"
 #include "../../Macro/GpMacroClass.hpp"
 #include "../../Algorithms/GpSplit.hpp"
 #include "../Containers/GpBytesArray.hpp"
-#include "../Enums/GpEnum.hpp"
-#include "../UIDs/GpUUID.hpp"
-#include "../Numerics/GpNumericOps.hpp"
-#include "GpUTF.hpp"
 
 namespace GPlatform {
 
@@ -27,18 +22,6 @@ class GP_UTILS_API GpStringOps
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpStringOps)
 
 public:
-    static std::vector<std::u8string_view>  SSplit          (std::u8string_view     aSourceStr,
-                                                             const char8_t          aDelim,
-                                                             const size_t           aReturnPartsCountLimit,
-                                                             const size_t           aDelimCountLimit,
-                                                             const Algo::SplitMode  aSplitMode);
-
-    static std::vector<std::u8string_view>  SSplit          (std::u8string_view     aSourceStr,
-                                                             std::u8string_view     aDelim,
-                                                             const size_t           aReturnPartsCountLimit,
-                                                             const size_t           aDelimCountLimit,
-                                                             const Algo::SplitMode  aSplitMode);
-
     static std::vector<std::string_view>    SSplit          (std::string_view       aSourceStr,
                                                              const char             aDelim,
                                                              const size_t           aReturnPartsCountLimit,
@@ -51,130 +34,81 @@ public:
                                                              const size_t           aDelimCountLimit,
                                                              const Algo::SplitMode  aSplitMode);
 
-    static inline std::u8string_view        SFromChar       (const char8_t* aStrPtr);
     static inline std::string_view          SFromChar       (const char* aStrPtr);
 
-    static inline std::u8string             STrimLeft       (std::u8string_view aStr,
-                                                             const char8_t      aChar);
     static inline std::string               STrimLeft       (std::string_view   aStr,
                                                              const char         aChar);
-    static inline std::u8string             STrimRight      (std::u8string_view aStr,
-                                                             const char8_t      aChar);
     static inline std::string               STrimRight      (std::string_view   aStr,
                                                              const char         aChar);
 
-    //-------------------------------- Compare ----------------------------------
+    // -------------------------------- Compare ----------------------------------
     static bool                             SIsEqualCaseInsensitive8bit
-                                                            (std::u8string_view aStr1,
-                                                             std::u8string_view aStr2) noexcept;
+                                                            (std::string_view   aStr1,
+                                                             std::string_view   aStr2) noexcept;
 
-    //------------------------- Numeric from/to string --------------------------
-    static size_t                           SFromUI64       (const u_int_64     aValue,
-                                                             GpSpanPtrCharU8RW  aStrOut);
-    static std::u8string                    SFromUI64       (const u_int_64     aValue);
+    // ------------------------- Numeric from/to string --------------------------
+    static size_t                           SFromUI64       (const u_int_64 aValue,
+                                                             GpSpanCharRW   aStrOut);
+    static std::string                      SFromUI64       (const u_int_64 aValue);
 
-    static size_t                           SFromSI64       (const s_int_64     aValue,
-                                                             GpSpanPtrCharU8RW  aStrOut);
-    static std::u8string                    SFromSI64       (const s_int_64     aValue);
+    static size_t                           SFromSI64       (const s_int_64 aValue,
+                                                             GpSpanCharRW   aStrOut);
+    static std::string                      SFromSI64       (const s_int_64 aValue);
 
-    static size_t                           SFromDouble     (const double       aValue,
-                                                             GpSpanPtrCharU8RW  aStrOut);
-    static std::u8string                    SFromDouble     (const double aValue);
+    static size_t                           SFromDouble     (const double   aValue,
+                                                             GpSpanCharRW   aStrOut);
+    static std::string                      SFromDouble     (const double aValue);
 
-    static u_int_64                         SToUI64         (std::u8string_view                             aStr,
+    static u_int_64                         SToUI64         (std::string_view                               aStr,
                                                              std::optional<std::reference_wrapper<size_t>>  aReadCountOut = std::nullopt);
-    static s_int_64                         SToSI64         (std::u8string_view                             aStr,
-                                                             std::optional<std::reference_wrapper<size_t>>  aReadCountOut = std::nullopt);
-
-    //Supported format: [+-][UInt64][.[UInt64]]
-    static double                           SToDouble       (std::u8string_view                             aStr,
+    static s_int_64                         SToSI64         (std::string_view                               aStr,
                                                              std::optional<std::reference_wrapper<size_t>>  aReadCountOut = std::nullopt);
 
-    //[+-][UInt64][.[UInt64]] - DOUBLE
-    //[+-]digits - INT
-    static std::variant<s_int_64, double>   SToNumeric      (std::u8string_view                             aStr,
+    // Supported format: [+-][UInt64][.[UInt64]]
+    static double                           SToDouble       (std::string_view                               aStr,
                                                              std::optional<std::reference_wrapper<size_t>>  aReadCountOut = std::nullopt);
 
-    //------------------------- Bytes from/to string --------------------------
-    static size_t                           SFromBytesHex   (GpSpanPtrByteR     aData,
-                                                             GpSpanPtrCharU8RW  aStrOut);
-    static std::u8string                    SFromBytesHex   (GpSpanPtrByteR     aData);
-    static inline std::array<char8_t, 2>    SFromByteHex    (const u_int_8  aData) noexcept;
+    // [+-][UInt64][.[UInt64]] - DOUBLE
+    // [+-]digits - INT
+    static std::variant<s_int_64, double>   SToNumeric      (std::string_view                               aStr,
+                                                             std::optional<std::reference_wrapper<size_t>>  aReadCountOut = std::nullopt);
 
-    static size_byte_t                      SToBytesHex     (std::u8string_view aStr,
-                                                             GpSpanPtrByteRW    aDataOut);
-    static GpBytesArray                     SToBytesHex     (std::u8string_view aStr);
-    static constexpr u_int_8                SToByteHex      (std::array<char8_t, 2> aStr);
+    // ------------------------- Bytes from/to string --------------------------
+    static size_t                           SFromBytesHex   (GpSpanByteR    aData,
+                                                             GpSpanCharRW   aStrOut);
+    static std::string                      SFromBytesHex   (GpSpanByteR    aData);
+    static inline std::array<char, 2>       SFromByteHex    (const u_int_8  aData) noexcept;
 
-    static std::u8string                    SFromBits       (GpSpanPtrByteR     aData);
+    static size_t                           SToBytesHex     (std::string_view   aStr,
+                                                             GpSpanByteRW       aDataOut);
+    static GpBytesArray                     SToBytesHex     (std::string_view   aStr);
+    static constexpr u_int_8                SToByteHex      (std::array<char, 2>aStr);
 
-    //------------------------- Encode --------------------------
-    static std::u8string                    PercentEncode   (std::u8string_view aSrc);
+    // ------------------------- Encode --------------------------
+    static std::string                      SPercentEncode  (std::string_view aSrc);
 
-    //------------------------- Auto to string -----------------------------
-    static std::u8string_view               SToString       (const std::u8string& aValue) {return aValue;}
-    static std::u8string_view               SToString       (std::u8string_view aValue) {return aValue;}
-    static std::string_view                 SToString       (const std::string& aValue) {return aValue;}
-    static std::string_view                 SToString       (std::string_view aValue) {return aValue;}
-    static std::u8string                    SToString       (const GpBytesArray& aValue) {return SFromBytesHex(GpSpanPtrByteR(aValue.data(), aValue.size()));}
-    static std::u8string_view               SToString       (const GpEnum& aValue) {return aValue.ToString();}
-    static std::u8string                    SToString       (const GpUUID& aValue) {return aValue.ToString();}
-    static std::u8string                    SToString       (float aValue) {return SFromDouble(double(aValue));}
-    static std::u8string                    SToString       (double aValue) {return SFromDouble(aValue);}
-    static std::u8string                    SToString       (const std::thread::id aThreadId);
-    static std::u8string                    SToString       (const void* aPtr);
-    static std::u8string_view               SToString       (const bool aValue) noexcept {return aValue ? u8"true"_sv : u8"false"_sv;}
-
-    template<Concepts::IsIntergal T>
-    static std::u8string                    SToString       (T aValue)
-    {
-        if constexpr (std::is_signed_v<T>)
-        {
-            return SFromSI64(NumOps::SConvert<s_int_64>(aValue));
-        } else
-        {
-            return SFromUI64(NumOps::SConvert<u_int_64>(aValue));
-        }
-    }
-
-    template<Concepts::Unit::IsUnit T>
-    static std::u8string                    SToString       (T aValue)
-    {
-        return SToString<typename T::value_type>(aValue.Value());
-    }
+    // -----------------------------------------------------------
+    template<typename E,
+             typename T>
+    static std::string                      SJoin           (const T&           aArray,
+                                                             std::string_view   aSeparator);
 
     template<typename E,
              typename T>
-    static std::u8string                    SJoin           (const T&           aArray,
-                                                             std::u8string_view aSeparator);
-
-    template<typename E,
-             typename T>
-    static std::u8string                    SJoin           (const T&                                       aArray,
+    static std::string                      SJoin           (const T&                                       aArray,
                                                              std::function<E(typename T::const_iterator&)>  aGetterFn,
-                                                             std::u8string_view                             aSeparator);
+                                                             std::string_view                               aSeparator);
 
     static constexpr size_t                 SCharsCount     (std::string_view   aStr,
-                                                             const char8_t      aChar) noexcept;
+                                                             const char         aChar) noexcept;
 
 private:
-    static void                             _SFromUI64      (const u_int_64     aValue,
-                                                             GpSpanPtrCharU8RW  aStrOut);
+    static void                             _SFromUI64      (const u_int_64 aValue,
+                                                             GpSpanCharRW   aStrOut);
 
 private:
     static const std::array<char, 201>&     SDigits         (void) noexcept;
 };
-
-std::u8string_view  GpStringOps::SFromChar (const char8_t* aStrPtr)
-{
-    if (aStrPtr != nullptr)
-    {
-        return std::u8string_view(aStrPtr);
-    } else
-    {
-        return std::u8string_view();
-    }
-}
 
 std::string_view    GpStringOps::SFromChar (const char* aStrPtr)
 {
@@ -185,22 +119,6 @@ std::string_view    GpStringOps::SFromChar (const char* aStrPtr)
     {
         return std::string_view();
     }
-}
-
-std::u8string   GpStringOps::STrimLeft
-(
-    std::u8string_view  aStr,
-    const char8_t       aChar
-)
-{
-    const size_t id = aStr.find_first_not_of(aChar);
-
-    if (id != std::u8string::npos)
-    {
-        return std::u8string(aStr.substr(id));
-    }
-
-    return std::u8string();
 }
 
 std::string GpStringOps::STrimLeft
@@ -219,22 +137,6 @@ std::string GpStringOps::STrimLeft
     return std::string();
 }
 
-std::u8string   GpStringOps::STrimRight
-(
-    std::u8string_view  aStr,
-    const char8_t       aChar
-)
-{
-    size_t id = aStr.find_last_not_of(aChar);
-
-    if (id != std::u8string::npos)
-    {
-        return  std::u8string(aStr.substr(0, id + 1));
-    }
-
-    return std::u8string();
-}
-
 std::string GpStringOps::STrimRight
 (
     std::string_view    aStr,
@@ -251,40 +153,40 @@ std::string GpStringOps::STrimRight
     return std::string();
 }
 
-std::array<char8_t, 2>  GpStringOps::SFromByteHex (const u_int_8 aData) noexcept
+std::array<char, 2> GpStringOps::SFromByteHex (const u_int_8 aData) noexcept
 {
-    constexpr std::array<char8_t, 16>   hexToChar =
+    constexpr std::array<char, 16>  hexToChar =
     {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
 
-    return {hexToChar.data()[(size_t(aData) & size_t(0xF0)) >> 4],
-            hexToChar.data()[(size_t(aData) & size_t(0x0F)) >> 0]};
+    return {std::data(hexToChar)[(size_t{aData} & size_t{0xF0}) >> 4],
+            std::data(hexToChar)[(size_t{aData} & size_t{0x0F}) >> 0]};
 }
 
-constexpr u_int_8   GpStringOps::SToByteHex (std::array<char8_t, 2> aStr)
+constexpr u_int_8   GpStringOps::SToByteHex (std::array<char, 2> aStr)
 {
-    //--------------------------
-    char8_t ch      = aStr.data()[0];
+    // --------------------------
+    char    ch      = std::data(aStr)[0];
     size_t  valHi   = 0;
     size_t  valLo   = 0;
     size_t  beginCh = 0;
     size_t  shift   = 0;
 
-    if ((ch >= '0') && (ch <= '9'))     {beginCh = size_t('0'); shift = 0;}
-    else if ((ch >= 'A') && (ch <= 'Z')){beginCh = size_t('A'); shift = 10;}
-    else if ((ch >= 'a') && (ch <= 'z')){beginCh = size_t('a'); shift = 10;}
-    else GpThrowCe<GpException>(u8"Wrong HEX character");
+    if ((ch >= '0') && (ch <= '9'))     {beginCh = size_t{'0'}; shift = 0;}
+    else if ((ch >= 'A') && (ch <= 'Z')){beginCh = size_t{'A'}; shift = 10;}
+    else if ((ch >= 'a') && (ch <= 'z')){beginCh = size_t{'a'}; shift = 10;}
+    else GpThrowCe<GpException>("Wrong HEX character");
 
     valHi = u_int_8(size_t(ch) - beginCh + shift);
 
-    //--------------------------
-    ch = aStr.data()[1];
+    // --------------------------
+    ch = std::data(aStr)[1];
 
-    if ((ch >= '0') && (ch <= '9'))     {beginCh = size_t('0'); shift = 0;}
-    else if ((ch >= 'A') && (ch <= 'Z')){beginCh = size_t('A'); shift = 10;}
-    else if ((ch >= 'a') && (ch <= 'z')){beginCh = size_t('a'); shift = 10;}
-    else GpThrowCe<GpException>(u8"Wrong HEX character");
+    if ((ch >= '0') && (ch <= '9'))     {beginCh = size_t{'0'}; shift = 0;}
+    else if ((ch >= 'A') && (ch <= 'Z')){beginCh = size_t{'A'}; shift = 10;}
+    else if ((ch >= 'a') && (ch <= 'z')){beginCh = size_t{'a'}; shift = 10;}
+    else GpThrowCe<GpException>("Wrong HEX character");
 
     valLo = u_int_8(size_t(ch) - beginCh + shift);
 
@@ -293,10 +195,10 @@ constexpr u_int_8   GpStringOps::SToByteHex (std::array<char8_t, 2> aStr)
 
 template<typename E,
          typename T>
-std::u8string   GpStringOps::SJoin
+std::string GpStringOps::SJoin
 (
     const T&            aArray,
-    std::u8string_view  aSeparator
+    std::string_view    aSeparator
 )
 {
     return SJoin<E, T>
@@ -309,19 +211,19 @@ std::u8string   GpStringOps::SJoin
 
 template<typename E,
          typename T>
-std::u8string   GpStringOps::SJoin
+std::string GpStringOps::SJoin
 (
     const T&                                        aArray,
     std::function<E(typename T::const_iterator&)>   aGetterFn,
-    std::u8string_view                              aSeparator
+    std::string_view                                aSeparator
 )
 {
-    const size_t elementsCount = aArray.size();
-    std::u8string res;
+    const size_t elementsCount = std::size(aArray);
+    std::string res;
     res.reserve(elementsCount * 16);
 
     bool isFirst = true;
-    for (typename T::const_iterator iter = aArray.begin(); iter != aArray.end(); ++iter)
+    for (typename T::const_iterator iter = std::begin(aArray); iter != std::end(aArray); ++iter)
     {
         if (!isFirst)
         {
@@ -340,12 +242,12 @@ std::u8string   GpStringOps::SJoin
 constexpr size_t    GpStringOps::SCharsCount
 (
     std::string_view    aStr,
-    const char8_t       aChar
+    const char          aChar
 ) noexcept
 {
     size_t          count       = 0;
-    const char* _R_ data        = aStr.data();
-    const size_t    countLeft   = aStr.size();
+    const char* _R_ data        = std::data(aStr);
+    const size_t    countLeft   = std::size(aStr);
 
     for (size_t id = 0; id < countLeft; ++id)
     {
@@ -360,272 +262,146 @@ constexpr size_t    GpStringOps::SCharsCount
 
 using StrOps = GpStringOps;
 
-}//GPlatform
+}// namespace GPlatform
 
-//*********************************************************
+// *********************************************************
 
 namespace std {
 
-inline string to_string(string_view aStrView)
+inline ::std::string to_string(::std::string_view aStrView)
 {
-    return string(aStrView);
+    return ::std::string(aStrView);
 }
 
-//------------------ char ------------------------
-//TODO: make all pairs and combinations
-
-inline std::string operator+
-(
-    const std::string&  aLeft,
-    std::string_view    aRight
-)
+inline ::std::string to_string(::std::string aStrView)
 {
-    std::string res;
-    res.reserve(aLeft.length() + aRight.length());
-    res.append(aLeft.data(), aLeft.length());
-    res.append(aRight.data(), aRight.length());
-
-    return res;
+    return ::std::string(std::move(aStrView));
 }
 
-inline std::string operator+
-(
-    const std::string&  aLeft,
-    const char*         aRight
-)
+inline ::std::string to_string(const void* aPtr)
 {
-    return aLeft + std::string_view(aRight);
-}
-
-inline std::string operator+
-(
-    std::string_view aLeft,
-    std::string_view aRight
-)
-{
-    std::string res;
-    res.reserve(aLeft.length() + aRight.length());
-    res.append(aLeft.data(), aLeft.length());
-    res.append(aRight.data(), aRight.length());
-
-    return res;
-}
-
-inline std::string operator+
-(
-    std::string_view    aLeft,
-    const std::string&  aRight
-)
-{
-    std::string res;
-    res.reserve(aLeft.length() + aRight.length());
-    res.append(aLeft.data(), aLeft.length());
-    res.append(aRight.data(), aRight.length());
-
-    return res;
-}
-
-inline std::string operator+
-(
-    std::string_view    aLeft,
-    const char*         aRight
-)
-{
-    std::string_view right(aRight);
-
-    std::string res;
-    res.reserve(aLeft.length() + right.length());
-    res.append(aLeft.data(), aLeft.length());
-    res.append(right.data(), right.length());
-
-    return res;
-}
-
-inline std::string operator+
-(
-    std::string_view    aLeft,
-    const char          aRight
-)
-{
-    std::string res;
-    res.reserve(aLeft.length() + 1);
-    res.append(aLeft.data(), aLeft.length());
-    res += aRight;
-
-    return res;
+    std::array<std::byte, sizeof(void*)> ptrData;
+    std::memcpy(std::data(ptrData), &aPtr, sizeof(void*));
+    return ::GPlatform::StrOps::SFromBytesHex(ptrData);
 }
 
 template<::GPlatform::Concepts::IsIntergal T>
-inline std::string operator+
+::std::string   to_string (const T aValue)
+{
+    if constexpr (std::is_signed_v<T>)
+    {
+        return ::GPlatform::GpStringOps::SFromSI64(::GPlatform::NumOps::SConvert<s_int_64>(aValue));
+    } else
+    {
+        return ::GPlatform::GpStringOps::SFromUI64(::GPlatform::NumOps::SConvert<u_int_64>(aValue));
+    }
+}
+
+template<::GPlatform::Concepts::IsFloatingPoint T>
+::std::string   to_string (const T aValue)
+{
+    return ::GPlatform::GpStringOps::SFromDouble(double{aValue});
+}
+
+inline ::std::string    to_string (const ::std::thread::id aThreadId)
+{
+    using integralT = std::conditional_t
+    <
+        sizeof(::std::thread::id) == sizeof(u_int_32),
+        u_int_32,
+        u_int_64
+    >;
+
+    const integralT val = ::std::bit_cast<integralT>(aThreadId);
+
+    return ::std::to_string(val);
+}
+
+inline ::std::string_view   to_string (const bool aValue) noexcept
+{
+    return aValue ? "true"_sv : "false"_sv;
+}
+
+inline ::std::string    to_string (const ::GPlatform::GpBytesArray& aValue)
+{
+    return ::GPlatform::StrOps::SFromBytesHex(aValue);
+}
+
+// --------------------------------- operator+ ---------------------------------
+
+template<::GPlatform::Concepts::IsIntergal T>
+inline ::std::string operator+
 (
-    std::string_view    aLeft,
+    ::std::string_view  aLeft,
     T                   aRight
 )
 {
-    const std::string value(::GPlatform::GpStringOps::SToString(aRight));
+    const ::std::string value(::std::to_string(aRight));
 
-    std::string res;
+    ::std::string res;
     res.reserve(aLeft.length() + value.length());
-    res.append(aLeft.data(), aLeft.length());
-    res.append(value.data(), value.length());
+    res.append(std::data(aLeft), aLeft.length());
+    res.append(std::data(value), value.length());
 
     return res;
 }
 
-//------------------ char8_t ---------------------
-//TODO: make all pairs and combinations
-
-inline std::u8string operator+
+inline ::std::string operator+
 (
-    const std::u8string&    aLeft,
-    std::u8string_view      aRight
+    ::std::string_view  aLeft,
+    ::std::string_view  aRight
 )
 {
-    std::u8string res;
+    ::std::string res;
     res.reserve(aLeft.length() + aRight.length());
-    res.append(aLeft.data(), aLeft.length());
-    res.append(aRight.data(), aRight.length());
+    res.append(std::data(aLeft), aLeft.length());
+    res.append(std::data(aRight), aRight.length());
 
     return res;
 }
 
-inline std::u8string operator+
+inline ::std::string operator+
 (
-    const std::u8string&    aLeft,
-    std::string_view        aRight
-)
-{
-    std::u8string res;
-    res.reserve(aLeft.length() + aRight.length());
-    res.append(aLeft.data(), aLeft.length());
-
-    std::u8string_view svRigth = ::GPlatform::GpUTF::S_As_UTF8(aRight);
-    res.append(svRigth.data(), svRigth.length());
-
-    return res;
-}
-
-inline std::u8string operator+
-(
-    const std::u8string&    aLeft,
-    const char8_t*          aRight
-)
-{
-    return aLeft + std::u8string_view(aRight);
-}
-
-inline std::u8string operator+
-(
-    const std::u8string&    aLeft,
-    const char*             aRight
-)
-{
-    return aLeft + std::string_view(aRight);
-}
-
-inline std::u8string operator+
-(
-    std::u8string_view aLeft,
-    std::u8string_view aRight
-)
-{
-    std::u8string res;
-    res.reserve(aLeft.length() + aRight.length());
-    res.append(aLeft.data(), aLeft.length());
-    res.append(aRight.data(), aRight.length());
-
-    return res;
-}
-
-inline std::u8string operator+
-(
-    std::u8string_view      aLeft,
-    const std::u8string&    aRight
-)
-{
-    std::u8string res;
-    res.reserve(aLeft.length() + aRight.length());
-    res.append(aLeft.data(), aLeft.length());
-    res.append(aRight.data(), aRight.length());
-
-    return res;
-}
-
-inline std::u8string operator+
-(
-    std::u8string_view  aLeft,
-    std::string_view    aRight
-)
-{
-    std::u8string res;
-    res.reserve(aLeft.length() + aRight.length());
-    res.append(aLeft.data(), aLeft.length());
-    res.append(GPlatform::GpUTF::S_As_UTF8(aRight.data()), aRight.length());
-
-    return res;
-}
-
-inline std::u8string operator+
-(
-    std::u8string_view  aLeft,
-    const char8_t*      aRight
-)
-{
-    std::u8string_view  right(aRight);
-    std::u8string       res;
-    res.reserve(aLeft.length() + right.length());
-    res.append(aLeft.data(), aLeft.length());
-    res.append(right.data(), right.length());
-
-    return res;
-}
-
-inline std::u8string operator+
-(
-    std::u8string_view  aLeft,
+    ::std::string_view  aLeft,
     const char*         aRight
 )
 {
-    std::u8string_view  right(::GPlatform::GpUTF::S_As_UTF8(aRight));
-    std::u8string       res;
-    res.reserve(aLeft.length() + right.length());
-    res.append(aLeft.data(), aLeft.length());
-    res.append(right.data(), right.length());
-
-    return res;
+    return aLeft + ::std::string_view(aRight);
 }
 
-inline std::u8string operator+
+inline ::std::string operator+
 (
-    std::u8string_view  aLeft,
-    const char8_t       aRight
+    const char*         aRight,
+    ::std::string_view  aLeft
 )
 {
-    std::u8string   res;
-    res.reserve(aLeft.length() + 1);
-    res.append(aLeft.data(), aLeft.length());
-    res += aRight;
-
-    return res;
+    return ::std::string_view(aLeft) + aRight;
 }
 
-template<typename T>
-inline std::u8string operator+
-(
-    std::u8string_view  aLeft,
-    T                   aRight
-)
+// --------------------------------- string_view_equal ---------------------------------
+
+struct string_view_equal
 {
-    const std::u8string value(::GPlatform::GpStringOps::SToString(aRight));
+    using is_transparent = std::true_type;
 
-    std::u8string res;
-    res.reserve(aLeft.length() + value.length());
-    res.append(aLeft.data(), aLeft.length());
-    res.append(value.data(), value.length());
+    bool operator()(std::string_view a, std::string_view b) const noexcept
+    {
+        return a == b;
+    }
+};
 
-    return res;
-}
+// --------------------------------- string_view_hash ---------------------------------
 
-}//std
+struct string_view_hash
+{
+    using is_transparent = std::true_type;
 
-#endif//#if defined(GP_USE_STRINGS)
+    auto operator()(std::string_view aStr) const noexcept
+    {
+        return std::hash<std::string_view>()(aStr);
+    }
+};
+
+}// namespace std
+
+#endif// #if defined(GP_USE_STRINGS)

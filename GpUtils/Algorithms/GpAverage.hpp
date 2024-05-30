@@ -13,4 +13,4 @@ template<typename T, typename... Ts>
     return sum / cnt;
 }
 
-}//namespace GPlatform::Algo
+}// namespace GPlatform::Algo

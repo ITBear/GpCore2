@@ -16,7 +16,7 @@ void    GpBitWriterStorageByteArray::AllocateNext (const size_bit_t aSize)
         return;
     }
 
-    size_bit_t  currentSize = size_byte_t::SMake(iOut.size());
+    size_bit_t  currentSize = size_byte_t::SMake(std::size(iOut));
     size_bit_t  delta       = aSize - left;
     size_bit_t  newSize     = currentSize + delta;
     size_bit_t  m           = newSize % 8_bit;
@@ -33,8 +33,8 @@ void    GpBitWriterStorageByteArray::AllocateNext (const size_bit_t aSize)
 
     SetSize(newSize);
     SetLeft(left + delta);
-    SetData(iOut.data() + (size_byte_t::SMake(iOut.size()) - Left()).As<size_t>());
+    SetData(std::data(iOut) + (size_byte_t::SMake(std::size(iOut)) - Left()).As<size_t>());
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 */

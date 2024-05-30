@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../Config/GpConfig.hpp"
-
-#if defined(GP_USE_REFLECTION)
+#include <GpCore2/Config/GpConfig.hpp>
 
 #include "GpReflectObject.hpp"
 
@@ -39,7 +37,7 @@ public:
 
 protected:
     virtual void                    _type_id_tag_fn         (_type_id_tag_t&) const noexcept override final {}
-    virtual const GpReflectModel&   _ReflectModel           (void) const override final;
+    virtual GpReflectModel::CSP     _ReflectModel           (void) const override final;
     virtual GpReflectObject::SP     _ReflectNewInstance     (void) const override final;
     virtual GpReflectObject::SP     _ReflectClone           (void) const override final;
     virtual const void*             _ReflectDataPtr         (void) const noexcept override final;
@@ -56,10 +54,8 @@ GpReflectObjectDynamic::GpReflectObjectDynamic
     void*           aData
 ) noexcept:
 iModelUid(aModelUid),
-iData(aData)
+iData    (aData)
 {
 }
 
-}//namespace GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

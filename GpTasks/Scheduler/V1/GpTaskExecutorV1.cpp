@@ -1,9 +1,7 @@
 #include "GpTaskExecutorV1.hpp"
-
-#if defined(GP_USE_MULTITHREADING)
-
-#include "../../../../GpService/GpService.hpp"
 #include "GpTaskSchedulerV1.hpp"
+
+#include <iostream>
 
 namespace GPlatform {
 
@@ -14,10 +12,10 @@ GpTaskExecutorV1::GpTaskExecutorV1
     ReadyTasksQueueT&   aReadyTasksQueue,
     DonePromiseT&&      aDonePromise
 ) noexcept:
-iId             (aId),
-iTasksScheduler (aTasksScheduler),
-iReadyTasksQueue(aReadyTasksQueue),
-iDonePromise    (std::move(aDonePromise))
+iId             {aId},
+iTasksScheduler {aTasksScheduler},
+iReadyTasksQueue{aReadyTasksQueue},
+iDonePromise    {std::move(aDonePromise)}
 {
 }
 
@@ -27,7 +25,7 @@ GpTaskExecutorV1::~GpTaskExecutorV1 (void) noexcept
 
 void    GpTaskExecutorV1::Run (std::atomic_flag& aStopRequest) noexcept
 {
-    std::u8string exMsg;
+    std::string exMsg;
 
     try
     {
@@ -46,36 +44,34 @@ void    GpTaskExecutorV1::Run (std::atomic_flag& aStopRequest) noexcept
             GpTask&     task    = taskSP.V();
 
             // Run task
-            const GpTaskRunRes::EnumT taskRes = task.Execute();
+            const GpTaskRunRes::EnumT taskRes = task.Execute(GpMethodAccess<GpTaskExecutor>{this});
 
             // Reschedule task
             if (iTasksScheduler.Reschedule(taskRes, std::move(taskSP)) == false)
             {
-                THROW_GP(u8"Failed to Reschedule"_sv);
+                THROW_GP("Failed to Reschedule"_sv);
             }
         }
 
-        iDonePromise.Fulfill(ssize_t(1));
+        iDonePromise.Fulfill(ssize_t{1});
 
         return;
     } catch (const GpException& e)
     {
-        exMsg = u8"[GpTaskExecutor::Run]: executor id: "_sv + Id() + u8", exception: "_sv + e.what();
+        exMsg = "[GpTaskExecutor::Run]: executor id: "_sv + Id() + ", exception: "_sv + e.what();
     } catch (const std::exception& e)
     {
-        exMsg = u8"[GpTaskExecutor::Run]: executor id: "_sv + Id() + u8", exception: "_sv + e.what();
+        exMsg = "[GpTaskExecutor::Run]: executor id: "_sv + Id() + ", exception: "_sv + e.what();
     } catch (...)
     {
-        exMsg = u8"[GpTaskExecutor::Run]: executor id: "_sv + Id() + u8",  unknown exception"_sv;
+        exMsg = "[GpTaskExecutor::Run]: executor id: "_sv + Id() + ",  unknown exception"_sv;
     }
 
     GpStringUtils::SCerr(exMsg);
     iDonePromise.Fulfill(GpException(exMsg));
 
     // Stop service
-    GpService::SRequestStop();
+    GpTaskScheduler::S().StopService();
 }
 
-}//GPlatform
-
-#endif//#if defined(GP_USE_MULTITHREADING)
+}// namespace GPlatform

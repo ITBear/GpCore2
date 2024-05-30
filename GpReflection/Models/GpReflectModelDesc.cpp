@@ -1,6 +1,7 @@
 #include "GpReflectModelDesc.hpp"
 
-#if defined(GP_USE_REFLECTION)
+#include <GpCore2/GpReflection/GpReflectManager.hpp>
+#include <GpCore2/GpReflection/GpReflectPropUtils.hpp>
 
 namespace GPlatform {
 
@@ -10,7 +11,7 @@ GpReflectModelDesc::~GpReflectModelDesc (void) noexcept
 {
 }
 
-void    GpReflectModelDesc::_SReflectCollectProps (GpReflectProp::C::Vec::Val& aPropsOut)
+void    GpReflectModelDesc::_SReflectCollectProps (GpReflectProp::SmallVecVal& aPropsOut)
 {
     PROP(uid);
     PROP(base_uid);
@@ -19,6 +20,4 @@ void    GpReflectModelDesc::_SReflectCollectProps (GpReflectProp::C::Vec::Val& a
     PROP(props);
 }
 
-}//namespace GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

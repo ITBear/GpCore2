@@ -27,4 +27,4 @@ private:
     bool            iValue  = false;
 };
 
-}//namespace GPlatform
+}// namespace GPlatform

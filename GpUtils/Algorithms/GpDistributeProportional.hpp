@@ -25,7 +25,7 @@ std::vector<T>  DistributeProportional<T>::SDist
     static_assert(sizeof(T) < sizeof(BigNumT));
 
     //Check count
-    const size_t count = aWeights.size();
+    const size_t count = std::size(aWeights);
 
     if (count == 0)
     {
@@ -106,11 +106,11 @@ std::vector<T>  DistributeProportional<T>::SDist
 
         if (controlSumm != aValueToDist)
         {
-            throw GpException(u8"Distribute error");
+            throw GpException("Distribute error");
         }
     }
 
     return res;
 }
 
-}//namespace GPlatform::Algo
+}// namespace GPlatform::Algo

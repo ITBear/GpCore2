@@ -1,6 +1,6 @@
 #include "GpLinkedLibsInfo.hpp"
 
-#include <fmt/core.h>
+#include <GpCore2/Config/IncludeExt/fmt.hpp>
 
 namespace GPlatform {
 
@@ -20,13 +20,13 @@ GpLinkedLibsInfo&   GpLinkedLibsInfo::S (void) noexcept
 
 void    GpLinkedLibsInfo::Register
 (
-    std::u8string   aName,
+    std::string     aName,
     const size_t    aVersionMaj,
     const size_t    aVersionMin,
     const size_t    aVersionPat
 )
 {
-    GpUniqueLock<GpMutex> uniqueLock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
     iLibs.emplace_back
     (
@@ -41,17 +41,17 @@ void    GpLinkedLibsInfo::Register
 
 GpLinkedLibsInfo::InfoAsTextT   GpLinkedLibsInfo::InfoAsText (void) const
 {
-    GpUniqueLock<GpMutex> uniqueLock(iMutex);
+    GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
     InfoAsTextT infoAsText;
-    infoAsText.reserve(iLibs.size());
+    infoAsText.reserve(std::size(iLibs));
 
     for (const GpLinkedLibInfo& info: iLibs)
     {
         infoAsText.emplace_back
         (
             info.iName,
-            GpUTF::S_As_UTF8(fmt::format("{}.{}.{}", info.iVersionMaj, info.iVersionMin, info.iVersionPat))
+            fmt::format("{}.{}.{}", info.iVersionMaj, info.iVersionMin, info.iVersionPat)
         );
     }
 

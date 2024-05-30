@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../Config/GpConfig.hpp"
-
-#if defined(GP_USE_REFLECTION)
+#include <GpCore2/Config/GpConfig.hpp>
 
 #include "GpReflectObjectDynamic.hpp"
 
@@ -19,6 +17,4 @@ public:
                                                          void*                  aDataPtr);
 };
 
-}//namespace GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

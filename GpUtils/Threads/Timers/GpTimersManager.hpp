@@ -1,13 +1,16 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_TIMERS)
 
-#include "../../Types/Containers/GpDictionary.hpp"
-#include "../../Types/Containers/GpElementsPool.hpp"
-#include "../../Threads/GpThread.hpp"
-#include "GpTimer.hpp"
+#include <GpCore2/Config/IncludeExt/boost_small_vector.hpp>
+#include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpDictionary.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpElementsPool.hpp>
+#include <GpCore2/GpUtils/Threads/GpThread.hpp>
+#include <GpCore2/GpUtils/Threads/Timers/GpTimer.hpp>
 
 namespace GPlatform {
 
@@ -18,7 +21,7 @@ public:
     CLASS_DD(GpTimersManager)
     TAG_SET(THREAD_SAFE)
 
-    using TimersT = GpDictionary<const void*, GpTimer::SP>;
+    using TimersT = GpDictionary<boost::container::small_flat_map<const void*, GpTimer::SP, 64>>;
 
     class TimersPoolT final: public GpElementsPool<GpTimer::SP>
     {
@@ -57,6 +60,6 @@ private:
     static GpThread             sTimersThread;
 };
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_TIMERS)
+#endif// #if defined(GP_USE_TIMERS)

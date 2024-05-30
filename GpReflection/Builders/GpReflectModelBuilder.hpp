@@ -1,10 +1,8 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
-#if defined(GP_USE_REFLECTION)
-
-#include "GpReflectPropBuilder.hpp"
+#include "GpReflectModelPropBuilder.hpp"
 
 namespace GPlatform {
 
@@ -14,21 +12,21 @@ public:
                                         GpReflectModelBuilder   (void) noexcept;
                                         ~GpReflectModelBuilder  (void) noexcept;
 
-    GpReflectModel                      Build                   (void);
+    GpReflectModel::CSP                 Build                   (void);
 
     inline GpReflectModelBuilder&       UID                     (const GpUUID&  aUid);
     inline GpReflectModelBuilder&       BaseUID                 (const GpUUID&  aBaseUid);
-    inline GpReflectModelBuilder&       Name                    (std::u8string_view aName);
-    inline GpReflectPropBuilder&        Props                   (void);
-    inline GpReflectModelBuilder&       SetPropBuilder          (GpReflectPropBuilder&& aPropBuilder);
+    inline GpReflectModelBuilder&       Name                    (std::string_view aName);
+    inline GpReflectModelPropBuilder&   Props                   (void);
+    inline GpReflectModelBuilder&       SetPropBuilder          (GpReflectModelPropBuilder&& aPropBuilder);
     inline GpReflectModelBuilder&       GroupID                 (const GpUUID&  aGroupId);
 
 private:
-    GpUUID                              iUID;
-    GpUUID                              iBaseUID;
-    std::u8string                       iName;
-    GpUUID                              iGroupID;
-    std::optional<GpReflectPropBuilder> iPropBuilder;
+    GpUUID                                      iUID;
+    GpUUID                                      iBaseUID;
+    std::string                                 iName;
+    GpUUID                                      iGroupID;
+    std::optional<GpReflectModelPropBuilder>    iPropBuilder;
 };
 
 GpReflectModelBuilder&  GpReflectModelBuilder::UID (const GpUUID& aUid)
@@ -43,23 +41,23 @@ GpReflectModelBuilder&  GpReflectModelBuilder::BaseUID (const GpUUID& aBaseUid)
     return *this;
 }
 
-GpReflectModelBuilder&  GpReflectModelBuilder::Name (std::u8string_view aName)
+GpReflectModelBuilder&  GpReflectModelBuilder::Name (std::string_view aName)
 {
     iName = aName;
     return *this;
 }
 
-GpReflectPropBuilder&   GpReflectModelBuilder::Props (void)
+GpReflectModelPropBuilder&  GpReflectModelBuilder::Props (void)
 {
     if (iPropBuilder.has_value() == false)
     {
-        iPropBuilder = GpReflectPropBuilder(*this);
+        iPropBuilder = GpReflectModelPropBuilder(*this);
     }
 
     return iPropBuilder.value();
 }
 
-GpReflectModelBuilder&  GpReflectModelBuilder::SetPropBuilder (GpReflectPropBuilder&& aPropBuilder)
+GpReflectModelBuilder&  GpReflectModelBuilder::SetPropBuilder (GpReflectModelPropBuilder&& aPropBuilder)
 {
     iPropBuilder = std::move(aPropBuilder);
     iPropBuilder->SetModelBuilder(this);
@@ -74,6 +72,4 @@ GpReflectModelBuilder&  GpReflectModelBuilder::GroupID (const GpUUID& aGroupId)
     return *this;
 }
 
-}//namespace GPlatform
-
-#endif//#if defined(GP_USE_REFLECTION)
+}// namespace GPlatform

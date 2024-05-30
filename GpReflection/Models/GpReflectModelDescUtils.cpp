@@ -1,11 +1,9 @@
 #include "GpReflectModelDescUtils.hpp"
 #include "../Builders/GpReflectModelBuilder.hpp"
 
-#if defined(GP_USE_REFLECTION)
-
 namespace GPlatform {
 
-GpReflectModel  GpReflectModelDescUtils::SDescToModel (const GpReflectModelDesc& aDesc)
+GpReflectModel::CSP GpReflectModelDescUtils::SDescToModel (const GpReflectModelDesc& aDesc)
 {
     return GpReflectModelBuilder()
         .UID(aDesc.uid)
@@ -23,17 +21,17 @@ GpReflectModelDesc::SP  GpReflectModelDescUtils::SModelToDesc (const GpReflectMo
         aModel.Uid(),
         aModel.BaseUid(),
         aModel.GroupId(),
-        std::u8string(aModel.Name()),
+        std::string(aModel.Name()),
         SModelToDescProps(aModel.Props())
     );
 
     return modelDescSP;
 }
 
-GpReflectPropDesc::C::Vec::SP   GpReflectModelDescUtils::SModelToDescProps (const GpReflectProp::C::Vec::Val& aProps)
+GpReflectPropDesc::C::Vec::SP   GpReflectModelDescUtils::SModelToDescProps (const GpReflectProp::SmallVecVal& aProps)
 {
     GpReflectPropDesc::C::Vec::SP propsDesc;
-    propsDesc.reserve(aProps.size());
+    propsDesc.reserve(std::size(aProps));
 
     for (const GpReflectProp& prop: aProps)
     {
@@ -43,34 +41,31 @@ GpReflectPropDesc::C::Vec::SP   GpReflectModelDescUtils::SModelToDescProps (cons
             prop.ContainerKeyType(),
             prop.Container(),
             prop.ModelUid(),
-            std::u8string(prop.Name())
+            std::string(prop.Name())
         ));
     }
 
     return propsDesc;
 }
 
-GpReflectPropBuilder    GpReflectModelDescUtils::SDescToModelPropBuilder (const GpReflectPropDesc::C::Vec::SP& aPropsDesc)
+GpReflectModelPropBuilder   GpReflectModelDescUtils::SDescToModelPropBuilder (const GpReflectPropDesc::C::Vec::SP& aPropsDesc)
 {
-    GpReflectPropBuilder propBuilder;
+    GpReflectModelPropBuilder propBuilder;
 
     for (const GpReflectPropDesc::SP& propDescSP: aPropsDesc)
     {
         const GpReflectPropDesc& propDesc = propDescSP.V();
 
-        switch (propDesc.container_type.Value())
+        switch (propDesc.container_type)
         {
             case GpReflectContainerType::NO:
             {
                 SAddProps_Val(propDesc, propBuilder);
             } break;
-            case GpReflectContainerType::VECTOR:
-            {
-                SAddProps_Vec(propDesc, propBuilder);
-            } break;
+            case GpReflectContainerType::VECTOR: [[fallthrough]];
             case GpReflectContainerType::VECTOR_WRAP:
             {
-                SAddProps_VecWrap(propDesc, propBuilder);
+                SAddProps_Vec(propDesc, propBuilder);
             } break;
             case GpReflectContainerType::MAP:
             {
@@ -78,7 +73,7 @@ GpReflectPropBuilder    GpReflectModelDescUtils::SDescToModelPropBuilder (const 
             } break;
             default:
             {
-                THROW_GP(u8"Unsupported container type"_sv);
+                THROW_GP("Unsupported container type"_sv);
             }
         }
     }
@@ -91,12 +86,12 @@ GpReflectPropBuilder    GpReflectModelDescUtils::SDescToModelPropBuilder (const 
 void    GpReflectModelDescUtils::SAddProps_Val
 (
     const GpReflectPropDesc&    aPropDesc,
-    GpReflectPropBuilder&       aPropBuilder
+    GpReflectModelPropBuilder&  aPropBuilder
 )
 {
-    std::u8string_view name = aPropDesc.name;
+    std::string_view name = aPropDesc.name;
 
-    switch (aPropDesc.val_type.Value())
+    switch (aPropDesc.val_type)
     {
         case GpReflectType::U_INT_8:
         {
@@ -144,7 +139,7 @@ void    GpReflectModelDescUtils::SAddProps_Val
         } break;
         case GpReflectType::UUID:
         {
-            aPropBuilder.Uuid(name);
+            aPropBuilder.UUID(name);
         } break;
         case GpReflectType::STRING:
         {
@@ -152,17 +147,17 @@ void    GpReflectModelDescUtils::SAddProps_Val
         } break;
         case GpReflectType::BLOB:
         {
-            aPropBuilder.Blob(name);
+            aPropBuilder.BLOB(name);
         } break;
         case GpReflectType::OBJECT:
         {
-            const GpReflectModel& model = GpReflectManager::S().Find(aPropDesc.model_uid);
-            aPropBuilder.Object(name, model);
+            GpReflectModel::CSP modelCSP = GpReflectManager::S().Find(aPropDesc.model_uid);
+            aPropBuilder.Object(name, modelCSP.Vn());
         } break;
         case GpReflectType::OBJECT_SP:
         {
-            const GpReflectModel& model = GpReflectManager::S().Find(aPropDesc.model_uid);
-            aPropBuilder.ObjectSP(name, model);
+            GpReflectModel::CSP modelCSP = GpReflectManager::S().Find(aPropDesc.model_uid);
+            aPropBuilder.ObjectSP(name, modelCSP.Vn());
         } break;
         case GpReflectType::ENUM:
         {
@@ -177,7 +172,7 @@ void    GpReflectModelDescUtils::SAddProps_Val
         case GpReflectType::NOT_SET:[[fallthrough]];
         default:
         {
-            THROW_GP(u8"Unsupported value type"_sv);
+            THROW_GP("Unsupported value type"_sv);
         }
     }
 }
@@ -185,12 +180,12 @@ void    GpReflectModelDescUtils::SAddProps_Val
 void    GpReflectModelDescUtils::SAddProps_Vec
 (
     const GpReflectPropDesc&    aPropDesc,
-    GpReflectPropBuilder&       aPropBuilder
+    GpReflectModelPropBuilder&  aPropBuilder
 )
 {
-    std::u8string_view name = aPropDesc.name;
+    std::string_view name = aPropDesc.name;
 
-    switch (aPropDesc.val_type.Value())
+    switch (aPropDesc.val_type)
     {
         case GpReflectType::U_INT_8:
         {
@@ -232,13 +227,9 @@ void    GpReflectModelDescUtils::SAddProps_Vec
         {
             aPropBuilder.Vec_Float(name);
         } break;
-        case GpReflectType::BOOLEAN:
-        {
-            aPropBuilder.Vec_Bool(name);
-        } break;
         case GpReflectType::UUID:
         {
-            aPropBuilder.Vec_Uuid(name);
+            aPropBuilder.Vec_UUID(name);
         } break;
         case GpReflectType::STRING:
         {
@@ -246,52 +237,39 @@ void    GpReflectModelDescUtils::SAddProps_Vec
         } break;
         case GpReflectType::BLOB:
         {
-            aPropBuilder.Vec_Blob(name);
+            aPropBuilder.Vec_BLOB(name);
+        } break;
+        case GpReflectType::OBJECT:
+        {
+            GpReflectModel::CSP modelCSP = GpReflectManager::S().Find(aPropDesc.model_uid);
+            aPropBuilder.Vec_Object(name, modelCSP.Vn());
         } break;
         case GpReflectType::OBJECT_SP:
         {
-            const GpReflectModel& model = GpReflectManager::S().Find(aPropDesc.model_uid);
-            aPropBuilder.Vec_ObjectSP(name, model);
+            GpReflectModel::CSP modelCSP = GpReflectManager::S().Find(aPropDesc.model_uid);
+            aPropBuilder.Vec_ObjectSP(name, modelCSP.Vn());
         } break;
-        case GpReflectType::OBJECT:
-        case GpReflectType::ENUM:
-        case GpReflectType::ENUM_FLAGS:
-        case GpReflectType::NOT_SET:[[fallthrough]];
+        case GpReflectType::ENUM:       [[fallthrough]];
+        case GpReflectType::ENUM_FLAGS: [[fallthrough]];
+        case GpReflectType::BOOLEAN:    [[fallthrough]];
+        case GpReflectType::NOT_SET:    [[fallthrough]];
         default:
         {
-            THROW_GP(u8"Unsupported value type"_sv);
+            THROW_GP("Unsupported value type"_sv);
         }
-    }
-}
-
-void    GpReflectModelDescUtils::SAddProps_VecWrap
-(
-    const GpReflectPropDesc&    aPropDesc,
-    GpReflectPropBuilder&       aPropBuilder
-)
-{
-    std::u8string_view name = aPropDesc.name;
-
-    if (aPropDesc.val_type.Value() == GpReflectType::OBJECT) [[likely]]
-    {
-        const GpReflectModel& model = GpReflectManager::S().Find(aPropDesc.model_uid);
-        aPropBuilder.VecWrap_Object(name, model);
-    } else
-    {
-        THROW_GP(u8"Unsupported value type"_sv);
     }
 }
 
 void    GpReflectModelDescUtils::SAddProps_Map
 (
     const GpReflectPropDesc&    aPropDesc,
-    GpReflectPropBuilder&       aPropBuilder
+    GpReflectModelPropBuilder&  aPropBuilder
 )
 {
-    std::u8string_view name = aPropDesc.name;
+    std::string_view name = aPropDesc.name;
 
-    const GpReflectType::EnumT keyType = aPropDesc.key_type.Value();
-    const GpReflectType::EnumT valType = aPropDesc.val_type.Value();
+    const GpReflectType::EnumT keyType = aPropDesc.key_type;
+    const GpReflectType::EnumT valType = aPropDesc.val_type;
 
     switch (valType)
     {
@@ -335,13 +313,9 @@ void    GpReflectModelDescUtils::SAddProps_Map
         {
             aPropBuilder.Map_Float(name, keyType);
         } break;
-        case GpReflectType::BOOLEAN:
-        {
-            aPropBuilder.Map_Bool(name, keyType);
-        } break;
         case GpReflectType::UUID:
         {
-            aPropBuilder.Map_Uuid(name, keyType);
+            aPropBuilder.Map_UUID(name, keyType);
         } break;
         case GpReflectType::STRING:
         {
@@ -349,24 +323,23 @@ void    GpReflectModelDescUtils::SAddProps_Map
         } break;
         case GpReflectType::BLOB:
         {
-            aPropBuilder.Map_Blob(name, keyType);
+            aPropBuilder.Map_BLOB(name, keyType);
         } break;
         case GpReflectType::OBJECT_SP:
         {
-            const GpReflectModel& model = GpReflectManager::S().Find(aPropDesc.model_uid);
-            aPropBuilder.Map_ObjectSP(name, keyType, model);
+            GpReflectModel::CSP modelCSP = GpReflectManager::S().Find(aPropDesc.model_uid);
+            aPropBuilder.Map_ObjectSP(name, keyType, modelCSP.Vn());
         } break;
-        case GpReflectType::OBJECT:
-        case GpReflectType::ENUM:
-        case GpReflectType::ENUM_FLAGS:
-        case GpReflectType::NOT_SET:[[fallthrough]];
+        case GpReflectType::OBJECT:     [[fallthrough]];
+        case GpReflectType::ENUM:       [[fallthrough]];
+        case GpReflectType::ENUM_FLAGS: [[fallthrough]];
+        case GpReflectType::BOOLEAN:    [[fallthrough]];
+        case GpReflectType::NOT_SET:    [[fallthrough]];
         default:
         {
-            THROW_GP(u8"Unsupported value type"_sv);
+            THROW_GP("Unsupported value type"_sv);
         }
     }
 }
 
-}//namespace GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

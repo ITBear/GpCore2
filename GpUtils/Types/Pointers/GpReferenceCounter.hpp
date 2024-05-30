@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_SHARED_POINTERS)
 
@@ -13,6 +13,7 @@ namespace GPlatform {
 class GpReferenceCounter
 {
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpReferenceCounter)
+    //TAG_SET(THREAD_SAFE)
 
 protected:
     inline explicit         GpReferenceCounter  (const void* aValuePtr) noexcept;
@@ -92,6 +93,6 @@ T*  GpReferenceCounter::ValuePtr (void) noexcept
     return reinterpret_cast<T*>(iValuePtr);
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_SHARED_POINTERS)
+#endif// #if defined(GP_USE_SHARED_POINTERS)

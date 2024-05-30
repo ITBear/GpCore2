@@ -7,78 +7,50 @@ namespace GPlatform {
 
 class GP_UTILS_API GpByteReaderStorage
 {
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpByteReaderStorage)
+
 public:
-    inline                      GpByteReaderStorage     (GpSpanPtrByteR aStoragePtr) noexcept;
-    inline                      GpByteReaderStorage     (const GpByteReaderStorage& aStorage) noexcept;
-    inline                      GpByteReaderStorage     (GpByteReaderStorage&& aStorage) noexcept;
-                                ~GpByteReaderStorage    (void) noexcept = default;
+    inline                  GpByteReaderStorage     (GpSpanByteR aStoragePtr) noexcept;
+                            ~GpByteReaderStorage    (void) noexcept = default;
 
-    inline GpSpanPtrByteR       StoragePtr              (void) const noexcept;
-    inline size_t               SizeLeft                (void) const noexcept;
-    inline GpSpanPtrByteR       Read                    (const size_t aSize);
-    inline GpSpanPtrByteR       TryRead                 (const size_t aSize);
-
-    inline GpByteReaderStorage& operator=               (const GpByteReaderStorage& aStorage) noexcept;
-    inline GpByteReaderStorage& operator=               (GpByteReaderStorage&& aStorage) noexcept;
-
+    inline GpSpanByteR      StoragePtr              (void) const noexcept;
+    inline size_t           SizeLeft                (void) const noexcept;
+    inline size_t           TotalRead               (void) const noexcept;
+    inline GpSpanByteR      Read                    (const size_t aSize);
 
 protected:
-    GpSpanPtrByteR              iStoragePtr;
+    GpSpanByteR             iStoragePtr;
+    size_t                  iTotalRead = 0;
 };
 
-GpByteReaderStorage::GpByteReaderStorage (GpSpanPtrByteR aStoragePtr) noexcept:
+GpByteReaderStorage::GpByteReaderStorage (GpSpanByteR aStoragePtr) noexcept:
 iStoragePtr(aStoragePtr)
 {
 }
 
-GpByteReaderStorage::GpByteReaderStorage (const GpByteReaderStorage& aStorage) noexcept:
-iStoragePtr(aStorage.iStoragePtr)
-{
-}
-
-GpByteReaderStorage::GpByteReaderStorage (GpByteReaderStorage&& aStorage) noexcept:
-iStoragePtr(std::move(aStorage.iStoragePtr))
-{
-}
-
-GpSpanPtrByteR  GpByteReaderStorage::StoragePtr (void) const noexcept
+GpSpanByteR GpByteReaderStorage::StoragePtr (void) const noexcept
 {
     return iStoragePtr;
 }
-
 
 size_t  GpByteReaderStorage::SizeLeft (void) const noexcept
 {
     return iStoragePtr.Count();
 }
 
-GpSpanPtrByteR  GpByteReaderStorage::Read (const size_t aSize)
+inline size_t   GpByteReaderStorage::TotalRead (void) const noexcept
 {
-    GpSpanPtrByteR res = iStoragePtr.SubspanBegin(0, aSize);
+    return iTotalRead;
+}
+
+GpSpanByteR GpByteReaderStorage::Read (const size_t aSize)
+{
+    GpSpanByteR res = iStoragePtr.SubspanBegin(0, aSize);
     iStoragePtr.OffsetAdd(aSize);
 
-    return res;
-}
-
-/*GpSpanPtrByteR    GpByteReaderStorage::TryRead (const size_t aSize)
-{
-    const size_t sizeLeftToRead = std::min(aSize, iStoragePtr.Count());
-    GpSpanPtrByteR res          = iStoragePtr.SubspanBegin(0, sizeLeftToRead);
-    iStoragePtr.OffsetAdd(sizeLeftToRead);
+    iTotalRead = NumOps::SAdd(iTotalRead, aSize);
 
     return res;
-}*/
-
-GpByteReaderStorage&    GpByteReaderStorage::operator= (const GpByteReaderStorage& aStorage) noexcept
-{
-    iStoragePtr = aStorage.iStoragePtr;
-    return *this;
 }
 
-GpByteReaderStorage&    GpByteReaderStorage::operator= (GpByteReaderStorage&& aStorage) noexcept
-{
-    iStoragePtr = std::move(aStorage.iStoragePtr);
-    return *this;
-}
-
-}//GPlatform
+}// namespace GPlatform

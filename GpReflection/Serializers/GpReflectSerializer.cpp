@@ -1,9 +1,7 @@
 #include "GpReflectSerializer.hpp"
 
-#if defined(GP_USE_REFLECTION)
-
-#include "../../GpUtils/Streams/GpByteWriter.hpp"
-#include "../../GpUtils/Streams/GpByteWriterStorageByteArray.hpp"
+#include <GpCore2/GpUtils/Streams/GpByteWriter.hpp>
+#include <GpCore2/GpUtils/Streams/GpByteWriterStorageByteArray.hpp>
 
 namespace GPlatform {
 
@@ -24,6 +22,4 @@ GpBytesArray    GpReflectSerializer::FromObject (const GpReflectObject& aObject)
     return data;
 }
 
-}//namespace GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

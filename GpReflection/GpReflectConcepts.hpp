@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../Config/GpConfig.hpp"
-
-#if defined(GP_USE_REFLECTION)
+#include <GpCore2/Config/GpConfig.hpp>
 
 #include "GpReflectObject.hpp"
 
@@ -14,6 +12,4 @@ concept ReflectObject = requires()
     requires GpHasTag_GpReflectObject<T>() == true;
 };
 
-}//namespace GPlatform::Concepts
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform::Concepts

@@ -17,4 +17,4 @@ public:
     virtual GpByteSerializer::SP    NewInstance                 (void) const = 0;
 };
 
-}//namespace GPlatform
+}// namespace GPlatform

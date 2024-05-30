@@ -14,7 +14,7 @@ GP_ENUM_IMPL(GpFileFlag)
 
 void    GpFile::Open
 (
-    std::u8string_view  aName,
+    std::string_view    aName,
     const GpFileFlags   aFlags
 )
 {
@@ -67,16 +67,16 @@ size_byte_t GpFile::CurrentPos (void) const
     return GpFileImpl::SCurrentPos(iHandler);
 }
 
-void    GpFile::Write (GpSpanPtrByteR aData)
+void    GpFile::Write (GpSpanByteR aData)
 {
     return GpFileImpl::SWrite(iHandler, aData);
 }
 
-void    GpFile::Read (GpSpanPtrByteRW aData)
+void    GpFile::Read (GpSpanByteRW aData)
 {
     return GpFileImpl::SRead(iHandler, aData);
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_FILE_UTILS)
+#endif// #if defined(GP_USE_FILE_UTILS)

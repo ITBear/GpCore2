@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
-
-#if defined(GP_USE_REFLECTION)
+#include <GpCore2/Config/GpConfig.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 
 namespace GPlatform {
 
@@ -20,6 +20,4 @@ public:
     virtual             ~GpReflectSerializerCtx (void) noexcept = default;
 };
 
-}//namespace GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

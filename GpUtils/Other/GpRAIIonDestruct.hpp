@@ -40,8 +40,8 @@ GpRAIIonDestruct<FnT>::~GpRAIIonDestruct (void) noexcept
         GpStringUtils::SCerr(GpExceptionUtils::SToString(e));
     } catch (...)
     {
-        GpStringUtils::SCerr(u8"[GpRAIIonDestruct::~GpRAIIonDestruct]: Unknown exception"_sv);
+        GpStringUtils::SCerr("[GpRAIIonDestruct::~GpRAIIonDestruct]: Unknown exception"_sv);
     }
 }
 
-}//GPlatform
+}// namespace GPlatform

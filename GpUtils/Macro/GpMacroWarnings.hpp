@@ -1,25 +1,27 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
-#define DIAG_STR(s) #s
-#define DIAG_JOINSTR(x,y) DIAG_STR(x ## y)
-#ifdef _MSC_VER
-#   define DIAG_DO_PRAGMA(x) __pragma (#x)
-#   define DIAG_PRAGMA(compiler,x) DIAG_DO_PRAGMA(warning(x))
-#else
+#if defined(GP_COMPILER_GCC) || defined(GP_COMPILER_CLANG)
+#   define DIAG_STR(s) #s
+#   define DIAG_JOINSTR(x,y) DIAG_STR(x ## y)
 #   define DIAG_DO_PRAGMA(x) _Pragma (#x)
 #   define DIAG_PRAGMA(compiler,x) DIAG_DO_PRAGMA(compiler diagnostic x)
-#endif
 
-#define GP_WARNING_PUSH()               DIAG_PRAGMA(GP_COMPILER_NAME, push)
-#define GP_WARNING_POP()                DIAG_PRAGMA(GP_COMPILER_NAME, pop)
-#define GP_WARNING_DISABLE(option)      DIAG_PRAGMA(GP_COMPILER_NAME, ignored DIAG_JOINSTR(-W,option))
+#   define GP_WARNING_PUSH()            DIAG_PRAGMA(GP_COMPILER_NAME, push)
+#   define GP_WARNING_POP()             DIAG_PRAGMA(GP_COMPILER_NAME, pop)
+#   define GP_WARNING_DISABLE(option)   DIAG_PRAGMA(GP_COMPILER_NAME, ignored DIAG_JOINSTR(-W,option))
 
-#if defined(GP_COMPILER_GCC)
-#   define GP_WARNING_DISABLE_GCC(option)   DIAG_PRAGMA(GP_COMPILER_NAME, ignored DIAG_JOINSTR(-W,option))
+#   if defined(GP_COMPILER_GCC)
+#       define GP_WARNING_DISABLE_GCC(option)   DIAG_PRAGMA(GP_COMPILER_NAME, ignored DIAG_JOINSTR(-W,option))
+#   else
+#       define GP_WARNING_DISABLE_GCC(option)
+#   endif
+
+    GP_WARNING_DISABLE(pragmas)
+#elif defined(GP_COMPILER_MSVC)
+#   define GP_WARNING_PUSH()            _Pragma("warning(push)")
+#   define GP_WARNING_POP()             _Pragma("warning(pop)")
 #else
-#   define GP_WARNING_DISABLE_GCC(option)
+#   error Unknown compiller
 #endif
-
-GP_WARNING_DISABLE(pragmas);

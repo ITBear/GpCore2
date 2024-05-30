@@ -2,13 +2,13 @@
 
 namespace GPlatform {
 
-u_int_64    GpByteReader::CompactUInt64 (void)
+u_int_64    GpByteReader::CompactUI64 (void)
 {
     u_int_64 val = 0;
 
     for (ssize_t id = (sizeof(u_int_64) + 1); id >= 0; --id)
     {
-        const u_int_8 byte = UInt8();
+        const u_int_8 byte = UI8();
         val = val << 7;
         val |= byte & 0b01111111;
 
@@ -21,9 +21,9 @@ u_int_64    GpByteReader::CompactUInt64 (void)
     return val;
 }
 
-s_int_64    GpByteReader::CompactSInt64 (void)
+s_int_64    GpByteReader::CompactSI64 (void)
 {
-    u_int_64 value = CompactUInt64();
+    u_int_64 value = CompactUI64();
 
     if (value & u_int_64(1))//Negative
     {
@@ -40,16 +40,16 @@ s_int_64    GpByteReader::CompactSInt64 (void)
     }
 }
 
-GpSpanPtrByteR  GpByteReader::BytesWithLen (void)
+GpSpanByteR GpByteReader::BytesWithLen (void)
 {
     //Length
-    const size_t size = NumOps::SConvert<size_t>(CompactUInt64());
+    const size_t size = NumOps::SConvert<size_t>(CompactUI64());
 
     //Data
     return Bytes(size);
 }
 
-GpSpanPtrByteR  GpByteReader::NextTextLine (void)
+GpSpanByteR GpByteReader::NextTextLine (void)
 {
     const char* _R_ dataPtr     = iStorage.StoragePtr().PtrAs<const char*>();
     const size_t    sizeLeft    = SizeLeft();
@@ -79,4 +79,4 @@ GpSpanPtrByteR  GpByteReader::NextTextLine (void)
     return iStorage.Read(sizeLeft);
 }
 
-}//GPlatform
+}// namespace GPlatform

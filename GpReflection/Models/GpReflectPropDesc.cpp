@@ -1,6 +1,6 @@
-#include "GpReflectPropDesc.hpp"
-
-#if defined(GP_USE_REFLECTION)
+#include <GpCore2/GpReflection/Models/GpReflectPropDesc.hpp>
+#include <GpCore2/GpReflection/GpReflectManager.hpp>
+#include <GpCore2/GpReflection/GpReflectPropUtils.hpp>
 
 namespace GPlatform {
 
@@ -36,7 +36,7 @@ GpReflectPropDesc::GpReflectPropDesc
     const GpReflectType::EnumT          aKeyType,
     const GpReflectContainerType::EnumT aContainerType,
     const GpUUID&                       aModelUid,
-    std::u8string                       aName
+    std::string                         aName
 ) noexcept:
 val_type      (aValType),
 key_type      (aKeyType),
@@ -50,7 +50,7 @@ GpReflectPropDesc::~GpReflectPropDesc (void) noexcept
 {
 }
 
-void    GpReflectPropDesc::_SReflectCollectProps (GpReflectProp::C::Vec::Val& aPropsOut)
+void    GpReflectPropDesc::_SReflectCollectProps (GpReflectProp::SmallVecVal& aPropsOut)
 {
     PROP(val_type);
     PROP(key_type);
@@ -59,6 +59,4 @@ void    GpReflectPropDesc::_SReflectCollectProps (GpReflectProp::C::Vec::Val& aP
     PROP(name);
 }
 
-}//namespace GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

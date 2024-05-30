@@ -9,9 +9,9 @@ namespace GPlatform {
 void    GpItcSharedCondition::NotifyOne (void)
 {
     // Notify fiber task
-    if (iFiberTaskIDs.size() > 0)
+    if (!iFiberTaskIDs.empty())
     {
-        GpTaskScheduler::S().MakeTaskReady(*iFiberTaskIDs.begin());
+        GpTaskScheduler::S().MakeTaskReady(*std::begin(iFiberTaskIDs));
     }
 
     // Notify thread
@@ -24,7 +24,7 @@ void    GpItcSharedCondition::NotifyOne (void)
 void    GpItcSharedCondition::NotifyAll (void)
 {
     // Notify fiber tasks
-    for (const GpTaskId taskId: iFiberTaskIDs)
+    for (const GpTaskId& taskId: iFiberTaskIDs)
     {
         GpTaskScheduler::S().MakeTaskReady(taskId);
     }
@@ -47,8 +47,8 @@ GpItcSharedCondition::TaskInfo  GpItcSharedCondition::SCurrentTaskInfo (void)
     {
         const GpTask& task = taskOptRef.value().get();
 
-        taskMode    = task.Mode();
-        taskId      = task.Id();
+        taskMode    = task.TaskMode();
+        taskId      = task.TaskId();
     }
 
     return {taskMode, taskId};
@@ -59,4 +59,4 @@ void    GpItcSharedCondition::SYeld (const milliseconds_t aTimeout)
     YELD_WAIT(aTimeout);
 }
 
-}//namespace GPlatform
+}// namespace GPlatform

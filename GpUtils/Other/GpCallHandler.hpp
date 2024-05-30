@@ -66,4 +66,4 @@ void    GpCallHandler<FnFirstCallT, FnOtherCallsT>::Call (void)
     }
 }
 
-}//GPlatform
+}// namespace GPlatform

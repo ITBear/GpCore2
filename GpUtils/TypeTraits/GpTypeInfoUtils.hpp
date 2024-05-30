@@ -25,4 +25,4 @@ bool    GpTypeInfoUtils::SIsSame
             || (std::strcmp(aTypeA.name(), aTypeB.name()) == 0);
 }
 
-}//namespace GPlatform
+}// namespace GPlatform

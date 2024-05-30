@@ -16,5 +16,5 @@ void    GpBitWriterStorage::AllocateNext (const size_bit_t aSize)
     );
 }
 
-}//GPlatform
+}// namespace GPlatform
 */

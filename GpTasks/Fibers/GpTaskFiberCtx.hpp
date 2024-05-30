@@ -1,14 +1,14 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
-#if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
-#include "../../GpUtils/Macro/GpMacroClass.hpp"
-#include "../../GpUtils/Types/Containers/GpContainersT.hpp"
-#include "../../GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp"
 #include "../GpTaskEnums.hpp"
+
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
+#include <GpCore2/GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp>
 
 namespace GPlatform {
 
@@ -21,18 +21,17 @@ public:
     CLASS_DD(GpTaskFiberCtx)
 
 protected:
-                                        GpTaskFiberCtx  (void) noexcept = default;
+                                    GpTaskFiberCtx  (void) noexcept = default;
 
 public:
-    virtual                             ~GpTaskFiberCtx (void) noexcept = default;
+    virtual                         ~GpTaskFiberCtx (void) noexcept = default;
 
-    virtual std::optional<GpException>  Clear           (void) noexcept = 0;
-    virtual GpTaskRunRes::EnumT         Enter           (GpTaskFiber& aTaskFiber) = 0;
-    virtual void                        Yield           (const GpTaskRunRes::EnumT aRunRes) = 0;
-    virtual void                        Yield           (const milliseconds_t aTimeout) = 0;
+    virtual GpException::C::Opt     Clear           (void) noexcept = 0;
+    virtual GpTaskRunRes::EnumT     Enter           (GpTaskFiber& aTaskFiber) = 0;
+    virtual void                    CallYield       (const GpTaskRunRes::EnumT aRunRes) = 0;
+    virtual void                    CallYield       (const milliseconds_t aTimeout) = 0;
 };
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_MULTITHREADING_FIBERS)
-#endif//#if defined(GP_USE_MULTITHREADING)
+#endif// #if defined(GP_USE_MULTITHREADING_FIBERS)

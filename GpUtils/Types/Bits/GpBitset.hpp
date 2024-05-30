@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_BITSET)
 
@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <initializer_list>
 
-namespace GPlatform{
+namespace GPlatform {
 
 /*template<typename MaskT,//enum or integral
          typename ValueT>
@@ -371,11 +371,11 @@ template<typename MaskT,
          typename ValueT> constexpr
 auto GpBitset<MaskT, ValueT>::MakeValueFromList (const init_mask_type aMask) noexcept -> value_type_no_volatile
 {
-    size_t bitset = size_t(0);
+    size_t bitset = size_t{0};
 
     for (MaskT bitId: aMask)
     {
-        bitset |= BitOps::SHL(size_t(1), bitId);
+        bitset |= BitOps::SHL(size_t{1}, bitId);
     }
 
     return value_type_no_volatile(bitset);
@@ -385,11 +385,11 @@ template<typename MaskT,
          typename ValueT>
 auto GpBitset<MaskT, ValueT>::MakeValueFromList (const std::vector<MaskT>& aMask) noexcept -> value_type_no_volatile
 {
-    size_t  bitset = size_t(0);
+    size_t  bitset = size_t{0};
 
     for (MaskT bitId: aMask)
     {
-        bitset |= BitOps::SHL(size_t(1), bitId);
+        bitset |= BitOps::SHL(size_t{1}, bitId);
     }
 
     return value_type_no_volatile(bitset);
@@ -432,6 +432,6 @@ void    GpBitset<MaskT, ValueT>::WriteToAddr (const std::ptrdiff_t          aADD
     GetByAddr(aADDR)->SetNV(aBitset);
 }
 */
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_BITSET)
+#endif// #if defined(GP_USE_BITSET)

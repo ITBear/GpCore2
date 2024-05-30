@@ -13,6 +13,13 @@ concept HasRandomAccessIter = requires(T t)
 };
 
 template <typename T>
+concept HasContiguousIter = requires(T t)
+{
+    typename T::iterator;
+    requires std::contiguous_iterator<typename T::iterator>;
+};
+
+template <typename T>
 concept HasForwardIter = requires(T t)
 {
     typename T::iterator;
@@ -29,6 +36,12 @@ template <typename T>
 concept IsPointer = requires()
 {
     requires std::is_pointer_v<T>;
+};
+
+template <typename T>
+concept IsReference = requires()
+{
+    requires std::is_reference_v<T>;
 };
 
 template <typename T>
@@ -69,4 +82,4 @@ concept IsIntegralUpTo64 =
        std::is_integral_v<T>
     && (sizeof(T) <= 8);
 
-}//namespace GPlatform::Concepts
+}// namespace GPlatform::Concepts

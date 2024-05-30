@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_TIMERS)
 
 #include "../../Types/Units/SI/GpUnitsSI_Time.hpp"
 #include "../../Types/Containers/GpContainersT.hpp"
-#include "../../SyncPrimitives/GpRWSpinLock.hpp"
+#include "../../SyncPrimitives/GpSpinLockRW.hpp"
 
 #include <mutex>
 #include <shared_mutex>
@@ -62,7 +62,7 @@ private:
     TestRes                 IsReadyToShot           (void) const noexcept;
 
 private:
-    mutable GpRWSpinLock    iLock;
+    mutable GpSpinLockRW    iLock;
     CallbackFnT             iCallbackFn;
     milliseconds_t          iPeriod;
     milliseconds_t          iDelayBeforeFirstShot;
@@ -150,6 +150,6 @@ bool    GpTimer::IsReturnToPool (void) const noexcept
     return iIsReturnToPool;
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_TIMERS)
+#endif// #if defined(GP_USE_TIMERS)

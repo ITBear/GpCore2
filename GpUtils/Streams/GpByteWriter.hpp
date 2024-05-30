@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GpByteWriterStorage.hpp"
+#include "GpByteWriterRef.hpp"
 #include "../Types/Bits/GpBitOps.hpp"
 
 namespace GPlatform {
@@ -8,13 +9,6 @@ namespace GPlatform {
 class GP_UTILS_API GpByteWriter
 {
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpByteWriter)
-
-public:
-    enum class Mode
-    {
-        N2H,    // Network to host conversion
-        NO_N2H  // NO network to host conversion
-    };
 
 public:
     inline                  GpByteWriter    (GpByteWriterStorage& aStorage) noexcept;
@@ -25,53 +19,40 @@ public:
      * @param aOffset - size in bytes to `skip`
      * @return - SpanPtr to memory before offset
      */
-    inline GpSpanPtrByteRW  Offset          (const size_t aOffset);
-    inline GpSpanPtrByteRW  StoragePtr      (void) noexcept;
+    inline GpSpanByteRW     OffsetAdd       (const size_t aOffset);
+    inline GpSpanByteRW     StoragePtr      (void) noexcept;
     inline size_t           SizeLeft        (void) const noexcept;
     inline size_t           TotalWrite      (void) const noexcept;
     inline void             OnEnd           (void);
     inline void             ReserveNext     (const size_t aSize);
 
-    inline GpByteWriter&    UInt8           (const u_int_8  aValue,
-                                             const Mode     aMode = Mode::N2H);
-    inline GpByteWriter&    SInt8           (const s_int_8  aValue,
-                                             const Mode     aMode = Mode::N2H);
-    inline GpByteWriter&    UInt16          (const u_int_16 aValue,
-                                             const Mode     aMode = Mode::N2H);
-    inline GpByteWriter&    SInt16          (const s_int_16 aValue,
-                                             const Mode     aMode = Mode::N2H);
-    inline GpByteWriter&    UInt32          (const u_int_32 aValue,
-                                             const Mode     aMode = Mode::N2H);
-    inline GpByteWriter&    SInt32          (const s_int_32 aValue,
-                                             const Mode     aMode = Mode::N2H);
-    inline GpByteWriter&    UInt64          (const u_int_64 aValue,
-                                             const Mode     aMode = Mode::N2H);
-    inline GpByteWriter&    SInt64          (const s_int_64 aValue,
-                                             const Mode     aMode = Mode::N2H);
-    GpByteWriter&           BytesWithLen    (GpSpanPtrByteR aData);
-    inline GpByteWriter&    Bytes           (GpSpanPtrByteR aData);
-    inline GpByteWriter&    Bytes           (std::u8string_view aData);
-    inline GpByteWriter&    Bytes           (const std::u8string& aData);
+    template<Concepts::IsIntegralUpTo64 T>
+    GpByteWriterRef<T, GpByteWriter>
+                            Ref             (void);
+
+    inline GpByteWriter&    UI8             (const u_int_8  aValue);
+    inline GpByteWriter&    SI8             (const s_int_8  aValue);
+    inline GpByteWriter&    UI16            (const u_int_16 aValue);
+    inline GpByteWriter&    SI16            (const s_int_16 aValue);
+    inline GpByteWriter&    UI32            (const u_int_32 aValue);
+    inline GpByteWriter&    SI32            (const s_int_32 aValue);
+    inline GpByteWriter&    UI64            (const u_int_64 aValue);
+    inline GpByteWriter&    SI64            (const s_int_64 aValue);
+    GpByteWriter&           BytesWithLen    (GpSpanByteR aData);
+    inline GpByteWriter&    Bytes           (GpSpanByteR aData);
+    inline GpByteWriter&    Bytes           (std::string_view aData);
+    inline GpByteWriter&    Bytes           (const std::string& aData);
     inline GpByteWriter&    Bytes           (const void*    aPtr,
                                              const size_t   aSize);
-    GpByteWriter&           CompactUInt64   (const u_int_64 aValue);
-    GpByteWriter&           CompactSInt64   (const s_int_64 aValue);
+    GpByteWriter&           CompactUI64     (const u_int_64 aValue);
+    GpByteWriter&           CompactSI64     (const s_int_64 aValue);
 
 private:
     template<typename T>
-    void                    WritePOD        (const T    aValue,
-                                             const Mode aMode)
+    void                    WritePOD        (const T aValue)
     {
         std::remove_const_t<T> val;
-
-        if (aMode == Mode::N2H)
-        {
-            val = BitOps::H2N(aValue);
-        } else
-        {
-            val = aValue;
-        }
-
+        val = BitOps::H2N(aValue);
         Bytes({reinterpret_cast<const std::byte*>(&val), sizeof(T)});
     }
 
@@ -84,110 +65,78 @@ iStorage(aStorage)
 {
 }
 
-GpSpanPtrByteRW GpByteWriter::Offset (const size_t aOffset)
+GpSpanByteRW    GpByteWriter::OffsetAdd (const size_t aOffset)
 {
     if (aOffset == 0) [[unlikely]]
     {
         return StoragePtr();
     }
 
-    return iStorage.Offset(aOffset);
+    return iStorage.OffsetAdd(aOffset);
 }
 
-GpByteWriter&   GpByteWriter::UInt8
-(
-    const u_int_8   aValue,
-    const Mode      aMode
-)
+GpByteWriter&   GpByteWriter::UI8 (const u_int_8 aValue)
 {
-    WritePOD<decltype(aValue)>(aValue, aMode);
+    WritePOD<decltype(aValue)>(aValue);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::SInt8
-(
-    const s_int_8   aValue,
-    const Mode      aMode
-)
+GpByteWriter&   GpByteWriter::SI8 (const s_int_8 aValue)
 {
-    WritePOD<decltype(aValue)>(aValue, aMode);
+    WritePOD<decltype(aValue)>(aValue);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::UInt16
-(
-    const u_int_16  aValue,
-    const Mode      aMode
-)
+GpByteWriter&   GpByteWriter::UI16 (const u_int_16 aValue)
 {
-    WritePOD<decltype(aValue)>(aValue, aMode);
+    WritePOD<decltype(aValue)>(aValue);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::SInt16
-(
-    const s_int_16  aValue,
-    const Mode      aMode
-)
+GpByteWriter&   GpByteWriter::SI16 (const s_int_16 aValue)
 {
-    WritePOD<decltype(aValue)>(aValue, aMode);
+    WritePOD<decltype(aValue)>(aValue);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::UInt32
-(
-    const u_int_32  aValue,
-    const Mode      aMode
-)
+GpByteWriter&   GpByteWriter::UI32 (const u_int_32 aValue)
 {
-    WritePOD<decltype(aValue)>(aValue, aMode);
+    WritePOD<decltype(aValue)>(aValue);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::SInt32
-(
-    const s_int_32  aValue,
-    const Mode      aMode
-)
+GpByteWriter&   GpByteWriter::SI32 (const s_int_32 aValue)
 {
-    WritePOD<decltype(aValue)>(aValue, aMode);
+    WritePOD<decltype(aValue)>(aValue);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::UInt64
-(
-    const u_int_64  aValue,
-    const Mode      aMode
-)
+GpByteWriter&   GpByteWriter::UI64 (const u_int_64 aValue)
 {
-    WritePOD<decltype(aValue)>(aValue, aMode);
+    WritePOD<decltype(aValue)>(aValue);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::SInt64
-(
-    const s_int_64  aValue,
-    const Mode      aMode
-)
+GpByteWriter&   GpByteWriter::SI64 (const s_int_64 aValue)
 {
-    WritePOD<decltype(aValue)>(aValue, aMode);
+    WritePOD<decltype(aValue)>(aValue);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::Bytes (GpSpanPtrByteR aData)
+GpByteWriter&   GpByteWriter::Bytes (GpSpanByteR aData)
 {
     iStorage.Write(aData);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::Bytes (std::u8string_view aData)
+GpByteWriter&   GpByteWriter::Bytes (std::string_view aData)
 {
-    return Bytes(GpSpanPtrByteR(aData.data(), aData.size()));
+    return Bytes(GpSpanByteR(std::data(aData), std::size(aData)));
 }
 
-GpByteWriter&   GpByteWriter::Bytes (const std::u8string& aData)
+GpByteWriter&   GpByteWriter::Bytes (const std::string& aData)
 {
-    return Bytes(GpSpanPtrByteR(aData.data(), aData.size()));
+    return Bytes(GpSpanByteR(std::data(aData), std::size(aData)));
 }
 
 GpByteWriter&   GpByteWriter::Bytes
@@ -200,7 +149,7 @@ GpByteWriter&   GpByteWriter::Bytes
     return *this;
 }
 
-GpSpanPtrByteRW GpByteWriter::StoragePtr (void) noexcept
+GpSpanByteRW    GpByteWriter::StoragePtr (void) noexcept
 {
     return iStorage.StoragePtr();
 }
@@ -225,4 +174,13 @@ void    GpByteWriter::ReserveNext (const size_t aSize)
     iStorage.ReserveNext(aSize);
 }
 
-}//GPlatform
+template<Concepts::IsIntegralUpTo64 T>
+GpByteWriterRef<T, GpByteWriter>
+GpByteWriter::Ref (void)
+{
+    auto res = GpByteWriterRef<T, GpByteWriter>(TotalWrite(), *this);
+    OffsetAdd(sizeof(T));
+    return res;
+}
+
+}// namespace GPlatform

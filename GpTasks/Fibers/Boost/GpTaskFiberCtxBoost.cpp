@@ -1,18 +1,24 @@
 #include "GpTaskFiberCtxBoost.hpp"
 
-#if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
 
 #include "GpStackImplPoolBoost.hpp"
 #include "../GpTaskFiber.hpp"
-#include "../../../GpUtils/Types/Strings/GpStringUtils.hpp"
-#include "../../../GpUtils/Threads/Timers/GpTimersManager.hpp"
 #include "../../Scheduler/GpTaskScheduler.hpp"
 #include "../GpTaskFiber.hpp"
 #include "../GpTaskFiberCtxForceUnwind.hpp"
 
+#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
+#include <GpCore2/GpUtils/Threads/Timers/GpTimersManager.hpp>
+
 namespace GPlatform {
+
+GP_WARNING_PUSH()
+
+#if defined(GP_OS_WINDOWS)
+#   pragma warning(disable : 4297)
+#endif// #if defined(GP_OS_WINDOWS)
 
 GpTaskFiberCtxBoost::GpTaskFiberCtxBoost (void) noexcept
 try
@@ -22,7 +28,7 @@ try
     THROW_COND_GP
     (
         stackImpl.has_value(),
-        u8"Failed to get fiber stack implementation from pool"_sv
+        "Failed to get fiber stack implementation from pool"_sv
     );
 
     iStack = std::move(stackImpl.value());
@@ -40,21 +46,23 @@ try
     );
 } catch(const std::exception& ex)
 {
-    GpStringUtils::SCerr(u8"[GpTaskFiberCtxBoost::GpTaskFiberCtxBoost]: "_sv + ex.what());
+    GpStringUtils::SCerr("[GpTaskFiberCtxBoost::GpTaskFiberCtxBoost]: "_sv + ex.what());
     std::terminate();
 } catch(...)
 {
-    GpStringUtils::SCerr(u8"[GpTaskFiberCtxBoost::GpTaskFiberCtxBoost]: unknown exception"_sv);
+    GpStringUtils::SCerr("[GpTaskFiberCtxBoost::GpTaskFiberCtxBoost]: unknown exception"_sv);
     std::terminate();
 }
+
+GP_WARNING_POP()
 
 GpTaskFiberCtxBoost::~GpTaskFiberCtxBoost (void) noexcept
 {   
 }
 
-std::optional<GpException>  GpTaskFiberCtxBoost::Clear (void) noexcept
+GpException::C::Opt GpTaskFiberCtxBoost::Clear (void) noexcept
 {
-    std::optional<GpException> ex;
+    GpException::C::Opt ex;
 
     try
     {
@@ -86,7 +94,7 @@ std::optional<GpException>  GpTaskFiberCtxBoost::Clear (void) noexcept
         GpStringUtils::SCerr(ex->what());
     } catch (...)
     {
-        ex = GpException(u8"[GpTaskFiberCtxBoost::Clear]: unknown exception"_sv);
+        ex = GpException("[GpTaskFiberCtxBoost::Clear]: unknown exception"_sv);
         GpStringUtils::SCerr(ex->what());
     }
 
@@ -99,13 +107,13 @@ GpTaskRunRes::EnumT GpTaskFiberCtxBoost::Enter (GpTaskFiber& aTaskFiber)
     iTaskFiber  = &aTaskFiber;
     iException.reset();
 
-    //--------------- OUTSIDE FIBER --------------
-    //--------------- JUMP INTO FIBER ---------------
+    // --------------- OUTSIDE FIBER --------------
+    // --------------- JUMP INTO FIBER ---------------
 
     iFiber = std::move(iFiber).resume(); // Jump to GpTaskFiberCtxBoost::SFiberFn or back to GpTaskFiberCtxBoost::Yield
 
-    //--------------- EXIT FROM FIBER ---------------
-    //--------------- OUTSIDE FIBER --------------
+    // --------------- EXIT FROM FIBER ---------------
+    // --------------- OUTSIDE FIBER --------------
 
     if (iException.has_value()) [[unlikely]]
     {
@@ -115,18 +123,17 @@ GpTaskRunRes::EnumT GpTaskFiberCtxBoost::Enter (GpTaskFiber& aTaskFiber)
     return iYieldRes;
 }
 
-void    GpTaskFiberCtxBoost::Yield (const GpTaskRunRes::EnumT aRunRes)
+void    GpTaskFiberCtxBoost::CallYield (const GpTaskRunRes::EnumT aRunRes)
 {
     iYieldRes = aRunRes;
 
-
-    //--------------- INSIDE FIBER ---------------
-    //--------------- EXIT FROM FIBER ---------------
+    // --------------- INSIDE FIBER ---------------
+    // --------------- EXIT FROM FIBER ---------------
 
     iFiber = std::move(iFiber).resume(); // Jump back to GpTaskFiberCtxBoost::Enter
 
-    //--------------- JUMP INTO FIBER ---------------
-    //--------------- INSIDE FIBER ---------------
+    // --------------- JUMP INTO FIBER ---------------
+    // --------------- INSIDE FIBER ---------------
 
     if (iTaskFiber != nullptr) [[likely]]
     {
@@ -135,20 +142,20 @@ void    GpTaskFiberCtxBoost::Yield (const GpTaskRunRes::EnumT aRunRes)
             if (iTaskFiber->IsStopRequested()) [[unlikely]]
             {
                 iIsCallStopInProgress = true;
-                iTaskFiber->CallStop();
-                throw GpTaskFiberCtxForceUnwind(iTaskFiber->Name());
+                iTaskFiber->CallOnStop(GpMethodAccess<GpTaskFiberCtx>{this});
+                throw GpTaskFiberCtxForceUnwind(iTaskFiber->TaskName());
             }
         }
     }
 }
 
-void    GpTaskFiberCtxBoost::Yield (const milliseconds_t aTimeout)
+void    GpTaskFiberCtxBoost::CallYield (const milliseconds_t aTimeout)
 {
-    const GpTaskId taskId = GpTaskFiber::SCurrentFiber().Id();
+    const GpTaskId taskId = GpTaskFiber::SCurrentFiber().TaskId();
 
     const bool isSuccess = GpTimersManager::SSingleShot
     (
-        [taskId](const GpTimer& /*aTimer*/)
+        [taskId]([[maybe_unused]] const GpTimer& aTimer)
         {
             GpTaskScheduler::S().MakeTaskReady(taskId);
         },
@@ -157,10 +164,10 @@ void    GpTaskFiberCtxBoost::Yield (const milliseconds_t aTimeout)
 
     if (isSuccess) [[likely]]
     {
-        Yield(GpTaskRunRes::WAIT);
+        CallYield(GpTaskRunRes::WAIT);
     } else
     {
-        Yield(GpTaskRunRes::READY_TO_RUN);
+        CallYield(GpTaskRunRes::READY_TO_RUN);
     }
 }
 
@@ -170,7 +177,7 @@ boost::context::fiber   GpTaskFiberCtxBoost::SFiberFn
     GpTaskFiberCtxBoost&    aFiberCtx
 )
 {
-    //--------------- INSIDE FIBER ---------------
+    // --------------- INSIDE FIBER ---------------
 
     aFiberCtx.iFiber = std::move(aFiber);
 
@@ -181,16 +188,16 @@ boost::context::fiber   GpTaskFiberCtxBoost::SFiberFn
         try
         {
             // First call
-            GpTaskRunRes::EnumT res = task->FiberRun();
+            GpTaskRunRes::EnumT res = task->FiberRun(GpMethodAccess<GpTaskFiberCtx>{&aFiberCtx});
 
             // Call until res != GpTaskRunRes::DONE
             while (res != GpTaskRunRes::DONE)
             {
                 // Yield for reschedule
-                aFiberCtx.Yield(res);
+                aFiberCtx.CallYield(res);
 
                 // Call
-                res = task->FiberRun();
+                res = task->FiberRun(GpMethodAccess<GpTaskFiberCtx>{&aFiberCtx});
             }
 
             aFiberCtx.iYieldRes = GpTaskRunRes::DONE;
@@ -208,11 +215,10 @@ boost::context::fiber   GpTaskFiberCtxBoost::SFiberFn
     // Terminate fiber and exit
     return std::move(aFiberCtx.iFiber); // Jump back to GpTaskFiberCtxBoost::Enter
 
-    //--------------- INSIDE FIBER ---------------
+    // --------------- INSIDE FIBER ---------------
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
-#endif//#if defined(GP_USE_MULTITHREADING_FIBERS)
-#endif//#if defined(GP_USE_MULTITHREADING)
+#endif// #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
+#endif// #if defined(GP_USE_MULTITHREADING_FIBERS)

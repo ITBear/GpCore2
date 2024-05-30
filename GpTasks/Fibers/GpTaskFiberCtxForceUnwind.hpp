@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
-#if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
 #include "../GpTasks_global.hpp"
-#include "../../GpUtils/Exceptions/GpException.hpp"
+
+#include <GpCore2/GpUtils/Exceptions/GpException.hpp>
 
 namespace GPlatform {
 
@@ -14,10 +14,8 @@ class GP_TASKS_API GpTaskFiberCtxForceUnwind final: public GpException
 {
 public:
                                         GpTaskFiberCtxForceUnwind   (void) noexcept = default;
-    inline                              GpTaskFiberCtxForceUnwind   (const GpException& aException);
-    inline                              GpTaskFiberCtxForceUnwind   (GpException&& aException);
-    inline                              GpTaskFiberCtxForceUnwind   (std::u8string_view     aMsg,
-                                                                     const SourceLocationT& aSourceLocation = SourceLocationT::current()) noexcept;
+    inline                              GpTaskFiberCtxForceUnwind   (const GpTaskFiberCtxForceUnwind& aException);
+    inline                              GpTaskFiberCtxForceUnwind   (GpTaskFiberCtxForceUnwind&& aException);
     inline                              GpTaskFiberCtxForceUnwind   (std::string_view       aMsg,
                                                                      const SourceLocationT& aSourceLocation = SourceLocationT::current()) noexcept;
     virtual                             ~GpTaskFiberCtxForceUnwind  (void) noexcept override final;
@@ -26,22 +24,13 @@ public:
     inline GpTaskFiberCtxForceUnwind&   operator=                   (GpTaskFiberCtxForceUnwind&&        aException);
 };
 
-GpTaskFiberCtxForceUnwind::GpTaskFiberCtxForceUnwind (const GpException& aException):
+GpTaskFiberCtxForceUnwind::GpTaskFiberCtxForceUnwind (const GpTaskFiberCtxForceUnwind& aException):
 GpException(aException)
 {
 }
 
-GpTaskFiberCtxForceUnwind::GpTaskFiberCtxForceUnwind (GpException&& aException):
+GpTaskFiberCtxForceUnwind::GpTaskFiberCtxForceUnwind (GpTaskFiberCtxForceUnwind&& aException):
 GpException(std::move(aException))
-{
-}
-
-GpTaskFiberCtxForceUnwind::GpTaskFiberCtxForceUnwind
-(
-    std::u8string_view      aMsg,
-    const SourceLocationT&  aSourceLocation
-) noexcept:
-GpException(aMsg, aSourceLocation)
 {
 }
 
@@ -69,4 +58,3 @@ GpTaskFiberCtxForceUnwind&  GpTaskFiberCtxForceUnwind::operator= (GpTaskFiberCtx
 }// namespace GPlatform
 
 #endif// #if defined(GP_USE_MULTITHREADING_FIBERS)
-#endif// #if defined(GP_USE_MULTITHREADING)

@@ -1,25 +1,27 @@
+# ----------- Config -----------
 TEMPLATE        = lib
-#CONFIG         += staticlib
-VER_MAJ		    = 2
-VER_MIN		    = 1
-VER_PAT		    = 0
-QMAKE_CXXFLAGS += -DGP_MODULE_UUID=2991942d-b5ea-46a0-4b40-c603f8b4e1b7
+#CONFIG        += staticlib
 QMAKE_CXXFLAGS += -DGP_REFLECTION_STATIC_ADD_TO_MANAGER
-#DEFINES       += _LIBRARY
-PACKET_NAME     = Config
+QMAKE_CXXFLAGS += -DGP_MODULE_UUID=2991942d-b5ea-46a0-4b40-c603f8b4e1b7
+PACKET_NAME     = GpConfig
+DEFINES        += GP_CONFIG_LIBRARY
+_VER_MAJ        = 2
+_VER_MIN        = 1
+_VER_PAT        = 5
 DIR_LEVEL       = ./../..
 
-include(../../../QtGlobalPro.pri)
+include($$DIR_LEVEL/../QtGlobalPro.pri)
 
-#------------------------------ LIBS BEGIN ---------------------------------
+# ----------- Libraries -----------
 os_windows{
 }
 
 os_linux{
 }
-#------------------------------- LIBS END ----------------------------------
 
-SOURCES +=
+# ----------- Sources and headers -----------
+SOURCES += \
+	GpConfig.cpp
 
 HEADERS += \
     GpCompilerFeatures.hpp \
@@ -40,4 +42,9 @@ HEADERS += \
     GpConfig_os_linux.hpp \
     GpConfig_os_macosx.hpp \
     GpConfig_os_windows.hpp \
-    GpEnvironmentDetector.hpp
+    GpEnvironmentDetector.hpp \
+    IncludeExt/boost_flat_map.hpp \
+    IncludeExt/boost_flat_set.hpp \
+    IncludeExt/boost_small_vector.hpp \
+    IncludeExt/fmt.hpp \
+    IncludeExt/windows.hpp

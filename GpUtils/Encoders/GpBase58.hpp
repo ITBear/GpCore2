@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_BASE58)
 
@@ -26,20 +26,20 @@ public:
     using AlphabetTE    = AlphabetT::EnumT;
 
 public:
-    static void             SEncode             (GpSpanPtrByteR     aData,
+    static void             SEncode             (GpSpanByteR        aData,
                                                  GpByteWriter&      aWriterBase58Str,
                                                  const AlphabetTE   aAlphabet);
-    static std::u8string    SEncodeToStr        (GpSpanPtrByteR     aData,
+    static std::string      SEncodeToStr        (GpSpanByteR        aData,
                                                  const AlphabetTE   aAlphabet);
-    static GpBytesArray     SEncodeToByteArray  (GpSpanPtrByteR     aData,
+    static GpBytesArray     SEncodeToByteArray  (GpSpanByteR        aData,
                                                  const AlphabetTE   aAlphabet);
 
-    static void             SDecode             (std::u8string_view aBase58Str,
+    static void             SDecode             (std::string_view   aBase58Str,
                                                  GpByteWriter&      aWriterData,
                                                  const AlphabetTE   aAlphabet);
-    static std::u8string    SDecodeToStr        (std::u8string_view aBase58Str,
+    static std::string      SDecodeToStr        (std::string_view   aBase58Str,
                                                  const AlphabetTE   aAlphabet);
-    static GpBytesArray     SDecodeToByteArray  (std::u8string_view aBase58Str,
+    static GpBytesArray     SDecodeToByteArray  (std::string_view   aBase58Str,
                                                  const AlphabetTE   aAlphabet);
 
 private:
@@ -48,8 +48,8 @@ private:
         return sAlphabets[aAlphabet.ID()];
     }
 
-    static size_t           SEncodedSize        (GpSpanPtrByteR aData);
-    static void             SDecodePrecalc      (std::u8string_view aBase58Str,
+    static size_t           SEncodedSize        (GpSpanByteR aData);
+    static void             SDecodePrecalc      (std::string_view   aBase58Str,
                                                  const AlphabetTE   aAlphabet,
                                                  void*              aMpzClass,
                                                  size_t&            aDataSizeOut);
@@ -63,6 +63,6 @@ private:
     static std::array<u_int_8, 58>  sAlphabets[GpBase58Alphabet::SCount()];
 };
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_BASE64)
+#endif// #if defined(GP_USE_BASE64)

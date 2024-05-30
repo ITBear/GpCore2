@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../Config/GpConfig.hpp"
-
-#if defined(GP_USE_MULTITHREADING)
+#include <GpCore2/Config/GpConfig.hpp>
 
 #include "GpTask.hpp"
 
@@ -15,30 +13,30 @@ public:
     CLASS_DD(GpTaskThread)
 
 protected:
-    inline                              GpTaskThread    (std::u8string aName) noexcept;
-    inline                              GpTaskThread    (void) noexcept;
+    inline                          GpTaskThread    (std::string aName) noexcept;
+    inline                          GpTaskThread    (void) noexcept;
 
 public:
-    virtual                             ~GpTaskThread   (void) noexcept = default;
+    virtual                         ~GpTaskThread   (void) noexcept = default;
 
 protected:
-    virtual GpTaskRunRes::EnumT         Run             (void) noexcept override final;
+    virtual GpTaskRunRes::EnumT     Run             (void) noexcept override final;
 
-    virtual void                        OnStart         (void) = 0;             // Calls once, before first call OnStep
-    virtual GpTaskRunRes::EnumT         OnStep          (void) = 0;             // Calls until return DONE or exception or IsStopRequested() == true
-    virtual std::optional<GpException>  OnStop          (void) noexcept = 0;    // It is called once before finishing in the following cases:
+    virtual void                    OnStart         (void) = 0;             // Calls once, before first call OnStep
+    virtual GpTaskRunRes::EnumT     OnStep          (void) = 0;             // Calls until return DONE or exception or IsStopRequested() == true
+    virtual GpException::C::Opt     OnStop          (void) noexcept = 0;    // It is called once before finishing in the following cases:
                                                                                 // 1. In the event of an exception in OnStart, OnStep, or any other location.
                                                                                 // 2. If OnStep returns DONE
 
 private:
-    std::optional<GpException>          CallStop        (void) noexcept;
+    GpException::C::Opt             CallOnStop      (void) noexcept;
 
 private:
-    bool                                iIsStartCalled  = false;
-    bool                                iIsStopCalled   = false;
+    bool                            iIsStartCalled  = false;
+    bool                            iIsStopCalled   = false;
 };
 
-GpTaskThread::GpTaskThread (std::u8string aName) noexcept:
+GpTaskThread::GpTaskThread (std::string aName) noexcept:
 GpTask
 (
     std::move(aName),
@@ -52,6 +50,4 @@ GpTask(GpTaskMode::THREAD)
 {
 }
 
-}//namespace GPlatform
-
-#endif//#if defined(GP_USE_MULTITHREADING)
+}// namespace GPlatform

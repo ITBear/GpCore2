@@ -2,8 +2,6 @@
 
 #include "../GpTaskSchedulerFactory.hpp"
 
-#if defined(GP_USE_MULTITHREADING)
-
 namespace GPlatform {
 
 class GP_TASKS_API GpTaskSchedulerV1Factory final: public GpTaskSchedulerFactory
@@ -18,9 +16,7 @@ public:
 
     virtual                         ~GpTaskSchedulerV1Factory   (void) noexcept override final;
 
-    virtual GpSP<GpTaskScheduler>   NewInstance                 (void) const override final;
+    virtual GpSP<GpTaskScheduler>   NewInstance                 (StopServiceFnT aStopServiceFn) const override final;
 };
 
-}//namespace GPlatform
-
-#endif//#if defined(GP_USE_MULTITHREADING)
+}// namespace GPlatform

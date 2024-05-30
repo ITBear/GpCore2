@@ -1,12 +1,13 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_ENUMS)
 
-#include "GpEnumFlags.hpp"
 #include <bit>
 #include <initializer_list>
+
+#include "GpEnumFlags.hpp"
 
 namespace GPlatform {
 
@@ -17,8 +18,8 @@ public:
     CLASS_DD(GpEnum)
     TAG_SET(GpEnum)
 
-    using value_type    = s_int_32;
-    using NamesListT    = std::vector<std::tuple<std::u8string_view, value_type>>;
+    using value_type    = typename GpEnumFlags::value_type;
+    using NamesListT    = typename GpEnumFlags::NamesListT;
 
 protected:
                                 GpEnum              (void) noexcept:iId(value_type()) {}
@@ -36,10 +37,10 @@ public:
     value_type                  ID                  (void) const noexcept {return iId;}
     void                        FromID              (const value_type aId);
     void                        FromNumPos          (const size_t aPos);
-    std::u8string_view          ToString            (void) const noexcept;
-    void                        FromString          (std::u8string_view aName);
+    std::string_view            ToString            (void) const noexcept;
+    void                        FromString          (std::string_view aName);
     virtual const NamesListT&   Names               (void) const noexcept = 0;
-    virtual std::u8string_view  TypeName            (void) const noexcept = 0;
+    virtual std::string_view    TypeName            (void) const noexcept = 0;
 
     bool                        operator<           (const GpEnum& aEnum) const noexcept {return iId < aEnum.iId;}
     bool                        operator>           (const GpEnum& aEnum) const noexcept {return iId > aEnum.iId;}
@@ -49,18 +50,18 @@ public:
     bool                        operator!=          (const GpEnum& aEnum) const noexcept {return iId != aEnum.iId;}
 
 protected:
-    static std::u8string_view   _SToString          (const NamesListT&  aNamesList,
+    static std::string_view     _SToString          (const NamesListT&  aNamesList,
                                                      const value_type   aId) noexcept;
     static value_type           _SFromString        (const NamesListT&  aNamesList,
-                                                     std::u8string_view aName,
-                                                     std::u8string_view aEnumTypeName);
-    static NamesListT           _SParseEnumElements (std::u8string_view aEnumName,
-                                                     std::u8string_view aEnumElementsStr);
+                                                     std::string_view   aName,
+                                                     std::string_view   aEnumTypeName);
+    static NamesListT           _SParseEnumElements (std::string_view aEnumName,
+                                                     std::string_view aEnumElementsStr);
 
 private:
     static void                 _SParseEnumValues   (NamesListT&        aNamesListOut,
-                                                     std::u8string_view aEnumName,
-                                                     std::u8string_view aEnumElementsStr);
+                                                     std::string_view   aEnumName,
+                                                     std::string_view   aEnumElementsStr);
 private:
     value_type                  iId;
 };
@@ -98,9 +99,9 @@ public: \
 \
     static TYPE_NAME SFromID (const value_type aId) {TYPE_NAME e; e.FromID(aId); return e;} \
 \
-    static std::u8string_view SEnumValuesStr (void) \
+    static std::string_view SEnumValuesStr (void) \
     {\
-        static const std::u8string s = std::u8string(GpUTF::S_As_UTF8(#__VA_ARGS__)); \
+        static const std::string s = std::string(#__VA_ARGS__); \
         return s;\
     }\
 \
@@ -125,12 +126,14 @@ public: \
         return _SetID(value_type(aEnumValue));\
     }\
 \
-    static std::u8string_view SToString (EnumT aEnumValue) noexcept; \
+    operator EnumT() const noexcept { return Value(); } \
 \
-    static EnumT SFromString (std::u8string_view aName);\
+    static std::string_view SToString (EnumT aEnumValue) noexcept; \
+\
+    static EnumT SFromString (std::string_view aName);\
 \
     virtual const NamesListT&   Names       (void) const noexcept override final;\
-    virtual std::u8string_view  TypeName    (void) const noexcept override final;\
+    virtual std::string_view    TypeName    (void) const noexcept override final;\
 \
     bool operator < (const TYPE_NAME& aTypeName) const noexcept     {return ID() < aTypeName.ID();}\
     bool operator < (const TYPE_NAME::EnumT aValue) const noexcept  {return ID() < value_type(aValue);}\
@@ -154,7 +157,7 @@ public: \
 \
     static const NamesListT&    SNames      (void) noexcept;\
     static value_type           SID_at      (const size_t aPos) {return std::get<1>(SNames().at(aPos));} \
-    static std::u8string_view   STypeName   (void) noexcept;\
+    static std::string_view     STypeName   (void) noexcept;\
 }
 
 #define GP_ENUM_IMPL(TYPE_NAME, ...) \
@@ -163,26 +166,26 @@ const GpEnum::NamesListT& TYPE_NAME::SNames (void) noexcept \
 { \
     static NamesListT sNamesList = TYPE_NAME::_SParseEnumElements \
     ( \
-        GpUTF::S_As_UTF8(#TYPE_NAME), \
+        #TYPE_NAME, \
         TYPE_NAME::SEnumValuesStr() \
     ); \
     return sNamesList; \
 } \
  \
-std::u8string_view  TYPE_NAME::STypeName (void) noexcept \
+std::string_view    TYPE_NAME::STypeName (void) noexcept \
 { \
-    static std::u8string sTypeName(GpUTF::S_As_UTF8(#TYPE_NAME)); \
+    static std::string sTypeName(#TYPE_NAME); \
     return sTypeName; \
 } \
 \
-std::u8string_view  TYPE_NAME::SToString (EnumT aEnumValue) noexcept\
+std::string_view    TYPE_NAME::SToString (EnumT aEnumValue) noexcept\
 {\
     return _SToString(SNames(), value_type(aEnumValue));\
 }\
 \
-TYPE_NAME::EnumT    TYPE_NAME::SFromString (std::u8string_view aName)\
+TYPE_NAME::EnumT    TYPE_NAME::SFromString (std::string_view aName)\
 {\
-    return EnumT(_SFromString(SNames(), aName, GpUTF::S_As_UTF8(#TYPE_NAME)));\
+    return EnumT(_SFromString(SNames(), aName, #TYPE_NAME));\
 }\
 \
 const TYPE_NAME::NamesListT& TYPE_NAME::Names (void) const noexcept\
@@ -190,17 +193,42 @@ const TYPE_NAME::NamesListT& TYPE_NAME::Names (void) const noexcept\
     return SNames();\
 }\
 \
-std::u8string_view  TYPE_NAME::TypeName (void) const noexcept\
+std::string_view    TYPE_NAME::TypeName (void) const noexcept\
 {\
     return STypeName();\
 }
 
-}//GPlatform
+}// namespace GPlatform
+
+//********************** fmt *********************
+namespace fmt {
+
+template<typename T>
+requires ::GPlatform::EnumConcepts::IsEnum<T>
+struct formatter<T>
+{
+    using enum_type = T;
+
+    template<typename ParseContext>
+    constexpr auto parse(ParseContext& aCtx)
+    {
+        return std::begin(aCtx);
+    }
+
+    template<typename FormatContext>
+    auto format(const enum_type& aEnum, FormatContext& aCtx) const
+    {
+        return ::fmt::format_to(aCtx.out(), "{}", aEnum.ToString());
+    }
+};
+
+}// namespace std
 
 //********************** Hash *********************
 namespace std {
 
-template<> struct hash<::GPlatform::GpEnum>
+template<>
+struct hash<::GPlatform::GpEnum>
 {
     using enum_type             = ::GPlatform::GpEnum;
     using value_type            = enum_type::value_type;
@@ -215,11 +243,11 @@ template<> struct hash<::GPlatform::GpEnum>
     }
 };
 
-inline u8string to_string(const ::GPlatform::GpEnum& aEnum)
+inline string to_string(const ::GPlatform::GpEnum& aEnum)
 {
-    return u8string(aEnum.ToString());
+    return string(aEnum.ToString());
 }
 
-}//std
+}// namespace std
 
-#endif//GP_USE_ENUMS
+#endif// GP_USE_ENUMS

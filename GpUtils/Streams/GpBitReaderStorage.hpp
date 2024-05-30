@@ -11,7 +11,7 @@ class GpBitReaderStorage
 
 public:
     inline                  GpBitReaderStorage  (GpBitReaderStorage&& aStorage) noexcept;
-    inline                  GpBitReaderStorage  (GpSpanPtrByteR     aData,
+    inline                  GpBitReaderStorage  (GpSpanByteR        aData,
                                                  const size_bit_t   aOffset = 0_bit);
 
                             ~GpBitReaderStorage (void) noexcept {}
@@ -36,7 +36,7 @@ iLeft(std::move(aStorage.iLeft))
 
 GpBitReaderStorage::GpBitReaderStorage
 (
-    GpSpanPtrByteR      aData,
+    GpSpanByteR         aData,
     const size_bit_t    aOffset
 ):
 iData(aData.Ptr()),
@@ -45,5 +45,5 @@ iLeft(iSize - aOffset)
 {
 }
 
-}//GPlatform
+}// namespace GPlatform
 */

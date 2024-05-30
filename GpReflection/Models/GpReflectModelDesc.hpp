@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
-
-#if defined(GP_USE_REFLECTION)
+#include <GpCore2/Config/GpConfig.hpp>
 
 #include "../GpReflectObject.hpp"
 #include "../GpReflectUtils.hpp"
@@ -16,7 +14,7 @@ class GP_REFLECTION_API GpReflectModelDesc final: public GpReflectObject
 {
 public:
     CLASS_DD(GpReflectModelDesc)
-    REFLECT_DECLARE(u8"4a415ee4-6a0a-4a9b-95be-96194071eea1"_uuid)
+    REFLECT_DECLARE("4a415ee4-6a0a-4a9b-95be-96194071eea1"_uuid)
 
 public:
                                     GpReflectModelDesc  (void) noexcept = default;
@@ -25,12 +23,12 @@ public:
     inline                          GpReflectModelDesc  (const GpUUID&                          aUid,
                                                          const GpUUID&                          aBaseUid,
                                                          const GpUUID&                          aGroupId,
-                                                         std::u8string                          aName,
+                                                         std::string                            aName,
                                                          const GpReflectPropDesc::C::Vec::SP&   aProps);
     inline                          GpReflectModelDesc  (const GpUUID&                      aUid,
                                                          const GpUUID&                      aBaseUid,
                                                          const GpUUID&                      aGroupId,
-                                                         std::u8string                      aName,
+                                                         std::string                        aName,
                                                          GpReflectPropDesc::C::Vec::SP&&    aProps) noexcept;
     virtual                         ~GpReflectModelDesc (void) noexcept override final;
 
@@ -38,7 +36,7 @@ public:
     GpUUID                          uid;
     GpUUID                          base_uid;
     GpUUID                          group_id;
-    std::u8string                   name;
+    std::string                     name;
     GpReflectPropDesc::C::Vec::SP   props;
 };
 
@@ -67,7 +65,7 @@ GpReflectModelDesc::GpReflectModelDesc
     const GpUUID&                           aUid,
     const GpUUID&                           aBaseUid,
     const GpUUID&                           aGroupId,
-    std::u8string                           aName,
+    std::string                             aName,
     const GpReflectPropDesc::C::Vec::SP&    aProps
 ):
 uid     (aUid),
@@ -83,7 +81,7 @@ GpReflectModelDesc::GpReflectModelDesc
     const GpUUID&                   aUid,
     const GpUUID&                   aBaseUid,
     const GpUUID&                   aGroupId,
-    std::u8string                   aName,
+    std::string                     aName,
     GpReflectPropDesc::C::Vec::SP&& aProps
 ) noexcept:
 uid     (aUid),
@@ -94,6 +92,4 @@ props   (std::move(aProps))
 {
 }
 
-}//namespace GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

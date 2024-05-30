@@ -1,10 +1,7 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
-
-#if defined(GP_USE_MULTITHREADING)
-
-#include "GpItcSharedCondition.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
+#include <GpCore2/GpTasks/ITC/GpItcSharedCondition.hpp>
 
 #include <queue>
 #include <optional>
@@ -62,7 +59,7 @@ iMaxSize(aMaxSize)
 template <typename T>
 size_t  GpItcSharedQueue<T>::MaxSize (void) const noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
 
     return iMaxSize;
 }
@@ -70,7 +67,7 @@ size_t  GpItcSharedQueue<T>::MaxSize (void) const noexcept
 template <typename T>
 void    GpItcSharedQueue<T>::SetMaxSize (size_t aMaxSize) noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
 
     iMaxSize = aMaxSize;
 }
@@ -78,15 +75,15 @@ void    GpItcSharedQueue<T>::SetMaxSize (size_t aMaxSize) noexcept
 template <typename T>
 size_t  GpItcSharedQueue<T>::Size (void) const noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
 
-    return iContainer.size();
+    return std::size(iContainer);
 }
 
 template <typename T>
 bool    GpItcSharedQueue<T>::Empty (void) const noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
 
     return iContainer.empty();
 }
@@ -94,7 +91,7 @@ bool    GpItcSharedQueue<T>::Empty (void) const noexcept
 template <typename T>
 void    GpItcSharedQueue<T>::Clear (void)
 {
-    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
 
     while (!iContainer.empty())
     {
@@ -107,9 +104,9 @@ void    GpItcSharedQueue<T>::Clear (void)
 template <typename T>
 bool    GpItcSharedQueue<T>::PushAndNotifyOne (const value_type& aValue)
 {
-    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
 
-    if (iContainer.size() < iMaxSize) [[likely]]
+    if (std::size(iContainer) < iMaxSize) [[likely]]
     {
         iContainer.push(aValue);
         iSC.NotifyOne();
@@ -124,9 +121,9 @@ bool    GpItcSharedQueue<T>::PushAndNotifyOne (const value_type& aValue)
 template <typename T>
 bool    GpItcSharedQueue<T>::PushAndNotifyOne (value_type&& aValue)
 {
-    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
 
-    if (iContainer.size() < iMaxSize) [[likely]]
+    if (std::size(iContainer) < iMaxSize) [[likely]]
     {
         iContainer.emplace(std::move(aValue));
         iSC.NotifyOne();
@@ -141,9 +138,9 @@ bool    GpItcSharedQueue<T>::PushAndNotifyOne (value_type&& aValue)
 template <typename T>
 bool    GpItcSharedQueue<T>::PushAndNotifyAll (const value_type& aValue)
 {
-    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
 
-    if (iContainer.size() < iMaxSize) [[likely]]
+    if (std::size(iContainer) < iMaxSize) [[likely]]
     {
         iContainer.push(aValue);
         iSC.NotifyAll();
@@ -158,9 +155,9 @@ bool    GpItcSharedQueue<T>::PushAndNotifyAll (const value_type& aValue)
 template <typename T>
 bool    GpItcSharedQueue<T>::PushAndNotifyAll (value_type&& aValue)
 {
-    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
 
-    if (iContainer.size() < iMaxSize) [[likely]]
+    if (std::size(iContainer) < iMaxSize) [[likely]]
     {
         iContainer.emplace(std::move(aValue));
         iSC.NotifyAll();
@@ -203,6 +200,4 @@ const typename GpItcSharedQueue<T>::underlying_container&   GpItcSharedQueue<T>:
     return iContainer;
 }
 
-}//namespace GPlatform
-
-#endif// #if defined(GP_USE_MULTITHREADING)
+}// namespace GPlatform

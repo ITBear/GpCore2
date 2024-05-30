@@ -9,44 +9,44 @@ class GP_UTILS_API GpByteWriterStorage
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpByteWriterStorage)
 
 protected:
-    inline                  GpByteWriterStorage     (GpSpanPtrByteRW aStoragePtr) noexcept;
+    inline                  GpByteWriterStorage     (GpSpanByteRW aStoragePtr) noexcept;
 
 public:
     virtual                 ~GpByteWriterStorage    (void) noexcept = default;
 
-    inline GpSpanPtrByteRW  StoragePtr              (void) const noexcept;
+    inline GpSpanByteRW     StoragePtr              (void) const noexcept;
     inline size_t           SizeLeft                (void) const noexcept;
     inline size_t           TotalWrite              (void) const noexcept;
     inline void             OnEnd                   (void);
     inline void             ReserveNext             (const size_t aSize);
-    inline void             Write                   (GpSpanPtrByteR aData);
+    inline void             Write                   (GpSpanByteR aData);
     void                    Write                   (const void*    aPtr,
                                                      const size_t   aSize);
 
     /**
-     * @brief Offset - make iData offset (allocate memory if need)
+     * @brief OffsetAdd - make iData offset (allocate memory if need)
      * @param aOffset - size in bytes to `skip`
      * @return - SpanPtr to memory before offset
      */
-    GpSpanPtrByteRW         Offset                  (const size_t aOffset);
+    GpSpanByteRW            OffsetAdd               (const size_t aOffset);
     inline void             OffsetToEnd             (void);
 
 protected:
-    virtual void            AllocateAdd             (const size_t       aSizeToAdd,
-                                                     GpSpanPtrByteRW&   aStoragePtr) = 0;
+    virtual void            AllocateAdd             (const size_t   aSizeToAdd,
+                                                     GpSpanByteRW&  aStoragePtr) = 0;
     virtual void            _OnEnd                  (void) = 0;
 
 private:
-    GpSpanPtrByteRW         iStoragePtr;
+    GpSpanByteRW            iStoragePtr;
     size_t                  iTotalWrite = 0;
 };
 
-GpByteWriterStorage::GpByteWriterStorage (GpSpanPtrByteRW aStoragePtr) noexcept:
+GpByteWriterStorage::GpByteWriterStorage (GpSpanByteRW aStoragePtr) noexcept:
 iStoragePtr(aStoragePtr)
 {
 }
 
-GpSpanPtrByteRW GpByteWriterStorage::StoragePtr (void) const noexcept
+GpSpanByteRW    GpByteWriterStorage::StoragePtr (void) const noexcept
 {
     return iStoragePtr;
 }
@@ -76,7 +76,7 @@ void    GpByteWriterStorage::ReserveNext (const size_t aSize)
     }
 }
 
-void    GpByteWriterStorage::Write (GpSpanPtrByteR aData)
+void    GpByteWriterStorage::Write (GpSpanByteR aData)
 {
     Write(aData.Ptr(), aData.Count());
 }

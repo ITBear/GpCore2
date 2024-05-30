@@ -2,17 +2,15 @@
 
 #if defined(GP_USE_TIMERS)
 
-#include "../../Types/Strings/GpStringUtils.hpp"
-#include "../../Types/Strings/GpStringOps.hpp"
-#include "../../DateTime/GpDateTimeOps.hpp"
-
-#include <iostream>
+#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
+#include <GpCore2/GpUtils/DateTime/GpDateTimeOps.hpp>
 
 namespace GPlatform {
 
-GpTimersManager::SP     GpTimersManager::sTimersManager;
-std::atomic_flag        GpTimersManager::sTimersThreadDestruct;
-GpThread                GpTimersManager::sTimersThread(u8"Timers manager");
+GpTimersManager::SP GpTimersManager::sTimersManager;
+std::atomic_flag    GpTimersManager::sTimersThreadDestruct;
+GpThread            GpTimersManager::sTimersThread("Timers manager");
 
 void    GpTimersManager::SStart (void)
 {
@@ -76,7 +74,7 @@ bool    GpTimersManager::SSingleShot
 
 void    GpTimersManager::AddTimer (GpTimer::SP aTimer)
 {
-    iTimers.Set(aTimer.P(), std::move(aTimer));
+    iTimers.SetOrUpdate(aTimer.P(), std::move(aTimer));
 }
 
 void    GpTimersManager::Run (std::atomic_flag& aStopRequest) noexcept
@@ -91,11 +89,11 @@ void    GpTimersManager::Run (std::atomic_flag& aStopRequest) noexcept
         {
             const milliseconds_t startSTS = GpDateTimeOps::SSteadyTS_ms();
 
-            iTimers.Process
+            iTimers.ProcessContainer
             (
                 [&](auto& aTimers)
                 {
-                    for (auto iter = aTimers.begin(); iter != aTimers.end(); /*NOP*/)
+                    for (auto iter = std::begin(aTimers); iter != std::end(aTimers); /*NOP*/)
                     {
                         GpTimer& timer = iter->second.V();
 
@@ -125,16 +123,25 @@ void    GpTimersManager::Run (std::atomic_flag& aStopRequest) noexcept
         }
     } catch (const GpException& e)
     {
-        GpStringUtils::SCerr(u8"[GpTimersManager::Run]: "_sv + e.what());
+        GpStringUtils::SCerr
+        (
+            fmt::format("[GpTimersManager::Run]: {}", e.what())
+        );
     } catch (const std::exception& e)
     {
-        GpStringUtils::SCerr(u8"[GpTimersManager::Run]: "_sv + e.what());
+        GpStringUtils::SCerr
+        (
+            fmt::format("[GpTimersManager::Run]: {}", e.what())
+        );
     } catch (...)
     {
-        GpStringUtils::SCerr(u8"[GpTimersManager::Run]: unknown"_sv);
+        GpStringUtils::SCerr
+        (
+            "[GpTimersManager::Run]: unknown"
+        );
     }
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_TIMERS)
+#endif// #if defined(GP_USE_TIMERS)

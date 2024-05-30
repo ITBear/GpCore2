@@ -15,7 +15,6 @@
 #define GP_USE_ENUMS
 //#define GP_USE_EVENT_BUS
 //#define GP_USE_PIPELINE
-#define GP_USE_REFLECTION
 #define GP_USE_UUID
 //#define GP_USE_GRAPHS
 //#define GP_USE_UNIT_TESTS

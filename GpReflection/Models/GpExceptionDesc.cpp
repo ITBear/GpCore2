@@ -1,7 +1,9 @@
 #include "GpExceptionDesc.hpp"
 
+#include <GpCore2/GpReflection/GpReflectManager.hpp>
+#include <GpCore2/GpReflection/GpReflectPropUtils.hpp>
+
 #if defined(GP_USE_EXCEPTIONS)
-#if defined(GP_USE_REFLECTION)
 
 namespace GPlatform {
 
@@ -41,11 +43,11 @@ void    GpExceptionDesc::SetFromExceptionSTD
     const SourceLocationT&  aSourceLocation
 )
 {
-    message         = u8"std::exception: "_sv + aException.what();
+    message         = "std::exception: "_sv + aException.what();
     line            = NumOps::SConvert<decltype(line)>(aSourceLocation.line());
     column          = NumOps::SConvert<decltype(column)>(aSourceLocation.column());
-    file_name       = GpUTF::S_As_UTF8(aSourceLocation.file_name());
-    function_name   = GpUTF::S_As_UTF8(aSourceLocation.function_name());
+    file_name       = aSourceLocation.file_name();
+    function_name   = aSourceLocation.function_name();
 }
 
 void    GpExceptionDesc::SetFromExceptionGP (const GpException& aException)
@@ -53,11 +55,11 @@ void    GpExceptionDesc::SetFromExceptionGP (const GpException& aException)
     message         = aException.Message();
     line            = NumOps::SConvert<decltype(line)>(aException.SourceLocation().line());
     column          = NumOps::SConvert<decltype(column)>(aException.SourceLocation().column());
-    file_name       = GpUTF::S_As_UTF8(aException.SourceLocation().file_name());
-    function_name   = GpUTF::S_As_UTF8(aException.SourceLocation().function_name());
+    file_name       = aException.SourceLocation().file_name();
+    function_name   = aException.SourceLocation().function_name();
 }
 
-void    GpExceptionDesc::_SReflectCollectProps (GpReflectProp::C::Vec::Val& aPropsOut)
+void    GpExceptionDesc::_SReflectCollectProps (GpReflectProp::SmallVecVal& aPropsOut)
 {
     PROP(message);
     PROP(line);
@@ -66,7 +68,6 @@ void    GpExceptionDesc::_SReflectCollectProps (GpReflectProp::C::Vec::Val& aPro
     PROP(function_name);
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_REFLECTION)
-#endif//#if defined(GP_USE_EXCEPTIONS)
+#endif// #if defined(GP_USE_EXCEPTIONS)

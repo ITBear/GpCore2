@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_SYNC_PRIMITIVES)
 
@@ -14,6 +14,6 @@ using GpSharedMutex = ThreadSafety::SharedMutexWrap<std::shared_mutex>;
 template<class MutexWrapT>
 using GpSharedLock  = ThreadSafety::SharedMutexLockerWrap<MutexWrapT, std::shared_lock>;
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_SYNC_PRIMITIVES)
+#endif// #if defined(GP_USE_SYNC_PRIMITIVES)

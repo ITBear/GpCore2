@@ -1,11 +1,12 @@
 #pragma once
 
-#include "../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_MEMORY_OPS)
 
 #include "Macro/GpMacroClass.hpp"
 #include "Types/Numerics/GpNumericOps.hpp"
+
 #include <cstring>
 #include <utility>
 #include <sys/types.h>
@@ -15,17 +16,27 @@ namespace GPlatform {
 namespace MemOpsConcepts {
 
 template <typename T>
-concept IsOneBytePtr = requires()
+concept IsRawCopyable = requires()
 {
     requires
-       std::is_same_v<T, char>
-    || std::is_same_v<T, unsigned char>
-    || std::is_same_v<T, std::byte>
-    || std::is_same_v<T, u_int_8>
-    || std::is_same_v<T, char8_t>;
+       (std::is_scalar_v<T>)
+    || (std::is_trivially_copyable_v<T> && std::is_trivial_v<T>)
+    || (std::is_same_v<T, std_byte_no_init>);
 };
 
-}//namespace GpMemOpsConcepts
+template <typename T>
+concept IsNotRawCopyable = requires()
+{
+    requires
+       !(std::is_scalar_v<T>)
+    && !(std::is_trivially_copyable_v<T> && std::is_trivial_v<T>)
+    && !(std::is_same_v<T, std_byte_no_init>);
+};
+
+}// namespace GpMemOpsConcepts
+
+template <typename T>
+ssize_t Compare(const T&, const T&);
 
 class GpMemOps
 {
@@ -60,439 +71,390 @@ public:
     };
 
 public:
-    //------------------------ std new/delete ----------------------------
-    template<typename T, typename... Ts> static
-    T*      SNew (Ts&&... aArgs)
-    {
-        return new T(std::forward<Ts>(aArgs)...);
-    }
+    // ------------------------ std new/delete ----------------------------
+    template<typename T, typename... Ts>
+    static T*                   SNew            (Ts&&... aArgs);
 
-    template<typename T, typename... Ts> static
-    T*      SEmplace (void* aPtrToPlace, Ts&&... aArgs)
-    {
-        return new(aPtrToPlace) T(std::forward<Ts>(aArgs)...);
-    }
+    template<typename T, typename... Ts>
+    static T*                   SEmplace        (void*      aPtrToPlace,
+                                                 Ts&&...    aArgs);
 
+    template<typename T>
+    static void                 SDelete         (T* aObject);
+
+    // ------------------------ std new/delete array ----------------------------
     template<typename T>
     static
-    void    SDelete (T* aObject)
-    {
-        delete aObject;
-    }
+    void                        SDeleteArray    (T* aObject);
 
-    //------------------------ std new/delete array ----------------------------
+    // ---------------------------------- SConstruct --------------------------------------------
+    template<MemOpsConcepts::IsRawCopyable T>
+    static void                 SConstruct      (T*     aElements,
+                                                 size_t aCount);
+    template<MemOpsConcepts::IsNotRawCopyable   T,
+             typename...                        Ts>
+    static void                 SConstruct      (T*         aElements,
+                                                 size_t     aCount,
+                                                 Ts&&...    aArgs);
+
+    template<MemOpsConcepts::IsRawCopyable T>
+    static void                 SDestruct       (T*     aElements,
+                                                 size_t aCount) noexcept;
+    template<MemOpsConcepts::IsNotRawCopyable T>
+    static void                 SDestruct       (T*     aElements,
+                                                 size_t aCount) noexcept;
+
+    template<MemOpsConcepts::IsRawCopyable T>
+    static constexpr void       SCopy           (T&         aElementsDst,
+                                                 const T&   aElementsSrc);
+    template<MemOpsConcepts::IsRawCopyable T>
+    static constexpr void       SCopy           (T*         aElementsDst,
+                                                 const T*   aElementsSrc);
+    template<MemOpsConcepts::IsRawCopyable T>
+    static constexpr void       SCopy           (T*         aElementsDst,
+                                                 const T*   aElementsSrc,
+                                                 size_t     aCount);
+
+    template<MemOpsConcepts::IsNotRawCopyable T>
+    static constexpr void       SCopy           (T&         aElementsDst,
+                                                 const T&   aElementsSrc);
+    template<MemOpsConcepts::IsNotRawCopyable T>
+    static constexpr void       SCopy           (T*         aElementsDst,
+                                                 const T*   aElementsSrc);
+    template<MemOpsConcepts::IsNotRawCopyable T>
+    static constexpr void       SCopy           (T*         aElementsDst,
+                                                 const T*   aElementsSrc,
+                                                 size_t     aCount);
+
     template<typename T>
-    static
-    void    SDeleteArray (T* aObject)
-    {
-        delete[] aObject;
-    }
+    static constexpr bool       SIsEqual        (const T*       aElementsA,
+                                                 const size_t   aCountA,
+                                                 const T*       aElementsB,
+                                                 const size_t   aCountB) noexcept;
+    template<typename T>
+    static constexpr bool       SIsGreater      (const T*       aElementsA,
+                                                 const size_t   aCountA,
+                                                 const T*       aElementsB,
+                                                 const size_t   aCountB) noexcept;
+    template<typename T>
+    static constexpr bool       SIsLess         (const T*       aElementsA,
+                                                 const size_t   aCountA,
+                                                 const T*       aElementsB,
+                                                 const size_t   aCountB) noexcept;
+    template<typename T>
+    static constexpr ssize_t    SCompare        (const T& aElementsA,
+                                                 const T& aElementsB) noexcept;
+    template<typename T>
+    static constexpr ssize_t    SCompare        (const T* aElementsA,
+                                                 const T* aElementsB) noexcept;
+    template<MemOpsConcepts::IsRawCopyable T>
+    static constexpr ssize_t    SCompare        (const T*       aElementsA,
+                                                 const T*       aElementsB,
+                                                 const size_t   aCount) noexcept;
+    template<MemOpsConcepts::IsNotRawCopyable T>
+    static constexpr ssize_t    SCompare        (const T*       aElementsA,
+                                                 const T*       aElementsB,
+                                                 const size_t   aCount) noexcept;
+};
 
-    //------------------------------------------------------------------------------
-    template<typename       T,
-             typename...    Ts>
-    static void SConstruct
-    (
-        T*              aElements,
-        const size_t    aCount,
-        Ts&&...         aArgs
-    )
+template<typename T, typename... Ts>
+T*  GpMemOps::SNew (Ts&&... aArgs)
+{
+    return ::new T(std::forward<Ts>(aArgs)...);
+}
+
+template<typename T, typename... Ts>
+T*  GpMemOps::SEmplace
+(
+    void*   aPtrToPlace,
+    Ts&&... aArgs
+)
+{
+    return ::new(aPtrToPlace) T(std::forward<Ts>(aArgs)...);
+}
+
+template<typename T>
+void    GpMemOps::SDelete (T* aObject)
+{
+    ::delete aObject;
+}
+
+template<typename T>
+void    GpMemOps::SDeleteArray (T* aObject)
+{
+    ::delete[] aObject;
+}
+
+template<MemOpsConcepts::IsRawCopyable T>
+void    GpMemOps::SConstruct
+(
+    T*              aElements,
+    const size_t    aCount
+)
+{
+    const size_t s = NumOps::SMul(aCount, sizeof(T));
+    std::memset(aElements, 0, s);
+}
+
+template<MemOpsConcepts::IsNotRawCopyable   T,
+         typename...                        Ts>
+void    GpMemOps::SConstruct
+(
+    T*              aElements,
+    const size_t    aCount,
+    Ts&&...         aArgs
+)
+{
+    T* e = aElements;
+
+    size_t constructedCnt = 0;
+    try
     {
-        if constexpr (std::is_scalar<T>::value)
+        for ( ; constructedCnt < aCount; ++constructedCnt)
         {
-            SConstructScalar(aElements, aCount);
-        } else
-        {
-            SConstructNotScalar(aElements, aCount, std::forward<Ts>(aArgs)...);
+            ::new (static_cast<void*>(e)) T(std::forward<Ts>(aArgs)...);
+            e++;
         }
-    }
-
-    template<typename T>
-    static void SDestruct
-    (
-        T*              aElements,
-        const size_t    aCount
-    ) noexcept
+    } catch (...)
     {
-        if constexpr (std::is_scalar<T>::value)
+        if (constructedCnt > 0)
         {
-            SDestructScalar(aElements, aCount);
-        } else
-        {
-            SDestructNotScalar(aElements, aCount);
-        }
-    }
-
-    template<typename T>
-    static constexpr void   SConstructAndMove
-    (
-        T&  aElementsDst,
-        T&& aElementsSrc
-    )
-    {
-        SConstructAndMove(&aElementsDst, &aElementsSrc, 1);
-    }
-
-    template<typename T>
-    static constexpr void   SConstructAndMove
-    (
-        T*  aElementsDst,
-        T*  aElementsSrc
-    )
-    {
-        SConstructAndMove(aElementsDst, aElementsSrc, 1);
-    }
-
-    template<typename T>
-    static constexpr void   SConstructAndMove
-    (
-        T*              aElementsDst,
-        T*              aElementsSrc,
-        const size_t    aCount
-    )
-    {
-        if constexpr (   std::is_scalar<T>::value
-                      || (std::is_trivially_copyable_v<T> && std::is_trivial_v<T>))
-        {
-            SConstructAndMoveScalar
-            (
-                aElementsDst,
-                aElementsSrc,
-                aCount
-            );
-        } else
-        {
-            SConstructAndMoveNotScalar
-            (
-                aElementsDst,
-                aElementsSrc,
-                aCount
-            );
-        }
-    }
-
-    template<typename T>
-    static constexpr void   SCopy
-    (
-        T&          aElementsDst,
-        const T&    aElementsSrc
-    )
-    {
-        SCopy(&aElementsDst, &aElementsSrc, 1);
-    }
-
-    template<typename T>
-    static constexpr void   SCopy
-    (
-        T*          aElementsDst,
-        const T*    aElementsSrc
-    )
-    {
-        SCopy(aElementsDst, aElementsSrc, 1);
-    }
-
-    template<MemOpsConcepts::IsOneBytePtr T1,
-             MemOpsConcepts::IsOneBytePtr T2>
-    static constexpr void   SCopy
-    (
-        T1*             aElementsDst,
-        const T2*       aElementsSrc,
-        const size_t    aSize
-    )
-    {
-        SCopy
-        (
-            reinterpret_cast<std::byte*>(aElementsDst),
-            reinterpret_cast<const std::byte*>(aElementsSrc),
-            aSize
-        );
-    }
-
-    template<typename T>
-    static constexpr void   SCopy
-    (
-        T*              aElementsDst,
-        const T*        aElementsSrc,
-        const size_t    aCount
-    )
-    {
-        if (aCount == 0)
-        {
-            return;
+            SDestruct(aElements, constructedCnt);
         }
 
-        if constexpr (   (std::is_scalar_v<T>)
-                      || (std::is_trivially_copyable_v<T> && std::is_trivial_v<T>))
-        {
-            SCopyScalar
-            (
-                aElementsDst,
-                aElementsSrc,
-                aCount
-            );
-        } else
-        {
-            SCopyNotScalar
-            (
-                aElementsDst,
-                aElementsSrc,
-                aCount
-            );
-        }
+        throw;
+    }
+}
+
+template<MemOpsConcepts::IsRawCopyable T>
+void    GpMemOps::SDestruct
+(
+    T*              aElements,
+    const size_t    aCount
+) noexcept
+{
+    static_assert(std::is_trivial_v<T>, "T must be TriviallyCopyable");
+    const size_t s = NumOps::SMul(aCount, sizeof(T));
+    std::memset(aElements, 0, s);
+}
+
+template<MemOpsConcepts::IsNotRawCopyable T>
+void    GpMemOps::SDestruct
+(
+    T*              aElements,
+    const size_t    aCount
+) noexcept
+{
+    for (size_t id = 0; id < aCount; ++id)
+    {
+        aElements->~T();
+        aElements++;
+    }
+}
+
+template<MemOpsConcepts::IsRawCopyable T>
+constexpr void  GpMemOps::SCopy
+(
+    T&          aElementsDst,
+    const T&    aElementsSrc
+)
+{
+    GpMemOps::SCopy<T>(&aElementsDst, &aElementsSrc, 1);
+}
+
+template<MemOpsConcepts::IsRawCopyable T>
+constexpr void  GpMemOps::SCopy
+(
+    T*          aElementsDst,
+    const T*    aElementsSrc
+)
+{
+    GpMemOps::SCopy<T>(aElementsDst, aElementsSrc, 1);
+}
+
+template<MemOpsConcepts::IsRawCopyable T>
+constexpr void  GpMemOps::SCopy
+(
+    T*          aElementsDst,
+    const T*    aElementsSrc,
+    size_t      aCount
+)
+{
+    if (aCount == 0) [[unlikely]]
+    {
+        return;
     }
 
-    template<typename T>
-    [[nodiscard]] static constexpr ssize_t  SCompare
-    (
-        const T& aElementsA,
-        const T& aElementsB
-    ) noexcept
+    const size_t s = NumOps::SMul(aCount, sizeof(T));
+    std::memcpy(aElementsDst, aElementsSrc, s);
+}
+
+template<MemOpsConcepts::IsNotRawCopyable T>
+constexpr void  GpMemOps::SCopy
+(
+    T&          aElementsDst,
+    const T&    aElementsSrc
+)
+{
+    GpMemOps::SCopy<T>(&aElementsDst, &aElementsSrc, 1);
+}
+
+template<MemOpsConcepts::IsNotRawCopyable T>
+constexpr void  GpMemOps::SCopy
+(
+    T*          aElementsDst,
+    const T*    aElementsSrc
+)
+{
+    GpMemOps::SCopy<T>(aElementsDst, aElementsSrc, 1);
+}
+
+template<MemOpsConcepts::IsNotRawCopyable T>
+constexpr void  GpMemOps::SCopy
+(
+    T*          aElementsDst,
+    const T*    aElementsSrc,
+    size_t      aCount
+)
+{
+    if (aCount == 0) [[unlikely]]
     {
-        return SCompare(&aElementsA, &aElementsB, 1);
+        return;
     }
 
-    template<typename T>
-    [[nodiscard]] static constexpr ssize_t  SCompare
-    (
-        const T* aElementsA,
-        const T* aElementsB
-    ) noexcept
+    T*          dst = aElementsDst;
+    const T*    src = aElementsSrc;
+
+    // Copy
+    for (size_t id = 0; id < aCount; ++id)
     {
-        return SCompare(aElementsA, aElementsB, 1);
+        *dst++ = *src++;
+    }
+}
+
+template<typename T>
+constexpr bool  GpMemOps::SIsEqual
+(
+    const T*        aElementsA,
+    const size_t    aCountA,
+    const T*        aElementsB,
+    const size_t    aCountB
+) noexcept
+{
+    if (aCountA != aCountB)
+    {
+        return false;
     }
 
-    template<typename T>
-    [[nodiscard]] static constexpr ssize_t  SCompare
-    (
-        const T*        aElementsA,
-        const T*        aElementsB,
-        const size_t    aCount
-    ) noexcept
-    {
-        if constexpr (   (std::is_scalar<T>::value)
-                      || (std::is_trivially_copyable_v<T> && std::is_trivial_v<T>))
+    return SCompare(aElementsA, aElementsB, aCountA) == 0;
+}
 
-        {
-            return SCompareScalar
-            (
-                aElementsA,
-                aElementsB,
-                aCount
-            );
-        } else
-        {
-            return SCompareNotScalar
-            (
-                aElementsA,
-                aElementsB,
-                aCount
-            );
-        }
+template<typename T>
+constexpr bool  GpMemOps::SIsGreater
+(
+    const T*        aElementsA,
+    const size_t    aCountA,
+    const T*        aElementsB,
+    const size_t    aCountB
+) noexcept
+{
+    if (aCountA > aCountB)
+    {
+        return true;
     }
 
-private:
-    template<typename T>
-    static void SConstructScalar
-    (
-        T*              aElements,
-        const size_t    aCount
-    )
+    if (aCountA < aCountB)
     {
-        static_assert(std::is_trivial_v<T>, "T must be TriviallyCopyable");
-        const size_t s = NumOps::SMul(aCount, sizeof(T));
-        std::memset(aElements, 0, s);
+        return false;
     }
 
-    template<typename       T,
-             typename...    Ts>
-    static void SConstructNotScalar
-    (
-        T*              aElements,
-        const size_t    aCount,
-        Ts&&...         aArgs
-    )
+    return SCompare(aElementsA, aElementsB, aCountA) > 0;
+}
+
+template<typename T>
+constexpr bool  GpMemOps::SIsLess
+(
+    const T*        aElementsA,
+    const size_t    aCountA,
+    const T*        aElementsB,
+    const size_t    aCountB
+) noexcept
+{
+    if (aCountA < aCountB)
     {
-        T* e = aElements;
-
-        size_t constructedCnt = 0;
-        try
-        {
-            for ( ; constructedCnt < aCount; ++constructedCnt)
-            {
-                ::new (static_cast<void*>(e)) T(std::forward<Ts>(aArgs)...);
-                e++;
-            }
-        } catch (...)
-        {
-            if (constructedCnt > 0)
-            {
-                SDestruct(aElements, constructedCnt);
-            }
-
-            throw;
-        }
+        return true;
     }
 
-    template<typename T>
-    static void SDestructScalar
-    (
-        T*              aElements,
-        const size_t    aCount
-    ) noexcept
+    if (aCountA > aCountB)
     {
-        static_assert(std::is_trivial_v<T>, "T must be TriviallyCopyable");
-        const size_t s = NumOps::SMul(aCount, sizeof(T));
-        std::memset(aElements, 0, s);
+        return false;
     }
 
-    template<typename T>
-    static void SDestructNotScalar
-    (
-        T*              aElements,
-        const size_t    aCount
-    ) noexcept
+    return SCompare(aElementsA, aElementsB, aCountA) < 0;
+}
+
+template<typename T>
+constexpr ssize_t   GpMemOps::SCompare
+(
+    const T& aElementsA,
+    const T& aElementsB
+) noexcept
+{
+    return SCompare(&aElementsA, &aElementsB, 1);
+}
+
+template<typename T>
+constexpr ssize_t   GpMemOps::SCompare
+(
+    const T* aElementsA,
+    const T* aElementsB
+) noexcept
+{
+    return SCompare(aElementsA, aElementsB, 1);
+}
+
+template<MemOpsConcepts::IsRawCopyable T>
+constexpr ssize_t   GpMemOps::SCompare
+(
+    const T*        aElementsA,
+    const T*        aElementsB,
+    const size_t    aCount
+) noexcept
+{
+    if (aCount == 0) [[unlikely]]
     {
-        for (size_t id = 0; id < aCount; ++id)
-        {
-            aElements->~T();
-            aElements++;
-        }
-    }
-
-    template<typename T>
-    static constexpr void SConstructAndMoveScalar
-    (
-        T*              aElementsDst,
-        T*              aElementsSrc,
-        const size_t    aCount
-    )
-    {
-        static_assert(std::is_trivial_v<T>, "T must be TriviallyCopyable");
-
-        const size_t s = NumOps::SMul(aCount, sizeof(T));
-
-        std::memcpy(aElementsDst, aElementsSrc, s);
-    }
-
-    template<typename T>
-    static void SConstructAndMoveNotScalar
-    (
-        T*              aElementsDst,
-        T*              aElementsSrc,
-        const size_t    aCount
-    )
-    {
-        T* dst = aElementsDst;
-        T* src = aElementsSrc;
-
-        //Move
-        size_t movedCnt = 0;
-        try
-        {
-            for ( ; movedCnt < aCount; ++movedCnt)
-            {
-                ::new (static_cast<void*>(dst)) T(std::move(*src));
-                dst++;
-                src++;
-            }
-        } catch (...)
-        {
-            if (movedCnt > 0)
-            {
-                SDestruct(aElementsDst, movedCnt);
-            }
-
-            throw;
-        }
-    }
-
-    template<typename T>
-    static constexpr void   SCopyScalar
-    (
-        T*              aElementsDst,
-        const T*        aElementsSrc,
-        const size_t    aCount
-    )
-    {
-        const size_t s = NumOps::SMul(aCount, sizeof(T));
-        std::memcpy(aElementsDst, aElementsSrc, s);
-    }
-
-    template<typename T>
-    static void SCopyNotScalar
-    (
-        T*              aElementsDst,
-        const T*        aElementsSrc,
-        const size_t    aCount
-    )
-    {
-        T*          dst = aElementsDst;
-        const T*    src = aElementsSrc;
-
-        //Destruct dst
-        Destruct(aElementsDst, aCount);
-
-        //Copy
-        size_t copyCnt = 0;
-        try
-        {
-            for ( ; copyCnt < aCount; ++copyCnt)
-            {
-                ::new (static_cast<void*>(dst)) T(*src);
-                dst++;
-                src++;
-            }
-        } catch (...)
-        {
-            if (copyCnt > 0)
-            {
-                Destruct(aElementsDst, copyCnt);
-            }
-
-            throw;
-        }
-    }
-
-    template<typename T>
-    [[nodiscard]] static constexpr ssize_t  SCompareScalar
-    (
-        const T*        aElementsA,
-        const T*        aElementsB,
-        const size_t    aCount
-    ) noexcept
-    {
-        const size_t s = NumOps::SMul(aCount, sizeof(T));
-        return std::memcmp(aElementsA, aElementsB, s);
-    }
-
-    template<typename T>
-    [[nodiscard]]static ssize_t SCompareNotScalar
-    (
-        const T*        aElementsA,
-        const T*        aElementsB,
-        const size_t    aCount
-    ) noexcept
-    {
-        for (size_t id = 0; id < aCount; ++id)
-        {
-            const T& a = *aElementsA++;
-            const T& b = *aElementsB++;
-
-            if (a > b)
-            {
-                return NumOps::SConvert<ssize_t>(NumOps::SInc(id));
-            } else if (a < b)
-            {
-                return NumOps::SNegative(NumOps::SConvert<ssize_t>(NumOps::SInc(id)));
-            }
-        }
-
         return 0;
     }
-};
+
+    const size_t s = NumOps::SMul(aCount, sizeof(T));
+    return std::memcmp(aElementsA, aElementsB, s);
+}
+
+template<MemOpsConcepts::IsNotRawCopyable T>
+constexpr ssize_t   GpMemOps::SCompare
+(
+    const T*        aElementsA,
+    const T*        aElementsB,
+    const size_t    aCount
+) noexcept
+{
+    if (aCount == 0) [[unlikely]]
+    {
+        return 0;
+    }
+
+    T*          a = aElementsA;
+    const T*    b = aElementsB;
+
+    // Copy
+    for (size_t id = 0; id < aCount; ++id)
+    {
+        ::GPlatform::Compare<T>(*a++, *b++);
+    }
+}
 
 using MemOps = GpMemOps;
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_MEMORY_OPS)
+#endif// #if defined(GP_USE_MEMORY_OPS)

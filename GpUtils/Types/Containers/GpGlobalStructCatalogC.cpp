@@ -24,21 +24,30 @@ void    GpGlobalStructCatalogC::Clear (void) noexcept
 
 void    GpGlobalStructCatalogC::Register
 (
-    std::u8string   aKey,
+    std::string aKey,
     GpAny       aValue
 )
 {
-    sInstance.Set(std::move(aKey), std::move(aValue));
+    sInstance.SetOrUpdate
+    (
+        std::move(aKey),
+        std::move(aValue)
+    );
 }
 
-GpAny   GpGlobalStructCatalogC::Unregister (std::u8string_view aKey)
+GpAny   GpGlobalStructCatalogC::Unregister (std::string_view aKey)
 {
     return sInstance.Erase(aKey);
 }
 
-const GpAny&    GpGlobalStructCatalogC::Find (std::u8string_view aKey) const
+const GpAny GpGlobalStructCatalogC::Find (std::string_view aKey) const
 {
     return sInstance.Get(aKey);
 }
 
-}//GPlatform
+std::optional<const GpAny>  GpGlobalStructCatalogC::FindOpt (std::string_view aKey) const
+{
+    return sInstance.GetOpt(aKey);
+}
+
+}// namespace GPlatform

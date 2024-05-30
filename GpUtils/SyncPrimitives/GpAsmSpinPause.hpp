@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_SYNC_PRIMITIVES)
 
@@ -22,6 +22,6 @@ inline void GP_ASM_SPIN_PAUSE (void) noexcept
 #endif
 }
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_SYNC_PRIMITIVES)
+#endif// #if defined(GP_USE_SYNC_PRIMITIVES)

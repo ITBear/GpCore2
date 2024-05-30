@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../Config/GpConfig.hpp"
-
-#if defined(GP_USE_REFLECTION)
+#include <GpCore2/Config/GpConfig.hpp>
 
 #include "GpReflectModel.hpp"
 
@@ -18,9 +16,7 @@ public:
                                         GpReflectModelSource    (void) noexcept = default;
     virtual                             ~GpReflectModelSource   (void) noexcept = default;
 
-    virtual GpReflectModel::C::Opt::Val Get                     (const GpUUID& aModelUid) = 0;
+    virtual GpReflectModel::C::Opt::CSP Get                     (const GpUUID& aModelUid) = 0;
 };
 
-}//GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

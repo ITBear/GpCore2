@@ -13,33 +13,33 @@ public:
                             GpBitReader     (GpBitReaderStorage&& aStorage) noexcept: iStorage(std::move(aStorage)){}
                             ~GpBitReader    (void) noexcept = default;
 
-    void                    Bits            (GpSpanPtrByteRW    aDataOut,
+    void                    Bits            (GpSpanByteRW       aDataOut,
                                              const size_bit_t   aSize,
                                              const size_bit_t   aOffset);
 
-    u_int_8                 UInt8           (void);
-    u_int_8                 UInt8           (const size_bit_t aSize,
+    u_int_8                 UI8             (void);
+    u_int_8                 UI8             (const size_bit_t aSize,
                                              const size_bit_t aOffset);
-    s_int_8                 SInt8           (void);
-    s_int_8                 SInt8           (const size_bit_t aSize,
+    s_int_8                 SI8             (void);
+    s_int_8                 SI8             (const size_bit_t aSize,
                                              const size_bit_t aOffset);
-    u_int_16                UInt16          (void);
-    u_int_16                UInt16          (const size_bit_t aSize,
+    u_int_16                UI16            (void);
+    u_int_16                UI16            (const size_bit_t aSize,
                                              const size_bit_t aOffset);
-    s_int_16                SInt16          (void);
-    s_int_16                SInt16          (const size_bit_t aSize,
+    s_int_16                SI16            (void);
+    s_int_16                SI16            (const size_bit_t aSize,
                                              const size_bit_t aOffset);
-    u_int_32                UInt32          (void);
-    u_int_32                UInt32          (const size_bit_t aSize,
+    u_int_32                UI32            (void);
+    u_int_32                UI32            (const size_bit_t aSize,
                                              const size_bit_t aOffset);
-    s_int_32                SInt32          (void);
-    s_int_32                SInt32          (const size_bit_t aSize,
+    s_int_32                SI32            (void);
+    s_int_32                SI32            (const size_bit_t aSize,
                                              const size_bit_t aOffset);
-    u_int_64                UInt64          (void);
-    u_int_64                UInt64          (const size_bit_t aSize,
+    u_int_64                UI64            (void);
+    u_int_64                UI64            (const size_bit_t aSize,
                                              const size_bit_t aOffset);
-    s_int_64                SInt64          (void);
-    s_int_64                SInt64          (const size_bit_t aSize,
+    s_int_64                SI64            (void);
+    s_int_64                SI64            (const size_bit_t aSize,
                                              const size_bit_t aOffset);
 
     size_bit_t              LeftToRead      (void) const noexcept {return iStorage.Left();}
@@ -76,5 +76,5 @@ private:
     GpBitReaderStorage      iStorage;
 };
 
-}//GPlatform
+}// namespace GPlatform
 */

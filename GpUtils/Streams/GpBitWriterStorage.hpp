@@ -10,7 +10,7 @@ class GP_UTILS_API GpBitWriterStorage
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpBitWriterStorage)
 
 protected:
-    inline                  GpBitWriterStorage  (GpSpanPtrByteRW    aDataOut,
+    inline                  GpBitWriterStorage  (GpSpanByteRW       aDataOut,
                                                  const size_bit_t   aOffset = 0_bit) noexcept;
 
 public:
@@ -39,7 +39,7 @@ private:
 
 GpBitWriterStorage::GpBitWriterStorage
 (
-    GpSpanPtrByteRW     aDataOut,
+    GpSpanByteRW        aDataOut,
     const size_bit_t    aOffset
 ) noexcept:
 iData(aDataOut.Ptr()),
@@ -49,5 +49,5 @@ iLeft(iSize)
 {
 }
 
-}//GPlatform
+}// namespace GPlatform
 */

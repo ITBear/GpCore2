@@ -22,10 +22,10 @@ public:
     void                        Destroy             (GpLifetimeElement::SP aElement);
 
 private:
-    GpRWSpinLock                iLock;
+    GpSpinLockRW                iLock;
 
 
     static GpLifetimeManager    sInstance;
 };*/
 
-}//namespace GPlatform
+}// namespace GPlatform

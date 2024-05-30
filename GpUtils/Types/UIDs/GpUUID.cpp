@@ -9,21 +9,21 @@
 
 namespace GPlatform {
 
-std::u8string   GpUUID::ToString (void) const
+std::string GpUUID::ToString (void) const
 {
     //    8      4    4    4       12
     //xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-    std::u8string str;
+    std::string str;
     str.resize(36);
-    char8_t* _R_ strPtr = str.data();
+    char* _R_ strPtr = std::data(str);
 
     DataT data;
     MemOps::SCopy(data, iData);
-    const u_int_8* _R_ dataPtr = data.data();
+    const u_int_8* _R_ dataPtr = std::data(data);
 
-    for (size_t id = 0; id < data.size(); ++id)
+    for (size_t id = 0; id < std::size(data); ++id)
     {
-        std::array<char8_t, 2> h = StrOps::SFromByteHex(*dataPtr++);
+        std::array<char, 2> h = StrOps::SFromByteHex(*dataPtr++);
         *strPtr++ = h.at(0);
         *strPtr++ = h.at(1);
 
@@ -39,22 +39,22 @@ std::u8string   GpUUID::ToString (void) const
     return str;
 }
 
-void    GpUUID::FromString (std::u8string_view aStr)
+void    GpUUID::FromString (std::string_view aStr)
 {
     THROW_COND_GP
     (
-        aStr.size() == 36,
-        u8"Length of UUID string must be 36"_sv
+        std::size(aStr) == 36,
+        "Length of UUID string must be 36"_sv
     );
 
     DataT data;
 
-    const char8_t* _R_  strPtr  = aStr.data();
-    u_int_8* _R_        dataPtr = data.data();
+    const char* _R_ strPtr  = std::data(aStr);
+    u_int_8* _R_    dataPtr = std::data(data);
 
-    for (size_t id = 0; id < data.size(); ++id)
+    for (size_t id = 0; id < std::size(data); ++id)
     {
-        std::array<char8_t,2> str = {*strPtr++, *strPtr++};
+        std::array<char,2> str = {*strPtr++, *strPtr++};
 
         *dataPtr++ = StrOps::SToByteHex(str);
 
@@ -72,14 +72,17 @@ void    GpUUID::FromString (std::u8string_view aStr)
 
 GpUUID  GpUUID::SGenRandomV4 (void) noexcept
 {
-    GpSRandom& rnd = GpSRandom::S();
+    return SGenRandomV4(GpSRandom::S());
+}
 
-    const u_int_64 part_0 = rnd.UI64();
-    const u_int_64 part_1 = rnd.UI64();
+GpUUID  GpUUID::SGenRandomV4 (GpRandomIf& aRand) noexcept
+{
+    const u_int_64 part_0 = aRand.UI64();
+    const u_int_64 part_1 = aRand.UI64();
 
     DataT data;
 
-    u_int_8*            dataPtr     = data.data();
+    u_int_8*            dataPtr     = std::data(data);
     constexpr size_t    blockSize   = sizeof(u_int_64);
 
     std::memcpy(dataPtr, &part_0, blockSize); dataPtr += blockSize;
@@ -97,13 +100,17 @@ GpUUID  GpUUID::SGenRandomV7 (void) noexcept
 
 GpUUID  GpUUID::SGenRandomV7 (const unix_ts_ms_t aUnixTS) noexcept
 {
-    //https://www.ietf.org/archive/id/draft-peabody-dispatch-new-uuid-format-03.html
-    //https://datatracker.ietf.org/doc/html/draft-peabody-dispatch-new-uuid-format-03#section-5.2
-    //https://datatracker.ietf.org/doc/html/draft-peabody-dispatch-new-uuid-format-03#appendix-B.2
-    //http://www.madore.org/~david/computers/unix-leap-seconds.html
+    return SGenRandomV7(aUnixTS, GpSRandom::S());
+}
 
-    GpUUID      uuid    = SGenRandomV4();
-    u_int_8*    dataPtr = reinterpret_cast<u_int_8*>(uuid.iData.data());
+GpUUID  GpUUID::SGenRandomV7
+(
+    const unix_ts_ms_t  aUnixTS,
+    GpRandomIf&         aRand
+) noexcept
+{
+    GpUUID      uuid    = SGenRandomV4(aRand);
+    u_int_8*    dataPtr = reinterpret_cast<u_int_8*>(std::data(uuid.iData));
 
     //48 bit big-endian unsigned number of Unix epoch timestamp (ms)
     {
@@ -114,7 +121,7 @@ GpUUID  GpUUID::SGenRandomV7 (const unix_ts_ms_t aUnixTS) noexcept
         THROW_COND_GP
         (
             ts >= 0,
-            u8"Unix timestamp < 0"_sv
+            "Unix timestamp < 0"_sv
         );
 
         const u_int_64 tsn =   BitOps::Native2BigEndian(u_int_64(ts) << 16)
@@ -135,13 +142,13 @@ GpUUID  GpUUID::SGenRandomV7 (const unix_ts_ms_t aUnixTS) noexcept
     return uuid;
 }
 
-GpUUID  GpUUID::SFromString (std::u8string_view aStr)
+GpUUID  GpUUID::SFromString (std::string_view aStr)
 {
     GpUUID uuid;
     uuid.FromString(aStr);
     return uuid;
 }
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_UUID)
+#endif// #if defined(GP_USE_UUID)

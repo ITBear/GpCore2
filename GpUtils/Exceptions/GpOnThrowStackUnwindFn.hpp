@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_EXCEPTIONS)
 
@@ -45,6 +45,6 @@ private:
     std::stack<FnT> iFnStack;
 };
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_EXCEPTIONS)
+#endif// #if defined(GP_USE_EXCEPTIONS)

@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
-
-#if defined(GP_USE_REFLECTION)
+#include <GpCore2/Config/GpConfig.hpp>
 
 #include "GpReflectSerializer.hpp"
 
@@ -23,6 +21,4 @@ public:
     virtual GpReflectSerializer::SP NewInstance                 (void) const = 0;
 };
 
-}//GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

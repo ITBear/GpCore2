@@ -18,7 +18,7 @@ const std::array<u_int_8, 64> GpBase64::sAlphabet =
 
 void    GpBase64::SEncode
 (
-    GpSpanPtrByteR  aData,
+    GpSpanByteR     aData,
     GpByteWriter&   aWriterBase64Str,
     const size_t    aSingleLineMaxLength
 )
@@ -26,7 +26,7 @@ void    GpBase64::SEncode
     static_assert(sizeof(size_t) >= 4, "sizeof(size_t) must be greater or equal to 4");
 
     //Check if empty
-    if (aData.IsEmpty())
+    if (aData.Empty())
     {
         return;
     }
@@ -36,14 +36,13 @@ void    GpBase64::SEncode
     const size_t        encodedSize     = SEncodedSize(aData, aSingleLineMaxLength);
     size_t              dataBytesLeft   = aData.Count();
     const u_int_8* _R_  data            = aData.PtrAs<const u_int_8*>();
-
-    GpSpanPtrByteRW base64StrOut    = aWriterBase64Str.Offset(encodedSize);
-    u_int_8*        encodedStr      = base64StrOut.PtrAs<u_int_8*>();
+    GpSpanByteRW        base64StrOut    = aWriterBase64Str.OffsetAdd(encodedSize);
+    u_int_8*            encodedStr      = base64StrOut.PtrAs<u_int_8*>();
 
     THROW_COND_GP
     (
         encodedStr != nullptr,
-        u8"encodedStr is null"_sv
+        "encodedStr is null"_sv
     );
 
     size_t      quarterId       = 0;
@@ -53,7 +52,7 @@ void    GpBase64::SEncode
     for (size_t blockId = 0; blockId < blocksCount; ++blockId)
     {
         size_t          blockData   = 0;
-        const size_t    bytesToRead = std::min(size_t(3), dataBytesLeft);
+        const size_t    bytesToRead = std::min(size_t{3}, dataBytesLeft);
         size_t          shift       = 16;
 
         dataBytesLeft -= bytesToRead;
@@ -92,17 +91,17 @@ void    GpBase64::SEncode
     }
 }
 
-std::u8string   GpBase64::SEncodeToStr
+std::string GpBase64::SEncodeToStr
 (
-    GpSpanPtrByteR  aData,
+    GpSpanByteR     aData,
     const size_t    aSingleLineMaxLength
 )
 {
     const size_t    encodedSize = SEncodedSize(aData, aSingleLineMaxLength);
-    std::u8string   encodedStr;
+    std::string     encodedStr;
     encodedStr.resize(encodedSize);
 
-    GpByteWriterStorageFixedSize    writerStorge({encodedStr.data(), encodedStr.size()});
+    GpByteWriterStorageFixedSize    writerStorge({std::data(encodedStr), std::size(encodedStr)});
     GpByteWriter                    writer(writerStorge);
 
     SEncode(aData, writer, aSingleLineMaxLength);
@@ -112,7 +111,7 @@ std::u8string   GpBase64::SEncodeToStr
 
 GpBytesArray    GpBase64::SEncodeToByteArray
 (
-    GpSpanPtrByteR  aData,
+    GpSpanByteR     aData,
     const size_t    aSingleLineMaxLength
 )
 {
@@ -120,7 +119,7 @@ GpBytesArray    GpBase64::SEncodeToByteArray
     GpBytesArray    encodedData;
     encodedData.resize(encodedSize);
 
-    GpByteWriterStorageFixedSize    writerStorge({encodedData.data(), encodedData.size()});
+    GpByteWriterStorageFixedSize    writerStorge({std::data(encodedData), std::size(encodedData)});
     GpByteWriter                    writer(writerStorge);
 
     SEncode(aData, writer, aSingleLineMaxLength);
@@ -130,7 +129,7 @@ GpBytesArray    GpBase64::SEncodeToByteArray
 
 void    GpBase64::SDecode
 (
-    std::u8string_view  aBase64Str,
+    std::string_view    aBase64Str,
     GpByteWriter&       aWriterData
 )
 {
@@ -142,17 +141,16 @@ void    GpBase64::SDecode
         return;
     }
 
-    const size_t        base64StrSize   = aBase64Str.size();
-    const u_int_8* _R_  base64StrPtr    = reinterpret_cast<const u_int_8*>(aBase64Str.data());
+    const size_t        base64StrSize   = std::size(aBase64Str);
+    const u_int_8* _R_  base64StrPtr    = reinterpret_cast<const u_int_8*>(std::data(aBase64Str));
     const size_t        decodedSize     = SDecodedSize(aBase64Str);
-
-    GpSpanPtrByteRW dataOut     = aWriterData.Offset(decodedSize);
-    u_int_8* _R_    decodedData = dataOut.PtrAs<u_int_8*>();
+    GpSpanByteRW        dataOut         = aWriterData.OffsetAdd(decodedSize);
+    u_int_8* _R_        decodedData     = dataOut.PtrAs<u_int_8*>();
 
     THROW_COND_GP
     (
         decodedData != nullptr,
-        u8"decodedData is nullptr"_sv
+        "decodedData is nullptr"_sv
     );
 
     std::array<u_int_8, 4>  blockBase64;
@@ -168,11 +166,11 @@ void    GpBase64::SDecode
             ||  (ch == u_int_8('+'))
             ||  (ch == u_int_8('/')))
         {
-            blockBase64.data()[blockId] = ch;
+            std::data(blockBase64)[blockId] = ch;
             blockId++;
         } else if (ch == u_int_8('='))
         {
-            blockBase64.data()[blockId] = ch;
+            std::data(blockBase64)[blockId] = ch;
             blockId++;
             padding++;
         } else
@@ -180,7 +178,7 @@ void    GpBase64::SDecode
             continue;
         }
 
-        if (blockId >= blockBase64.size())
+        if (blockId >= std::size(blockBase64))
         {
             u_int_32 blockData =
             (
@@ -212,13 +210,13 @@ void    GpBase64::SDecode
     }
 }
 
-std::u8string   GpBase64::SDecodeToStr (std::u8string_view aBase64Str)
+std::string GpBase64::SDecodeToStr (std::string_view aBase64Str)
 {
     const size_t    decodedSize = SDecodedSize(aBase64Str);
-    std::u8string       decodedStr;
+    std::string     decodedStr;
     decodedStr.resize(decodedSize);
 
-    GpByteWriterStorageFixedSize    writerStorge({decodedStr.data(), decodedStr.size()});
+    GpByteWriterStorageFixedSize    writerStorge({std::data(decodedStr), std::size(decodedStr)});
     GpByteWriter                    writer(writerStorge);
 
     SDecode(aBase64Str, writer);
@@ -226,13 +224,13 @@ std::u8string   GpBase64::SDecodeToStr (std::u8string_view aBase64Str)
     return decodedStr;
 }
 
-GpBytesArray    GpBase64::SDecodeToByteArray (std::u8string_view aBase64Str)
+GpBytesArray    GpBase64::SDecodeToByteArray (std::string_view aBase64Str)
 {
     const size_t    decodedSize = SDecodedSize(aBase64Str);
     GpBytesArray    decodedBytesArray;
     decodedBytesArray.resize(decodedSize);
 
-    GpByteWriterStorageFixedSize    writerStorge(GpSpanPtrByteRW(decodedBytesArray.data(), decodedBytesArray.size()));
+    GpByteWriterStorageFixedSize    writerStorge(GpSpanByteRW(std::data(decodedBytesArray), std::size(decodedBytesArray)));
     GpByteWriter                    writer(writerStorge);
 
     SDecode(aBase64Str, writer);
@@ -242,12 +240,12 @@ GpBytesArray    GpBase64::SDecodeToByteArray (std::u8string_view aBase64Str)
 
 size_t  GpBase64::SEncodedSize
 (
-    GpSpanPtrByteR  aData,
+    GpSpanByteR     aData,
     const size_t    aSingleLineMaxLength
 )
 {
     const size_t    base64BlocksCount   = SEncodedBlocksCount(aData);
-    size_t          encodedSize         = NumOps::SMul(base64BlocksCount, size_t(4));
+    size_t          encodedSize         = NumOps::SMul(base64BlocksCount, size_t{4});
 
     if (aSingleLineMaxLength > 0)
     {
@@ -258,22 +256,22 @@ size_t  GpBase64::SEncodedSize
             linesCount = NumOps::SInc(linesCount);
         }
 
-        encodedSize += NumOps::SMul(NumOps::SSub(linesCount, size_t(1)), size_t(2))/*\r\n*/;
+        encodedSize += NumOps::SMul(NumOps::SSub(linesCount, size_t{1}), size_t{2})/*\r\n*/;
     }
 
     return encodedSize;
 }
 
-size_t  GpBase64::SDecodedSize (std::u8string_view aBase64Str)
+size_t  GpBase64::SDecodedSize (std::string_view aBase64Str)
 {
-    const size_t base64Size = aBase64Str.size();
+    const size_t base64Size = std::size(aBase64Str);
 
     if (base64Size == 0)
     {
         return 0;
     }
 
-    const u_int_8* _R_  base64Str   = reinterpret_cast<const u_int_8*>(aBase64Str.data());
+    const u_int_8* _R_  base64Str   = reinterpret_cast<const u_int_8*>(std::data(aBase64Str));
     size_t              decodedSize = 0;
     size_t              paddingSize = 0;
 
@@ -298,14 +296,14 @@ size_t  GpBase64::SDecodedSize (std::u8string_view aBase64Str)
             //skip
         } else
         {
-            THROW_GP(u8"Wrong character '"_sv + std::bit_cast<char8_t>(ch) + u8"'"_sv);
+            THROW_GP("Wrong character '"_sv + std::bit_cast<char>(ch) + "'"_sv);
         }
     }
 
     THROW_COND_GP
     (
         ((decodedSize + paddingSize) % 4) == 0,
-        u8"Base64 string size must be multiple of 4"_sv
+        "Base64 string size must be multiple of 4"_sv
     );
 
     if (paddingSize == 0)
@@ -319,15 +317,15 @@ size_t  GpBase64::SDecodedSize (std::u8string_view aBase64Str)
         return (decodedSize / 4) * 3 + 2;
     } else
     {
-        THROW_GP(u8"Wrong Base64 padding '=' count"_sv);
+        THROW_GP("Wrong Base64 padding '=' count"_sv);
     }
 
     return decodedSize;
 }
 
-size_t  GpBase64::SEncodedBlocksCount (GpSpanPtrByteR aData)
+size_t  GpBase64::SEncodedBlocksCount (GpSpanByteR aData)
 {
-    const size_t dataSize = aData.Size().As<size_t>();
+    const size_t dataSize = aData.SizeInBytes();
 
     size_t base64BlocksCount = dataSize / 3;
     if ((dataSize % 3) > 0)
@@ -345,29 +343,29 @@ u_int_8 GpBase64::SAlphabetToByte (const u_int_8 aValue)
 
     if ((aValue >= u_int_8('A')) && (aValue <= u_int_8('Z')))
     {
-        v = size_t('A');
+        v = size_t{'A'};
         s = 0;
     } else if ((aValue >= u_int_8('a')) && (aValue <= u_int_8('z')))
     {
-        v = size_t('a');
+        v = size_t{'a'};
         s = 26;
     } else if ((aValue >= u_int_8('0')) && (aValue <= u_int_8('9')))
     {
-        v = size_t('0');
+        v = size_t{'0'};
         s = 26*2;
     } else if (aValue == u_int_8('+'))
     {
-        v = size_t('+');
+        v = size_t{'+'};
         s = 26*2 + 10;
     } else if (aValue == u_int_8('/'))
     {
-        v = size_t('/');
+        v = size_t{'/'};
         s = 26*2 + 11;
     }
 
     return u_int_8((size_t(aValue) - v) + s);
 }
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_BASE64)
+#endif// #if defined(GP_USE_BASE64)

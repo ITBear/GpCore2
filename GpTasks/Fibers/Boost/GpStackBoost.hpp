@@ -1,20 +1,27 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
-#if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
 
 #include "GpFixedSizeStackBoost.hpp"
+
+#if defined(GP_POSIX)
+#   include <unistd.h>
+#endif
 
 namespace GPlatform {
 
 class GpFiberStackSizePolicyT
 {
 public:
-    static size_t default_size()    {return size_t(16)*size_t(1024);}
+    static size_t default_size()    {return size_t{16} * size_t{1024};}
+#if defined(GP_OS_WINDOWS)
+    static size_t page_size()       {return size_t{4096};}
+#else
     static size_t page_size()       {return size_t(sysconf(_SC_PAGESIZE));}
+#endif
 };
 
 class GpStackBoost
@@ -36,8 +43,7 @@ private:
     StackImplT&     iStackImpl;
 };
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
-#endif//#if defined(GP_USE_MULTITHREADING_FIBERS)
-#endif//#if defined(GP_USE_MULTITHREADING)
+#endif// #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
+#endif// #if defined(GP_USE_MULTITHREADING_FIBERS)

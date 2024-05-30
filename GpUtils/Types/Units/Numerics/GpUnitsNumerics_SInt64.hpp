@@ -1,13 +1,14 @@
 #pragma once
 
 #include "../GpUnit.hpp"
+#include "../../Strings/GpStringTemplateArg.hpp"
 
 namespace GPlatform {
 
 class GpUnitType_NUMERIC_S_INT_64;
 
-using SInt64 = GpUnit<s_int_64, GpUnitType_NUMERIC_S_INT_64, std::ratio<1, 1>, decltype("s_int_64"_template_str)>;
+using SInt64 = GpUnit<s_int_64, GpUnitType_NUMERIC_S_INT_64, std::ratio<1, 1>, GpStringTemplateArg<'s','_','i','n','t','_','6','4'>>;
 
 constexpr SInt64 operator"" _s_int_64  (const unsigned long long aValue) {return SInt64::SMake(aValue);}
 
-}//GPlatform
+}// namespace GPlatform

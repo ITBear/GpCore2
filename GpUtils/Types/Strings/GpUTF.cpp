@@ -9,17 +9,17 @@ namespace GPlatform {
 //TODO: use fast check
 //https://lemire.me/blog/2018/05/09/how-quickly-can-you-check-that-a-string-is-valid-unicode-utf-8/
 
-std::u16string  GpUTF::S_UTF8_To_UTF16 (std::u8string_view aStr)
+std::u16string  GpUTF::S_UTF8_To_UTF16 (std::string_view aStr)
 {
     std::u16string resStr;
-    resStr.reserve(aStr.size());
+    resStr.reserve(std::size(aStr));
 
-    size_t              bytesLeft   = aStr.size();
-    const char8_t* _R_  utf8Str     = aStr.data();
+    size_t          bytesLeft   = std::size(aStr);
+    const char* _R_ utf8Str     = std::data(aStr);
 
     while (bytesLeft > 0)
     {
-        const char8_t   char8           = *utf8Str;
+        const char      char8           = *utf8Str;
         const size_t    leading1bitCnt  = std::max<size_t>(BitOps::Leading1bitCnt(u_int_8(char8)), 1);
 
         THROW_COND_GP
@@ -27,7 +27,7 @@ std::u16string  GpUTF::S_UTF8_To_UTF16 (std::u8string_view aStr)
                (bytesLeft >= leading1bitCnt)
             && (leading1bitCnt >= 1)
             && (leading1bitCnt <= 4),
-            u8"Invalid UTF-8 sequence"_sv
+            "Invalid UTF-8 sequence"_sv
         );
 
         if (leading1bitCnt == 1)
@@ -68,7 +68,7 @@ std::u16string  GpUTF::S_UTF8_To_UTF16 (std::u8string_view aStr)
             THROW_COND_GP
             (
                 char32 >= 0x10000,
-                u8"Wrong UTF-8 sequence"_sv
+                "Wrong UTF-8 sequence"_sv
             );
 
             const char16_t highSurrogate    = char16_t((u_int_32((char32 & u_int_32(~0b10000000000000000)) >> 10) & u_int_32(0b1111111111))
@@ -87,15 +87,15 @@ std::u16string  GpUTF::S_UTF8_To_UTF16 (std::u8string_view aStr)
     return resStr;
 }
 
-std::u32string  GpUTF::S_UTF8_To_UTF32 (std::u8string_view /*aStr*/)
+std::u32string  GpUTF::S_UTF8_To_UTF32 (std::string_view /*aStr*/)
 {
     //TODO: implement
     THROW_GP_NOT_IMPLEMENTED();
 }
 
-std::u8string   GpUTF::S_UTF16_To_UTF8 (std::u16string_view aStr)
+std::string GpUTF::S_UTF16_To_UTF8 (std::u16string_view aStr)
 {
-    std::u8string resStr;
+    std::string resStr;
 
     const size_t strLegth = aStr.length();
     resStr.reserve(NumOps::SMul<size_t>(strLegth, 2));
@@ -113,7 +113,7 @@ std::u8string   GpUTF::S_UTF16_To_UTF8 (std::u16string_view aStr)
             THROW_COND_GP
             (
                 prevType != GpUtf16Type::HIGH_SURROGATE,
-                u8"Invalid UTF-16 character"_sv
+                "Invalid UTF-16 character"_sv
             );
 
             code        = val0;
@@ -123,7 +123,7 @@ std::u8string   GpUTF::S_UTF16_To_UTF8 (std::u16string_view aStr)
             THROW_COND_GP
             (
                 prevType != GpUtf16Type::HIGH_SURROGATE,
-                u8"Invalid UTF-16 high surrogate character"_sv
+                "Invalid UTF-16 high surrogate character"_sv
             );
 
             code        = val0;
@@ -135,7 +135,7 @@ std::u8string   GpUTF::S_UTF16_To_UTF8 (std::u16string_view aStr)
             THROW_COND_GP
             (
                 prevType == GpUtf16Type::HIGH_SURROGATE,
-                u8"Invalid UTF-16 low surrogate character"_sv
+                "Invalid UTF-16 low surrogate character"_sv
             );
 
             //char32_t low_surrogate = static_cast<char32_t>(*(in_it + 1));
@@ -146,48 +146,57 @@ std::u8string   GpUTF::S_UTF16_To_UTF8 (std::u16string_view aStr)
 
         if (code <= char32_t(0x7F))
         {
-            resStr.append(1, char8_t(code));
+            resStr.append(1, char(code));
         } else if (code <= char32_t(0x7FF))
         {
-            resStr.append(1, char8_t(char32_t(0xC0) | char32_t(char32_t(code >>  6) & char32_t(0xFFFFFFFF))));
-            resStr.append(1, char8_t(char32_t(0x80) | char32_t(char32_t(code >>  0) & char32_t(0x0000003F))));
+            resStr.append(1, char(char32_t(0xC0) | char32_t(char32_t(code >>  6) & char32_t(0xFFFFFFFF))));
+            resStr.append(1, char(char32_t(0x80) | char32_t(char32_t(code >>  0) & char32_t(0x0000003F))));
         } else if (code <= char32_t(0xFFFF))
         {
-            resStr.append(1, char8_t(char32_t(0xE0) | char32_t(char32_t(code >> 12) & char32_t(0xFFFFFFFF))));
-            resStr.append(1, char8_t(char32_t(0x80) | char32_t(char32_t(code >>  6) & char32_t(0x0000003F))));
-            resStr.append(1, char8_t(char32_t(0x80) | char32_t(char32_t(code >>  0) & char32_t(0x0000003F))));
+            resStr.append(1, char(char32_t(0xE0) | char32_t(char32_t(code >> 12) & char32_t(0xFFFFFFFF))));
+            resStr.append(1, char(char32_t(0x80) | char32_t(char32_t(code >>  6) & char32_t(0x0000003F))));
+            resStr.append(1, char(char32_t(0x80) | char32_t(char32_t(code >>  0) & char32_t(0x0000003F))));
         } else
         {
-            resStr.append(1, char8_t(char32_t(0xF0) | char32_t(char32_t(code >> 18) & char32_t(0xFFFFFFFF))));
-            resStr.append(1, char8_t(char32_t(0x80) | char32_t(char32_t(code >> 12) & char32_t(0x0000003F))));
-            resStr.append(1, char8_t(char32_t(0x80) | char32_t(char32_t(code >>  6) & char32_t(0x0000003F))));
-            resStr.append(1, char8_t(char32_t(0x80) | char32_t(char32_t(code >>  0) & char32_t(0x0000003F))));
+            resStr.append(1, char(char32_t(0xF0) | char32_t(char32_t(code >> 18) & char32_t(0xFFFFFFFF))));
+            resStr.append(1, char(char32_t(0x80) | char32_t(char32_t(code >> 12) & char32_t(0x0000003F))));
+            resStr.append(1, char(char32_t(0x80) | char32_t(char32_t(code >>  6) & char32_t(0x0000003F))));
+            resStr.append(1, char(char32_t(0x80) | char32_t(char32_t(code >>  0) & char32_t(0x0000003F))));
         }
     }
 
     return resStr;
 }
 
-std::u8string   GpUTF::S_UTF32_To_UTF8 (std::u32string_view /*aStr*/)
+std::string GpUTF::S_UTF32_To_UTF8 (std::u32string_view /*aStr*/)
 {
+    //std::string wstring_to_string(const std::wstring& wstr) {
+    //  if (wstr.empty()) return {};
+
+    //  int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)std::size(wstr), NULL, 0, NULL, NULL);
+    //  std::string strTo(sizeNeeded, 0);
+    //  WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)std::size(wstr), &strTo[0], sizeNeeded, NULL, NULL);
+    //  return strTo;
+    //}
+
     //TODO: implement
     THROW_GP_NOT_IMPLEMENTED();
 
-    /*std::u8string resStr;
+    /*std::string resStr;
 
     const size_t strLegth = aStr.length();
     resStr.reserve(NumOps::SMul<size_t>(strLegth, 3));
 
     for (size_t id = 0; id < strLegth; id++)
     {
-        std::array<char8_t, 4> valueUtf8;
+        std::array<char, 4> valueUtf8;
         const size_t bytesCount = S_UTF32_To_UTF8(aStr[id], valueUtf8);
 
-        resStr.resize(resStr.size() + bytesCount);
+        resStr.resize(std::size(resStr) + bytesCount);
         std::memcpy
         (
-            resStr.data() + resStr.size() - bytesCount,
-            valueUtf8.data(),
+            std::data(resStr) + std::size(resStr) - bytesCount,
+            std::data(valueUtf8),
             bytesCount
         );
     }
@@ -195,15 +204,15 @@ std::u8string   GpUTF::S_UTF32_To_UTF8 (std::u32string_view /*aStr*/)
     return resStr;*/
 }
 
-size_t  GpUTF::SCharsCount (std::u8string_view aStr)
+size_t  GpUTF::SCharsCount (std::string_view aStr)
 {
-    size_t              charsCount  = 0;
-    size_t              bytesLeft   = aStr.size();
-    const char8_t* _R_  utf8Str     = aStr.data();
+    size_t          charsCount  = 0;
+    size_t          bytesLeft   = std::size(aStr);
+    const char* _R_ utf8Str     = std::data(aStr);
 
     while (bytesLeft > 0)
     {
-        const char8_t   char8           = *utf8Str;
+        const char      char8           = *utf8Str;
         const size_t    leading1bitCnt  = std::max<size_t>(BitOps::Leading1bitCnt(u_int_8(char8)), 1);
 
         THROW_COND_GP
@@ -211,7 +220,7 @@ size_t  GpUTF::SCharsCount (std::u8string_view aStr)
                (bytesLeft >= leading1bitCnt)
             && (leading1bitCnt >= 1)
             && (leading1bitCnt <= 4),
-            u8"Invalid UTF-8 sequence"_sv
+            "Invalid UTF-8 sequence"_sv
         );
 
         utf8Str     += leading1bitCnt;
@@ -225,8 +234,8 @@ size_t  GpUTF::SCharsCount (std::u8string_view aStr)
 size_t  GpUTF::SCharsCount (std::u16string_view aStr)
 {
     size_t              charsCount  = 0;
-    size_t              charsLeft   = aStr.size();
-    const char16_t* _R_ utf16Str    = aStr.data();
+    size_t              charsLeft   = std::size(aStr);
+    const char16_t* _R_ utf16Str    = std::data(aStr);
     GpUtf16Type         prevType    = GpUtf16Type::REGULAR;
 
     while (charsLeft > 0)
@@ -242,7 +251,7 @@ size_t  GpUTF::SCharsCount (std::u16string_view aStr)
                 THROW_COND_GP
                 (
                     prevType != GpUtf16Type::HIGH_SURROGATE,
-                    u8"Invalid UTF-16 high surrogate character"_sv
+                    "Invalid UTF-16 high surrogate character"_sv
                 );
 
                 charsCount++;
@@ -252,7 +261,7 @@ size_t  GpUTF::SCharsCount (std::u16string_view aStr)
                 THROW_COND_GP
                 (
                     prevType != GpUtf16Type::HIGH_SURROGATE,
-                    u8"Invalid UTF-16 high surrogate character"_sv
+                    "Invalid UTF-16 high surrogate character"_sv
                 );
             } break;
             case GpUtf16Type::LOW_SURROGATE:
@@ -260,10 +269,14 @@ size_t  GpUTF::SCharsCount (std::u16string_view aStr)
                 THROW_COND_GP
                 (
                     prevType == GpUtf16Type::HIGH_SURROGATE,
-                    u8"Invalid UTF-16 low surrogate character"_sv
+                    "Invalid UTF-16 low surrogate character"_sv
                 );
 
                 charsCount++;
+            } break;
+            default:
+            {
+                // NOP
             } break;
         }
 
@@ -274,25 +287,25 @@ size_t  GpUTF::SCharsCount (std::u16string_view aStr)
     (
            (prevType == GpUtf16Type::REGULAR)
         || (prevType == GpUtf16Type::LOW_SURROGATE),
-        u8"Invalid UTF-16 surrogate character"_sv
+        "Invalid UTF-16 surrogate character"_sv
     );
 
     return charsCount;
 }
 
-std::u8string   GpUTF::SToLower (std::u8string_view aStr)
+std::string GpUTF::SToLower (std::string_view aStr)
 {
     //TODO: reimplement with common template code with SToUpper
 
-    std::u8string resStr;
-    resStr.reserve(aStr.size());
+    std::string resStr;
+    resStr.reserve(std::size(aStr));
 
-    size_t              bytesLeft   = aStr.size();
-    const char8_t* _R_  utf8Str     = aStr.data();
+    size_t          bytesLeft   = std::size(aStr);
+    const char* _R_ utf8Str     = std::data(aStr);
 
     while (bytesLeft > 0)
     {
-        const char8_t   char8           = *utf8Str;
+        const char      char8           = *utf8Str;
         const size_t    leading1bitCnt  = std::max<size_t>(BitOps::Leading1bitCnt(u_int_8(char8)), 1);
 
         THROW_COND_GP
@@ -300,42 +313,42 @@ std::u8string   GpUTF::SToLower (std::u8string_view aStr)
                (bytesLeft >= leading1bitCnt)
             && (leading1bitCnt >= 1)
             && (leading1bitCnt <= 4),
-            u8"Invalid UTF-8 sequence"_sv
+            "Invalid UTF-8 sequence"_sv
         );
 
-        std::array<char8_t, 4> charData;
-        charData.fill(char8_t(0));
-        std::memcpy(charData.data(), utf8Str, leading1bitCnt);
+        std::array<char, 4> charData;
+        charData.fill(char(0));
+        std::memcpy(std::data(charData), utf8Str, leading1bitCnt);
 
         utf8Str     += leading1bitCnt;
         bytesLeft   -= leading1bitCnt;
 
         {
             int _tmp;
-            std::memcpy(&_tmp, charData.data(), 4);
+            std::memcpy(&_tmp, std::data(charData), 4);
             _tmp = std::tolower(_tmp);
-            std::memcpy(charData.data(), &_tmp, 4);
+            std::memcpy(std::data(charData), &_tmp, 4);
         }
 
-        resStr.append(std::u8string_view(charData.data(), leading1bitCnt));
+        resStr.append(std::string_view(std::data(charData), leading1bitCnt));
     }
 
     return resStr;
 }
 
-std::u8string   GpUTF::SToUpper (std::u8string_view aStr)
+std::string GpUTF::SToUpper (std::string_view aStr)
 {
-    //TODO: reimplement with common template code with SToLower
+    // TODO: reimplement with common template code with SToLower
 
-    std::u8string resStr;
-    resStr.reserve(aStr.size());
+    std::string resStr;
+    resStr.reserve(std::size(aStr));
 
-    size_t              bytesLeft   = aStr.size();
-    const char8_t* _R_  utf8Str     = aStr.data();
+    size_t          bytesLeft   = std::size(aStr);
+    const char* _R_ utf8Str     = std::data(aStr);
 
     while (bytesLeft > 0)
     {
-        const char8_t   char8           = *utf8Str;
+        const char      char8           = *utf8Str;
         const size_t    leading1bitCnt  = std::max<size_t>(BitOps::Leading1bitCnt(u_int_8(char8)), 1);
 
         THROW_COND_GP
@@ -343,24 +356,24 @@ std::u8string   GpUTF::SToUpper (std::u8string_view aStr)
                (bytesLeft >= leading1bitCnt)
             && (leading1bitCnt >= 1)
             && (leading1bitCnt <= 4),
-            u8"Invalid UTF-8 sequence"_sv
+            "Invalid UTF-8 sequence"_sv
         );
 
-        std::array<char8_t, 4> charData;
-        charData.fill(char8_t(0));
-        std::memcpy(charData.data(), utf8Str, leading1bitCnt);
+        std::array<char, 4> charData;
+        charData.fill(char(0));
+        std::memcpy(std::data(charData), utf8Str, leading1bitCnt);
 
         utf8Str     += leading1bitCnt;
         bytesLeft   -= leading1bitCnt;
 
         {
             int _tmp;
-            std::memcpy(&_tmp, charData.data(), 4);
+            std::memcpy(&_tmp, std::data(charData), 4);
             _tmp = std::toupper(_tmp);
-            std::memcpy(charData.data(), &_tmp, 4);
+            std::memcpy(std::data(charData), &_tmp, 4);
         }
 
-        resStr.append(std::u8string_view(charData.data(), leading1bitCnt));
+        resStr.append(std::string_view(std::data(charData), leading1bitCnt));
     }
 
     return resStr;
@@ -368,8 +381,8 @@ std::u8string   GpUTF::SToUpper (std::u8string_view aStr)
 
 size_t  GpUTF::SCharsCount
 (
-    std::u8string_view          /*aStr*/,
-    const std::vector<char8_t>& /*aChars*/
+    std::string_view            /*aStr*/,
+    const std::vector<char>&    /*aChars*/
 ) noexcept
 {
     //TODO: implement
@@ -377,17 +390,17 @@ size_t  GpUTF::SCharsCount
 
     //TODO: reimplement with SIMD
 
-    /*size_t                count       = 0;
-    const char8_t* _R_  data        = aStr.data();
-    const size_t        countLeft   = aStr.size();
+    /*size_t        count       = 0;
+    const char* _R_ data        = std::data(aStr);
+    const size_t    ountLeft    = std::size(aStr);
 
     for (size_t id = 0; id < countLeft; ++id)
     {
-        const char8_t ch = *data++;
+        const char ch = *data++;
 
-        for (const char8_t targetCh: aChars)
+        for (const char targetCh: aChars)
         {
-            count += 1 * size_t(ch == targetCh);
+            count += 1 * size_t{ch == targetCh};
         }
     }
 
@@ -396,24 +409,24 @@ size_t  GpUTF::SCharsCount
 
 size_t  GpUTF::SCharsCountRange
 (
-    std::u8string_view  /*aStr*/,
-    const char8_t       /*aCharFrom*/,
-    const char8_t       /*aCharTo*/
+    std::string_view    /*aStr*/,
+    const char          /*aCharFrom*/,
+    const char          /*aCharTo*/
 ) noexcept
 {
     //TODO: implement
     THROW_GP_NOT_IMPLEMENTED();
 
     /*
-    size_t              count       = 0;
-    const char8_t* _R_  data        = aStr.data();
-    const size_t        countLeft   = aStr.size();
+    size_t          count       = 0;
+    const char* _R_ data        = std::data(aStr);
+    const size_t    countLeft   = std::size(aStr);
 
     for (size_t id = 0; id < countLeft; ++id)
     {
-        const char8_t ch = *data++;
+        const char ch = *data++;
 
-        count += 1 * size_t(ch >= aCharFrom) * size_t(ch <= aCharTo);
+        count += 1 * size_t{ch >= aCharFrom} * size_t{ch <= aCharTo};
     }
 
     return count;
@@ -422,22 +435,22 @@ size_t  GpUTF::SCharsCountRange
 
 bool    GpUTF::SContainsOnlyChars
 (
-    std::u8string_view          /*aStr*/,
-    const std::set<char8_t>&    /*aSet*/
+    std::string_view        /*aStr*/,
+    const std::set<char>&   /*aSet*/
 ) noexcept
 {
     //TODO: implement
     THROW_GP_NOT_IMPLEMENTED();
 
     /*
-    size_t size = aStr.size();
+    size_t size = std::size(aStr);
 
     if (size == 0)
     {
         return true;
     }
 
-    const char* _R_ ptr = aStr.data();
+    const char* _R_ ptr = std::data(aStr);
 
     while (size > 0)
     {
@@ -452,101 +465,101 @@ bool    GpUTF::SContainsOnlyChars
     return true;*/
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
 /*
 size_t  GpUTF::S_UTF16_To_UTF8
 (
     const char16_t          aUTF16_value0,
     const char16_t          aUTF16_value1,
-    std::array<char8_t, 4>& aUTF8_valueOut
+    std::array<char, 4>&    aUTF8_valueOut
 )
 {
-    char8_t* utf8_val = aUTF8_valueOut.data();
+    char* utf8_val = std::data(aUTF8_valueOut);
 
     //Convert to UTF8
-    if (size_t(aUTF32_value) < size_t(0x00000080ULL))//0x00000000 — 0x0000007F
+    if (size_t{aUTF32_value} < size_t{0x00000080ULL})//0x00000000 — 0x0000007F
     {
         //0xxxxxxx
-        *utf8_val++ = char8_t(aUTF32_value);
-        *utf8_val++ = char8_t(0);
-        *utf8_val++ = char8_t(0);
-        *utf8_val++ = char8_t(0);
+        *utf8_val++ = char(aUTF32_value);
+        *utf8_val++ = char(0);
+        *utf8_val++ = char(0);
+        *utf8_val++ = char(0);
         return 1;
-    } else if (size_t(aUTF32_value) < size_t(0x00000800ULL))//0x00000080 — 0x000007FF
+    } else if (size_t{aUTF32_value} < size_t{0x00000800ULL})//0x00000080 — 0x000007FF
     {
         //110xxxxx 10xxxxxx
-        *utf8_val++ = char8_t(size_t(0xC0) + ((size_t(aUTF32_value) >> 6) & size_t(0x1F)));
-        *utf8_val++ = char8_t(size_t(0x80) + ((size_t(aUTF32_value) >> 0) & size_t(0x3F)));
-        *utf8_val++ = char8_t(0);
-        *utf8_val++ = char8_t(0);
+        *utf8_val++ = char(size_t{0xC0} + ((size_t{aUTF32_value} >> 6) & size_t{0x1F}));
+        *utf8_val++ = char(size_t{0x80} + ((size_t{aUTF32_value} >> 0) & size_t{0x3F}));
+        *utf8_val++ = char(0);
+        *utf8_val++ = char(0);
         return 2;
-    } else if (size_t(aUTF32_value) < size_t(0x00010000ULL))//0x00000800 — 0x0000FFFF
+    } else if (size_t{aUTF32_value} < size_t{0x00010000ULL})//0x00000800 — 0x0000FFFF
     {
         //1110xxxx 10xxxxxx 10xxxxxx
-        *utf8_val++ = char8_t(size_t(0xE0) + ((size_t(aUTF32_value) >> 12) & size_t(0x0F)));
-        *utf8_val++ = char8_t(size_t(0x80) + ((size_t(aUTF32_value) >> 6)  & size_t(0x3F)));
-        *utf8_val++ = char8_t(size_t(0x80) + ((size_t(aUTF32_value) >> 0)  & size_t(0x3F)));
-        *utf8_val++ = char8_t(0);
+        *utf8_val++ = char(size_t{0xE0} + ((size_t{aUTF32_value} >> 12) & size_t{0x0F}));
+        *utf8_val++ = char(size_t{0x80} + ((size_t{aUTF32_value} >> 6)  & size_t{0x3F}));
+        *utf8_val++ = char(size_t{0x80} + ((size_t{aUTF32_value} >> 0)  & size_t{0x3F}));
+        *utf8_val++ = char(0);
         return 3;
-    } else if (size_t(aUTF32_value) < size_t(0x00200000ULL))//0x00010000 — 0x001FFFFF
+    } else if (size_t{aUTF32_value} < size_t{0x00200000ULL})//0x00010000 — 0x001FFFFF
     {
         //11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-        utf8_val[0] = char8_t(size_t(0xF0) + ((size_t(aUTF32_value) >> 18) & size_t(0x07)));
-        utf8_val[1] = char8_t(size_t(0x80) + ((size_t(aUTF32_value) >> 12) & size_t(0x3F)));
-        utf8_val[2] = char8_t(size_t(0x80) + ((size_t(aUTF32_value) >> 6)  & size_t(0x3F)));
-        utf8_val[3] = char8_t(size_t(0x80) + ((size_t(aUTF32_value) >> 0)  & size_t(0x3F)));
+        utf8_val[0] = char(size_t{0xF0} + ((size_t{aUTF32_value} >> 18) & size_t{0x07}));
+        utf8_val[1] = char(size_t{0x80} + ((size_t{aUTF32_value} >> 12) & size_t{0x3F}));
+        utf8_val[2] = char(size_t{0x80} + ((size_t{aUTF32_value} >> 6)  & size_t{0x3F}));
+        utf8_val[3] = char(size_t{0x80} + ((size_t{aUTF32_value} >> 0)  & size_t{0x3F}));
         return 4;
     } else
     {
-        THROW_GP(u8"Wrong UTF32 value"_sv);
+        THROW_GP("Wrong UTF32 value"_sv);
     }
 }
 
 size_t  GpUTF::S_UTF32_To_UTF8
 (
     const char32_t          aUTF32_value,
-    std::array<char8_t, 4>& aUTF8_valueOut
+    std::array<char, 4>&    aUTF8_valueOut
 )
 {
-    char8_t* utf8_val = aUTF8_valueOut.data();
+    char* utf8_val = std::data(aUTF8_valueOut);
 
     //Convert to UTF8
-    if (size_t(aUTF32_value) < size_t(0x00000080ULL))//0x00000000 — 0x0000007F
+    if (size_t{aUTF32_value} < size_t{0x00000080ULL})//0x00000000 — 0x0000007F
     {
         //0xxxxxxx
-        *utf8_val++ = char8_t(aUTF32_value);
-        *utf8_val++ = char8_t(0);
-        *utf8_val++ = char8_t(0);
-        *utf8_val++ = char8_t(0);
+        *utf8_val++ = char(aUTF32_value);
+        *utf8_val++ = char(0);
+        *utf8_val++ = char(0);
+        *utf8_val++ = char(0);
         return 1;
-    } else if (size_t(aUTF32_value) < size_t(0x00000800ULL))//0x00000080 — 0x000007FF
+    } else if (size_t{aUTF32_value} < size_t{0x00000800ULL})//0x00000080 — 0x000007FF
     {
         //110xxxxx 10xxxxxx
-        *utf8_val++ = char8_t(size_t(0xC0) + ((size_t(aUTF32_value) >> 6) & size_t(0x1F)));
-        *utf8_val++ = char8_t(size_t(0x80) + ((size_t(aUTF32_value) >> 0) & size_t(0x3F)));
-        *utf8_val++ = char8_t(0);
-        *utf8_val++ = char8_t(0);
+        *utf8_val++ = char(size_t{0xC0} + ((size_t{aUTF32_value} >> 6) & size_t{0x1F}));
+        *utf8_val++ = char(size_t{0x80} + ((size_t{aUTF32_value} >> 0) & size_t{0x3F}));
+        *utf8_val++ = char(0);
+        *utf8_val++ = char(0);
         return 2;
-    } else if (size_t(aUTF32_value) < size_t(0x00010000ULL))//0x00000800 — 0x0000FFFF
+    } else if (size_t{aUTF32_value} < size_t{0x00010000ULL})//0x00000800 — 0x0000FFFF
     {
         //1110xxxx 10xxxxxx 10xxxxxx
-        *utf8_val++ = char8_t(size_t(0xE0) + ((size_t(aUTF32_value) >> 12) & size_t(0x0F)));
-        *utf8_val++ = char8_t(size_t(0x80) + ((size_t(aUTF32_value) >> 6)  & size_t(0x3F)));
-        *utf8_val++ = char8_t(size_t(0x80) + ((size_t(aUTF32_value) >> 0)  & size_t(0x3F)));
-        *utf8_val++ = char8_t(0);
+        *utf8_val++ = char(size_t{0xE0} + ((size_t{aUTF32_value} >> 12) & size_t{0x0F}));
+        *utf8_val++ = char(size_t{0x80} + ((size_t{aUTF32_value} >> 6)  & size_t{0x3F}));
+        *utf8_val++ = char(size_t{0x80} + ((size_t{aUTF32_value} >> 0)  & size_t{0x3F}));
+        *utf8_val++ = char(0);
         return 3;
-    } else if (size_t(aUTF32_value) < size_t(0x00200000ULL))//0x00010000 — 0x001FFFFF
+    } else if (size_t{(}aUTF32_value} < size_t{0x00200000ULL})//0x00010000 — 0x001FFFFF
     {
         //11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-        utf8_val[0] = char8_t(size_t(0xF0) + ((size_t(aUTF32_value) >> 18) & size_t(0x07)));
-        utf8_val[1] = char8_t(size_t(0x80) + ((size_t(aUTF32_value) >> 12) & size_t(0x3F)));
-        utf8_val[2] = char8_t(size_t(0x80) + ((size_t(aUTF32_value) >> 6)  & size_t(0x3F)));
-        utf8_val[3] = char8_t(size_t(0x80) + ((size_t(aUTF32_value) >> 0)  & size_t(0x3F)));
+        utf8_val[0] = char(size_t{0xF0} + ((size_t{aUTF32_value} >> 18) & size_t{0x07}));
+        utf8_val[1] = char(size_t{0x80} + ((size_t{aUTF32_value} >> 12) & size_t{0x3F}));
+        utf8_val[2] = char(size_t{0x80} + ((size_t{aUTF32_value} >> 6)  & size_t{0x3F}));
+        utf8_val[3] = char(size_t{0x80} + ((size_t{aUTF32_value} >> 0)  & size_t{0x3F}));
         return 4;
     } else
     {
-        THROW_GP(u8"Wrong UTF32 value"_sv);
+        THROW_GP("Wrong UTF32 value"_sv);
     }
 }
 */

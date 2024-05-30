@@ -8,6 +8,6 @@ GpExceptionTextCode::~GpExceptionTextCode (void) noexcept
 {
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_EXCEPTIONS)
+#endif// #if defined(GP_USE_EXCEPTIONS)

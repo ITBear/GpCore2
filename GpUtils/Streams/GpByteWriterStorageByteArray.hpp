@@ -13,8 +13,8 @@ public:
     virtual                 ~GpByteWriterStorageByteArray   (void) noexcept override final = default;
 
 protected:
-    virtual void            AllocateAdd                     (const size_t       aSizeToAdd,
-                                                             GpSpanPtrByteRW&   aStoragePtr) override final;
+    virtual void            AllocateAdd                     (const size_t   aSizeToAdd,
+                                                             GpSpanByteRW&  aStoragePtr) override final;
     virtual void            _OnEnd                          (void) override final;
 
 private:
@@ -24,10 +24,10 @@ private:
 GpByteWriterStorageByteArray::GpByteWriterStorageByteArray (GpBytesArray& aStorage) noexcept:
 GpByteWriterStorage
 (
-    GpSpanPtrByteRW
+    GpSpanByteRW
     (
-        aStorage.data(),
-        aStorage.size()
+        std::data(aStorage),
+        std::size(aStorage)
     )
 ),
 iStorage(aStorage)

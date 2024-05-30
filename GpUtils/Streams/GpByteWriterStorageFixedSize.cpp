@@ -4,11 +4,11 @@ namespace GPlatform {
 
 void    GpByteWriterStorageFixedSize::AllocateAdd
 (
-    const size_t        /*aSizeToAdd*/,
-    GpSpanPtrByteRW&    /*aStoragePtr*/
+    const size_t    /*aSizeToAdd*/,
+    GpSpanByteRW&   /*aStoragePtr*/
 )
 {
-    THROW_GP(u8"Out of range"_sv);
+    THROW_GP("Out of range"_sv);
 }
 
 void    GpByteWriterStorageFixedSize::_OnEnd (void)

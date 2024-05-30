@@ -1,13 +1,11 @@
 #include "GpTaskThread.hpp"
 
-#if defined(GP_USE_MULTITHREADING)
-
 namespace GPlatform {
 
 GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
 {
-    GpTaskRunRes::EnumT         res = GpTaskRunRes::DONE;
-    std::optional<GpException>  ex;
+    GpTaskRunRes::EnumT res = GpTaskRunRes::DONE;
+    GpException::C::Opt ex;
 
     // Catch all exceptions
     try
@@ -34,7 +32,7 @@ GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
         {
             if (!iIsStopCalled)
             {
-                std::optional<GpException> stopExOpt = CallStop();
+                GpException::C::Opt stopExOpt = CallOnStop();
                 if (stopExOpt.has_value())
                 {
                     throw stopExOpt.value();
@@ -50,7 +48,7 @@ GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
         if (!iIsStopCalled)
         {
             // TODO: do something with result (logout for example)
-            CallStop();
+            CallOnStop();
         }
     } catch (const std::exception& e)
     {
@@ -59,16 +57,16 @@ GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
         if (!iIsStopCalled)
         {
             // TODO: do something with result (logout for example)
-            CallStop();
+            CallOnStop();
         }
     } catch (...)
     {
-        ex = GpException(u8"[GpTaskThread::Run]: unknown exception"_sv);
+        ex = GpException("[GpTaskThread::Run]: unknown exception"_sv);
 
         if (!iIsStopCalled)
         {
             // TODO: do something with result (logout for example)
-            CallStop();
+            CallOnStop();
         }
     }
 
@@ -89,12 +87,10 @@ GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
     return res;
 }
 
-std::optional<GpException>  GpTaskThread::CallStop (void) noexcept
+GpException::C::Opt GpTaskThread::CallOnStop (void) noexcept
 {
     iIsStopCalled = true;
     return OnStop();
 }
 
-}//namespace GPlatform
-
-#endif//#if defined(GP_USE_MULTITHREADING)
+}// namespace GPlatform

@@ -1,24 +1,20 @@
 #pragma once
 
-#include "../Config/GpConfig.hpp"
-
-#if defined(GP_USE_REFLECTION)
-
-#include "../GpUtils/Macro/GpMacroTags.hpp"
-#include "GpReflectModel.hpp"
-#include "GpReflectObjectFactory.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
+#include <GpCore2/GpReflection/GpReflectManager.hpp>
+#include <GpCore2/GpReflection/GpReflectPropUtils.hpp>
+#include <GpCore2/GpReflection/GpReflectObjectFactory.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
 
 #if defined(GP_REFLECTION_STATIC_ADD_TO_MANAGER)
-#   define GP_REFLECTION_STATIC_TYPE_REG_IMPL(T)        const GpReflectModel& T::_sReflectModel = T::_SReflectModelInit();
-#   define GP_REFLECTION_STATIC_TYPE_REG_DECL    static const GpReflectModel&    _sReflectModel;
+#   define GP_REFLECTION_STATIC_TYPE_REG_IMPL(T)        GpReflectModel::CSP T::_sReflectModel = T::_SReflectModelInit();
+#   define GP_REFLECTION_STATIC_TYPE_REG_DECL    static GpReflectModel::CSP    _sReflectModel;
 #else
 #   define GP_REFLECTION_STATIC_TYPE_REG_IMPL(T)
 #   define GP_REFLECTION_STATIC_TYPE_REG_DECL
-#endif//#if defined(GP_REFLECTION_STATIC_ADD_TO_MANAGER)
+#endif// #if defined(GP_REFLECTION_STATIC_ADD_TO_MANAGER)
 
 namespace GPlatform {
-
-TAG_REGISTER(GpReflectObject)
 
 class GP_REFLECTION_API GpReflectObject
 {
@@ -57,35 +53,37 @@ public:
     explicit                        GpReflectObject         (GpReflectObject&&) noexcept = default;
     virtual                         ~GpReflectObject        (void) noexcept = default;
 
-    static const GpReflectModel&    SReflectModel           (void) noexcept {return GpReflectObject::_sReflectModel;}
+    static GpReflectModel::CSP      SReflectModel           (void) noexcept {return GpReflectObject::_sReflectModel;}
     static constexpr GpUUID         SReflectModelUid        (void) noexcept
     {
         constexpr const GpUUID uid = "10000000-0000-0000-0000-000000000001"_uuid;
         return uid;
     }
 
-    const GpReflectModel&           ReflectModel            (void) const {return _ReflectModel();}
-    const GpUUID                    ReflectModelUid         (void) const noexcept {return _ReflectModel().Uid();}
+    GpReflectModel::CSP             ReflectModel            (void) const {return _ReflectModel();}
+    const GpUUID                    ReflectModelUid         (void) const noexcept {return _ReflectModel().Vn().Uid();}
     GpReflectObject::SP             ReflectNewInstance      (void) const {return _ReflectNewInstance();}
     GpReflectObject::SP             ReflectClone            (void) const {return _ReflectClone();}
     const void*                     ReflectDataPtr          (void) const noexcept {return _ReflectDataPtr();}
     void*                           ReflectDataPtr          (void) noexcept {return _ReflectDataPtr();}
+    bool                            ReflectIsEqual          (const GpReflectObject& aOtherObject) const;
+    size_t                          ReflectTotalMemoryUse   (void) const noexcept;
 
-    static const GpReflectModel&    _SReflectModelInit      (void);
+    static GpReflectModel::CSP      _SReflectModelInit      (void);
 
     template<typename T>
     typename T::SP                  ReflectClone            (void) const;
 
 protected:
     virtual void                    _type_id_tag_fn         (_type_id_tag_t&) const noexcept {}
-    virtual const GpReflectModel&   _ReflectModel           (void) const;
+    virtual GpReflectModel::CSP     _ReflectModel           (void) const;
     virtual GpReflectObject::SP     _ReflectNewInstance     (void) const;
     virtual GpReflectObject::SP     _ReflectClone           (void) const;
     virtual const void*             _ReflectDataPtr         (void) const noexcept;
     virtual void*                   _ReflectDataPtr         (void) noexcept;
 
 private:
-    static const GpReflectModel&    _SReflectCreateModel    (void);
+    static GpReflectModel::CSP      _SReflectCreateModel    (void);
     GP_REFLECTION_STATIC_TYPE_REG_DECL
 };
 
@@ -96,7 +94,7 @@ typename T::SP  GpReflectObject::ReflectClone (void) const
     return val.CastAs<typename T::SP>();
 }
 
-}//GPlatform
+}// namespace GPlatform
 
 //------------------------- REFLECT_DECLARE -------------------------
 #define REFLECT_DECLARE(TUUID) \
@@ -121,24 +119,24 @@ typename T::SP  GpReflectObject::ReflectClone (void) const
         }; \
     }; \
 \
-    static const ::GPlatform::GpReflectModel&                   SReflectModel       (void) noexcept {return this_type::_sReflectModel;} \
+    static ::GPlatform::GpReflectModel::CSP                     SReflectModel       (void) noexcept {return this_type::_sReflectModel;} \
     static constexpr const ::GPlatform::GpUUID                  SReflectModelUid    (void) noexcept \
     { \
         constexpr const ::GPlatform::GpUUID uid(TUUID); \
         return uid; \
     } \
 \
-    static const GpReflectModel&                _SReflectModelInit      (void); \
+    static GpReflectModel::CSP                  _SReflectModelInit          (void); \
 \
 protected: \
-    virtual void                                _type_id_tag_fn         (_type_id_tag_t&) const noexcept override{} \
-    virtual const ::GPlatform::GpReflectModel&  _ReflectModel           (void) const override; \
-    virtual ::GPlatform::GpReflectObject::SP    _ReflectNewInstance     (void) const override; \
-    virtual ::GPlatform::GpReflectObject::SP    _ReflectClone           (void) const override; \
+    virtual void                                _type_id_tag_fn             (_type_id_tag_t&) const noexcept override{} \
+    virtual ::GPlatform::GpReflectModel::CSP    _ReflectModel               (void) const override; \
+    virtual ::GPlatform::GpReflectObject::SP    _ReflectNewInstance         (void) const override; \
+    virtual ::GPlatform::GpReflectObject::SP    _ReflectClone               (void) const override; \
 \
 private: \
-    static const ::GPlatform::GpReflectModel&   _SReflectCreateModel    (const ::GPlatform::GpReflectModel& aBaseReflectionModel); \
-    static void                                 _SReflectCollectProps   (::GPlatform::GpReflectProp::C::Vec::Val& aPropsOut);\
+    static ::GPlatform::GpReflectModel::CSP     _SReflectCreateModel        (const ::GPlatform::GpReflectModel& aBaseReflectionModel); \
+    static void                                 _SReflectCollectProps       (::GPlatform::GpReflectProp::SmallVecVal& aPropsOut);\
 \
     GP_REFLECTION_STATIC_TYPE_REG_DECL
 
@@ -147,7 +145,7 @@ private: \
 
 #define REFLECT_IMPLEMENT(T, MODULE_UUID) \
 \
-    GP_REFLECTION_STATIC_TYPE_REG_IMPL(T); \
+    GP_REFLECTION_STATIC_TYPE_REG_IMPL(T) \
 \
     ::GPlatform::GpSP<::GPlatform::GpReflectObject> T::Factory::NewInstanceSP (const GpUUID& /*aModelUid*/) const {return MakeSP<T>();} \
 \
@@ -157,13 +155,13 @@ private: \
 \
     const ::GPlatform::GpReflectObjectFactory::VecWrapInfoT&    T::Factory::VecWrapInfo (void) const noexcept {return iVecWrapInfo;} \
 \
-    const ::GPlatform::GpReflectModel&  T::_SReflectModelInit (void) \
+    ::GPlatform::GpReflectModel::CSP    T::_SReflectModelInit (void) \
     { \
-        static const ::GPlatform::GpReflectModel& sReflectModel = T::_SReflectCreateModel(T::BaseT::_SReflectModelInit()); \
+        static ::GPlatform::GpReflectModel::CSP sReflectModel = T::_SReflectCreateModel(T::BaseT::_SReflectModelInit().Vn()); \
         return sReflectModel; \
     } \
 \
-    const ::GPlatform::GpReflectModel&  T::_ReflectModel (void) const \
+    ::GPlatform::GpReflectModel::CSP    T::_ReflectModel (void) const \
     { \
         return T::SReflectModel(); \
     } \
@@ -178,20 +176,20 @@ private: \
         return MakeSP<T>(*this); \
     } \
 \
-    const ::GPlatform::GpReflectModel&  T::_SReflectCreateModel (const ::GPlatform::GpReflectModel& aBaseReflectionModel) \
+    ::GPlatform::GpReflectModel::CSP    T::_SReflectCreateModel (const ::GPlatform::GpReflectModel& aBaseReflectionModel) \
     { \
-        ::GPlatform::GpReflectProp::C::Vec::Val props   = aBaseReflectionModel.Props(); \
+        ::GPlatform::GpReflectProp::SmallVecVal props   = aBaseReflectionModel.Props(); \
         ::GPlatform::GpReflectObjectFactory::SP factory = ::GPlatform::GpSP<Factory>::SNew(); \
         _SReflectCollectProps(props); \
         \
         constexpr const ::GPlatform::GpUUID modelUid    = T::SReflectModelUid(); \
         constexpr const ::GPlatform::GpUUID groupId     = ::GPlatform::GpUUID::CE_FromString(std::string_view(MACRO_D_TO_STR(MODULE_UUID))); \
         \
-        ::GPlatform::GpReflectModel reflectModel\
-        (\
+        ::GPlatform::GpReflectModel::CSP reflectModelCSP = MakeCSP<::GPlatform::GpReflectModel> \
+        ( \
             modelUid, \
             aBaseReflectionModel.Uid(), \
-            std::u8string(::GPlatform::GpUTF::S_As_UTF8(::GPlatform::GpReflectUtils::SModelName<T>())), \
+            std::string(::GPlatform::GpReflectUtils::SModelName<T>()), \
             std::move(props), \
             groupId, \
             std::move(factory), \
@@ -199,14 +197,16 @@ private: \
             sizeof(T) \
         ); \
         \
-        return ::GPlatform::GpReflectManager::_S_().Register(reflectModel);\
+        ::GPlatform::GpReflectManager::_S_().Register(reflectModelCSP);\
+        \
+        return reflectModelCSP; \
     }
 
 //------------------------- PROP -------------------------
 #define PROP(PROP_NAME) \
-    ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
+    ::GPlatform::GpReflectPropUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
-        std::u8string(GpUTF::S_As_UTF8(#PROP_NAME)), \
+        std::string(#PROP_NAME), \
         ::GPlatform::GpReflectUtils::SOffsetOf(&this_type::PROP_NAME), \
         {}, \
         GpReflectProp::FlagArgsT(), \
@@ -216,9 +216,9 @@ private: \
     )
 
 #define PROP_F(PROP_NAME, FLAGS) \
-    ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
+    ::GPlatform::GpReflectPropUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
-        std::u8string(GpUTF::S_As_UTF8(#PROP_NAME)), \
+        std::string(#PROP_NAME), \
         ::GPlatform::GpReflectUtils::SOffsetOf(&this_type::PROP_NAME), \
         FLAGS, \
         GpReflectProp::FlagArgsT(), \
@@ -228,9 +228,9 @@ private: \
     )
 
 #define PROP_FG(PROP_NAME, FLAGS, GEN_FN) \
-    ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
+    ::GPlatform::GpReflectPropUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
-        std::u8string(GpUTF::S_As_UTF8(#PROP_NAME)), \
+        std::string(#PROP_NAME), \
         ::GPlatform::GpReflectUtils::SOffsetOf(&this_type::PROP_NAME), \
         FLAGS, \
         GpReflectProp::FlagArgsT(), \
@@ -240,9 +240,9 @@ private: \
     )
 
 #define PROP_FA(PROP_NAME, FLAGS, FLAG_ARGS) \
-    ::GPlatform::GpReflectUtils::SAddProp<decltype(PROP_NAME)> \
+    ::GPlatform::GpReflectPropUtils::SAddProp<decltype(PROP_NAME)> \
     ( \
-        std::u8string(GpUTF::S_As_UTF8(#PROP_NAME)), \
+        std::string(#PROP_NAME), \
         ::GPlatform::GpReflectUtils::SOffsetOf(&this_type::PROP_NAME), \
         FLAGS, \
         std::move(FLAG_ARGS), \
@@ -250,5 +250,3 @@ private: \
         aPropsOut, \
         {} \
     )
-
-#endif//GP_USE_REFLECTION

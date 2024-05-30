@@ -1,12 +1,9 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
-
-#if defined(GP_USE_MULTITHREADING)
-
-#include "../../GpUtils/Exceptions/GpException.hpp"
-#include "../../GpUtils/Macro/GpMacroClass.hpp"
-#include "../../GpUtils/Types/Containers/GpContainersT.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
+#include <GpCore2/GpUtils/Exceptions/GpException.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 
 #include <variant>
 
@@ -129,7 +126,7 @@ const T&    GpItcResult<T>::PayloadOrThrow (const SourceLocationT& aSourceLocati
     {
         THROW_GP
         (
-            u8"Result is exception: "_sv + std::get<GpException>(iVariants).what(),
+            "Result is exception: "_sv + std::get<GpException>(iVariants).what(),
             aSourceLocation
         );
     }
@@ -146,7 +143,7 @@ T&  GpItcResult<T>::PayloadOrThrow (const SourceLocationT& aSourceLocation)
     {
         THROW_GP
         (
-            u8"Result is exception: "_sv + std::get<GpException>(iVariants).what(),
+            "Result is exception: "_sv + std::get<GpException>(iVariants).what(),
             aSourceLocation
         );
     }
@@ -160,6 +157,4 @@ typename GpItcResult<T>::VariantsT& GpItcResult<T>::Variants (void) noexcept
     return iVariants;
 }
 
-}//namespace GPlatform
-
-#endif//#if defined(GP_USE_MULTITHREADING)
+}// namespace GPlatform

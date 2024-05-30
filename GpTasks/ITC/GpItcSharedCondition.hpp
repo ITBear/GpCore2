@@ -1,20 +1,16 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
-
-#if defined(GP_USE_MULTITHREADING)
+#include <GpCore2/Config/GpConfig.hpp>
 
 #include "../GpTasks_global.hpp"
-
-#include "../../GpUtils/Macro/GpMacroClass.hpp"
-#include "../../GpUtils/Types/Containers/GpContainersT.hpp"
-#include "../../GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp"
-#include "../../GpUtils/SyncPrimitives/GpConditionVar.hpp"
-#include "../../GpUtils/DateTime/GpDateTimeOps.hpp"
 #include "../GpTaskEnums.hpp"
 
-#include <boost/container/flat_set.hpp>
-//#include <boost/container/small_vector.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
+#include <GpCore2/GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpConditionVar.hpp>
+#include <GpCore2/GpUtils/DateTime/GpDateTimeOps.hpp>
+#include <GpCore2/Config/IncludeExt/boost_flat_set.hpp>
 
 namespace GPlatform {
 
@@ -25,7 +21,7 @@ public:
     CLASS_DD(GpItcSharedCondition)
     TAG_SET(THREAD_SAFE)
 
-    using FiberTaskIDsT         = boost::container::flat_set<u_int_64/*, std::less<u_int_64>, boost::container::small_vector<u_int_64, 8>*/>;
+    using FiberTaskIDsT         = boost::container::flat_set<GpTaskId>;
     using TaskInfo              = std::tuple<GpTaskMode::EnumT, GpTaskId>;
     using AtBeginFnT            = std::function<void()>;
     using AtEndFnT              = std::function<void()>;// must be noexcept 
@@ -45,54 +41,54 @@ public:
     void                    NotifyOne               (void) REQUIRES(iThreadsCV.Mutex());
     void                    NotifyAll               (void) REQUIRES(iThreadsCV.Mutex());
 
-    inline bool             WaitFor                 (CheckFnT               aCheckFn,
-                                                     const milliseconds_t   aTimeout);
+    inline bool             WaitFor                 (CheckFnT           aCheckFn,
+                                                     milliseconds_t     aTimeout);
     template<typename T>
-    std::optional<T>        WaitFor                 (CheckFnT               aCheckFn,
-                                                     ConditionMetFnT<T>     aConditionMetFn,
-                                                     const milliseconds_t   aTimeout);
+    std::optional<T>        WaitFor                 (CheckFnT           aCheckFn,
+                                                     ConditionMetFnT<T> aConditionMetFn,
+                                                     milliseconds_t     aTimeout);
     template<typename T>
     std::optional<T>        WaitFor                 (AtBeginFnT             aAtBeginFn,
                                                      AtEndFnT               aAtEndFn,
                                                      CheckFnT               aCheckFn,
                                                      ConditionMetFnT<T>     aConditionMetFn,
                                                      ConditionNotMetFnT<T>  aConditionNotMetFn,
-                                                     const milliseconds_t   aTimeout);
+                                                     milliseconds_t         aTimeout);
 
 private:
-    inline bool             WaitForFiber            (CheckFnT               aCheckFn,
-                                                     const milliseconds_t   aTimeout,
-                                                     const u_int_64         aFiberTaskId);
+    inline bool             WaitForFiber            (CheckFnT       aCheckFn,
+                                                     milliseconds_t aTimeout,
+                                                     GpTaskId       aFiberTaskId);
     template<typename T>
-    std::optional<T>        WaitForFiber            (CheckFnT               aCheckFn,
-                                                     ConditionMetFnT<T>     aConditionMetFn,
-                                                     const milliseconds_t   aTimeout,
-                                                     const u_int_64         aFiberTaskId);
+    std::optional<T>        WaitForFiber            (CheckFnT           aCheckFn,
+                                                     ConditionMetFnT<T> aConditionMetFn,
+                                                     milliseconds_t     aTimeout,
+                                                     GpTaskId           aFiberTaskId);
     template<typename T>
     std::optional<T>        WaitForFiber            (AtBeginFnT             aAtBeginFn,
                                                      AtEndFnT               aAtEndFn,
                                                      CheckFnT               aCheckFn,
                                                      ConditionMetFnT<T>     aConditionMetFn,
                                                      ConditionNotMetFnT<T>  aConditionNotMetFn,
-                                                     const milliseconds_t   aTimeout,
-                                                     const u_int_64         aFiberTaskId);
+                                                     milliseconds_t         aTimeout,
+                                                     GpTaskId               aFiberTaskId);
 
-    inline bool             WaitForThread           (CheckFnT               aCheckFn,
-                                                     const milliseconds_t   aTimeout);
+    inline bool             WaitForThread           (CheckFnT       aCheckFn,
+                                                     milliseconds_t aTimeout);
     template<typename T>
-    std::optional<T>        WaitForThread           (CheckFnT               aCheckFn,
-                                                     ConditionMetFnT<T>     aConditionMetFn,
-                                                     const milliseconds_t   aTimeout);
+    std::optional<T>        WaitForThread           (CheckFnT           aCheckFn,
+                                                     ConditionMetFnT<T> aConditionMetFn,
+                                                     milliseconds_t     aTimeout);
     template<typename T>
     std::optional<T>        WaitForThread           (AtBeginFnT             aAtBeginFn,
                                                      AtEndFnT               aAtEndFn,
                                                      CheckFnT               aCheckFn,
                                                      ConditionMetFnT<T>     aConditionMetFn,
                                                      ConditionNotMetFnT<T>  aConditionNotMetFn,
-                                                     const milliseconds_t   aTimeout);
+                                                     milliseconds_t         aTimeout);
 
     static TaskInfo         SCurrentTaskInfo        (void);
-    static void             SYeld                   (const milliseconds_t aTimeout);
+    static void             SYeld                   (milliseconds_t aTimeout);
 
 private:
     // For waiting threads
@@ -205,7 +201,7 @@ bool    GpItcSharedCondition::WaitForFiber
 (
     const CheckFnT          aCheckFn,
     const milliseconds_t    aTimeout,
-    const u_int_64          aFiberTaskId
+    const GpTaskId          aFiberTaskId
 )
 {
     const milliseconds_t    startTs             = GpDateTimeOps::SSteadyTS_ms();
@@ -215,7 +211,7 @@ bool    GpItcSharedCondition::WaitForFiber
     (
         [&]()
         {
-            GpUniqueLock<GpMutex> uniqueLock(iThreadsCV.Mutex());
+            GpUniqueLock<GpMutex> uniqueLock{iThreadsCV.Mutex()};
 
             if (isTaskIdRegistered) [[likely]]
             {
@@ -229,7 +225,7 @@ bool    GpItcSharedCondition::WaitForFiber
         milliseconds_t passedTime = 0.0_si_ms;
 
         {
-            GpUniqueLock<GpMutex> uniqueLock(iThreadsCV.Mutex());
+            GpUniqueLock<GpMutex> uniqueLock{iThreadsCV.Mutex()};
 
             // Check condition
             if (aCheckFn()) [[unlikely]]
@@ -266,7 +262,7 @@ std::optional<T>    GpItcSharedCondition::WaitForFiber
     CheckFnT                aCheckFn,
     ConditionMetFnT<T>      aConditionMetFn,
     const milliseconds_t    aTimeout,
-    const u_int_64          aFiberTaskId
+    const GpTaskId          aFiberTaskId
 )
 {
     const milliseconds_t    startTs             = GpDateTimeOps::SSteadyTS_ms();
@@ -276,7 +272,7 @@ std::optional<T>    GpItcSharedCondition::WaitForFiber
     (
         [&]()
         {
-            GpUniqueLock<GpMutex> uniqueLock(iThreadsCV.Mutex());
+            GpUniqueLock<GpMutex> uniqueLock{iThreadsCV.Mutex()};
 
             if (isTaskIdRegistered) [[likely]]
             {
@@ -290,7 +286,7 @@ std::optional<T>    GpItcSharedCondition::WaitForFiber
         milliseconds_t passedTime = 0.0_si_ms;
 
         {
-            GpUniqueLock<GpMutex> uniqueLock(iThreadsCV.Mutex());
+            GpUniqueLock<GpMutex> uniqueLock{iThreadsCV.Mutex()};
 
             // Check condition
             if (aCheckFn()) [[unlikely]]
@@ -330,7 +326,7 @@ std::optional<T>    GpItcSharedCondition::WaitForFiber
     ConditionMetFnT<T>      aConditionMetFn,
     ConditionNotMetFnT<T>   aConditionNotMetFn,
     const milliseconds_t    aTimeout,
-    const u_int_64          aFiberTaskId
+    const GpTaskId          aFiberTaskId
 )
 {
     const milliseconds_t    startTs             = GpDateTimeOps::SSteadyTS_ms();
@@ -341,7 +337,7 @@ std::optional<T>    GpItcSharedCondition::WaitForFiber
     (
         [&]()
         {
-            GpUniqueLock<GpMutex> uniqueLock(iThreadsCV.Mutex());
+            GpUniqueLock<GpMutex> uniqueLock{iThreadsCV.Mutex()};
 
             if (isTaskIdRegistered) [[likely]]
             {
@@ -357,7 +353,7 @@ std::optional<T>    GpItcSharedCondition::WaitForFiber
         milliseconds_t passedTime = 0.0_si_ms;
 
         {
-            GpUniqueLock<GpMutex> uniqueLock(iThreadsCV.Mutex());
+            GpUniqueLock<GpMutex> uniqueLock{iThreadsCV.Mutex()};
 
             // At begin check
             if (!isAtBeginFnCalled) [[unlikely]]
@@ -453,6 +449,4 @@ std::optional<T>    GpItcSharedCondition::WaitForThread
     );
 }
 
-}//namespace GPlatform
-
-#endif//#if defined(GP_USE_MULTITHREADING)
+}// namespace GPlatform

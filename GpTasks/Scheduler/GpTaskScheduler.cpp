@@ -1,21 +1,24 @@
 #include "GpTaskScheduler.hpp"
-
-#if defined(GP_USE_MULTITHREADING)
-
 #include "GpTaskSchedulerFactory.hpp"
 
 namespace GPlatform {
 
 GpTaskScheduler::SP GpTaskScheduler::sInstance;
 
+GpTaskScheduler::GpTaskScheduler (StopServiceFnT aStopServiceFn) noexcept:
+iStopServiceFn(aStopServiceFn)
+{
+}
+
 void    GpTaskScheduler::SStart
 (
     const GpTaskSchedulerFactory&   aFactory,
     const size_t                    aExecutorsCount,
-    const size_t                    aTasksMaxCount
+    const size_t                    aTasksMaxCount,
+    StopServiceFnT                  aStopServiceFn
 )
 {
-    sInstance = aFactory.NewInstance();
+    sInstance = aFactory.NewInstance(aStopServiceFn);
 
     S().Start
     (
@@ -33,10 +36,24 @@ void    GpTaskScheduler::SStopAndClear (void)
     }
 }
 
-void    GpTaskScheduler::RequestStop (GpTask& aTask)
+void    GpTaskScheduler::StopService (void)
 {
-    aTask.UpStopRequestFlag();
-    MakeTaskReady(aTask.Id());
+    iStopServiceFn();
+}
+
+GpTask::DoneFutureT::SP GpTaskScheduler::NewToReadyDepend (GpSP<GpTask> aTaskSP)
+{
+    GpTask::DoneFutureT::SP doneFuture = aTaskSP->GetDoneFuture();
+    NewToReady(std::move(aTaskSP));
+    return doneFuture;
+}
+
+GpTask::DoneFutureT::SP GpTaskScheduler::RequestStop (GpTask& aTask)
+{
+    GpTask::DoneFutureT::SP doneFuture = aTask.GetDoneFuture();
+    aTask.UpStopRequestFlag(GpMethodAccess<GpTaskScheduler>{this});
+    MakeTaskReady(aTask.TaskId());
+    return doneFuture;
 }
 
 void    GpTaskScheduler::Start
@@ -49,6 +66,4 @@ void    GpTaskScheduler::Start
     iTasksMaxCount  = aTasksMaxCount;
 }
 
-}//GPlatform
-
-#endif//#if defined(GP_USE_MULTITHREADING)
+}// namespace GPlatform

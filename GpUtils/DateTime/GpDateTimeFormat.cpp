@@ -6,6 +6,6 @@ namespace GPlatform {
 
 GP_ENUM_IMPL(GpDateTimeFormat)
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_DATE_TIME)
+#endif// #if defined(GP_USE_DATE_TIME)

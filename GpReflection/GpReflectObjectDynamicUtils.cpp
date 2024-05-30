@@ -1,12 +1,11 @@
 #include "GpReflectObjectDynamicUtils.hpp"
 
-#if defined(GP_USE_REFLECTION)
-
-#include <memory>
-#include <cstddef>
 #include "GpReflectManager.hpp"
 #include "GpReflectVisitor.hpp"
-#include "../GpUtils/Other/GpRAIIonDestruct.hpp"
+
+#include <GpCore2/GpUtils/Other/GpRAIIonDestruct.hpp>
+#include <cstddef>
+#include <memory>
 
 namespace GPlatform {
 
@@ -17,10 +16,13 @@ namespace DynamicUtils_SCreate {
 class Visitor_VisitCtx
 {
 public:
-                                            Visitor_VisitCtx    (void) noexcept {}
+                            Visitor_VisitCtx    (void* aDataPtr) noexcept: iDataPtr(aDataPtr) {}
 
-    [[nodiscard]] bool                      OnVisitBegin        (const GpReflectModel& aModel);
-    void                                    OnVisitEnd          (const GpReflectModel& aModel);
+    [[nodiscard]] bool      OnVisitBegin        (const GpReflectModel& aModel);
+    void                    OnVisitEnd          (const GpReflectModel& aModel);
+
+public:
+    void*                   iDataPtr = nullptr;
 };
 
 bool    Visitor_VisitCtx::OnVisitBegin (const GpReflectModel& /*aModel*/)
@@ -36,75 +38,54 @@ void    Visitor_VisitCtx::OnVisitEnd (const GpReflectModel& /*aModel*/)
 class Visitor_VisitValueCtx
 {
 public:
-                        Visitor_VisitValueCtx   (void) noexcept {}
+                Visitor_VisitValueCtx   (void) noexcept {}
 
-    [[nodiscard]] bool  OnVisitBegin            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                OnVisitEnd              (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_UInt8             (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_SInt8             (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_UInt16            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_SInt16            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_UInt32            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_SInt32            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_UInt64            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_SInt64            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_Double            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_Float             (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_Bool              (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_UUID              (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_String            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_BLOB              (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_Object            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_ObjectSP          (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_Enum              (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_EnumFlags         (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
+    bool        OnVisitBegin            (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        OnVisitEnd              (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        UI8                     (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        SI8                     (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        UI16                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        SI16                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        UI32                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        SI32                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        UI64                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        SI64                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        Double                  (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        Float                   (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        Bool                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        UUID                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        String                  (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        BLOB                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        Object                  (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        ObjectSP                (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        Enum                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        EnumFlags               (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
 };
 
 bool    Visitor_VisitValueCtx::OnVisitBegin
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     return true;
@@ -112,345 +93,291 @@ bool    Visitor_VisitValueCtx::OnVisitBegin
 
 void    Visitor_VisitValueCtx::OnVisitEnd
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     //NOP
 }
 
-void    Visitor_VisitValueCtx::Value_UInt8
+void    Visitor_VisitValueCtx::UI8
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.Value_UInt8(aDataPtr) = u_int_8(0);
+    aProp.Value_UI8(aCtx.iDataPtr) = u_int_8(0);
 }
 
-void    Visitor_VisitValueCtx::Value_SInt8
+void    Visitor_VisitValueCtx::SI8
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.Value_SInt8(aDataPtr) = s_int_8(0);
+    aProp.Value_SI8(aCtx.iDataPtr) = s_int_8(0);
 }
 
-void    Visitor_VisitValueCtx::Value_UInt16
+void    Visitor_VisitValueCtx::UI16
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.Value_UInt16(aDataPtr) = u_int_16(0);
+    aProp.Value_UI16(aCtx.iDataPtr) = u_int_16(0);
 }
 
-void    Visitor_VisitValueCtx::Value_SInt16
+void    Visitor_VisitValueCtx::SI16
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.Value_SInt16(aDataPtr) = s_int_16(0);
+    aProp.Value_SI16(aCtx.iDataPtr) = s_int_16(0);
 }
 
-void    Visitor_VisitValueCtx::Value_UInt32
+void    Visitor_VisitValueCtx::UI32
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.Value_UInt32(aDataPtr) = u_int_32(0);
+    aProp.Value_UI32(aCtx.iDataPtr) = u_int_32(0);
 }
 
-void    Visitor_VisitValueCtx::Value_SInt32
+void    Visitor_VisitValueCtx::SI32
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.Value_SInt32(aDataPtr) = s_int_32(0);
+    aProp.Value_SI32(aCtx.iDataPtr) = s_int_32(0);
 }
 
-void    Visitor_VisitValueCtx::Value_UInt64
+void    Visitor_VisitValueCtx::UI64
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.Value_UInt64(aDataPtr) = u_int_64(0);
+    aProp.Value_UI64(aCtx.iDataPtr) = u_int_64(0);
 }
 
-void    Visitor_VisitValueCtx::Value_SInt64
+void    Visitor_VisitValueCtx::SI64
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.Value_SInt64(aDataPtr) = s_int_64(0);
+    aProp.Value_SI64(aCtx.iDataPtr) = s_int_64(0);
 }
 
-void    Visitor_VisitValueCtx::Value_Double
+void    Visitor_VisitValueCtx::Double
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.Value_Double(aDataPtr) = double(0.0);
+    aProp.Value_Double(aCtx.iDataPtr) = double(0.0);
 }
 
-void    Visitor_VisitValueCtx::Value_Float
+void    Visitor_VisitValueCtx::Float
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.Value_Float(aDataPtr) = float(0.0);
+    aProp.Value_Float(aCtx.iDataPtr) = float(0.0);
 }
 
-void    Visitor_VisitValueCtx::Value_Bool
+void    Visitor_VisitValueCtx::Bool
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.Value_Bool(aDataPtr) = false;
+    aProp.Value_Bool(aCtx.iDataPtr) = false;
 }
 
-void    Visitor_VisitValueCtx::Value_UUID
+void    Visitor_VisitValueCtx::UUID
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
     MemOps::SConstruct<GpUUID>
     (
-        &(aProp.Value_UUID(aDataPtr)),
+        &(aProp.Value_UUID(aCtx.iDataPtr)),
         1
     );
 }
 
-void    Visitor_VisitValueCtx::Value_String
+void    Visitor_VisitValueCtx::String
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    MemOps::SConstruct<std::u8string>
+    MemOps::SConstruct<std::string>
     (
-        &(aProp.Value_String(aDataPtr)),
+        &(aProp.Value_String(aCtx.iDataPtr)),
         1
     );
 }
 
-void    Visitor_VisitValueCtx::Value_BLOB
+void    Visitor_VisitValueCtx::BLOB
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
     MemOps::SConstruct<GpBytesArray>
     (
-        &(aProp.Value_BLOB(aDataPtr)),
+        &(aProp.Value_BLOB(aCtx.iDataPtr)),
         1
     );
 }
 
-void    Visitor_VisitValueCtx::Value_Object
+void    Visitor_VisitValueCtx::Object
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    const GpReflectModel& model = GpReflectManager::S().Find(aProp.ModelUid());
-    model.ConstructInplace(&(aProp.Value_Object(aDataPtr)));
+    GpReflectModel::CSP modelCSP = GpReflectManager::S().Find(aProp.ModelUid());
+    modelCSP.Vn().ConstructInplace(&(aProp.Value_Object(aCtx.iDataPtr)));
 }
 
-void    Visitor_VisitValueCtx::Value_ObjectSP
+void    Visitor_VisitValueCtx::ObjectSP
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    const GpReflectModel&   model       = GpReflectManager::S().Find(aProp.ModelUid());
-    GpReflectObject::SP&    objectSP    = aProp.Value_ObjectSP(aDataPtr);
+    GpReflectModel::CSP     modelCSP = GpReflectManager::S().Find(aProp.ModelUid());
+    GpReflectObject::SP&    objectSP = aProp.Value_ObjectSP(aCtx.iDataPtr);
 
     MemOps::SConstruct<GpReflectObject::SP>(&objectSP, 1);
 
-    objectSP = model.NewInstance();
+    objectSP = modelCSP.Vn().NewInstance();
 }
 
-void    Visitor_VisitValueCtx::Value_Enum
+void    Visitor_VisitValueCtx::Enum
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.ConstructCustom(aDataPtr);
+    aProp.ConstructCustom(aCtx.iDataPtr);
 }
 
-void    Visitor_VisitValueCtx::Value_EnumFlags
+void    Visitor_VisitValueCtx::EnumFlags
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.ConstructCustom(aDataPtr);
+    aProp.ConstructCustom(aCtx.iDataPtr);
 }
 
-//------------------------------------- Visitor_VisitContainerCtx ------------------------------------------
-class Visitor_VisitContainerCtx
+//------------------------------------- Visitor_VisitVecCtx ------------------------------------------
+class Visitor_VisitVecCtx
 {
 public:
-                        Visitor_VisitContainerCtx   (void) noexcept {}
+                Visitor_VisitVecCtx (void) noexcept {}
 
-    [[nodiscard]] bool  OnVisitBegin                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
-    void                OnVisitEnd                  (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    bool        OnVisitBegin        (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
+    void        OnVisitEnd          (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_UInt8                 (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        UI8                 (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_SInt8                 (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        SI8                 (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_UInt16                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        UI16                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_SInt16                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        SI16                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_UInt32                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        UI32                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_SInt32                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        SI32                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_UInt64                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        UI64                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_SInt64                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        SI64                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_Double                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        Double              (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_Float                 (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        Float               (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_Bool                  (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        UUID                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_UUID                  (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        String              (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_String                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        BLOB                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_BLOB                  (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        Object              (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_Object                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
-
-    template<typename ValGetterT>
-    void                Value_ObjectSP              (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
-
-    template<typename ValGetterT>
-    void                Value_Enum                  (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
-
-    template<typename ValGetterT>
-    void                Value_EnumFlags             (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        ObjectSP            (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 };
 
-bool    Visitor_VisitContainerCtx::OnVisitBegin
+bool    Visitor_VisitVecCtx::OnVisitBegin
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     return true;
 }
 
-void    Visitor_VisitContainerCtx::OnVisitEnd
+void    Visitor_VisitVecCtx::OnVisitEnd
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     //NOP
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_UInt8
+void    Visitor_VisitVecCtx::UI8
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::UInt8(aDataPtr, aProp);
+    auto& container = ValGetterT::UI8(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -460,14 +387,13 @@ void    Visitor_VisitContainerCtx::Value_UInt8
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_SInt8
+void    Visitor_VisitVecCtx::SI8
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::SInt8(aDataPtr, aProp);
+    auto& container = ValGetterT::SI8(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -477,14 +403,13 @@ void    Visitor_VisitContainerCtx::Value_SInt8
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_UInt16
+void    Visitor_VisitVecCtx::UI16
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::UInt16(aDataPtr, aProp);
+    auto& container = ValGetterT::UI16(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -494,14 +419,13 @@ void    Visitor_VisitContainerCtx::Value_UInt16
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_SInt16
+void    Visitor_VisitVecCtx::SI16
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::SInt16(aDataPtr, aProp);
+    auto& container = ValGetterT::SI16(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -511,14 +435,13 @@ void    Visitor_VisitContainerCtx::Value_SInt16
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_UInt32
+void    Visitor_VisitVecCtx::UI32
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::UInt32(aDataPtr, aProp);
+    auto& container = ValGetterT::UI32(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -528,14 +451,13 @@ void    Visitor_VisitContainerCtx::Value_UInt32
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_SInt32
+void    Visitor_VisitVecCtx::SI32
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::SInt32(aDataPtr, aProp);
+    auto& container = ValGetterT::SI32(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -545,14 +467,13 @@ void    Visitor_VisitContainerCtx::Value_SInt32
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_UInt64
+void    Visitor_VisitVecCtx::UI64
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::UInt64(aDataPtr, aProp);
+    auto& container = ValGetterT::UI64(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -562,14 +483,13 @@ void    Visitor_VisitContainerCtx::Value_UInt64
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_SInt64
+void    Visitor_VisitVecCtx::SI64
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::SInt64(aDataPtr, aProp);
+    auto& container = ValGetterT::SI64(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -579,14 +499,13 @@ void    Visitor_VisitContainerCtx::Value_SInt64
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_Double
+void    Visitor_VisitVecCtx::Double
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::Double(aDataPtr, aProp);
+    auto& container = ValGetterT::Double(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -596,14 +515,13 @@ void    Visitor_VisitContainerCtx::Value_Double
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_Float
+void    Visitor_VisitVecCtx::Float
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::Float(aDataPtr, aProp);
+    auto& container = ValGetterT::Float(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -613,14 +531,13 @@ void    Visitor_VisitContainerCtx::Value_Float
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_Bool
+void    Visitor_VisitVecCtx::UUID
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::Bool(aDataPtr, aProp);
+    auto& container = ValGetterT::UUID(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -630,14 +547,13 @@ void    Visitor_VisitContainerCtx::Value_Bool
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_UUID
+void    Visitor_VisitVecCtx::String
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::UUID(aDataPtr, aProp);
+    auto& container = ValGetterT::String(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -647,14 +563,13 @@ void    Visitor_VisitContainerCtx::Value_UUID
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_String
+void    Visitor_VisitVecCtx::BLOB
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::String(aDataPtr, aProp);
+    auto& container = ValGetterT::BLOB(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -664,192 +579,127 @@ void    Visitor_VisitContainerCtx::Value_String
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_BLOB
+void    Visitor_VisitVecCtx::Object
 (
-    void*                   aDataPtr,
-    const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
-    auto& container = ValGetterT::BLOB(aDataPtr, aProp);
+    THROW_GP("Object arrays are not supported; use Object::SP instead.");
+}
+
+template<typename ValGetterT>
+void    Visitor_VisitVecCtx::ObjectSP
+(
+    const GpReflectProp&    aProp,
+    Visitor_VisitCtx&       aCtx
+)
+{
+    auto& container = ValGetterT::ObjectSP(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
         &container,
         1
     );
-}
-
-template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_Object
-(
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
-)
-{
-    THROW_GP(u8"Object arrays are not supported; use Object::SP instead."_sv);
-}
-
-template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_ObjectSP
-(
-    void*                   aDataPtr,
-    const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
-)
-{
-    auto& container = ValGetterT::ObjectSP(aDataPtr, aProp);
-
-    MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
-    (
-        &container,
-        1
-    );
-}
-
-template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_Enum
-(
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
-)
-{
-    THROW_GP(u8"Enum arrays are not supported."_sv);
-}
-
-template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_EnumFlags
-(
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
-)
-{
-    THROW_GP(u8"Enum flag arrays are not supported."_sv);
 }
 
 //------------------------------------- Visitor_VisitMapCtx ------------------------------------------
 class Visitor_VisitMapCtx
 {
 public:
-                        Visitor_VisitMapCtx         (void) noexcept {}
+                Visitor_VisitMapCtx (void) noexcept {}
 
-    [[nodiscard]] bool  OnVisitBegin                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
-    void                OnVisitEnd                  (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    bool        OnVisitBegin        (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
+    void        OnVisitEnd          (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_UInt8                     (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        K_UI8               (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_SInt8                     (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        K_SI8               (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_UInt16                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        K_UI16              (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_SInt16                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        K_SI16              (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_UInt32                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        K_UI32              (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_SInt32                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        K_SI32              (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_UInt64                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        K_UI64              (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_SInt64                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        K_SI64              (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_Double                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        K_Double            (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_Float                     (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        K_Float             (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_Bool                      (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        K_UUID              (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_UUID                      (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        K_String            (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_String                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        K_BLOB              (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_BLOB                      (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
-
-    template<typename                       KeyT,
-             typename                       ValT,
-             template<typename...> class    ValGetterT>
-    void                K_ObjectSP                  (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        K_ObjectSP          (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 };
 
 bool    Visitor_VisitMapCtx::OnVisitBegin
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     return true;
@@ -857,9 +707,8 @@ bool    Visitor_VisitMapCtx::OnVisitBegin
 
 void    Visitor_VisitMapCtx::OnVisitEnd
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     //NOP
@@ -868,14 +717,13 @@ void    Visitor_VisitMapCtx::OnVisitEnd
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_UInt8
+void    Visitor_VisitMapCtx::K_UI8
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::UInt8(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::UI8(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -887,14 +735,13 @@ void    Visitor_VisitMapCtx::K_UInt8
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_SInt8
+void    Visitor_VisitMapCtx::K_SI8
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::SInt8(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::SI8(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -906,14 +753,13 @@ void    Visitor_VisitMapCtx::K_SInt8
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_UInt16
+void    Visitor_VisitMapCtx::K_UI16
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::UInt16(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::UI16(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -925,14 +771,13 @@ void    Visitor_VisitMapCtx::K_UInt16
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_SInt16
+void    Visitor_VisitMapCtx::K_SI16
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::SInt16(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::SI16(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -944,14 +789,13 @@ void    Visitor_VisitMapCtx::K_SInt16
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_UInt32
+void    Visitor_VisitMapCtx::K_UI32
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::UInt32(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::UI32(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -963,14 +807,13 @@ void    Visitor_VisitMapCtx::K_UInt32
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_SInt32
+void    Visitor_VisitMapCtx::K_SI32
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::SInt32(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::SI32(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -982,14 +825,13 @@ void    Visitor_VisitMapCtx::K_SInt32
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_UInt64
+void    Visitor_VisitMapCtx::K_UI64
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::UInt64(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::UI64(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1001,14 +843,13 @@ void    Visitor_VisitMapCtx::K_UInt64
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_SInt64
+void    Visitor_VisitMapCtx::K_SI64
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::SInt64(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::SI64(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1022,12 +863,11 @@ template<typename                       KeyT,
          template<typename...> class    ValGetterT>
 void    Visitor_VisitMapCtx::K_Double
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::Double(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::Double(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1041,31 +881,11 @@ template<typename                       KeyT,
          template<typename...> class    ValGetterT>
 void    Visitor_VisitMapCtx::K_Float
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::Float(aDataPtr, aProp);
-
-    MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
-    (
-        &container,
-        1
-    );
-}
-
-template<typename                       KeyT,
-         typename                       ValT,
-         template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_Bool
-(
-    void*                   aDataPtr,
-    const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
-)
-{
-    auto& container = ValGetterT<KeyT>::Bool(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::Float(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1079,12 +899,11 @@ template<typename                       KeyT,
          template<typename...> class    ValGetterT>
 void    Visitor_VisitMapCtx::K_UUID
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::UUID(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::UUID(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1098,12 +917,11 @@ template<typename                       KeyT,
          template<typename...> class    ValGetterT>
 void    Visitor_VisitMapCtx::K_String
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::String(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::String(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1117,12 +935,11 @@ template<typename                       KeyT,
          template<typename...> class    ValGetterT>
 void    Visitor_VisitMapCtx::K_BLOB
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::BLOB(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::BLOB(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1136,12 +953,11 @@ template<typename                       KeyT,
          template<typename...> class    ValGetterT>
 void    Visitor_VisitMapCtx::K_ObjectSP
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::ObjectSP(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::ObjectSP(aCtx.iDataPtr, aProp);
 
     MemOps::SConstruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1157,13 +973,13 @@ class Visitor
 public:
     using VisitCtx          = Visitor_VisitCtx;
     using VisitValueCtx     = Visitor_VisitValueCtx;
-    using VisitContainerCtx = Visitor_VisitContainerCtx;
+    using VisitVecCtx   = Visitor_VisitVecCtx;
     using VisitMapCtx       = Visitor_VisitMapCtx;
 };
 
 //-------------------------------------------------------------------------------
 
-}//namespace DynamicUtils_SCreate
+}// namespace DynamicUtils_SCreate
 
 namespace DynamicUtils_SDestroy {
 
@@ -1172,10 +988,13 @@ namespace DynamicUtils_SDestroy {
 class Visitor_VisitCtx
 {
 public:
-                            Visitor_VisitCtx    (void) noexcept {}
+                            Visitor_VisitCtx    (void* aDataPtr) noexcept: iDataPtr(aDataPtr) {}
 
     [[nodiscard]] bool      OnVisitBegin        (const GpReflectModel& aModel);
     void                    OnVisitEnd          (const GpReflectModel& aModel);
+
+public:
+    void*                   iDataPtr = nullptr;
 };
 
 bool    Visitor_VisitCtx::OnVisitBegin (const GpReflectModel& /*aModel*/)
@@ -1191,75 +1010,54 @@ void    Visitor_VisitCtx::OnVisitEnd (const GpReflectModel& /*aModel*/)
 class Visitor_VisitValueCtx
 {
 public:
-                        Visitor_VisitValueCtx   (void) noexcept {}
+                Visitor_VisitValueCtx   (void) noexcept {}
 
-    [[nodiscard]] bool  OnVisitBegin            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                OnVisitEnd              (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_UInt8             (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_SInt8             (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_UInt16            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_SInt16            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_UInt32            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_SInt32            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_UInt64            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_SInt64            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_Double            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_Float             (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_Bool              (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_UUID              (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_String            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_BLOB              (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_Object            (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_ObjectSP          (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_Enum              (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
-    void                Value_EnumFlags         (void*                  aDataPtr,
-                                                 const GpReflectProp&   aProp,
-                                                 Visitor_VisitCtx&      aCtx);
+    bool        OnVisitBegin            (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        OnVisitEnd              (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        UI8                     (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        SI8                     (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        UI16                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        SI16                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        UI32                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        SI32                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        UI64                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        SI64                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        Double                  (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        Float                   (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        Bool                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        UUID                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        String                  (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        BLOB                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        Object                  (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        ObjectSP                (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        Enum                    (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
+    void        EnumFlags               (const GpReflectProp&   aProp,
+                                         Visitor_VisitCtx&      aCtx);
 };
 
 bool    Visitor_VisitValueCtx::OnVisitBegin
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     return true;
@@ -1267,181 +1065,164 @@ bool    Visitor_VisitValueCtx::OnVisitBegin
 
 void    Visitor_VisitValueCtx::OnVisitEnd
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     //NOP
 }
 
-void    Visitor_VisitValueCtx::Value_UInt8
+void    Visitor_VisitValueCtx::UI8
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     //NOP
 }
 
-void    Visitor_VisitValueCtx::Value_SInt8
+void    Visitor_VisitValueCtx::SI8
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     //NOP
 }
 
-void    Visitor_VisitValueCtx::Value_UInt16
+void    Visitor_VisitValueCtx::UI16
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     //NOP
 }
-void    Visitor_VisitValueCtx::Value_SInt16
+void    Visitor_VisitValueCtx::SI16
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
-)
-{
-    //NOP
-}
-
-void    Visitor_VisitValueCtx::Value_UInt32
-(
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
-)
-{
-    //NOP
-}
-void    Visitor_VisitValueCtx::Value_SInt32
-(
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
-)
-{
-    //NOP
-}
-void    Visitor_VisitValueCtx::Value_UInt64
-(
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     //NOP
 }
 
-void    Visitor_VisitValueCtx::Value_SInt64
+void    Visitor_VisitValueCtx::UI32
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
+)
+{
+    //NOP
+}
+void    Visitor_VisitValueCtx::SI32
+(
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
+)
+{
+    //NOP
+}
+void    Visitor_VisitValueCtx::UI64
+(
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     //NOP
 }
 
-void    Visitor_VisitValueCtx::Value_Double
+void    Visitor_VisitValueCtx::SI64
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     //NOP
 }
 
-void    Visitor_VisitValueCtx::Value_Float
+void    Visitor_VisitValueCtx::Double
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     //NOP
 }
 
-void    Visitor_VisitValueCtx::Value_Bool
+void    Visitor_VisitValueCtx::Float
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     //NOP
 }
-void    Visitor_VisitValueCtx::Value_UUID
+
+void    Visitor_VisitValueCtx::Bool
 (
-    void*                   aDataPtr,
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
+)
+{
+    //NOP
+}
+void    Visitor_VisitValueCtx::UUID
+(
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
     MemOps::SDestruct<GpUUID>
     (
-        &(aProp.Value_UUID(aDataPtr)),
+        &(aProp.Value_UUID(aCtx.iDataPtr)),
         1
     );
 }
 
-void    Visitor_VisitValueCtx::Value_String
+void    Visitor_VisitValueCtx::String
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    MemOps::SDestruct<std::u8string>
+    MemOps::SDestruct<std::string>
     (
-        &(aProp.Value_String(aDataPtr)),
+        &(aProp.Value_String(aCtx.iDataPtr)),
         1
     );
 }
 
-void    Visitor_VisitValueCtx::Value_BLOB
+void    Visitor_VisitValueCtx::BLOB
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
     MemOps::SDestruct<GpBytesArray>
     (
-        &(aProp.Value_BLOB(aDataPtr)),
+        &(aProp.Value_BLOB(aCtx.iDataPtr)),
         1
     );
 }
 
-void    Visitor_VisitValueCtx::Value_Object
+void    Visitor_VisitValueCtx::Object
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    const GpReflectModel& model = GpReflectManager::S().Find(aProp.ModelUid());
-    model.DestructInplace(&(aProp.Value_Object(aDataPtr)));
+    GpReflectModel::CSP modelCSP = GpReflectManager::S().Find(aProp.ModelUid());
+    modelCSP.Vn().DestructInplace(&(aProp.Value_Object(aCtx.iDataPtr)));
 }
 
-void    Visitor_VisitValueCtx::Value_ObjectSP
+void    Visitor_VisitValueCtx::ObjectSP
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    GpReflectObject::SP& structBaseSP = aProp.Value_ObjectSP(aDataPtr);
+    GpReflectObject::SP& structBaseSP = aProp.Value_ObjectSP(aCtx.iDataPtr);
 
     MemOps::SDestruct<GpReflectObject::SP>
     (
@@ -1450,159 +1231,122 @@ void    Visitor_VisitValueCtx::Value_ObjectSP
     );
 }
 
-void    Visitor_VisitValueCtx::Value_Enum
+void    Visitor_VisitValueCtx::Enum
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.DestructCustom(aDataPtr);
+    aProp.DestructCustom(aCtx.iDataPtr);
 }
 
-void    Visitor_VisitValueCtx::Value_EnumFlags
+void    Visitor_VisitValueCtx::EnumFlags
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    aProp.DestructCustom(aDataPtr);
+    aProp.DestructCustom(aCtx.iDataPtr);
 }
 
-//------------------------------------- Visitor_VisitContainerCtx ------------------------------------------
-class Visitor_VisitContainerCtx
+//------------------------------------- Visitor_VisitVecCtx ------------------------------------------
+class Visitor_VisitVecCtx
 {
 public:
-                        Visitor_VisitContainerCtx   (void) noexcept {}
+                Visitor_VisitVecCtx (void) noexcept {}
 
-    [[nodiscard]] bool  OnVisitBegin                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
-    void                OnVisitEnd                  (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    bool        OnVisitBegin        (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
+    void        OnVisitEnd          (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_UInt8                 (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        UI8                 (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_SInt8                 (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        SI8                 (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_UInt16                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        UI16                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_SInt16                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        SI16                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_UInt32                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        UI32                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_SInt32                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        SI32                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_UInt64                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        UI64                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_SInt64                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        SI64                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_Double                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        Double              (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_Float                 (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        Float               (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_Bool                  (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        UUID                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_UUID                  (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        String              (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_String                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        BLOB                (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_BLOB                  (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        Object              (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 
     template<typename ValGetterT>
-    void                Value_Object                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
-
-    template<typename ValGetterT>
-    void                Value_ObjectSP              (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
-
-    template<typename ValGetterT>
-    void                Value_Enum                  (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
-
-    template<typename ValGetterT>
-    void                Value_EnumFlags             (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void        ObjectSP            (const GpReflectProp&   aProp,
+                                     Visitor_VisitCtx&      aCtx);
 };
 
-bool    Visitor_VisitContainerCtx::OnVisitBegin
+bool    Visitor_VisitVecCtx::OnVisitBegin
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     return true;
 }
 
-void    Visitor_VisitContainerCtx::OnVisitEnd
+void    Visitor_VisitVecCtx::OnVisitEnd
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     //NOP
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_UInt8
+void    Visitor_VisitVecCtx::UI8
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::UInt8(aDataPtr, aProp);
+    auto& container = ValGetterT::UI8(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1612,14 +1356,13 @@ void    Visitor_VisitContainerCtx::Value_UInt8
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_SInt8
+void    Visitor_VisitVecCtx::SI8
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::SInt8(aDataPtr, aProp);
+    auto& container = ValGetterT::SI8(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1629,14 +1372,13 @@ void    Visitor_VisitContainerCtx::Value_SInt8
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_UInt16
+void    Visitor_VisitVecCtx::UI16
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::UInt16(aDataPtr, aProp);
+    auto& container = ValGetterT::UI16(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1646,14 +1388,13 @@ void    Visitor_VisitContainerCtx::Value_UInt16
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_SInt16
+void    Visitor_VisitVecCtx::SI16
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::SInt16(aDataPtr, aProp);
+    auto& container = ValGetterT::SI16(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1663,14 +1404,13 @@ void    Visitor_VisitContainerCtx::Value_SInt16
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_UInt32
+void    Visitor_VisitVecCtx::UI32
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::UInt32(aDataPtr, aProp);
+    auto& container = ValGetterT::UI32(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1680,14 +1420,13 @@ void    Visitor_VisitContainerCtx::Value_UInt32
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_SInt32
+void    Visitor_VisitVecCtx::SI32
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::SInt32(aDataPtr, aProp);
+    auto& container = ValGetterT::SI32(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1697,14 +1436,13 @@ void    Visitor_VisitContainerCtx::Value_SInt32
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_UInt64
+void    Visitor_VisitVecCtx::UI64
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::UInt64(aDataPtr, aProp);
+    auto& container = ValGetterT::UI64(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1714,14 +1452,13 @@ void    Visitor_VisitContainerCtx::Value_UInt64
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_SInt64
+void    Visitor_VisitVecCtx::SI64
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::SInt64(aDataPtr, aProp);
+    auto& container = ValGetterT::SI64(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1731,14 +1468,13 @@ void    Visitor_VisitContainerCtx::Value_SInt64
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_Double
+void    Visitor_VisitVecCtx::Double
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::Double(aDataPtr, aProp);
+    auto& container = ValGetterT::Double(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1748,14 +1484,13 @@ void    Visitor_VisitContainerCtx::Value_Double
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_Float
+void    Visitor_VisitVecCtx::Float
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::Float(aDataPtr, aProp);
+    auto& container = ValGetterT::Float(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1765,14 +1500,13 @@ void    Visitor_VisitContainerCtx::Value_Float
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_Bool
+void    Visitor_VisitVecCtx::UUID
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::Bool(aDataPtr, aProp);
+    auto& container = ValGetterT::UUID(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1782,14 +1516,13 @@ void    Visitor_VisitContainerCtx::Value_Bool
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_UUID
+void    Visitor_VisitVecCtx::String
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::UUID(aDataPtr, aProp);
+    auto& container = ValGetterT::String(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1799,14 +1532,13 @@ void    Visitor_VisitContainerCtx::Value_UUID
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_String
+void    Visitor_VisitVecCtx::BLOB
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT::String(aDataPtr, aProp);
+    auto& container = ValGetterT::BLOB(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -1816,192 +1548,127 @@ void    Visitor_VisitContainerCtx::Value_String
 }
 
 template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_BLOB
+void    Visitor_VisitVecCtx::Object
 (
-    void*                   aDataPtr,
-    const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
-    auto& container = ValGetterT::BLOB(aDataPtr, aProp);
+    THROW_GP("Object arrays are not supported; use Object::SP instead."_sv);
+}
+
+template<typename ValGetterT>
+void    Visitor_VisitVecCtx::ObjectSP
+(
+    const GpReflectProp&    aProp,
+    Visitor_VisitCtx&       aCtx
+)
+{
+    auto& container = ValGetterT::ObjectSP(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
         &container,
         1
     );
-}
-
-template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_Object
-(
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
-)
-{
-    THROW_GP(u8"Object arrays are not supported; use Object::SP instead."_sv);
-}
-
-template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_ObjectSP
-(
-    void*                   aDataPtr,
-    const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
-)
-{
-    auto& container = ValGetterT::ObjectSP(aDataPtr, aProp);
-
-    MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
-    (
-        &container,
-        1
-    );
-}
-
-template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_Enum
-(
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
-)
-{
-    THROW_GP(u8"Enum arrays are not supported."_sv);
-}
-
-template<typename ValGetterT>
-void    Visitor_VisitContainerCtx::Value_EnumFlags
-(
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
-)
-{
-    THROW_GP(u8"Enum flag arrays are not supported."_sv);
 }
 
 //------------------------------------- Visitor_VisitMapCtx ------------------------------------------
 class Visitor_VisitMapCtx
 {
 public:
-                        Visitor_VisitMapCtx     (void) noexcept {}
+            Visitor_VisitMapCtx (void) noexcept {}
 
-    [[nodiscard]] bool  OnVisitBegin                (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
-    void                OnVisitEnd                  (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    bool    OnVisitBegin        (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
+    void    OnVisitEnd          (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_UInt8                     (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void    K_UI8               (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_SInt8                     (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void    K_SI8               (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_UInt16                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void    K_UI16              (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_SInt16                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void    K_SI16              (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_UInt32                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void    K_UI32              (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_SInt32                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void    K_SI32              (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_UInt64                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void    K_UI64              (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_SInt64                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void    K_SI64              (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_Double                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void    K_Double            (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_Float                     (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void    K_Float             (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_Bool                      (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void    K_UUID              (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_UUID                      (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void    K_String            (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_String                    (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void    K_BLOB              (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
 
     template<typename                       KeyT,
              typename                       ValT,
              template<typename...> class    ValGetterT>
-    void                K_BLOB                      (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
-
-    template<typename                       KeyT,
-             typename                       ValT,
-             template<typename...> class    ValGetterT>
-    void                K_ObjectSP                  (void*                  aDataPtr,
-                                                     const GpReflectProp&   aProp,
-                                                     Visitor_VisitCtx&      aCtx);
+    void    K_ObjectSP          (const GpReflectProp&   aProp,
+                                 Visitor_VisitCtx&      aCtx);
 };
 
 bool    Visitor_VisitMapCtx::OnVisitBegin
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     return true;
@@ -2009,9 +1676,8 @@ bool    Visitor_VisitMapCtx::OnVisitBegin
 
 void    Visitor_VisitMapCtx::OnVisitEnd
 (
-    void*                   /*aDataPtr*/,
-    const GpReflectProp&    /*aProp*/,
-    Visitor_VisitCtx&       /*aCtx*/
+    [[maybe_unused]] const GpReflectProp&   aProp,
+    [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
     //NOP
@@ -2020,14 +1686,13 @@ void    Visitor_VisitMapCtx::OnVisitEnd
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_UInt8
+void    Visitor_VisitMapCtx::K_UI8
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::UInt8(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::UI8(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -2039,14 +1704,13 @@ void    Visitor_VisitMapCtx::K_UInt8
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_SInt8
+void    Visitor_VisitMapCtx::K_SI8
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::SInt8(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::SI8(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -2058,14 +1722,13 @@ void    Visitor_VisitMapCtx::K_SInt8
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_UInt16
+void    Visitor_VisitMapCtx::K_UI16
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::UInt16(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::UI16(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -2077,14 +1740,13 @@ void    Visitor_VisitMapCtx::K_UInt16
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_SInt16
+void    Visitor_VisitMapCtx::K_SI16
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::SInt16(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::SI16(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -2096,14 +1758,13 @@ void    Visitor_VisitMapCtx::K_SInt16
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_UInt32
+void    Visitor_VisitMapCtx::K_UI32
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::UInt32(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::UI32(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -2115,14 +1776,13 @@ void    Visitor_VisitMapCtx::K_UInt32
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_SInt32
+void    Visitor_VisitMapCtx::K_SI32
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::SInt32(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::SI32(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -2134,14 +1794,13 @@ void    Visitor_VisitMapCtx::K_SInt32
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_UInt64
+void    Visitor_VisitMapCtx::K_UI64
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::UInt64(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::UI64(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -2153,14 +1812,13 @@ void    Visitor_VisitMapCtx::K_UInt64
 template<typename                       KeyT,
          typename                       ValT,
          template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_SInt64
+void    Visitor_VisitMapCtx::K_SI64
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::SInt64(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::SI64(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -2174,12 +1832,11 @@ template<typename                       KeyT,
          template<typename...> class    ValGetterT>
 void    Visitor_VisitMapCtx::K_Double
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::Double(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::Double(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -2193,31 +1850,11 @@ template<typename                       KeyT,
          template<typename...> class    ValGetterT>
 void    Visitor_VisitMapCtx::K_Float
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::Float(aDataPtr, aProp);
-
-    MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
-    (
-        &container,
-        1
-    );
-}
-
-template<typename                       KeyT,
-         typename                       ValT,
-         template<typename...> class    ValGetterT>
-void    Visitor_VisitMapCtx::K_Bool
-(
-    void*                   aDataPtr,
-    const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
-)
-{
-    auto& container = ValGetterT<KeyT>::Bool(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::Float(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -2231,12 +1868,11 @@ template<typename                       KeyT,
          template<typename...> class    ValGetterT>
 void    Visitor_VisitMapCtx::K_UUID
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::UUID(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::UUID(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -2250,12 +1886,11 @@ template<typename                       KeyT,
          template<typename...> class    ValGetterT>
 void    Visitor_VisitMapCtx::K_String
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::String(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::String(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -2269,12 +1904,11 @@ template<typename                       KeyT,
          template<typename...> class    ValGetterT>
 void    Visitor_VisitMapCtx::K_BLOB
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::BLOB(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::BLOB(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -2288,12 +1922,11 @@ template<typename                       KeyT,
          template<typename...> class    ValGetterT>
 void    Visitor_VisitMapCtx::K_ObjectSP
 (
-    void*                   aDataPtr,
     const GpReflectProp&    aProp,
-    Visitor_VisitCtx&       /*aCtx*/
+    Visitor_VisitCtx&       aCtx
 )
 {
-    auto& container = ValGetterT<KeyT>::ObjectSP(aDataPtr, aProp);
+    auto& container = ValGetterT<KeyT>::ObjectSP(aCtx.iDataPtr, aProp);
 
     MemOps::SDestruct<std::remove_reference_t<decltype(container)>>
     (
@@ -2307,13 +1940,13 @@ void    Visitor_VisitMapCtx::K_ObjectSP
 class Visitor
 {
 public:
-    using VisitCtx          = Visitor_VisitCtx;
-    using VisitValueCtx     = Visitor_VisitValueCtx;
-    using VisitContainerCtx = Visitor_VisitContainerCtx;
-    using VisitMapCtx       = Visitor_VisitMapCtx;
+    using VisitCtx      = Visitor_VisitCtx;
+    using VisitValueCtx = Visitor_VisitValueCtx;
+    using VisitVecCtx   = Visitor_VisitVecCtx;
+    using VisitMapCtx   = Visitor_VisitMapCtx;
 };
 
-}//namespace DynamicUtils_SDestroy
+}// namespace DynamicUtils_SDestroy
 
 GpReflectObjectDynamic::SP  GpReflectObjectDynamicUtils::SConstruct (const GpReflectModel& aModel)
 {
@@ -2327,30 +1960,43 @@ GpReflectObjectDynamic::SP  GpReflectObjectDynamicUtils::SConstruct (const GpRef
             if (dataPtr != nullptr)
             {
                 std::free(dataPtr);
+
+//#if defined(GP_OS_WINDOWS)
+//              _aligned_free(dataPtr);
+//#else
+//              std::free(dataPtr);
+//#endif
             }
 
             dataPtr = nullptr;
         }
     );
 
-    //Props
-    const GpReflectProp::C::Vec::Val& props = aModel.Props();
+    // Props
+    const GpReflectProp::SmallVecVal& props = aModel.Props();
 
+    // Allocate memory for props and initialize it
     if (!props.empty())
     {
-        //Calc size and max align
+        // Calc size and max align
         const size_t objectSize     = aModel.Size();
         const size_t objectAlign    = aModel.Align();
 
-        //Allocate memory
+        // Allocate memory for all props
         if (objectAlign <= alignof(std::max_align_t))
         {
             dataPtr = std::malloc(objectSize);
         } else
         {
-            //must be a multiple of alignment
-            const size_t allocateSize = (objectSize / objectAlign) + (objectSize % objectAlign ? 0 : objectAlign);
-            dataPtr = std::aligned_alloc(objectAlign, allocateSize);
+            THROW_GP("Wrong align");
+//          // must be a multiple of alignment
+//          const size_t allocateSize = (objectSize / objectAlign) + (objectSize % objectAlign ? 0 : objectAlign);
+//
+//#if defined(GP_OS_WINDOWS)
+//          dataPtr = _aligned_malloc(allocateSize, objectAlign);
+//#else
+//          dataPtr = std::aligned_alloc(objectAlign, allocateSize);
+//#endif
         }
 
         THROW_COND_GP
@@ -2359,10 +2005,11 @@ GpReflectObjectDynamic::SP  GpReflectObjectDynamicUtils::SConstruct (const GpRef
             "Memory allocation failed"_sv
         );
 
-        GpReflectVisitor<GpReflectObject, DynamicUtils_SCreate::Visitor> visitor;
-        DynamicUtils_SCreate::Visitor_VisitCtx ctx;
+        // Visit all props and initialize it
+        GpReflectVisitor<DynamicUtils_SCreate::Visitor> visitor;
+        DynamicUtils_SCreate::Visitor_VisitCtx ctx(dataPtr);
 
-        visitor.Visit(aModel, dataPtr, ctx);
+        visitor.Visit(aModel, ctx);
     }
 
     GpReflectObjectDynamic::SP dynamicObjectSP = MakeSP<GpReflectObjectDynamic>(aModel.Uid(), dataPtr);
@@ -2373,8 +2020,8 @@ GpReflectObjectDynamic::SP  GpReflectObjectDynamicUtils::SConstruct (const GpRef
 
 GpReflectObjectDynamic::SP  GpReflectObjectDynamicUtils::SConstruct (const GpUUID& aModelUid)
 {
-    const GpReflectModel& model = GpReflectManager::S().Find(aModelUid);
-    return SConstruct(model);
+    GpReflectModel::CSP modelCSP = GpReflectManager::S().Find(aModelUid);
+    return SConstruct(modelCSP.Vn());
 }
 
 void    GpReflectObjectDynamicUtils::SDestroy
@@ -2388,14 +2035,17 @@ void    GpReflectObjectDynamicUtils::SDestroy
         return;
     }
 
-    GpReflectVisitor<GpReflectObject, DynamicUtils_SDestroy::Visitor> visitor;
-    DynamicUtils_SDestroy::Visitor_VisitCtx ctx;
+    GpReflectVisitor<DynamicUtils_SDestroy::Visitor>    visitor;
+    DynamicUtils_SDestroy::Visitor_VisitCtx             ctx(aDataPtr);
 
-    visitor.Visit(aModel, aDataPtr, ctx);
+    visitor.Visit(aModel, ctx);
 
+//#if defined(GP_OS_WINDOWS)
+//  _aligned_free(aDataPtr);
+//#else
+//  std::free(aDataPtr);
+//#endif
     std::free(aDataPtr);
 }
 
-}//namespace GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

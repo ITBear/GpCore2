@@ -10,35 +10,45 @@
 
 namespace GPlatform {
 
-GpBytesArray    GpFileUtils::SReadAll (std::u8string_view aFileName)
+GpBytesArray    GpFileUtils::SReadAll (std::string_view aFileName)
 {
-    std::u8string   fileName(aFileName);
-    std::ifstream   ifs;
-
-    ifs.open(std::filesystem::path(fileName.c_str()), std::ios::in | std::ios::binary | std::ios::ate);
-
-    if (   (!ifs.is_open())
-        || (ifs.fail())
-        || (ifs.bad()))
-    {
-        THROW_GP(u8"File '"_sv + fileName + u8"' not found"_sv);
-    }
-
-    const std::ifstream::pos_type   fileSize = ifs.tellg();
-
-    ifs.seekg(0, std::ios::beg);
-
+    GpFile  file;
+    file.Open(aFileName, {GpFileFlag::READ});
+    const size_byte_t fileSize = file.Size();
     GpBytesArray data;
-    data.resize(NumOps::SConvert<size_t>(ssize_t(fileSize)));
-    ifs.read(reinterpret_cast<char*>(data.data()), fileSize);
+    data.resize(fileSize.Value());
+    file.Read(data);
+    file.Close();
 
     return data;
+
+    //std::string   fileName(aFileName);
+    //std::ifstream ifs;
+
+    //ifs.open(std::filesystem::path(fileName.c_str()), std::ios::in | std::ios::binary | std::ios::ate);
+
+    //if (   (!ifs.is_open())
+    //  || (ifs.fail())
+    //  || (ifs.bad()))
+    //{
+    //  THROW_GP("File '"_sv + fileName + "' not found"_sv);
+    //}
+
+    //const std::ifstream::pos_type fileSize = ifs.tellg();
+
+    //ifs.seekg(0, std::ios::beg);
+
+    //GpBytesArray data;
+    //data.resize(NumOps::SConvert<size_t>(fileSize));
+    //ifs.read(reinterpret_cast<char*>(std::data(data)), fileSize);
+
+    //return data;
 }
 
 void    GpFileUtils::SWriteAll
 (
-    std::u8string_view  aFileName,
-    GpSpanPtrByteR      aData
+    std::string_view    aFileName,
+    GpSpanByteR         aData
 )
 {
     GpFile  file;
@@ -49,41 +59,47 @@ void    GpFileUtils::SWriteAll
 
 void    GpFileUtils::SAppend
 (
-    const std::u8string_view    aFileName,
-    const GpSpanPtrByteR        aData
+    const std::string_view  aFileName,
+    const GpSpanByteR       aData
 )
 {
-    std::u8string   fileName(aFileName);
-    std::ofstream   ofs;
+    GpFile  file;
+    file.Open(aFileName, {GpFileFlag::WRITE | GpFileFlag::CREATE | GpFileFlag::APPEND});
+    file.GoToEndPos();
+    file.Write(aData);
+    file.Close();
 
-    ofs.open(std::filesystem::path(fileName.c_str()), std::ios::out | std::ios::app | std::ios::binary);
+    //std::string       fileName(aFileName);
+    //std::ofstream ofs;
 
-    if (   (!ofs.is_open())
-        || (ofs.fail())
-        || (ofs.bad()))
-    {
-        THROW_GP(u8"File '"_sv + fileName + u8"' not found"_sv);
-    }
+    //ofs.open(std::filesystem::path(fileName.c_str()), std::ios::out | std::ios::app | std::ios::binary);
 
-    ofs.write(aData.PtrAs<const char*>(), aData.Size().As<std::streamsize>());
-    ofs.flush();
-    ofs.close();
+    //if (   (!ofs.is_open())
+    //  || (ofs.fail())
+    //  || (ofs.bad()))
+    //{
+    //  THROW_GP("File '"_sv + fileName + "' not found"_sv);
+    //}
+
+    //ofs.write(aData.PtrAs<const char*>(), aData.Size().As<std::streamsize>());
+    //ofs.flush();
+    //ofs.close();
 }
 
 void    GpFileUtils::SCopy
 (
-    const std::u8string_view aFrom,
-    const std::u8string_view aTo
+    const std::string_view aFrom,
+    const std::string_view aTo
 )
 {
     std::filesystem::copy(aFrom, aTo);
 }
 
-bool    GpFileUtils::SIsExists (std::u8string_view aFileName)
+bool    GpFileUtils::SIsExists (std::string_view aFileName)
 {
     return std::filesystem::exists(aFileName);
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//GP_USE_FILE_UTILS
+#endif// GP_USE_FILE_UTILS

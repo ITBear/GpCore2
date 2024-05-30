@@ -1,7 +1,6 @@
 #include "GpSystemInfo.hpp"
 
 #include <thread>
-#include <fmt/core.h>
 
 #include "../Exceptions/GpException.hpp"
 
@@ -9,16 +8,22 @@
 #   include <sys/utsname.h>
 #endif// #if defined(GP_OS_LINUX)
 
+#if defined(GP_OS_WINDOWS)
+#   include "GpSystemInfoWin.hpp"
+#endif// #if defined(GP_OS_WINDOWS)
+
+#include <GpCore2/Config/IncludeExt/fmt.hpp>
+
 namespace GPlatform {
 
-std::u8string   GpSystemInfo::SOsName (void)
+std::string GpSystemInfo::SOsName (void)
 {
     return GP_OS_NAME;
 }
 
-std::u8string   GpSystemInfo::SOsInfo (void)
+std::string GpSystemInfo::SOsInfo (void)
 {
-    std::u8string info;
+    std::string info;
 
 #if defined(GP_OS_LINUX)
     struct utsname buffer;
@@ -26,19 +31,73 @@ std::u8string   GpSystemInfo::SOsInfo (void)
     THROW_COND_GP
     (
         uname(&buffer) == 0,
-        u8"Failed to call uname()"_sv
+        "Failed to call uname()"_sv
     );
 
-    info = GpUTF::S_As_UTF8
+    info = fmt::format
     (
-        fmt::format
-        (
-            "Name: {}. Machine: {}. Release: {}. Version: {}",
-            buffer.sysname,
-            buffer.machine,
-            buffer.release,
-            buffer.version
-        )
+        "Name: {}. Machine: {}. Release: {}. Version: {}",
+        buffer.sysname,
+        buffer.machine,
+        buffer.release,
+        buffer.version
+    );
+#elif defined GP_OS_WINDOWS
+
+    // Architecture
+    std::string osArchitecture;
+    {
+        SYSTEM_INFO si;
+        GetNativeSystemInfo(&si);
+
+        switch (si.wProcessorArchitecture)
+        {
+            case PROCESSOR_ARCHITECTURE_INTEL:
+            {
+                osArchitecture = "x86";
+            } break;
+            case PROCESSOR_ARCHITECTURE_AMD64:
+            {
+                osArchitecture = "x86_64";
+            } break;
+            case PROCESSOR_ARCHITECTURE_ARM:
+            {
+                osArchitecture = "arm";
+            } break;
+            case PROCESSOR_ARCHITECTURE_ARM64:
+            {
+                osArchitecture = "arm64";
+            } break;
+            case PROCESSOR_ARCHITECTURE_ARM32_ON_WIN64:
+            {
+                osArchitecture = "arm32_on_win64";
+            } break;
+            default:
+            {
+                osArchitecture = "Unknown";
+            }
+        }
+    }
+
+    // Build version
+    DWORD dwBuildNumber = 0;
+    {
+        OSVERSIONINFOEX osvi;
+
+        ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+        osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+
+        GetVersionEx((OSVERSIONINFO*)&osvi);
+
+        dwBuildNumber = osvi.dwBuildNumber;
+    }
+
+    info = fmt::format
+    (              
+        "{} (build {}), architecture {}",
+        GpSystemInfoWin::SWindowsVersion(),
+        dwBuildNumber,
+        osArchitecture
     );
 #else
 #   error Unknown OS
@@ -47,7 +106,7 @@ std::u8string   GpSystemInfo::SOsInfo (void)
     return info;
 }
 
-std::u8string   GpSystemInfo::SArcName (void)
+std::string GpSystemInfo::SArcName (void)
 {
     return GP_ARCH_NAME;
 }
@@ -57,4 +116,4 @@ size_t  GpSystemInfo::SHardwareConcurrency (void)
     return std::thread::hardware_concurrency();
 }
 
-}//namespace GPlatform
+}// namespace GPlatform

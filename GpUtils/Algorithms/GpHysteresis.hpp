@@ -83,4 +83,4 @@ bool    GpHysteresis<T>::SwitchState (void) const noexcept
     return iSwitchState;
 }
 
-}//namespace GPlatform::Algo
+}// namespace GPlatform::Algo

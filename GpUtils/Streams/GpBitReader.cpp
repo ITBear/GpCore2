@@ -6,7 +6,7 @@ namespace GPlatform {
 
 void    GpBitReader::Bits
 (
-    GpSpanPtrByteRW     aDataOut,
+    GpSpanByteRW        aDataOut,
     const size_bit_t    aSize,
     const size_bit_t    aOffset
 )
@@ -28,12 +28,12 @@ u_int_8 GpBitReader::UInt8
     return ReadPOD<u_int_8>(aSize, aOffset);
 }
 
-s_int_8 GpBitReader::SInt8 (void)
+s_int_8 GpBitReader::SI8 (void)
 {
     return ReadPOD<s_int_8>(size_byte_t::SMake(sizeof(s_int_8)), 0_bit);
 }
 
-s_int_8 GpBitReader::SInt8
+s_int_8 GpBitReader::SI8
 (
     const size_bit_t    aSize,
     const size_bit_t    aOffset
@@ -42,12 +42,12 @@ s_int_8 GpBitReader::SInt8
     return ReadPOD<s_int_8>(aSize, aOffset);
 }
 
-u_int_16    GpBitReader::UInt16 (void)
+u_int_16    GpBitReader::UI16 (void)
 {
     return ReadPOD<u_int_16>(size_byte_t::SMake(sizeof(u_int_16)), 0_bit);
 }
 
-u_int_16    GpBitReader::UInt16
+u_int_16    GpBitReader::UI16
 (
     const size_bit_t    aSize,
     const size_bit_t    aOffset
@@ -56,12 +56,12 @@ u_int_16    GpBitReader::UInt16
     return ReadPOD<u_int_16>(aSize, aOffset);
 }
 
-s_int_16    GpBitReader::SInt16 (void)
+s_int_16    GpBitReader::SI16 (void)
 {
     return ReadPOD<s_int_16>(size_byte_t::SMake(sizeof(s_int_16)), 0_bit);
 }
 
-s_int_16    GpBitReader::SInt16
+s_int_16    GpBitReader::SI16
 (
     const size_bit_t    aSize,
     const size_bit_t    aOffset
@@ -70,12 +70,12 @@ s_int_16    GpBitReader::SInt16
     return ReadPOD<s_int_16>(aSize, aOffset);
 }
 
-u_int_32    GpBitReader::UInt32 (void)
+u_int_32    GpBitReader::UI32 (void)
 {
     return ReadPOD<u_int_32>(size_byte_t::SMake(sizeof(u_int_32)), 0_bit);
 }
 
-u_int_32    GpBitReader::UInt32
+u_int_32    GpBitReader::UI32
 (
     const size_bit_t    aSize,
     const size_bit_t    aOffset
@@ -84,12 +84,12 @@ u_int_32    GpBitReader::UInt32
     return ReadPOD<u_int_32>(aSize, aOffset);
 }
 
-s_int_32    GpBitReader::SInt32 (void)
+s_int_32    GpBitReader::SI32 (void)
 {
     return ReadPOD<s_int_32>(size_byte_t::SMake(sizeof(s_int_32)), 0_bit);
 }
 
-s_int_32    GpBitReader::SInt32
+s_int_32    GpBitReader::SI32
 (
     const size_bit_t    aSize,
     const size_bit_t    aOffset
@@ -98,12 +98,12 @@ s_int_32    GpBitReader::SInt32
     return ReadPOD<s_int_32>(aSize, aOffset);
 }
 
-u_int_64    GpBitReader::UInt64 (void)
+u_int_64    GpBitReader::UI64 (void)
 {
     return ReadPOD<u_int_64>(size_byte_t::SMake(sizeof(u_int_64)), 0_bit);
 }
 
-u_int_64    GpBitReader::UInt64
+u_int_64    GpBitReader::UI64
 (
     const size_bit_t    aSize,
     const size_bit_t    aOffset
@@ -112,12 +112,12 @@ u_int_64    GpBitReader::UInt64
     return ReadPOD<u_int_64>(aSize, aOffset);
 }
 
-s_int_64    GpBitReader::SInt64 (void)
+s_int_64    GpBitReader::SI64 (void)
 {
     return ReadPOD<s_int_64>(size_byte_t::SMake(sizeof(s_int_64)), 0_bit);
 }
 
-s_int_64    GpBitReader::SInt64
+s_int_64    GpBitReader::SI64
 (
     const size_bit_t    aSize,
     const size_bit_t    aOffset
@@ -259,5 +259,5 @@ void    GpBitReader::Copy
     );
 }
 
-}//GPlatform
+}// namespace GPlatform
 */

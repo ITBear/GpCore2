@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
-
-#if defined(GP_USE_MULTITHREADING)
+#include <GpCore2/Config/GpConfig.hpp>
 
 #include "GpItcSharedCondition.hpp"
 #include "GpItcResult.hpp"
@@ -62,14 +60,14 @@ bool    GpItcSharedFuture<T>::WaitFor (const milliseconds_t aTimeout)
 template<typename T>
 std::optional<typename GpItcSharedFuture<T>::ItcResultT>    GpItcSharedFuture<T>::TryGetResult (void)
 {
-    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
     return std::move(iResultOpt);
 }
 
 template<typename T>
 bool    GpItcSharedFuture<T>::IsReady (void) const noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
     return iIsSet;
 }
 
@@ -105,7 +103,7 @@ bool    GpItcSharedFuture<T>::SCheckIfReady
 template<typename T>
 bool    GpItcSharedFuture<T>::SetResult (ItcResultT&& aResult)
 {
-    GpUniqueLock<GpMutex> uniqueLock(iSC.Mutex());
+    GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
 
     if (iIsSet)
     {
@@ -120,6 +118,4 @@ bool    GpItcSharedFuture<T>::SetResult (ItcResultT&& aResult)
     return true;
 }
 
-}//namespace GPlatform
-
-#endif//#if defined(GP_USE_MULTITHREADING)
+}// namespace GPlatform

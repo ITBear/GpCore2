@@ -1,28 +1,33 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
-#if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
 
-#include "../../../GpUtils/Macro/GpMacroWarnings.hpp"
-#include "../../../GpUtils/Types/Numerics/GpNumericOps.hpp"
+#if defined(GP_POSIX)
+#   include <sys/mman.h>
+#endif
+
+#include <GpCore2/GpUtils/Macro/GpMacroWarnings.hpp>
+#include <GpCore2/GpUtils/Types/Numerics/GpNumericOps.hpp>
 
 extern "C"
 {
 #   include <fcntl.h>
-#   include <sys/mman.h>
 #   include <sys/stat.h>
-#   include <unistd.h>
 }
 
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <cstddef>
 #include <new>
 
 GP_WARNING_PUSH()
-GP_WARNING_DISABLE(shadow)
+
+#if defined(GP_COMPILER_CLANG) || defined(GP_COMPILER_GCC)
+    GP_WARNING_DISABLE(shadow)
+#endif// #if defined(GP_COMPILER_CLANG) || defined(GP_COMPILER_GCC)
 
 #include <boost/assert.hpp>
 #include <boost/config.hpp>
@@ -149,7 +154,7 @@ GpFixedSizeStackBoost<SizePolicyT>::NewCtx (void)
 }
 
 template<typename SizePolicyT>
-void    GpFixedSizeStackBoost<SizePolicyT>::FreeCtx (StackCtxT& aCtx) noexcept
+void    GpFixedSizeStackBoost<SizePolicyT>::FreeCtx ([[maybe_unused]] StackCtxT& aCtx) noexcept
 {
     BOOST_ASSERT(aCtx.sp);
 
@@ -170,31 +175,39 @@ void    GpFixedSizeStackBoost<SizePolicyT>::MemAlloc (void)
     const size_t pagesCount     = NumOps::SDivCeil<size_t>(iSize, SizePolicyT::page_size());
     const size_t sizeToAllocate = NumOps::SMul<size_t>(NumOps::SAdd<size_t>(pagesCount, 1), SizePolicyT::page_size());
 
-    //iMemPtr = std::aligned_alloc(4096, sizeToAllocate);
-    //iAllocatedSize = sizeToAllocate;
+#if defined(GP_OS_WINDOWS)
+    iMemPtr = _aligned_malloc(sizeToAllocate, 4096);
 
-#if defined(BOOST_CONTEXT_USE_MAP_STACK)
-    iMemPtr = ::mmap(0, sizeToAllocate, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON | MAP_STACK, -1, 0);
-#elif defined(MAP_ANON)
-    iMemPtr = ::mmap(0, sizeToAllocate, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
-#else
-    iMemPtr = ::mmap(0, sizeToAllocate, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-#endif
-
-    if (iMemPtr == MAP_FAILED)
+    if (iMemPtr == nullptr) [[unlikely]]
     {
-        iMemPtr = nullptr;
         throw std::bad_alloc();
     }
 
     iAllocatedSize = sizeToAllocate;
-
-#if defined(BOOST_DISABLE_ASSERTS)
-    ::mprotect(iMemPtr, SizePolicyT::page_size(), PROT_NONE);
 #else
-    const int result(::mprotect(iMemPtr, SizePolicyT::page_size(), PROT_NONE));
-    BOOST_ASSERT(0 == result);
-#endif
+#   if defined(BOOST_CONTEXT_USE_MAP_STACK)
+        iMemPtr = ::mmap(0, sizeToAllocate, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON | MAP_STACK, -1, 0);
+#   elif defined(MAP_ANON)
+        iMemPtr = ::mmap(0, sizeToAllocate, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
+#   else
+        iMemPtr = ::mmap(0, sizeToAllocate, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+#   endif
+
+        if (iMemPtr == MAP_FAILED) [[unlikely]]
+        {
+            iMemPtr = nullptr;
+            throw std::bad_alloc();
+        }
+
+        iAllocatedSize = sizeToAllocate;
+
+#   if defined(BOOST_DISABLE_ASSERTS)
+        ::mprotect(iMemPtr, SizePolicyT::page_size(), PROT_NONE);
+#   else
+        const int result(::mprotect(iMemPtr, SizePolicyT::page_size(), PROT_NONE));
+        BOOST_ASSERT(0 == result);
+#   endif
+#endif// #if defined(GP_OS_WINDOWS) ... #else
 }
 
 template<typename SizePolicyT>
@@ -205,19 +218,22 @@ void    GpFixedSizeStackBoost<SizePolicyT>::MemFree (void) noexcept
         return;
     }
 
-    ::munmap(iMemPtr, iAllocatedSize);
+#if defined(GP_OS_WINDOWS)
+    _aligned_free(iMemPtr);
     //std::free(iMemPtr);
+#else
+    ::munmap(iMemPtr, iAllocatedSize);
+#endif
 
     iAllocatedSize  = 0;
     iMemPtr         = nullptr;
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_SUFFIX
 #endif
 
-#endif//#if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
-#endif//#if defined(GP_USE_MULTITHREADING_FIBERS)
-#endif//#if defined(GP_USE_MULTITHREADING)
+#endif// #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
+#endif// #if defined(GP_USE_MULTITHREADING_FIBERS)

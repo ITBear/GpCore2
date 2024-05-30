@@ -1,22 +1,19 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_CONTAINERS)
 
-#include "../Pointers/GpSpanPtr.hpp"
+#include "../Pointers/GpSpan.hpp"
 
 namespace GPlatform {
 
-using GpSpanPtrCharU8R  = GpSpanPtr<const char8_t*>;
-using GpSpanPtrCharU8RW = GpSpanPtr<char8_t*>;
-using GpSpanPtrCharR    = GpSpanPtr<const char*>;
-using GpSpanPtrCharRW   = GpSpanPtr<char*>;
-using GpSpanPtrByteRW   = GpSpanPtr<std::byte*>;
-using GpSpanPtrByteR    = GpSpanPtr<const std::byte*>;
-using GpSpanPtrByteRW   = GpSpanPtr<std::byte*>;
+using GpSpanCharR   = GpSpan<const char>;
+using GpSpanCharRW  = GpSpan<char>;
+using GpSpanByteRW  = GpSpan<std::byte>;
+using GpSpanByteR   = GpSpan<const std::byte>;
 
-using GpBytesArray      = std::vector<std::byte>;
+using GpBytesArray  = std::vector<std_byte_no_init>;
 
 class GpBytesArrayUtils
 {
@@ -25,29 +22,29 @@ class GpBytesArrayUtils
 public:
     template<typename FROM>
     requires
-           Concepts::HasRandomAccessIter<FROM>
+           Concepts::HasContiguousIter<FROM>
         && Concepts::SizeOfValueType<FROM, 1>
-    static GpBytesArray SConvert (const FROM& aContainer)
+    static GpBytesArray SMake (const FROM& aContainer)
     {
         GpBytesArray res;
 
-        const size_t size = aContainer.size();
+        const size_t size = std::size(aContainer);
         res.resize(size);
         MemOps::SCopy
         (
-            res.data(),
-            reinterpret_cast<const std::byte*>(aContainer.data()),
+            std::data(res),
+            reinterpret_cast<const std_byte_no_init*>(std::data(aContainer)),
             size
-        );
+        );      
 
         return res;
     }
 
     template<typename T1, typename T2>
     requires
-       Concepts::HasRandomAccessIter<T1>
+       Concepts::HasContiguousIter<T1>
     && Concepts::SizeOfValueType<T1, 1>
-    && Concepts::HasRandomAccessIter<T2>
+    && Concepts::HasContiguousIter<T2>
     && Concepts::SizeOfValueType<T2, 1>
     static T1&  SAppend
     (
@@ -55,15 +52,15 @@ public:
         const T2&   aSrc
     )
     {
-        const size_t oldSize = aDst.size();
-        const size_t srcSize = aSrc.size();
+        const size_t oldSize = std::size(aDst);
+        const size_t srcSize = std::size(aSrc);
         const size_t newSize = NumOps::SAdd(oldSize, srcSize);
 
         aDst.resize(newSize);
         MemOps::SCopy
         (
-            aDst.data() + oldSize,
-            reinterpret_cast<const std::byte*>(aSrc.data()),
+            std::data(aDst) + oldSize,
+            reinterpret_cast<const std::byte*>(std::data(aSrc)),
             srcSize
         );
 
@@ -73,25 +70,68 @@ public:
     static GpBytesArray&    SAppend
     (
         GpBytesArray&   aDst,
-        GpSpanPtrByteR  aSrc
+        GpSpanByteR     aSrc
     )
     {
-        const size_t oldSize = aDst.size();
-        const size_t srcSize = aSrc.Size().Value();
+        const size_t oldSize = std::size(aDst);
+        const size_t srcSize = aSrc.SizeInBytes();
         const size_t newSize = NumOps::SAdd(oldSize, srcSize);
 
         aDst.resize(newSize);
         MemOps::SCopy
         (
-            aDst.data() + oldSize,
-            aSrc.Ptr(),
+            std::data(aDst) + oldSize,
+            reinterpret_cast<const std_byte_no_init*>(std::data(aSrc)),
             srcSize
         );
 
         return aDst;
     }
+
+    static GpSpanByteRW     SFillZero (GpSpanByteRW aData)
+    {
+        if (!aData.Empty())
+        {
+            std::memset
+            (
+                aData.Ptr(),
+                0,
+                aData.Count()
+            );
+        }
+
+        return aData;
+    }
 };
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_CONTAINERS)
+// --------------------- std -------------------------
+namespace std {
+
+inline bool operator<(const ::GPlatform::GpBytesArray& a, const ::GPlatform::GpBytesArray& b)
+{
+    const size_t sizeA = ::std::size(a);
+    const size_t sizeB = ::std::size(b);
+
+    if (sizeA < sizeB)
+    {
+        return true;
+    }
+
+    if (sizeA > sizeB)
+    {
+        return false;
+    }
+
+    if (sizeA == 0)
+    {
+        return false;
+    }
+
+    return std::memcmp(std::data(a), std::data(b), sizeA) < 0;
+}
+
+}// namespace std
+
+#endif// #if defined(GP_USE_CONTAINERS)

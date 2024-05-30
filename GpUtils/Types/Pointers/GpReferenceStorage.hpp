@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_SHARED_POINTERS)
 
@@ -31,6 +31,6 @@ private:
     T               iValue;
 };
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_SHARED_POINTERS)
+#endif// #if defined(GP_USE_SHARED_POINTERS)

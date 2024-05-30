@@ -2,7 +2,7 @@
 
 /*#include "../GpMacro.hpp"
 #include "../Types/Containers/GpContainersT.hpp"
-#include "../SyncPrimitives/GpRWSpinLock.hpp"
+#include "../SyncPrimitives/GpSpinLockRW.hpp"
 #include "../Exceptions/GpException.hpp"
 #include "../Types/Strings/GpStringOps.hpp"
 
@@ -19,27 +19,27 @@ public:
     TAG_SET(THREAD_SAFE)
 
 public:
-    inline                  GpLifetimeElement   (std::u8string aName) noexcept;
+    inline                  GpLifetimeElement   (std::string aName) noexcept;
     virtual                 ~GpLifetimeElement  (void) noexcept = default;
 
-    std::u8string_view      Name                (void) const noexcept {return iName;}
+    std::string_view        Name                (void) const noexcept {return iName;}
 
     inline void             OnInit              (void);
     inline void             OnDestroy           (void);
 
 protected:
-    GpRWSpinLock&           Lock                (void) const {return iLock;}
+    GpSpinLockRW&           Lock                (void) const {return iLock;}
 
     virtual void            _OnInit             (void) = 0;
     virtual void            _OnDestroy          (void) = 0;
 
 private:
-    mutable GpRWSpinLock    iLock;
-    const std::u8string     iName;
+    mutable GpSpinLockRW    iLock;
+    const std::string       iName;
     bool                    iIsInit = false;
 };
 
-GpLifetimeElement::GpLifetimeElement (std::u8string aName) noexcept:
+GpLifetimeElement::GpLifetimeElement (std::string aName) noexcept:
 iName(std::move(aName))
 {
 }
@@ -51,7 +51,7 @@ void    GpLifetimeElement::OnInit (void)
     THROW_COND_GP
     (
         iIsInit == true,
-        [&](){return u8"Object '"_sv + Name() + u8"' already initialized"_sv;}
+        [&](){return "Object '"_sv + Name() + "' already initialized"_sv;}
     );
 
     _OnInit();
@@ -71,4 +71,4 @@ void    GpLifetimeElement::OnDestroy (void)
     iIsInit = false;
 }*/
 
-}//namespace GPlatform
+}// namespace GPlatform

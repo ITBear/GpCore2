@@ -9,16 +9,16 @@ class GP_UTILS_API GpByteWriterStorageFixedSize final: public GpByteWriterStorag
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpByteWriterStorageFixedSize)
 
 public:
-    inline                  GpByteWriterStorageFixedSize    (GpSpanPtrByteRW aDataOut) noexcept;
+    inline                  GpByteWriterStorageFixedSize    (GpSpanByteRW aDataOut) noexcept;
     virtual                 ~GpByteWriterStorageFixedSize   (void) noexcept override final = default;
 
 protected:
-    virtual void            AllocateAdd                     (const size_t       aSizeToAdd,
-                                                             GpSpanPtrByteRW&   aStoragePtr) override final;
+    virtual void            AllocateAdd                     (const size_t   aSizeToAdd,
+                                                             GpSpanByteRW&  aStoragePtr) override final;
     virtual void            _OnEnd                          (void) override final;
 };
 
-GpByteWriterStorageFixedSize::GpByteWriterStorageFixedSize (GpSpanPtrByteRW aDataOut) noexcept:
+GpByteWriterStorageFixedSize::GpByteWriterStorageFixedSize (GpSpanByteRW aDataOut) noexcept:
 GpByteWriterStorage(aDataOut)
 {
 }

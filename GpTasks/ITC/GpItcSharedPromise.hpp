@@ -1,12 +1,9 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
-
-#if defined(GP_USE_MULTITHREADING)
-
-#include "../../GpUtils/Macro/GpMacroClass.hpp"
-#include "../../GpUtils/Types/Strings/GpStringOps.hpp"
-#include "../../GpUtils/Types/Strings/GpStringUtils.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
 
 #include "GpItcSharedFuture.hpp"
 
@@ -64,16 +61,19 @@ GpItcSharedPromise<T>::~GpItcSharedPromise (void) noexcept
 {
     try
     {
-        Fulfill(GpException("Empty result"));
+        if (iFuture.IsNotNULL())
+        {
+            Fulfill(GpException("Empty result"));
+        }
     } catch (const GpException& e)
     {
-        GpStringUtils::SCerr(u8"[GpItcSharedPromise::~GpItcSharedPromise]: exception: "_sv + e.what());
+        GpStringUtils::SCerr("[GpItcSharedPromise::~GpItcSharedPromise]: exception: "_sv + e.what());
     } catch (const std::exception& e)
     {
-        GpStringUtils::SCerr(u8"[GpItcSharedPromise::~GpItcSharedPromise]: exception: "_sv + e.what());
+        GpStringUtils::SCerr("[GpItcSharedPromise::~GpItcSharedPromise]: exception: "_sv + e.what());
     } catch (...)
     {
-        GpStringUtils::SCerr(u8"[GpItcSharedPromise::~GpItcSharedPromise]: unknown exception"_sv);
+        GpStringUtils::SCerr("[GpItcSharedPromise::~GpItcSharedPromise]: unknown exception"_sv);
     }
 }
 
@@ -119,6 +119,4 @@ typename GpItcSharedPromise<T>::FutureT::SP GpItcSharedPromise<T>::Future (void)
     return iFuture;
 }
 
-}//namespace GPlatform
-
-#endif//#if defined(GP_USE_MULTITHREADING)
+}// namespace GPlatform

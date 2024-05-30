@@ -1,8 +1,8 @@
-#include "GpReflectObject.hpp"
-#include "GpReflectManager.hpp"
-#include "GpReflectUtils.hpp"
-
-#if defined(GP_USE_REFLECTION)
+#include <GpCore2/GpReflection/GpReflectObject.hpp>
+#include <GpCore2/GpReflection/GpReflectManager.hpp>
+#include <GpCore2/GpReflection/GpReflectUtils.hpp>
+#include <GpCore2/GpReflection/GpReflectUtils_IsEqual.hpp>
+#include <GpCore2/GpReflection/GpReflectUtils_TotalMemoryUse.hpp>
 
 namespace GPlatform {
 
@@ -36,13 +36,23 @@ const GpReflectObjectFactory::VecWrapInfoT& GpReflectObject::Factory::VecWrapInf
     return iVecWrapInfo;
 }
 
-const GpReflectModel&   GpReflectObject::_SReflectModelInit (void)
+bool    GpReflectObject::ReflectIsEqual (const GpReflectObject& aOtherObject) const
 {
-    static const GpReflectModel& sReflectModel = GpReflectObject::_SReflectCreateModel();
+    return GpReflectUtils_IsEqual::SDo(*this, aOtherObject, std::nullopt);
+}
+
+size_t  GpReflectObject::ReflectTotalMemoryUse (void) const noexcept
+{
+    return GpReflectUtils_TotalMemoryUse::SDo(*this, std::nullopt);
+}
+
+::GPlatform::GpReflectModel::CSP    GpReflectObject::_SReflectModelInit (void)
+{
+    static ::GPlatform::GpReflectModel::CSP sReflectModel = GpReflectObject::_SReflectCreateModel();
     return sReflectModel;
 }
 
-const GpReflectModel&   GpReflectObject::_ReflectModel (void) const
+::GPlatform::GpReflectModel::CSP    GpReflectObject::_ReflectModel (void) const
 {
     return GpReflectObject::SReflectModel();
 }
@@ -67,18 +77,18 @@ void*   GpReflectObject::_ReflectDataPtr (void) noexcept
     return this;
 }
 
-const GpReflectModel&   GpReflectObject::_SReflectCreateModel (void)
+::GPlatform::GpReflectModel::CSP    GpReflectObject::_SReflectCreateModel (void)
 {
-    GpReflectProp::C::Vec::Val  props;
+    GpReflectProp::SmallVecVal  props;
     GpReflectObjectFactory::SP  factory     = GpSP<Factory>::SNew();
     constexpr const GpUUID      modelUid    = GpReflectObject::SReflectModelUid();
-    constexpr const GpUUID      groupId     = GpUUID::CE_FromString(u8"96155f96-6bc0-434e-a2da-0f9e72368461"_sv);
+    constexpr const GpUUID      groupId     = GpUUID::CE_FromString("96155f96-6bc0-434e-a2da-0f9e72368461"_sv);
 
-    GpReflectModel reflectModel
+    GpReflectModel::CSP reflectModelCSP = MakeCSP<GpReflectModel>
     (
         modelUid,
         GpUUID(),
-        std::u8string(GpUTF::S_As_UTF8(GpReflectUtils::SModelName<GpReflectObject>())),
+        std::string(GpReflectUtils::SModelName<GpReflectObject>()),
         std::move(props),
         groupId,
         std::move(factory),
@@ -86,9 +96,9 @@ const GpReflectModel&   GpReflectObject::_SReflectCreateModel (void)
         sizeof(GpReflectObject)
     );
 
-    return ::GPlatform::GpReflectManager::_S_().Register(reflectModel);
+    ::GPlatform::GpReflectManager::_S_().Register(reflectModelCSP);
+
+    return reflectModelCSP;
 }
 
-}//namespace GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

@@ -1,12 +1,9 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
-
-#if defined(GP_USE_MULTITHREADING)
-
-#include "../Macro/GpMacroClass.hpp"
-#include "../Types/Containers/GpContainersT.hpp"
-#include "../SyncPrimitives/GpConditionVarFlag.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpConditionVarFlag.hpp>
 
 namespace GPlatform {
 
@@ -21,7 +18,6 @@ protected:
 
 public:
     virtual                     ~GpRunnable     (void) noexcept = default;
-
 
     virtual void                Run             (std::atomic_flag& aStopRequest) noexcept = 0;
 
@@ -42,6 +38,4 @@ bool    GpRunnable::WaitForAndReset (const milliseconds_t aTimeout) noexcept
     return iCVF.WaitForAndReset(aTimeout);
 }
 
-}//GPlatform
-
-#endif//#if defined(GP_USE_MULTITHREADING)
+}// namespace GPlatform

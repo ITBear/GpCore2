@@ -27,4 +27,4 @@ void    GpLifetimeManager::Destroy (GpLifetimeElement::SP aElement)
 
 }*/
 
-}//namespace GPlatform
+}// namespace GPlatform

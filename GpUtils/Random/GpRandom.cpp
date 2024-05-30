@@ -10,11 +10,27 @@
 
 namespace GPlatform {
 
-std::array<const std::u8string, 2> GpRandom::sStrs =
+template<typename T>
+T   GenRndVal
+(
+    const T         aMin,
+    const T         aMax,
+    random_mt19937& aRndEngine
+) noexcept
 {
-    std::u8string(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"_sv),   //StrMode::ALPHA_NUM
-    std::u8string(u8"0123456789"_sv)                                                        //StrMode::NUM
-};
+    using UseInDistT = std::conditional_t<std::is_same_v<T, u_int_8> || std::is_same_v<T, s_int_8>, s_int_16, T>;
+
+    std::uniform_int_distribution<UseInDistT> dist{UseInDistT(aMin), UseInDistT(aMax)};
+    return static_cast<T>(dist(aRndEngine));
+}
+
+GpRandom::GpRandom (void) noexcept
+{
+}
+
+GpRandom::~GpRandom (void) noexcept
+{
+}
 
 void    GpRandom::SetSeedFromRD (void)
 {
@@ -25,7 +41,7 @@ void    GpRandom::SetSeedFromRD (void)
 #endif
 
     std::array<random_mt19937::result_type, random_mt19937::state_size> seed_data;
-    std::generate_n(seed_data.data(), seed_data.size(), std::ref(rd));
+    std::generate_n(std::data(seed_data), std::size(seed_data), std::ref(rd));
     std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
     iEngine.seed(seq);
 }
@@ -37,57 +53,57 @@ void    GpRandom::SetSeed (const random_mt19937::result_type aSeed)
 
 s_int_8 GpRandom::SI8 (const s_int_8 aMin, const s_int_8 aMax) noexcept
 {
-    return Next<s_int_8>(aMin, aMax);
+    return GenRndVal<s_int_8>(aMin, aMax, iEngine);
 }
 
 u_int_8 GpRandom::UI8 (const u_int_8 aMin, const u_int_8 aMax) noexcept
 {
-    return Next<u_int_8>(aMin, aMax);
+    return GenRndVal<u_int_8>(aMin, aMax, iEngine);
 }
 
 s_int_16    GpRandom::SI16 (const s_int_16 aMin, const s_int_16 aMax) noexcept
 {
-    return Next<s_int_16>(aMin, aMax);
+    return GenRndVal<s_int_16>(aMin, aMax, iEngine);
 }
 
 u_int_16    GpRandom::UI16 (const u_int_16 aMin, const u_int_16 aMax) noexcept
 {
-    return Next<u_int_16>(aMin, aMax);
+    return GenRndVal<u_int_16>(aMin, aMax, iEngine);
 }
 
 s_int_32    GpRandom::SI32 (const s_int_32 aMin, const s_int_32 aMax) noexcept
 {
-    return Next<s_int_32>(aMin, aMax);
+    return GenRndVal<s_int_32>(aMin, aMax, iEngine);
 }
 
 u_int_32    GpRandom::UI32 (const u_int_32 aMin, const u_int_32 aMax) noexcept
 {
-    return Next<u_int_32>(aMin, aMax);
+    return GenRndVal<u_int_32>(aMin, aMax, iEngine);
 }
 
 s_int_64    GpRandom::SI64 (const s_int_64 aMin, const s_int_64 aMax) noexcept
 {
-    return Next<s_int_64>(aMin, aMax);
+    return GenRndVal<s_int_64>(aMin, aMax, iEngine);
 }
 
 u_int_64    GpRandom::UI64 (const u_int_64 aMin, const u_int_64 aMax) noexcept
 {
-    return Next<u_int_64>(aMin, aMax);
+    return GenRndVal<u_int_64>(aMin, aMax, iEngine);
 }
 
 ssize_t GpRandom::SSizeT (const ssize_t aMin, const ssize_t aMax) noexcept
 {
-    return Next<ssize_t>(aMin, aMax);
+    return GenRndVal<ssize_t>(aMin, aMax, iEngine);
 }
 
 size_t  GpRandom::SizeT (const size_t aMin, const size_t aMax) noexcept
 {
-    return Next<size_t>(aMin, aMax);
+    return GenRndVal<size_t>(aMin, aMax, iEngine);
 }
 
 bool    GpRandom::Bool (void) noexcept
 {
-    return Next<u_int_64>(0, 1) == 0;
+    return GenRndVal<u_int_64>(0, 1, iEngine) == 0;
 }
 
 double  GpRandom::Double
@@ -96,7 +112,7 @@ double  GpRandom::Double
     const double    aMax
 ) noexcept
 {
-    const double v = double(Next<u_int_64>(NumOps::SMin<u_int_64>(), NumOps::SMax<u_int_64>()))
+    const double v = double(GenRndVal<u_int_64>(NumOps::SMin<u_int_64>(), NumOps::SMax<u_int_64>(), iEngine))
                    / double(NumOps::SMax<u_int_64>());
 
     return NumOps::SLerp(aMin, aMax, v);
@@ -111,18 +127,18 @@ float   GpRandom::Float
     return float(Double(double(aMin), double(aMax)));
 }
 
-std::u8string       GpRandom::String
+std::string     GpRandom::String
 (
     const GpRandomStrMode::EnumT    aMode,
     const size_t                    aSize
 )
 {
-    std::u8string_view  srcStr      = sStrs.at(size_t(aMode));
-    const u_int_8       srcStrMaxId = NumOps::SConvert<u_int_8>(srcStr.size()) - 1;
-    std::u8string       res;
+    std::string_view    srcStr      = GpRandomIf::sStrs.at(size_t(aMode));
+    const u_int_8       srcStrMaxId = NumOps::SConvert<u_int_8>(std::size(srcStr)) - 1;
+    std::string         res;
 
     res.resize(aSize);
-    char8_t* strData = res.data();
+    char* strData = std::data(res);
 
     for (size_t id = 0; id < aSize; ++id)
     {
@@ -132,6 +148,6 @@ std::u8string       GpRandom::String
     return res;
 }
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_RANDOM_GENERATORS)
+#endif// #if defined(GP_USE_RANDOM_GENERATORS)

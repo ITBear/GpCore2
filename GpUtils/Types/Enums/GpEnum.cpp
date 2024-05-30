@@ -17,7 +17,14 @@ void    GpEnum::FromID (const value_type aId)
         }
     }
 
-    THROW_GP(u8"Unknown Enum ID "_sv + aId);
+    THROW_GP
+    (
+        fmt::format
+        (
+            "Unknown Enum ID {}",
+            aId
+        )
+    );
 }
 
 void    GpEnum::FromNumPos (const size_t aPos)
@@ -25,17 +32,17 @@ void    GpEnum::FromNumPos (const size_t aPos)
     iId = std::get<1>(Names().at(aPos));
 }
 
-std::u8string_view  GpEnum::ToString (void) const noexcept
+std::string_view    GpEnum::ToString (void) const noexcept
 {
     return _SToString(Names(), ID());
 }
 
-void    GpEnum::FromString (std::u8string_view aName)
+void    GpEnum::FromString (std::string_view aName)
 {
     _SetID(_SFromString(Names(), aName, TypeName()));
 }
 
-std::u8string_view  GpEnum::_SToString
+std::string_view    GpEnum::_SToString
 (
     const NamesListT&   aNamesList,
     const value_type    aId
@@ -49,14 +56,14 @@ std::u8string_view  GpEnum::_SToString
         }
     }
 
-    return std::u8string_view();
+    return std::string_view();
 }
 
 GpEnum::value_type  GpEnum::_SFromString
 (
     const NamesListT&   aNamesList,
-    std::u8string_view  aName,
-    std::u8string_view  aEnumTypeName
+    std::string_view    aName,
+    std::string_view    aEnumTypeName
 )
 {
     for (auto&& [name, id]: aNamesList)
@@ -67,16 +74,24 @@ GpEnum::value_type  GpEnum::_SFromString
         }
     }
 
-    THROW_GP(u8"Failed to set enum ("_sv + aEnumTypeName + u8") value from string '"_sv + aName + u8"'"_sv);
+    THROW_GP
+    (
+        fmt::format
+        (
+            "Failed to set enum ({}) value from string '{}'",
+            aEnumTypeName,
+            aName
+        )
+    );
 }
 
 GpEnum::NamesListT  GpEnum::_SParseEnumElements
 (
-    std::u8string_view aEnumName,
-    std::u8string_view aEnumElementsStr
+    std::string_view aEnumName,
+    std::string_view aEnumElementsStr
 )
 {
-    std::vector<std::tuple<std::u8string_view, value_type>> res;
+    std::vector<std::tuple<std::string_view, value_type>> res;
 
     _SParseEnumValues(res, aEnumName, aEnumElementsStr);
 
@@ -86,12 +101,12 @@ GpEnum::NamesListT  GpEnum::_SParseEnumElements
 void    GpEnum::_SParseEnumValues
 (
     NamesListT&         aNamesListOut,
-    std::u8string_view  aEnumName,
-    std::u8string_view  aEnumElementsStr
+    std::string_view    aEnumName,
+    std::string_view    aEnumElementsStr
 )
 {
-    //Split by ','
-    const std::vector<std::u8string_view> elements = StrOps::SSplit
+    // Split by ','
+    const std::vector<std::string_view> elements = StrOps::SSplit
     (
         aEnumElementsStr,
         ',',
@@ -100,15 +115,15 @@ void    GpEnum::_SParseEnumValues
         Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS
     );
 
-    //Split each element (may be 'VALUE' or 'VALUE = ID')
+    // Split each element (may be 'VALUE' or 'VALUE = ID')
     ssize_t lastId = -1;
 
-    aNamesListOut.reserve(elements.size());
+    aNamesListOut.reserve(std::size(elements));
 
-    for (std::u8string_view element: elements)
+    for (std::string_view element: elements)
     {
-        //Split by ' '
-        const std::vector<std::u8string_view> parts = StrOps::SSplit
+        // Split by ' '
+        const std::vector<std::string_view> parts = StrOps::SSplit
         (
             element,
             ' ',
@@ -117,28 +132,37 @@ void    GpEnum::_SParseEnumValues
             Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS
         );
 
-        std::u8string_view  name;
-        std::u8string_view  id_str;
-        value_type          id  = value_type(lastId + 1);
+        std::string_view    name;
+        std::string_view    id_str;
+        value_type          id          = value_type(lastId + 1);
+        const size_t        partsSize   = std::size(parts);
 
-        if (parts.size() == 1)
+        if (partsSize == 1)
         {
             name    = parts.at(0);
-        } else if (parts.size() == 3)
+        } else if (partsSize == 3)
         {
             name    = parts.at(0);
             id_str  = parts.at(2);
             id      = NumOps::SConvert<value_type>(StrOps::SToUI64(id_str));
         } else
         {
-            THROW_GP(u8"Wrong enum '"_sv + aEnumName + u8"' element: "_sv + parts.at(0));
+            THROW_GP
+            (
+                fmt::format
+                (
+                    "Wrong enum '{}' element: {}",
+                    aEnumName,
+                    parts.at(0)
+                )
+            );
         }
 
-        lastId = ssize_t(id);
+        lastId = ssize_t{id};
         aNamesListOut.emplace_back(name, id);
     }
 }
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//GP_USE_ENUMS
+#endif// GP_USE_ENUMS

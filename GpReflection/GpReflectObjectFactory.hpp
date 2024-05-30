@@ -1,11 +1,8 @@
 #pragma once
 
-#include "../Config/GpConfig.hpp"
-
-#if defined(GP_USE_REFLECTION)
-
-#include "../GpUtils/Macro/GpMacroClass.hpp"
-#include "../GpUtils/Types/Containers/GpContainersT.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 
 namespace GPlatform {
 
@@ -35,6 +32,4 @@ public:
     virtual const VecWrapInfoT&     VecWrapInfo             (void) const noexcept = 0;
 };
 
-}//GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

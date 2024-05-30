@@ -1,4 +1,7 @@
-#include "GpReflectUtils.hpp"
+#include <GpCore2/GpReflection/GpReflectUtils.hpp>
+#include <GpCore2/GpReflection/GpReflectObject.hpp>
+#include <GpCore2/GpReflection/GpReflectProp.hpp>
+#include <GpCore2/GpReflection/GpReflectPropUtils.hpp>
 
 namespace GPlatform {
 
@@ -8,7 +11,7 @@ void    GpReflectUtils::SGenerateOnce
     GpReflectObject::C::Vec::SP&    aItems
 )
 {
-    const GpReflectProp::C::Vec::CRef genOnceProps = GpReflectUtils::SPropsFlagFilter(aModel.Props(), GpReflectPropFlag::GENERATED_ONCE);
+    const GpReflectProp::C::Vec::CRef genOnceProps = GpReflectPropUtils::SPropsFlagFilter(aModel.Props(), GpReflectPropFlag::GENERATED_ONCE);
 
     for (GpReflectObject::SP& itemSP: aItems)
     {
@@ -24,10 +27,10 @@ void    GpReflectUtils::SGenerateOnce
 
 void    GpReflectUtils::SGenerateOnce (GpReflectObject& aItem)
 {
-    const GpReflectModel&               model           = aItem.ReflectModel();
-    const GpReflectProp::C::Vec::CRef   genOnceProps    = GpReflectUtils::SPropsFlagFilter
+    GpReflectModel::CSP                 modelCSP        = aItem.ReflectModel();
+    const GpReflectProp::C::Vec::CRef   genOnceProps    = GpReflectPropUtils::SPropsFlagFilter
     (
-        model.Props(),
+        modelCSP.Vn().Props(),
         GpReflectPropFlag::GENERATED_ONCE
     );
 
@@ -39,4 +42,4 @@ void    GpReflectUtils::SGenerateOnce (GpReflectObject& aItem)
     }
 }
 
-}//namespace GPlatform
+}// namespace GPlatform

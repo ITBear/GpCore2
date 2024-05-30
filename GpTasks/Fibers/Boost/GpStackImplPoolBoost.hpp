@@ -1,15 +1,15 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
-#if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
 
 #include "../../GpTasks_global.hpp"
 #include "GpStackBoost.hpp"
-#include "../../../GpUtils/Types/Containers/GpElementsPool.hpp"
-#include "../../../GpUtils/Types/Units/Other/size_byte_t.hpp"
+
+#include <GpCore2/GpUtils/Types/Containers/GpElementsPool.hpp>
+#include <GpCore2/GpUtils/Types/Units/Other/size_byte_t.hpp>
 
 namespace GPlatform {
 
@@ -64,8 +64,7 @@ void    GpStackImplPoolBoost::OnClear (void) noexcept
     //NOP
 }
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
-#endif//#if defined(GP_USE_MULTITHREADING_FIBERS)
-#endif//#if defined(GP_USE_MULTITHREADING)
+#endif// #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
+#endif// #if defined(GP_USE_MULTITHREADING_FIBERS)

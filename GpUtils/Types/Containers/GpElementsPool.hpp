@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_CONTAINERS)
 
-#include "../../SyncPrimitives/GpRWSpinLock.hpp"
+#include "../../SyncPrimitives/GpSpinLockRW.hpp"
 #include "../../SyncPrimitives/GpMutex.hpp"
 #include "../../SyncPrimitives/GpSharedMutex.hpp"
 #include "../../Macro/GpMacroTags.hpp"
@@ -16,6 +16,8 @@
 #include <optional>
 
 namespace GPlatform {
+
+// TODO: Reimplement like GpCachePoolMap
 
 template<typename T>
 class GpElementsPool
@@ -65,14 +67,14 @@ private:
     void                                _Clear                  (bool aIsDestructorCall) noexcept;
 
 protected:
-    mutable GpRWSpinLock                iRWSpinLock;
+    mutable GpSpinLockRW                iSpinLockRW;
 
 private:
-    QueueT                              iElements       GUARDED_BY(iRWSpinLock);
-    size_t                              iInitCount      GUARDED_BY(iRWSpinLock) = {0};
-    size_t                              iMaxCount       GUARDED_BY(iRWSpinLock) = {0};
-    size_t                              iAcquiredCount  GUARDED_BY(iRWSpinLock) = {0};
-    bool                                iIsInit         GUARDED_BY(iRWSpinLock) = false;
+    QueueT                              iElements       GUARDED_BY(iSpinLockRW);
+    size_t                              iInitCount      GUARDED_BY(iSpinLockRW) = {0};
+    size_t                              iMaxCount       GUARDED_BY(iSpinLockRW) = {0};
+    size_t                              iAcquiredCount  GUARDED_BY(iSpinLockRW) = {0};
+    bool                                iIsInit         GUARDED_BY(iSpinLockRW) = false;
 };
 
 template<typename T>
@@ -96,17 +98,17 @@ void    GpElementsPool<T>::Init
     THROW_COND_GP
     (
         aMaxCount >= aInitCount,
-        u8"aMaxCount >= aInitCount"_sv
+        "aMaxCount >= aInitCount"_sv
     );
 
     Clear();
 
-    GpUniqueLock<GpRWSpinLock> uniqueLock(iRWSpinLock);
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
     THROW_COND_GP
     (
         iIsInit == false,
-        u8"Already initialized"_sv
+        "Already initialized"_sv
     );
 
     PreInit(aInitCount);
@@ -131,7 +133,7 @@ void    GpElementsPool<T>::Clear (void) noexcept
 template<typename T>
 typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T>::Acquire (void)
 {
-    GpUniqueLock<GpRWSpinLock> uniqueLock(iRWSpinLock);
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
     if (iElements.empty())
     {
@@ -167,12 +169,12 @@ typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T
 template<typename T>
 void    GpElementsPool<T>::Release (value_type&& aElement)
 {
-    GpUniqueLock<GpRWSpinLock> uniqueLock(iRWSpinLock);
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
     THROW_COND_GP
     (
         iAcquiredCount > 0,
-        u8"Release without acquire"_sv
+        "Release without acquire"_sv
     );
 
     iAcquiredCount--;
@@ -189,7 +191,7 @@ void    GpElementsPool<T>::Release (value_type&& aElement)
 template<typename T>
 size_t  GpElementsPool<T>::InitCount (void) const noexcept
 {
-    GpSharedLock<GpRWSpinLock> sharedLock(iRWSpinLock);
+    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
 
     return iInitCount;
 }
@@ -197,7 +199,7 @@ size_t  GpElementsPool<T>::InitCount (void) const noexcept
 template<typename T>
 size_t  GpElementsPool<T>::MaxCount (void) const noexcept
 {
-    GpSharedLock<GpRWSpinLock> sharedLock(iRWSpinLock);
+    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
 
     return iMaxCount;
 }
@@ -205,7 +207,7 @@ size_t  GpElementsPool<T>::MaxCount (void) const noexcept
 template<typename T>
 size_t  GpElementsPool<T>::AcquiredCount (void) const noexcept
 {
-    GpSharedLock<GpRWSpinLock> sharedLock(iRWSpinLock);
+    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
 
     return iAcquiredCount;
 }
@@ -213,7 +215,7 @@ size_t  GpElementsPool<T>::AcquiredCount (void) const noexcept
 template<typename T>
 bool    GpElementsPool<T>::IsInit (void) const noexcept
 {
-    GpSharedLock<GpRWSpinLock> sharedLock(iRWSpinLock);
+    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
 
     return iIsInit;
 }
@@ -269,7 +271,7 @@ typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T
 template<typename T>
 void    GpElementsPool<T>::_Clear (bool aIsDestructorCall) noexcept
 {
-    GpUniqueLock<GpRWSpinLock> uniqueLock(iRWSpinLock);
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
     if (aIsDestructorCall == false)
     {
@@ -287,6 +289,6 @@ void    GpElementsPool<T>::_Clear (bool aIsDestructorCall) noexcept
     iIsInit         = false;
 }
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_CONTAINERS)
+#endif// #if defined(GP_USE_CONTAINERS)

@@ -24,4 +24,4 @@ namespace GPlatform::Algo {
     return std::nullopt;
 }*/
 
-}//namespace GPlatform::Algo
+}// namespace GPlatform::Algo

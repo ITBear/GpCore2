@@ -6,7 +6,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-namespace GPlatform{
+namespace GPlatform {
 
 class GpMath;
 
@@ -36,4 +36,4 @@ T   GpMath::SRadToDeg (const T aRad) noexcept
     return aRad*(T(180.0)/T(M_PI));
 }
 
-}//namespace GPlatform
+}// namespace GPlatform

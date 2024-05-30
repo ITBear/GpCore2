@@ -54,4 +54,4 @@ void    GpCallHandler2::CallIfNonFirst (FnT aFn)
     iIsFirstCall = false;
 }
 
-}//GPlatform
+}// namespace GPlatform

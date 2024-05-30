@@ -1,16 +1,14 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
-#if defined(GP_USE_RANDOM_GENERATORS)
-
-#   if defined(GP_OS_WINDOWS)
+#if defined(GP_USE_RANDOM_GENERATORS) && defined(GP_OS_WINDOWS)
 
 #include "GpRandomDeviceIf.hpp"
 
 namespace GPlatform {
 
-class GpRandomDeviceWin: public GpRandomDeviceIf
+class GpRandomDeviceWin final: public GpRandomDeviceIf
 {
     CLASS_REMOVE_CTRS_MOVE_COPY(GpRandomDeviceWin)
 
@@ -41,7 +39,6 @@ private:
     size_t                          iRandomVecUnused    = 0;
 };
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#   endif//#if defined(GP_OS_WINDOWS)
-#endif//#if defined(GP_USE_RANDOM_GENERATORS)
+#endif// #if defined(GP_USE_RANDOM_GENERATORS) && defined(GP_OS_WINDOWS)

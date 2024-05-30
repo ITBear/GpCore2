@@ -14,4 +14,4 @@ template<typename... Ts>    struct is_tuple<const volatile std::tuple<Ts...>>   
 template <typename _Tp>
 constexpr bool is_tuple_v = is_tuple<_Tp>::value;
 
-}//namespace GPlatform
+}// namespace GPlatform

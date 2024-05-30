@@ -1,5 +1,4 @@
 #include "GpTimer.hpp"
-#include "GpTimersManager.hpp"
 
 #if defined(GP_USE_TIMERS)
 
@@ -53,13 +52,13 @@ GpTimer::ShotRes    GpTimer::TryMakeShot (void) noexcept
         return std::get<0>(testRes);
     } catch (const GpException& e)
     {
-        GpStringUtils::SCerr(u8"[GpTimersManager::TryMakeShot]: "_sv + e.what());
+        GpStringUtils::SCerr("[GpTimersManager::TryMakeShot]: "_sv + e.what());
     } catch (const std::exception& e)
     {
-        GpStringUtils::SCerr(u8"[GpTimersManager::TryMakeShot]: "_sv + e.what());
+        GpStringUtils::SCerr("[GpTimersManager::TryMakeShot]: "_sv + e.what());
     } catch (...)
     {
-        GpStringUtils::SCerr(u8"[GpTimersManager::TryMakeShot]: unknown"_sv);
+        GpStringUtils::SCerr("[GpTimersManager::TryMakeShot]: unknown"_sv);
     }
 
     return GpTimer::ShotRes::REMOVE;
@@ -91,6 +90,6 @@ GpTimer::TestRes    GpTimer::IsReadyToShot (void) const noexcept
     return {ShotRes::KEEP_FOR_NEXT, true};
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_TIMERS)
+#endif// #if defined(GP_USE_TIMERS)

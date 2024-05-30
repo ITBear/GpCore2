@@ -1,7 +1,5 @@
 #include "GpReflectModelBuilder.hpp"
 
-#if defined(GP_USE_REFLECTION)
-
 #include "../GpReflectObjectDynamic.hpp"
 
 namespace GPlatform {
@@ -14,13 +12,13 @@ GpReflectModelBuilder::~GpReflectModelBuilder (void) noexcept
 {
 }
 
-GpReflectModel  GpReflectModelBuilder::Build (void)
+GpReflectModel::CSP GpReflectModelBuilder::Build (void)
 {
     if (iPropBuilder.has_value())
     {
-        GpReflectPropBuilder& propBuilder = iPropBuilder.value();
+        GpReflectModelPropBuilder& propBuilder = iPropBuilder.value();
 
-        return GpReflectModel
+        return MakeCSP<GpReflectModel>
         (
             iUID,
             iBaseUID,
@@ -31,9 +29,9 @@ GpReflectModel  GpReflectModelBuilder::Build (void)
             propBuilder.MaxAlign(),
             propBuilder.TotalSize()
         );
-    } else//no props (even in base structure)
+    } else// no props (even in base structure)
     {
-        return GpReflectModel
+        return MakeCSP<GpReflectModel>
         (
             iUID,
             iBaseUID,
@@ -44,6 +42,4 @@ GpReflectModel  GpReflectModelBuilder::Build (void)
     }
 }
 
-}//namespace GPlatform
-
-#endif//#if defined(GP_USE_REFLECTION)
+}// namespace GPlatform

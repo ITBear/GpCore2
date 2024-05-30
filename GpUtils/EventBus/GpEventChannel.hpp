@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined (GP_USE_EVENT_BUS)
 
@@ -10,7 +10,8 @@
 #include "../SyncPrimitives/GpSpinLock.hpp"
 #include "../SyncPrimitives/GpMutex.hpp"
 
-#include <boost/container/flat_map.hpp>
+#include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
+#include <GpCore2/Config/IncludeExt/boost_small_vector.hpp>
 
 namespace GPlatform {
 
@@ -29,7 +30,7 @@ public:
     using value_type    = ValueT;
 
     using CallbackFnT   = std::function<void(const UidT& aUid, const ValueT& aEvent)>;
-    using SubscribersT  = boost::container::flat_map<UidT, CallbackFnT>;// TODO: add underlying container like boost::small_container
+    using SubscribersT  = boost::container::small_flat_map<UidT, CallbackFnT, 16>;// TODO: add underlying container like boost::small_container
 
 public:
                         GpEventChannel  (void) noexcept = default;
@@ -50,7 +51,7 @@ template<typename UidT,
          typename ValueT>
 GpEventChannel<UidT, ValueT>::GpEventChannel (GpEventChannel&& aEventChannel) noexcept
 {
-    GpUniqueLock<GpSpinLock> uniqueLock(aEventChannel.iSpinLock);
+    GpUniqueLock<GpSpinLock> uniqueLock{aEventChannel.iSpinLock};
 
     iSubscribers = std::move(aEventChannel.iSubscribers);
 }
@@ -59,7 +60,7 @@ template<typename UidT,
          typename ValueT>
 void    GpEventChannel<UidT, ValueT>::PushEvent (const ValueT& aEvent) const
 {
-    GpUniqueLock<GpSpinLock> uniqueLock(iSpinLock);
+    GpUniqueLock<GpSpinLock> uniqueLock{iSpinLock};
 
     for (const auto&[uid, fn]: iSubscribers)
     {
@@ -78,7 +79,7 @@ bool    GpEventChannel<UidT, ValueT>::Subscribe
     CallbackFnT aCallbackFn
 )
 {
-    GpUniqueLock<GpSpinLock> uniqueLock(iSpinLock);
+    GpUniqueLock<GpSpinLock> uniqueLock{iSpinLock};
 
     const auto[iter, isInsertedNew] = iSubscribers.insert_or_assign(aSubscriberUid, std::move(aCallbackFn));
 
@@ -89,18 +90,18 @@ template<typename UidT,
          typename ValueT>
 size_t  GpEventChannel<UidT, ValueT>::Unsubscribe (const UidT& aSubscriberUid)
 {
-    GpUniqueLock<GpSpinLock> uniqueLock(iSpinLock);
+    GpUniqueLock<GpSpinLock> uniqueLock{iSpinLock};
 
     auto iter = iSubscribers.find(aSubscriberUid);
 
-    if (iter != iSubscribers.end()) [[likely]]
+    if (iter != std::end(iSubscribers)) [[likely]]
     {
         iSubscribers.erase(iter);
     }
 
-    return iSubscribers.size();
+    return std::size(iSubscribers);
 }
 
 }// namespace GPlatform
 
-#endif//#if defined (GP_USE_EVENT_BUS)
+#endif// #if defined (GP_USE_EVENT_BUS)

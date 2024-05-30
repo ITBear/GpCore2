@@ -13,25 +13,25 @@ public:
                             GpBitWriter     (GpBitWriterStorage& aStorage) noexcept: iStorage(aStorage) {}
                             ~GpBitWriter    (void) noexcept = default;
 
-    void                    Bits            (GpSpanPtrByteR     aData,
+    void                    Bits            (GpSpanByteR        aData,
                                              const size_bit_t   aSize);
 
-    void                    UInt8           (const u_int_8 aValue);
-    void                    UInt8           (const u_int_8 aValue, const size_bit_t aSize);
-    void                    SInt8           (const s_int_8 aValue);
-    void                    SInt8           (const s_int_8 aValue, const size_bit_t aSize);
-    void                    UInt16          (const u_int_16 aValue);
-    void                    UInt16          (const u_int_16 aValue, const size_bit_t aSize);
-    void                    SInt16          (const s_int_16 aValue);
-    void                    SInt16          (const s_int_16 aValue, const size_bit_t aSize);
-    void                    UInt32          (const u_int_32 aValue);
-    void                    UInt32          (const u_int_32 aValue, const size_bit_t aSize);
-    void                    SInt32          (const s_int_32 aValue);
-    void                    SInt32          (const s_int_32 aValue, const size_bit_t aSize);
-    void                    UInt64          (const u_int_64 aValue);
-    void                    UInt64          (const u_int_64 aValue, const size_bit_t aSize);
-    void                    SInt64          (const s_int_64 aValue);
-    void                    SInt64          (const s_int_64 aValue, const size_bit_t aSize);
+    void                    UI8             (const u_int_8 aValue);
+    void                    UI8             (const u_int_8 aValue, const size_bit_t aSize);
+    void                    SI8             (const s_int_8 aValue);
+    void                    SI8             (const s_int_8 aValue, const size_bit_t aSize);
+    void                    UI16            (const u_int_16 aValue);
+    void                    UI16            (const u_int_16 aValue, const size_bit_t aSize);
+    void                    SI16            (const s_int_16 aValue);
+    void                    SI16            (const s_int_16 aValue, const size_bit_t aSize);
+    void                    UI32            (const u_int_32 aValue);
+    void                    UI32            (const u_int_32 aValue, const size_bit_t aSize);
+    void                    SI32            (const s_int_32 aValue);
+    void                    SI32            (const s_int_32 aValue, const size_bit_t aSize);
+    void                    UI64            (const u_int_64 aValue);
+    void                    UI64            (const u_int_64 aValue, const size_bit_t aSize);
+    void                    SI64            (const s_int_64 aValue);
+    void                    SI64            (const s_int_64 aValue, const size_bit_t aSize);
     void                    SizeT           (const size_t aValue, const size_bit_t aSize);
 
     size_bit_t              LeftToWite      (void) const noexcept {return iStorage.Left();}
@@ -60,5 +60,5 @@ private:
     GpBitWriterStorage&     iStorage;
 };
 
-}//GPlatform
+}// namespace GPlatform
 */

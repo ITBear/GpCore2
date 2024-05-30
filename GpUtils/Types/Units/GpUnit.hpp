@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
+
 #include "../../Macro/GpMacroTags.hpp"
-#include "../Strings/GpStringTemplateArg.hpp"
 #include "../Numerics/GpNumericOps.hpp"
 
 #include <chrono>
@@ -34,7 +34,7 @@ concept IsConvertable = requires()
     && GpHasTag_GpUnit<FROM>();
 };
 
-}//namespace Concepts::Unit
+}// namespace Concepts::Unit
 
 template<Concepts::IsArithmetic T,
          typename               UNIT_TYPE,
@@ -43,9 +43,9 @@ template<Concepts::IsArithmetic T,
 class GpUnit
 {
 public:
-#if defined(GP_COMPILER_GCC)
-    static_assert(std::chrono::__is_ratio<SCALE>::value, "Scale must be a specialization of std::ratio");
-#endif
+//#if defined(GP_COMPILER_GCC)
+//  static_assert(std::chrono::__is_ratio<SCALE>::value, "Scale must be a specialization of std::ratio");
+//#endif
 
     static_assert(SCALE::num > 0, "SCALE::num must be positive");
 
@@ -75,12 +75,12 @@ public:
                         iValue(SFromUnit<T2>(aUnit))
                         {}
 
-    [[nodiscard]] static std::u8string_view SName (void) noexcept
+    [[nodiscard]] static constexpr std::string_view SName (void) noexcept
     {
-        return GpStringTemplateArgHolder<UNIT_NAME>::SAsStringViewU8();
+        return UNIT_NAME::SAsStringView();
     }
 
-    [[nodiscard]] std::u8string_view    Name (void) const noexcept
+    [[nodiscard]] constexpr std::string_view    Name (void) const noexcept
     {
         return SName();
     }
@@ -405,9 +405,17 @@ private:
     value_type  iValue;
 };
 
-}//GPlatform
+}// namespace GPlatform
+
+// -----------------------------------------------------------------
 
 namespace std {
+
+template<::GPlatform::Concepts::Unit::IsUnit T>
+static string   to_string (T aValue)
+{
+    return ::std::to_string(aValue.Value());
+}
 
 /*template<typename T,
          size_t   N,
@@ -424,4 +432,4 @@ namespace std {
     }
 };*/
 
-}//std
+}// namespace std

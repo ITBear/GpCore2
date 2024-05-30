@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_SYNC_PRIMITIVES)
 
@@ -9,7 +9,7 @@
 #include "GpAsmSpinPause.hpp"
 #include <atomic>
 
-namespace GPlatform{
+namespace GPlatform {
 
 class GpSpinLockImpl
 {
@@ -56,6 +56,6 @@ bool    GpSpinLockImpl::try_lock (void) noexcept
 
 using GpSpinLock = ThreadSafety::MutexWrap<GpSpinLockImpl>;
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_SYNC_PRIMITIVES)
+#endif// #if defined(GP_USE_SYNC_PRIMITIVES)

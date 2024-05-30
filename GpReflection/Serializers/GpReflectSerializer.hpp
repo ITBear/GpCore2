@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
-
-#if defined(GP_USE_REFLECTION)
+#include <GpCore2/Config/GpConfig.hpp>
 
 #include "../GpReflectObject.hpp"
 #include "GpReflectSerializerCtx.hpp"
@@ -20,10 +18,10 @@ public:
                                 GpReflectSerializer     (void) noexcept = default;
     virtual                     ~GpReflectSerializer    (void) noexcept = default;
 
-    virtual GpReflectObject::SP ToObject                (GpSpanPtrByteR             aData) const = 0;
-    virtual GpReflectObject::SP ToObject                (GpSpanPtrByteR             aData,
-                                                         const GpReflectModel&      aModel) const = 0;
-    virtual GpReflectObject::SP ToObject                (GpSpanPtrByteR                             aData,
+    virtual GpReflectObject::SP ToObject                (GpSpanByteR            aData) const = 0;
+    virtual GpReflectObject::SP ToObject                (GpSpanByteR            aData,
+                                                         const GpReflectModel&  aModel) const = 0;
+    virtual GpReflectObject::SP ToObject                (GpSpanByteR                                aData,
                                                          const std::vector<const GpReflectModel*>&  aModelVariants) const = 0;
     virtual GpReflectObject::SP ToObject                (GpReflectSerializerCtx&    aCtx,
                                                          const GpReflectModel&      aModel) const = 0;
@@ -33,6 +31,4 @@ public:
                                                          GpByteWriter&          aWriter) const = 0;
 };
 
-}//namespace GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

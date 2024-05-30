@@ -2,6 +2,8 @@
 #include "GpReflectObjectDynamicUtils.hpp"
 #include "GpReflectManager.hpp"
 
+#include <GpCore2/GpReflection/GpReflectUtils_AssignValue.hpp>
+
 namespace GPlatform {
 
 GpReflectObject::SP GpReflectObjectDynamic::Factory::NewInstanceSP (const GpUUID& aModelUid) const
@@ -11,12 +13,12 @@ GpReflectObject::SP GpReflectObjectDynamic::Factory::NewInstanceSP (const GpUUID
 
 void    GpReflectObjectDynamic::Factory::ConstructInplace (void* /*aDataPtr*/) const
 {
-    THROW_GP(u8"Use GpReflectObjectDynamic::SP"_sv);
+    THROW_GP("Use GpReflectObjectDynamic::SP");
 }
 
 void    GpReflectObjectDynamic::Factory::DestructInplace (void* /*aDataPtr*/) const
 {
-    THROW_GP(u8"Use GpReflectObjectDynamic::SP"_sv);
+    THROW_GP("Use GpReflectObjectDynamic::SP");
 }
 
 const GpReflectObjectFactory::VecWrapInfoT& GpReflectObjectDynamic::Factory::VecWrapInfo (void) const noexcept
@@ -29,13 +31,13 @@ GpReflectObjectDynamic::~GpReflectObjectDynamic (void) noexcept
 {
     if (iData != nullptr)
     {
-        const GpReflectModel& model = _ReflectModel();
-        GpReflectObjectDynamicUtils::SDestroy(model, iData);
+        GpReflectModel::CSP model = _ReflectModel();
+        GpReflectObjectDynamicUtils::SDestroy(model.Vn(), iData);
         iData = nullptr;
     }
 }
 
-const GpReflectModel&   GpReflectObjectDynamic::_ReflectModel (void) const
+GpReflectModel::CSP GpReflectObjectDynamic::_ReflectModel (void) const
 {
     return GpReflectManager::S().Find(iModelUid);
 }
@@ -48,11 +50,13 @@ GpReflectObject::SP GpReflectObjectDynamic::_ReflectNewInstance (void) const
 
 GpReflectObject::SP GpReflectObjectDynamic::_ReflectClone (void) const
 {
-    //Factory factory;
-    //GpReflectObject::SP objectSP = factory.NewInstance(iModelUid);
+    // Factory factory
+    GpReflectObject::SP clonedObjectSP = _ReflectNewInstance();
 
-    //TODO: implement
-    THROW_GP_NOT_IMPLEMENTED();
+    // Copy
+    GpReflectUtils_AssignValue::SDo(clonedObjectSP.Vn(), *this);
+
+    return clonedObjectSP;
 }
 
 const void* GpReflectObjectDynamic::_ReflectDataPtr (void) const noexcept
@@ -65,4 +69,4 @@ void*   GpReflectObjectDynamic::_ReflectDataPtr (void) noexcept
     return iData;
 }
 
-}//namespace GPlatform
+}// namespace GPlatform

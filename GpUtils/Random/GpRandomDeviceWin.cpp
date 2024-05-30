@@ -1,9 +1,12 @@
 #include "GpRandomDeviceWin.hpp"
+#include "../Types/Strings/GpStringOps.hpp"
 
-#if defined(GP_USE_RANDOM_GENERATORS)
-#   if defined(GP_OS_WINDOWS)
+#if defined(GP_USE_RANDOM_GENERATORS) && defined(GP_OS_WINDOWS)
 
-#include <Wincrypt.h>
+#include <GpCore2/Config/IncludeExt/windows.hpp>
+#include <wincrypt.h>
+
+#include "../Other/GpErrno.hpp"
 
 namespace GPlatform {
 
@@ -18,14 +21,6 @@ GpRandomDeviceWin::~GpRandomDeviceWin (void) noexcept
 
 GpRandomDeviceWin::result_type  GpRandomDeviceWin::operator() (void)
 {
-    /*unsigned int res = 0;
-    if (rand_s(&res) != 0)
-    {
-        THROW_GP("Random device (rand_s) return error"_sv);
-    }
-
-    return result_type(res);*/
-
     if (iRandomVecUnused < sizeof(result_type))
     {
         CryptRefillRandom(sizeof(result_type)*32);
@@ -38,7 +33,7 @@ GpRandomDeviceWin::result_type  GpRandomDeviceWin::operator() (void)
 
     result_type res;
 
-    std::memcpy(&res, iRandomVec.data() + iRandomVec.size() - iRandomVecUnused, sizeof(result_type));
+    std::memcpy(&res, std::data(iRandomVec) + std::size(iRandomVec) - iRandomVecUnused, sizeof(result_type));
 
     iRandomVecUnused -= sizeof(result_type);
 
@@ -53,23 +48,23 @@ void    GpRandomDeviceWin::CryptRefillRandom (size_t aBufferSize)
 
     if (!::CryptAcquireContextW(&hProvider, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
     {
-        THROW_GP("CryptAcquireContextW return error: "_sv + GpErrno::WinGetLastErrorAsString());
+        THROW_GP("CryptAcquireContextW return error: "_sv + GpErrno::SWinGetAndClear());
     }
 
     const DWORD dwLength = DWORD(aBufferSize);
     iRandomVec.resize(aBufferSize);
 
-    if (!::CryptGenRandom(hProvider, dwLength, iRandomVec.data()))
+    if (!::CryptGenRandom(hProvider, dwLength, std::data(iRandomVec)))
     {
         Clear();
         ::CryptReleaseContext(hProvider, 0);
-        THROW_GP("CryptGenRandom return error: "_sv + GpErrno::WinGetLastErrorAsString());
+        THROW_GP("CryptGenRandom return error: "_sv + GpErrno::SWinGetAndClear());
     }
 
     if (!::CryptReleaseContext(hProvider, 0))
     {
         Clear();
-        THROW_GP("CryptReleaseContext return error: "_sv + GpErrno::WinGetLastErrorAsString());
+        THROW_GP("CryptReleaseContext return error: "_sv + GpErrno::SWinGetAndClear());
     }
 
     iRandomVecUnused = aBufferSize;
@@ -77,8 +72,8 @@ void    GpRandomDeviceWin::CryptRefillRandom (size_t aBufferSize)
 
 void    GpRandomDeviceWin::Clear (void) noexcept
 {
-    const size_t    s = iRandomVec.size();
-    u_int_8*        p = iRandomVec.data();
+    const size_t    s = std::size(iRandomVec);
+    u_int_8* _R_    p = std::data(iRandomVec);
 
     for (size_t id = 0; id < s; ++id)
     {
@@ -88,7 +83,6 @@ void    GpRandomDeviceWin::Clear (void) noexcept
     iRandomVecUnused = 0;
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#   endif//#if defined(GP_OS_WINDOWS)
-#endif//#if defined(GP_USE_RANDOM_GENERATORS)
+#endif// #if defined(GP_USE_RANDOM_GENERATORS) && defined(GP_OS_WINDOWS)

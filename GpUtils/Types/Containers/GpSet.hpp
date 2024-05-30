@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_CONTAINERS)
 
 #include "GpContainersT.hpp"
-#include "../../SyncPrimitives/GpRWSpinLock.hpp"
+#include "../../SyncPrimitives/GpSpinLockRW.hpp"
 
 #include <set>
 #include <mutex>
@@ -44,7 +44,7 @@ public:
     const underlying_container& UnderlyingContainer (void) const noexcept;
 
 private:
-    mutable GpRWSpinLock        iLockRW;
+    mutable GpSpinLockRW        iLockRW;
     underlying_container        iContainer;
 };
 
@@ -64,7 +64,7 @@ size_t  GpSet<T>::Size (void) const noexcept
 {
     std::shared_lock lockW(iLockRW);
 
-    return iContainer.size();
+    return std::size(iContainer);
 }
 
 template <typename T>
@@ -82,7 +82,7 @@ typename GpSet<T>::value_ref_opt    GpSet<T>::Find (const value_type& aValue) co
 
     auto iter = iContainer.find(aValue);
 
-    if (iter == iContainer.end())
+    if (iter == std::end(iContainer))
     {
         return std::nullopt;
     } else
@@ -96,9 +96,9 @@ typename GpSet<T>::value_opt    GpSet<T>::ExtractNext (void) noexcept
 {
     std::scoped_lock lockRW(iLockRW);
 
-    auto iter = iContainer.begin();
+    auto iter = std::begin(iContainer);
 
-    if (iter == iContainer.end())
+    if (iter == std::end(iContainer))
     {
         return std::nullopt;
     } else
@@ -148,6 +148,6 @@ const typename GpSet<T>::underlying_container&  GpSet<T>::UnderlyingContainer (v
     return iContainer;
 }
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_CONTAINERS)
+#endif// #if defined(GP_USE_CONTAINERS)

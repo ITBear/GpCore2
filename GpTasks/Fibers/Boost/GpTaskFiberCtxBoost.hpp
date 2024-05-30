@@ -1,12 +1,11 @@
 #pragma once
 
-#include "../../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
 
-#if defined(GP_USE_MULTITHREADING)
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
 
-#include "../../../GpUtils/Macro/GpMacroWarnings.hpp"
+#include <GpCore2/GpUtils/Macro/GpMacroWarnings.hpp>
 
 GP_WARNING_PUSH()
 //GP_WARNING_DISABLE(shorten-64-to-32)
@@ -34,10 +33,10 @@ public:
                                         GpTaskFiberCtxBoost     (void) noexcept;
     virtual                             ~GpTaskFiberCtxBoost    (void) noexcept override final;
 
-    virtual std::optional<GpException>  Clear                   (void) noexcept override final;
+    virtual GpException::C::Opt         Clear                   (void) noexcept override final;
     virtual GpTaskRunRes::EnumT         Enter                   (GpTaskFiber& aTaskFiber) override final;
-    virtual void                        Yield                   (const GpTaskRunRes::EnumT aRunRes) override final;
-    virtual void                        Yield                   (const milliseconds_t aTimeout) override final;
+    virtual void                        CallYield               (const GpTaskRunRes::EnumT aRunRes) override final;
+    virtual void                        CallYield               (const milliseconds_t aTimeout) override final;
 
 private:
     static boost::context::fiber        SFiberFn                (boost::context::fiber&&    aFiber,
@@ -53,8 +52,7 @@ private:
     bool                                iIsCallStopInProgress = false;
 };
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
-#endif//#if defined(GP_USE_MULTITHREADING_FIBERS)
-#endif//#if defined(GP_USE_MULTITHREADING)
+#endif// #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
+#endif// #if defined(GP_USE_MULTITHREADING_FIBERS)

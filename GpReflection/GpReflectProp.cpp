@@ -1,7 +1,4 @@
 #include "GpReflectProp.hpp"
-#include "GpReflectManager.hpp"
-
-#if defined(GP_USE_REFLECTION)
 
 namespace GPlatform {
 
@@ -15,7 +12,7 @@ GpReflectProp::GpReflectProp
     const GpUUID            aModelUid,
     const ContainerTE       aContainer,
     const TypeTE            aContainerKeyType,
-    std::u8string&&         aName,
+    std::string&&           aName,
     const size_t            aAlign,
     const size_t            aSize,
     const std::ptrdiff_t    aOffset,
@@ -24,7 +21,8 @@ GpReflectProp::GpReflectProp
     GenFnOptT               aGenFn,
     ProcessCustomFnOptT     aConstructCustomFn,
     ProcessCustomFnOptT     aDestructCustomFn,
-    FromStringFnMapT&&      aFromStringFns
+    FromStringFnMapT&&      aFromStringFns,
+    const size_t            aIdxInProps
 ) noexcept:
 iType             (aType),
 iModelUid         (aModelUid),
@@ -39,7 +37,8 @@ iFlagArgs         (aFlagArgs),
 iGenFn            (aGenFn),
 iConstructCustomFn(aConstructCustomFn),
 iDestructCustomFn (aDestructCustomFn),
-iFromStringFns    (std::move(aFromStringFns))
+iFromStringFns    (std::move(aFromStringFns)),
+iIdxInProps       (aIdxInProps)
 {
 }
 
@@ -57,7 +56,8 @@ iFlagArgs         (aProp.iFlagArgs),
 iGenFn            (aProp.iGenFn),
 iConstructCustomFn(aProp.iConstructCustomFn),
 iDestructCustomFn (aProp.iDestructCustomFn),
-iFromStringFns    (aProp.iFromStringFns)
+iFromStringFns    (aProp.iFromStringFns),
+iIdxInProps       (aProp.iIdxInProps)
 {
 }
 
@@ -75,7 +75,8 @@ iFlagArgs         (std::move(aProp.iFlagArgs)),
 iGenFn            (std::move(aProp.iGenFn)),
 iConstructCustomFn(std::move(aProp.iConstructCustomFn)),
 iDestructCustomFn (std::move(aProp.iDestructCustomFn)),
-iFromStringFns    (std::move(aProp.iFromStringFns))
+iFromStringFns    (std::move(aProp.iFromStringFns)),
+iIdxInProps       (std::move(aProp.iIdxInProps))
 {
 }
 
@@ -99,6 +100,7 @@ GpReflectProp&  GpReflectProp::operator= (const GpReflectProp& aProp)
     iConstructCustomFn  = aProp.iConstructCustomFn;
     iDestructCustomFn   = aProp.iDestructCustomFn;
     iFromStringFns      = aProp.iFromStringFns;
+    iIdxInProps         = aProp.iIdxInProps;
 
     return *this;
 }
@@ -119,15 +121,27 @@ GpReflectProp&  GpReflectProp::operator= (GpReflectProp&& aProp) noexcept
     iConstructCustomFn  = std::move(aProp.iConstructCustomFn);
     iDestructCustomFn   = std::move(aProp.iDestructCustomFn);
     iFromStringFns      = std::move(aProp.iFromStringFns);
+    iIdxInProps         = std::move(aProp.iIdxInProps);
 
     return *this;
 }
 
-std::optional<std::u8string_view>   GpReflectProp::FlagArg (const GpReflectPropFlag::EnumT aFlag) const noexcept
+bool    GpReflectProp::IsEqual (const GpReflectProp& aProp) const noexcept
+{
+    return
+           (this->iType             == aProp.iType)
+        && (this->iModelUid         == aProp.iModelUid)
+        && (this->iContainer        == aProp.iContainer)
+        && (this->iContainerKeyType == aProp.iContainerKeyType)
+        && (this->iAlign            == aProp.iAlign)
+        && (this->iSize             == aProp.iSize);
+}
+
+std::optional<std::string_view> GpReflectProp::FlagArg (const GpReflectPropFlag::EnumT aFlag) const noexcept
 {
     auto iter = iFlagArgs.find(aFlag);
 
-    if (iter != iFlagArgs.end())
+    if (iter != std::end(iFlagArgs))
     {
         return iter->second;
     } else
@@ -136,31 +150,37 @@ std::optional<std::u8string_view>   GpReflectProp::FlagArg (const GpReflectPropF
     }
 }
 
-const GpReflectProp&    GpReflectProp::UnwrapContainerKeyProp (void) const
-{
-    //
-    THROW_COND_GP
-    (
-           (Container() != ContainerT::NO)
-        || (FlagTest(GpReflectPropFlag::UNWRAP_CONTAINER))
-        || (Type() == TypeT::OBJECT_SP),
-        [&](){return u8"Failed to get container key. Model UID "_sv + ModelUid();}
-    );
-
-    //
-    const GpReflectModel& model = GpReflectManager::S().Find(ModelUid());
-
-    //Find prop with flag GpReflectPropFlag::UNWRAP_CONTAINER_KEY
-    for (const auto& prop: model.Props())
-    {
-        if (prop.FlagTest(GpReflectPropFlag::UNWRAP_CONTAINER_KEY))
-        {
-            return prop;
-        }
-    }
-
-    THROW_GP(u8"No property with UNWRAP_CONTAINER_KEY flag was found for model UID "_sv + ModelUid());
-}
+//const GpReflectProp&  GpReflectProp::UnwrapContainerKeyProp (void) const
+//{
+//  //
+//  THROW_COND_GP
+//  (
+//         (Container() != ContainerT::NO)
+//      || (FlagTest(GpReflectPropFlag::UNWRAP_CONTAINER))
+//      || (Type() == TypeT::OBJECT_SP),
+//      [&]()
+//      {
+//          return fmt::format("Failed to get container key. Model UID '{}'", ModelUid());
+//      }
+//  );
+//
+//  //
+//  const GpReflectModel& model = GpReflectManager::S().Find(ModelUid());
+//
+//  //Find prop with flag GpReflectPropFlag::UNWRAP_CONTAINER_KEY
+//  for (const auto& prop: model.Props())
+//  {
+//      if (prop.FlagTest(GpReflectPropFlag::UNWRAP_CONTAINER_KEY))
+//      {
+//          return prop;
+//      }
+//  }
+//
+//  THROW_GP
+//  (
+//      fmt::format("No property with UNWRAP_CONTAINER_KEY flag was found for model UID '{}'", ModelUid())
+//  );
+//}
 
 bool    GpReflectProp::GenFn (void* aDataPtr) const
 {
@@ -175,14 +195,14 @@ bool    GpReflectProp::GenFn (void* aDataPtr) const
 
 bool    GpReflectProp::FromStringFn
 (
-    std::u8string_view  aFnName,
+    std::string_view    aFnName,
     void*               aDataPtr,
-    std::u8string_view  aStr
+    std::string_view    aStr
 ) const
 {
     auto iter = iFromStringFns.find(aFnName);
 
-    if (iter == iFromStringFns.end())
+    if (iter == std::end(iFromStringFns))
     {
         return false;
     }
@@ -194,7 +214,7 @@ bool    GpReflectProp::FromStringFn
 
 GpReflectProp&  GpReflectProp::AddFromStringFn
 (
-    std::u8string_view  aFnName,
+    std::string_view    aFnName,
     FromStringFnT       aFn
 )
 {
@@ -210,7 +230,7 @@ void    GpReflectProp::ConstructCustom (void* aDataPtr) const
         iConstructCustomFn.value()(PropPtr(aDataPtr));
     } else
     {
-        THROW_GP(u8"There are no custom construct function"_sv);
+        THROW_GP("There are no custom construct function");
     }
 }
 
@@ -221,10 +241,8 @@ void    GpReflectProp::DestructCustom (void* aDataPtr) const
         iDestructCustomFn.value()(PropPtr(aDataPtr));
     } else
     {
-        THROW_GP(u8"There are no custom destruct function"_sv);
+        THROW_GP("There are no custom destruct function");
     }
 }
 
-}//GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

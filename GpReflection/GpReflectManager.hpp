@@ -1,11 +1,10 @@
 #pragma once
 
-#include "../Config/GpConfig.hpp"
-
-#if defined(GP_USE_REFLECTION)
-
-#include "../GpUtils/Types/Containers/GpDictionary.hpp"
-#include "GpReflectModelSource.hpp"
+#include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpDictionary.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSpinLock.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
+#include <GpCore2/GpReflection/GpReflectModelSource.hpp>
 
 namespace GPlatform {
 
@@ -16,7 +15,7 @@ public:
     CLASS_DD(GpReflectManager)
     TAG_SET(THREAD_SAFE)
 
-    using ElementsT = GpDictionary<GpUUID, GpReflectModel::CSP>;
+    using ElementsT = GpDictionary<boost::container::flat_map<GpUUID, GpReflectModel::CSP>>;
 
 public:
                                     GpReflectManager    (void) noexcept;
@@ -27,10 +26,19 @@ public:
 
     void                            AddModelSource      (GpReflectModelSource::SP aSource);
 
-    const GpReflectModel&           Register            (const GpReflectModel& aModel);
-    const GpReflectModel&           Find                (const GpUUID& aModelUid);
+    void                            Register            (GpReflectModel::CSP aModelCSP);
+    [[nodiscard]] bool              TryRegister         (GpReflectModel::CSP aModelCSP);
+    GpReflectModel::CSP             Find                (const GpUUID& aModelUid);
+    GpReflectModel::C::Opt::CSP     FindOpt             (const GpUUID& aModelUid) noexcept;
+
     bool                            IsBaseOf            (const GpUUID& aBaseModelUid,
                                                          const GpUUID& aDerivedModelUid);
+    bool                            IsBaseOfNoEx        (const GpUUID& aBaseModelUid,
+                                                         const GpUUID& aDerivedModelUid) noexcept;
+    GpReflectModel::C::Opt::CRef    SelectBaseModel     (const GpReflectModel&  aModelA,
+                                                         const GpReflectModel&  aModelB);
+    GpUUID::C::Opt::Val             SelectBaseModel     (const GpUUID& aModelUidA,
+                                                         const GpUUID& aModelUidB);
 
     template<typename TO_SP, typename FROM_SP>
     [[nodiscard]] TO_SP             CastSP              (FROM_SP& aFrom);
@@ -42,7 +50,15 @@ public:
     [[nodiscard]] TO&               CastRef             (FROM& aFrom);
 
     template<typename TO, typename FROM>
+    [[nodiscard]] std::optional<std::reference_wrapper<TO>>
+                                    CastRefOpt          (FROM& aFrom) noexcept;
+
+    template<typename TO, typename FROM>
     [[nodiscard]] const TO&         CastCRef            (const FROM& aFrom);
+
+    template<typename TO, typename FROM>
+    [[nodiscard]] std::optional<std::reference_wrapper<const TO>>
+                                    CastCRefOpt         (FROM& aFrom) noexcept;
 
     template<typename TO, typename FROM> [[nodiscard]] static
     TO&                             SCastRef            (FROM& aFrom) {return S().CastRef<TO, FROM>(aFrom);}
@@ -51,13 +67,14 @@ public:
     const TO&                       SCastCRef           (const FROM& aFrom) {return S().CastCRef<TO, FROM>(aFrom);}
 
 private:
-    const GpReflectModel&           FromSources         (const GpUUID& aModelUid);
+    GpReflectModel::CSP             FromSources         (const GpUUID& aModelUid);
+    GpReflectModel::C::Opt::CSP     FromSourcesOpt      (const GpUUID& aModelUid);
 
 private:
     ElementsT                           iElements;
 
-    std::mutex                          iModelSourcesMutex;
-    GpReflectModelSource::C::Vec::SP    iModelSources;
+    mutable GpSpinLock                  iModelSourcesSpinLock;
+    GpReflectModelSource::C::Vec::SP    iModelSources       GUARDED_BY(iModelSourcesSpinLock);
 
     static GpReflectManager&            sInstance;
 };
@@ -67,8 +84,10 @@ template<typename TO_SP, typename FROM_SP>
 {
     using TO_VAL_T = typename TO_SP::value_type;
 
-    const GpReflectModel& fromModel = aFrom.V().ReflectModel();
-    const GpReflectModel& toModel   = TO_VAL_T::SReflectModel();
+    GpReflectModel::CSP     fromModelCSP    = aFrom->ReflectModel();
+    const GpReflectModel&   fromModel       = fromModelCSP.Vn();
+    GpReflectModel::CSP     toModelCSP      = TO_VAL_T::SReflectModel();
+    const GpReflectModel&   toModel         = toModelCSP.Vn();
 
     THROW_COND_GP
     (
@@ -79,9 +98,12 @@ template<typename TO_SP, typename FROM_SP>
         ),
         [&]()
         {
-            return
-                u8"Failed to cast object with type UID "_sv + fromModel.Uid()
-                + u8" to object with type UID "_sv + toModel.Uid();
+            return fmt::format
+            (
+                "Failed to cast object with type UID '{}' to object with type UID '{}'",
+                fromModel.Uid(),
+                toModel.Uid()
+            );
         }
     );
 
@@ -93,8 +115,10 @@ template<typename TO, typename FROM>
 {
     using TO_VAL_T = std::remove_cv_t<TO>;
 
-    const GpReflectModel& fromModel = aFrom.ReflectModel();
-    const GpReflectModel& toModel   = TO_VAL_T::SReflectModel();
+    GpReflectModel::CSP     fromModelCSP    = aFrom.ReflectModel();
+    const GpReflectModel&   fromModel       = fromModelCSP.Vn();
+    GpReflectModel::CSP     toModelCSP      = TO_VAL_T::SReflectModel();
+    const GpReflectModel&   toModel         = toModelCSP.Vn();
 
     THROW_COND_GP
     (
@@ -105,11 +129,39 @@ template<typename TO, typename FROM>
         ),
         [&]()
         {
-            return
-                u8"Failed to cast object with type UID "_sv + fromModel.Uid()
-                + u8" to object with type UID "_sv + toModel.Uid();
+            return fmt::format
+            (
+                "Failed to cast object with type UID '{}' to object with type UID '{}'",
+                fromModel.Uid(),
+                toModel.Uid()
+            );
         }
     );
+
+    return static_cast<TO&>(aFrom);
+}
+
+template<typename TO, typename FROM>
+[[nodiscard]] std::optional<std::reference_wrapper<TO>> GpReflectManager::CastRefOpt (FROM& aFrom) noexcept
+{
+    using TO_VAL_T = std::remove_cv_t<TO>;
+
+
+    GpReflectModel::CSP     fromModelCSP    = aFrom.ReflectModel();
+    const GpReflectModel&   fromModel       = fromModelCSP.Vn();
+    GpReflectModel::CSP     toModelCSP      = TO_VAL_T::SReflectModel();
+    const GpReflectModel&   toModel         = toModelCSP.Vn();
+
+    const bool isBase = IsBaseOfNoEx
+    (
+        toModel.Uid(),
+        fromModel.Uid()
+    );
+
+    if (!isBase) [[unlikely]]
+    {
+        return std::nullopt;
+    }
 
     return static_cast<TO&>(aFrom);
 }
@@ -119,8 +171,10 @@ template<typename TO, typename FROM>
 {
     using TO_VAL_T = std::remove_cv_t<TO>;
 
-    const GpReflectModel& fromModel = aFrom.ReflectModel();
-    const GpReflectModel& toModel   = TO_VAL_T::SReflectModel();
+    GpReflectModel::CSP     fromModelCSP    = aFrom.ReflectModel();
+    const GpReflectModel&   fromModel       = fromModelCSP.Vn();
+    GpReflectModel::CSP     toModelCSP      = TO_VAL_T::SReflectModel();
+    const GpReflectModel&   toModel         = toModelCSP.Vn();
 
     THROW_COND_GP
     (
@@ -131,15 +185,40 @@ template<typename TO, typename FROM>
         ),
         [&]()
         {
-            return
-                u8"Failed to cast object with type UID "_sv + fromModel.Uid()
-                + u8" to object with type UID "_sv + toModel.Uid();
+            return fmt::format
+            (
+                "Failed to cast object with type UID '{}' to object with type UID '{}'",
+                fromModel.Uid(),
+                toModel.Uid()
+            );
         }
     );
 
     return static_cast<const TO&>(aFrom);
 }
 
-}//GPlatform
+template<typename TO, typename FROM>
+[[nodiscard]] std::optional<std::reference_wrapper<const TO>>   GpReflectManager::CastCRefOpt (FROM& aFrom) noexcept
+{
+    using TO_VAL_T = std::remove_cv_t<TO>;
 
-#endif//GP_USE_REFLECTION
+    GpReflectModel::CSP     fromModelCSP    = aFrom.ReflectModel();
+    const GpReflectModel&   fromModel       = fromModelCSP.Vn();
+    GpReflectModel::CSP     toModelCSP      = TO_VAL_T::SReflectModel();
+    const GpReflectModel&   toModel         = toModelCSP.Vn();
+
+    const bool isBase = IsBaseOfNoEx
+    (
+        toModel.Uid(),
+        fromModel.Uid()
+    );
+
+    if (!isBase) [[unlikely]]
+    {
+        return std::nullopt;
+    }
+
+    return static_cast<const TO&>(aFrom);
+}
+
+}// namespace GPlatform

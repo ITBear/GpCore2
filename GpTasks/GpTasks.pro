@@ -1,29 +1,35 @@
+# ----------- Config -----------
 TEMPLATE        = lib
-#CONFIG         += staticlib
-VER_MAJ		    = 2
-VER_MIN		    = 1
-VER_PAT		    = 4
-QMAKE_CXXFLAGS += -DGP_MODULE_UUID=8124a79f-f6fd-4fa8-6a92-b6727a037ddb
+#CONFIG        += staticlib
 QMAKE_CXXFLAGS += -DGP_REFLECTION_STATIC_ADD_TO_MANAGER
+QMAKE_CXXFLAGS += -DGP_MODULE_UUID=8124a79f-f6fd-4fa8-6a92-b6727a037ddb
 PACKET_NAME     = GpTasks
+DEFINES        += GP_TASKS_LIBRARY
+_VER_MAJ        = 2
+_VER_MIN        = 1
+_VER_PAT        = 5
 DIR_LEVEL       = ./../..
 
-DEFINES        += GP_TASKS_LIBRARY
-DEFINES        += "GP_CURRENT_LIB_VER_MAJ=\\\"$$VER_MAJ\\\""
-DEFINES        += "GP_CURRENT_LIB_VER_MIN=\\\"$$VER_MIN\\\""
-DEFINES        += "GP_CURRENT_LIB_VER_PAT=\\\"$$VER_PAT\\\""
-DEFINES        += "GP_CURRENT_LIB_PACKET_NAME=\\\"$$PACKET_NAME\\\""
+include($$DIR_LEVEL/../QtGlobalPro.pri)
 
-include(../../../QtGlobalPro.pri)
-
-#------------------------------ LIBS BEGIN ---------------------------------
+# ----------- Libraries -----------
 os_windows{
+	LIBS += -lGpUtils$$TARGET_POSTFIX
+
+	QMAKE_LFLAGS += /NODEFAULTLIB:libboost_fiber-vc143-mt-x64-1_84
+	QMAKE_LFLAGS += /NODEFAULTLIB:libboost_fiber-vc143-mt-gd-x64-1_84
+	QMAKE_LFLAGS += /NODEFAULTLIB:boost_fiber-vc143-mt-gd-x64-1_84
+	LIBS +=  -lboost_fiber-vc143-mt-x64-1_84
+	QMAKE_LFLAGS += /NODEFAULTLIB:libboost_context-vc143-mt-x64-1_84
+	QMAKE_LFLAGS += /NODEFAULTLIB:libboost_context-vc143-mt-gd-x64-1_84
+	QMAKE_LFLAGS += /NODEFAULTLIB:boost_context-vc143-mt-gd-x64-1_84
+	LIBS += -lboost_context-vc143-mt-x64-1_84
 }
 
 os_linux{
 }
-#------------------------------- LIBS END ----------------------------------
 
+# ----------- Sources and headers -----------
 SOURCES += \
 	Fibers/Boost/GpStackImplPoolBoost.cpp \
 	Fibers/Boost/GpTaskFiberCtxBoost.cpp \
@@ -33,7 +39,8 @@ SOURCES += \
     Fibers/GpTaskFiberCtxForceUnwind.cpp \
     GpTask.cpp \
     GpTaskEnums.cpp \
-    GpTaskPayloadStorage.cpp \
+	GpTaskGroupsManager.cpp \
+	GpTaskLib.cpp \
 	GpTaskThread.cpp \
     ITC/GpItcSharedCondition.cpp \
     Scheduler/GpTaskScheduler.cpp \
@@ -55,7 +62,8 @@ HEADERS += \
     GpTask.hpp \
     GpTaskEnums.hpp \
     GpTaskFactory.hpp \
-    GpTaskPayloadStorage.hpp \
+	GpTaskGroupsManager.hpp \
+	GpTaskLib.hpp \
 	GpTaskThread.hpp \
     GpTasks_global.hpp \
     ITC/GpItcResult.hpp \
@@ -63,6 +71,7 @@ HEADERS += \
 	ITC/GpItcSharedFuture.hpp \
 	ITC/GpItcSharedPromise.hpp \
     ITC/GpItcSharedQueue.hpp \
+	Scheduler/GpTaskExecutor.hpp \
     Scheduler/GpTaskScheduler.hpp \
     Scheduler/GpTaskSchedulerFactory.hpp \
 	GpTaskVarStorage.hpp \

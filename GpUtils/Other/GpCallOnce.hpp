@@ -30,4 +30,4 @@ private:
     bool            iIsFirstCall = true;
 };
 
-}//GPlatform
+}// namespace GPlatform

@@ -1,12 +1,11 @@
 #pragma once
 
-#include "../Config/GpConfig.hpp"
-
-#if defined(GP_USE_REFLECTION)
+#include <GpCore2/Config/GpConfig.hpp>
 
 #include "GpReflection_global.hpp"
-#include "../GpUtils/Types/Enums/GpEnum.hpp"
-#include "../GpUtils/Types/Strings/GpStringOps.hpp"
+
+#include <GpCore2/GpUtils/Types/Enums/GpEnum.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
 namespace GPlatform {
 
@@ -24,6 +23,4 @@ GP_ENUM(GP_REFLECTION_API, GpReflectPropFlag,
 
 using GpReflectPropFlags = GpEnumFlagsST<GpReflectPropFlag>;
 
-}//GPlatform
-
-#endif//GP_USE_REFLECTION
+}// namespace GPlatform

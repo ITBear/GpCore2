@@ -6,67 +6,63 @@
 #include "../Types/Strings/GpStringOps.hpp"
 #include "../Types/Strings/GpStringUtils.hpp"
 
+#if defined(GP_PRINT_EXCEPTIONS_STACKTRACE)
+#   include "../Debugging/GpStackTrace.hpp"
+#endif// #if defined(GP_PRINT_EXCEPTIONS_STACKTRACE)
+
 #if defined(GP_POSIX)
 #   include <signal.h>
 #   include <execinfo.h>
 #endif//
 
-namespace GPlatform{
+namespace GPlatform {
+
+GP_WARNING_PUSH()
+
+#if defined(GP_OS_WINDOWS)
+#   pragma warning(disable : 4297)
+#endif// #if defined(GP_OS_WINDOWS)
 
 GpException::GpException
 (
-    std::u8string_view      aMsg,
+    std::string_view        aMsg,
     const SourceLocationT&  aSourceLocation
 ) noexcept
 try
 {
+    std::optional<std::string> stackTraceStrOpt;
+
 #if defined(GP_PRINT_EXCEPTIONS_STACKTRACE)
-    std::u8string stackTraceStr;
-    stackTraceStr.reserve(512);
-    stackTraceStr.append(u8"\nStack trace:");
+    stackTraceStrOpt = GpStackTrace::STaceToStr();
+#endif// #if defined(GP_PRINT_EXCEPTIONS_STACKTRACE)
 
-#   if defined(GP_POSIX)
-    void*       ptrs[100];
-    const int   size = backtrace(ptrs, 100);
-
-    char** stackTracePtrs = backtrace_symbols(ptrs, size);
-
-    for (int id = 0; id < size; id++)
-    {
-        stackTraceStr
-            .append(u8"\n    [")
-            .append(StrOps::SToString(size - id))
-            .append(u8"]: ")
-            .append(GpUTF::S_As_UTF8(stackTracePtrs[id]));
-    }
-
-    std::free(stackTracePtrs);
-#   else
-#       error Unsupported platform
-#   endif//
-
-    auto res = GpExceptionUtils::SToString(aMsg, aSourceLocation, GpExceptionUtils::ExceptionType::GP, stackTraceStr);
-#else
-    auto res = GpExceptionUtils::SToString(aMsg, aSourceLocation, GpExceptionUtils::ExceptionType::GP, std::nullopt);
-#endif//#if defined(GP_PRINT_EXCEPTIONS_STACKTRACE)
+    auto res = GpExceptionUtils::SToString
+    (
+        aMsg,
+        aSourceLocation,
+        GpExceptionUtils::ExceptionType::GP,
+        stackTraceStrOpt
+    );
 
     iWhat           = std::move(res.fullMessage);
     iMsg            = std::move(res.message);
     iSourceLocation = aSourceLocation;
 } catch(const std::exception& ex)
 {
-    GpStringUtils::SCerr(u8"[GpException::GpException]: "_sv + ex.what());
+    GpStringUtils::SCerr("[GpException::GpException]: "_sv + ex.what());
     std::terminate();
 } catch(...)
 {
-    GpStringUtils::SCerr(u8"[GpException::GpException]: unknown exception"_sv);
+    GpStringUtils::SCerr("[GpException::GpException]: unknown exception"_sv);
     std::terminate();
 }
+
+GP_WARNING_POP()
 
 GpException::~GpException (void) noexcept
 {
 }
 
-}//GPlatform
+}// namespace GPlatform
 
-#endif//#if defined(GP_USE_EXCEPTIONS)
+#endif// #if defined(GP_USE_EXCEPTIONS)

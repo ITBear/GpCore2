@@ -17,8 +17,9 @@
 #elif defined(GP_COMPILER_GCC)
 #   define _R_ __restrict
 #   define BUILTIN_OVERFLOW_CONSTEXPR
-#elif defined(GP_COMPILER_MSVS)
+#elif defined(GP_COMPILER_MSVC)
 #   define _R_ __restrict
+#   define BUILTIN_OVERFLOW_CONSTEXPR
 #else
 #   error Unknown compiler
 #endif

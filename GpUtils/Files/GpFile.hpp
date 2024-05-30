@@ -1,8 +1,14 @@
 #pragma once
 
-#include "../../Config/GpConfig.hpp"
+#include <GpCore2/Config/GpConfig.hpp>
+
+#include "../Macro/GpMacroWarnings.hpp"
 
 #if defined(GP_USE_FILE_UTILS)
+
+#if defined(GP_OS_WINDOWS)
+#   include <GpCore2/Config/IncludeExt/windows.hpp>
+#endif// #if defined(GP_OS_WINDOWS)
 
 #include "../Types/Enums/GpEnum.hpp"
 #include "../Types/Units/Other/size_byte_t.hpp"
@@ -32,7 +38,7 @@ public:
 #if defined(GP_POSIX)
     using HandlerT  = int;
 #elif defined(GP_OS_WINDOWS)
-    using HandlerT  = HFILE;
+    using HandlerT  = HANDLE;
 #endif
 
 public:
@@ -41,7 +47,7 @@ public:
 
     HandlerT            Handler         (void) noexcept {return iHandler;}
 
-    void                Open            (std::u8string_view aName,
+    void                Open            (std::string_view   aName,
                                          const GpFileFlags  aFlags);
     bool                IsOpen          (void) const noexcept {return iHandler != HandlerT();}
     void                Close           (void) noexcept;
@@ -53,13 +59,13 @@ public:
     size_byte_t         GoToEndPos      (void);
     size_byte_t         CurrentPos      (void) const;
 
-    void                Write           (GpSpanPtrByteR     aData);
-    void                Read            (GpSpanPtrByteRW    aData);
+    void                Write           (GpSpanByteR    aData);
+    void                Read            (GpSpanByteRW   aData);
 
 private:
-    HandlerT            iHandler = HandlerT();
+    HandlerT            iHandler = HandlerT{};
 };
 
-}//namespace GPlatform
+}// namespace GPlatform
 
-#endif//GP_USE_FILE_UTILS
+#endif// GP_USE_FILE_UTILS
