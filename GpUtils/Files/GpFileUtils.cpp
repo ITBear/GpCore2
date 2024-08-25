@@ -1,7 +1,5 @@
-#include "GpFileUtils.hpp"
-#include "GpFile.hpp"
-#include "../Exceptions/GpException.hpp"
-#include "../Types/Strings/GpStringOps.hpp"
+#include <GpCore2/GpUtils/Files/GpFileUtils.hpp>
+#include <GpCore2/GpUtils/Files/GpFile.hpp>
 
 #if defined(GP_USE_FILE_UTILS)
 
@@ -98,6 +96,11 @@ void    GpFileUtils::SCopy
 bool    GpFileUtils::SIsExists (std::string_view aFileName)
 {
     return std::filesystem::exists(aFileName);
+}
+
+size_byte_t GpFileUtils::SSize (std::string_view aFileName)
+{
+    return size_byte_t::SMake(NumOps::SConvert<u_int_64>(std::filesystem::file_size(aFileName)));
 }
 
 }// namespace GPlatform

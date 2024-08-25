@@ -2,6 +2,9 @@
 
 namespace GPlatform {
 
+#define CLASS_REMOVE_CTRS_DEFAULT(NAME) \
+            NAME        (void) noexcept = delete;
+
 #define CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(NAME) \
             NAME        (void) noexcept = delete;\
             NAME        (NAME&&) noexcept = delete;\

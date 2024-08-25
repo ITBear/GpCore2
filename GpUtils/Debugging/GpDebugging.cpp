@@ -1,8 +1,8 @@
-#include "GpDebugging.hpp"
+#include <GpCore2/GpUtils/Debugging/GpDebugging.hpp>
 
 #if defined(DEBUG_BUILD)
 
-#include "../Exceptions/GpException.hpp"
+#include <GpCore2/GpUtils/Exceptions/GpException.hpp>
 
 #if defined(GP_COMPILER_MSVC)
 #   include <intrin.h>

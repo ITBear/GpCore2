@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-//namespace std {
+// namespace std {
 //   template <class> struct result_of;
 //   template <class F, class... TN> struct result_of<F(TN...)>
 //   {

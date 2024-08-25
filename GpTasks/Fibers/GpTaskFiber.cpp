@@ -1,8 +1,8 @@
-#include "GpTaskFiber.hpp"
+#include <GpCore2/GpTasks/Fibers/GpTaskFiber.hpp>
+#include <GpService/GpServiceMainTask.hpp>
 
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
-#include <iostream>
 #include <GpCore2/GpUtils/Debugging/GpDebugging.hpp>
 
 GP_WARNING_PUSH()
@@ -15,8 +15,8 @@ GP_WARNING_PUSH()
 
 GP_WARNING_POP()
 
-#include "GpTaskFiberCtxFactory.hpp"
-#include "GpTaskFiberCtxForceUnwind.hpp"
+#include <GpCore2/GpTasks/Fibers/GpTaskFiberCtxFactory.hpp>
+#include <GpCore2/GpTasks/Fibers/GpTaskFiberCtxForceUnwind.hpp>
 
 namespace GPlatform {
 
@@ -88,16 +88,16 @@ GpTaskRunRes::EnumT GpTaskFiber::Run (void) noexcept
         ex = e;
     } catch (const std::exception& e)
     {
-        ex = GpException(e.what());
+        ex = GpException{e.what()};
     } catch (...)
     {
-        ex = GpException("[GpTaskFiber::Run]: unknown exception"_sv);
+        ex = GpException{"[GpTaskFiber::Run]: unknown exception"_sv};
     }
 
     // Check if there are was exception
     if (ex.has_value())
     {
-        GpStringUtils::SCerr(ex->what());
+        //GpStringUtils::SCerr(ex->what());
         res = GpTaskRunRes::DONE;
 
         GpException::C::Opt clearExOpt = ClearCtx();
@@ -121,8 +121,8 @@ GpTaskRunRes::EnumT GpTaskFiber::Run (void) noexcept
             DonePromise().Fulfill(clearExOpt.value());
         } else
         {
-            StartPromise().Fulfill(GpAny{});
-            DonePromise().Fulfill(GpAny{});
+            StartPromise().Fulfill(StartPromiseRes{});
+            DonePromise().Fulfill(DonePromiseRes{});
         }
     }
 
@@ -131,50 +131,65 @@ GpTaskRunRes::EnumT GpTaskFiber::Run (void) noexcept
 
 GpTaskRunRes::EnumT GpTaskFiber::FiberRun (GpMethodAccessGuard<GpTaskFiberCtx>)
 {
+    GpException::C::Opt ex;
+
+    // --------------- Call start, do step ------------------
     try
-    {       
-        // Check if OnStart was called
+    {
+        // Call start
         if (!iIsStartCalled) [[unlikely]]
         {
             OnStart();
 
             iIsStartCalled = true;
-            StartPromise().Fulfill(GpAny{});
+            StartPromise().Fulfill(StartPromiseRes{});
         }
 
         // Do Step
         const GpTaskRunRes::EnumT res = OnStep();
 
-        if (res == GpTaskRunRes::DONE) [[unlikely]]
-        {           
-            CallOnStop(GpMethodAccess<GpTaskFiber>{this});
+        if (res != GpTaskRunRes::DONE) [[likely]]
+        {
+            return res;
         }
-
-        return res;
+    } catch (const GpException& e)
+    {
+        ex = GpException{e};
+    } catch (const std::exception& e)
+    {
+        ex = GpException{e.what()};
     } catch (...)
     {
-        CallOnStop(GpMethodAccess<GpTaskFiber>{this});
-        throw;      
+        ex = GpException{"[GpTaskFiber::FiberRun]: unknown exception"_sv};
     }
 
-    // Will never reach here
+    // --------------- Call stop ------------------
+    CallOnStop(GpMethodAccess<GpTaskFiber>{this});
+
+    if (ex.has_value())
+    {
+        OnStopException(ex.value());
+        throw ex.value();
+    }
+
     return GpTaskRunRes::DONE;
 }
 
-void    GpTaskFiber::CallOnStop (GpMethodAccessGuard<GpTaskFiber, GpTaskFiberCtx>)
+void    GpTaskFiber::CallOnStop (GpMethodAccessGuard<GpTaskFiber, GpTaskFiberCtx>) noexcept
 {
     if (iIsStopCalled)
     {
         return;
     }
 
-    GpException::C::Opt stopExOpt = OnStop();
-    if (stopExOpt.has_value())
-    {
-        throw stopExOpt.value();
-    }
-
     iIsStopCalled = true;
+    GpTaskFiber::StopExceptionsT stopExceptions;
+    OnStop(stopExceptions);
+
+    for (const GpException& ex: stopExceptions)
+    {
+        OnStopException(ex);
+    }
 }
 
 GpException::C::Opt GpTaskFiber::ClearCtx (void) noexcept
@@ -193,15 +208,12 @@ GpException::C::Opt GpTaskFiber::ClearCtx (void) noexcept
     } catch (const GpException& e)
     {
         ex = e;
-        GpStringUtils::SCerr(ex->what());
     } catch (const std::exception& e)
     {
-        ex = GpException(e.what());
-        GpStringUtils::SCerr(ex->what());
+        ex = GpException{e.what()};
     } catch (...)
     {
-        ex = GpException("[GpTaskFiber::ClearCtx]: unknown exception"_sv);
-        GpStringUtils::SCerr(ex->what());
+        ex = GpException{"[GpTaskFiber::ClearCtx]: unknown exception"_sv};
     }
 
     return ex;

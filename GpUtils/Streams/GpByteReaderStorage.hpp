@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../GpUtils_global.hpp"
-#include "../Types/Containers/GpBytesArray.hpp"
+#include <GpCore2/GpUtils/GpUtils_global.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpBytesArray.hpp>
 
 namespace GPlatform {
 
@@ -24,7 +24,7 @@ protected:
 };
 
 GpByteReaderStorage::GpByteReaderStorage (GpSpanByteR aStoragePtr) noexcept:
-iStoragePtr(aStoragePtr)
+iStoragePtr{aStoragePtr}
 {
 }
 
@@ -45,7 +45,7 @@ inline size_t   GpByteReaderStorage::TotalRead (void) const noexcept
 
 GpSpanByteR GpByteReaderStorage::Read (const size_t aSize)
 {
-    GpSpanByteR res = iStoragePtr.SubspanBegin(0, aSize);
+    GpSpanByteR res = iStoragePtr.Subspan(0, aSize);
     iStoragePtr.OffsetAdd(aSize);
 
     iTotalRead = NumOps::SAdd(iTotalRead, aSize);

@@ -5,7 +5,7 @@
 #include "../GpReflection_global.hpp"
 #include "GpReflectDiffArray.hpp"
 
-#include <string>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
 namespace GPlatform {
 

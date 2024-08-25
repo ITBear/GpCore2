@@ -3,7 +3,7 @@
 #include "../GpUtils_global.hpp"
 #include "../Macro/GpMacroClass.hpp"
 
-#include <string>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
 namespace GPlatform {
 

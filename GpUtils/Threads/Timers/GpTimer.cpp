@@ -1,12 +1,32 @@
-#include "GpTimer.hpp"
+#include <GpCore2/GpUtils/Threads/Timers/GpTimer.hpp>
 
 #if defined(GP_USE_TIMERS)
 
-#include "../../DateTime/GpDateTimeOps.hpp"
-#include "../../Types/Strings/GpStringUtils.hpp"
-#include "../../Types/Strings/GpStringOps.hpp"
+#include <GpCore2/GpUtils/DateTime/GpDateTimeOps.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
 namespace GPlatform {
+
+GpTimer::GpTimer (void) noexcept
+{
+}
+
+GpTimer::GpTimer
+(
+    CallbackFnT&&           aCallbackFn,
+    const milliseconds_t    aPeriod,
+    const milliseconds_t    aDelayBeforeFirstShot,
+    const u_int_64          aShotsMaxCount,
+    const bool              aIsReturnToPool
+) noexcept:
+iCallbackFn          {std::move(aCallbackFn)},
+iPeriod              {aPeriod},
+iDelayBeforeFirstShot{aDelayBeforeFirstShot},
+iShotsMaxCount       {aShotsMaxCount},
+iIsReturnToPool      {aIsReturnToPool}
+{
+}
 
 GpTimer::~GpTimer (void) noexcept
 {
@@ -14,7 +34,7 @@ GpTimer::~GpTimer (void) noexcept
 
 void    GpTimer::Start (void)
 {
-    std::scoped_lock lock(iLock);
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
     if (iIsStarted)
     {
@@ -29,13 +49,46 @@ void    GpTimer::Start (void)
     iShotsCount = 0;
 }
 
+bool    GpTimer::Stop (void)
+{
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+    if (iIsStarted)
+    {
+        iIsStarted = false;
+        return true;
+    }
+
+    return false;
+}
+
+void    GpTimer::Reload
+(
+    CallbackFnT&&           aCallbackFn,
+    const milliseconds_t    aPeriod,
+    const milliseconds_t    aDelayBeforeFirstShot,
+    const u_int_64          aShotsMaxCount,
+    const bool              aIsReturnToPool
+)
+{
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+    iIsStarted = false;
+
+    iCallbackFn             = std::move(aCallbackFn);
+    iPeriod                 = aPeriod;
+    iDelayBeforeFirstShot   = aDelayBeforeFirstShot;
+    iShotsMaxCount          = aShotsMaxCount;
+    iIsReturnToPool         = aIsReturnToPool;
+}
+
 GpTimer::ShotRes    GpTimer::TryMakeShot (void) noexcept
 {
     try
     {
-        std::shared_lock lock(iLock);
+        GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
-        const TestRes testRes = IsReadyToShot();
+        const TestRes testRes = _IsReadyToShot();
 
         if (std::get<1>(testRes) == true)
         {
@@ -64,10 +117,10 @@ GpTimer::ShotRes    GpTimer::TryMakeShot (void) noexcept
     return GpTimer::ShotRes::REMOVE;
 }
 
-GpTimer::TestRes    GpTimer::IsReadyToShot (void) const noexcept
+GpTimer::TestRes    GpTimer::_IsReadyToShot (void) const noexcept
 {
     // Check shots limit
-    if (IsShotsLimited())
+    if (_IsShotsLimited())
     {
         if (iShotsCount >= iShotsMaxCount)
         {

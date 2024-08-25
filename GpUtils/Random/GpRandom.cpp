@@ -1,4 +1,5 @@
-#include "GpRandom.hpp"
+#include <GpCore2/GpUtils/Random/GpRandom.hpp>
+#include <GpCore2/GpUtils/Streams/GpByteWriterStorageFixedSize.hpp>
 
 #if defined(GP_USE_RANDOM_GENERATORS)
 
@@ -124,7 +125,7 @@ float   GpRandom::Float
     const float aMax
 ) noexcept
 {
-    return float(Double(double(aMin), double(aMax)));
+    return static_cast<float>(Double(double(aMin), double(aMax)));
 }
 
 std::string     GpRandom::String
@@ -146,6 +147,55 @@ std::string     GpRandom::String
     }
 
     return res;
+}
+
+GpBytesArray    GpRandom::BytesArray (const size_t aSize)
+{
+    GpBytesArray res;
+    res.resize(aSize);
+
+    GpByteWriterStorageFixedSize    writerStorage{res};
+    GpByteWriter                    writer{writerStorage};
+
+    BytesArray(writer, aSize);
+
+    return res;
+}
+
+void    GpRandom::BytesArray (GpSpanByteRW aSpanByteRW)
+{
+    GpByteWriterStorageFixedSize    writerStorage{aSpanByteRW};
+    GpByteWriter                    writer{writerStorage};
+
+    BytesArray(writer, aSpanByteRW.SizeInBytes());
+}
+
+void    GpRandom::BytesArray
+(
+    GpByteWriter&   aDataWriter,
+    const size_t    aSize
+)
+{
+    GpSpanByteRW    dataSpan    = aDataWriter.SubspanThenOffsetAdd(aSize);
+    std::byte* _R_  dataPtr     = reinterpret_cast<std::byte*>(dataSpan.Ptr());
+
+    // 8 byte parts
+    const size_t ui64PartsCount = aSize / sizeof(u_int_64);
+
+    for (size_t id = 0; id < ui64PartsCount; id++)
+    {
+        const u_int_64 v = UI64();
+        std::memcpy(dataPtr, &v, sizeof(v));
+        dataPtr += sizeof(v);
+    }
+
+    // 1 byte parts
+    const size_t ui8PartsCount = aSize - (ui64PartsCount * sizeof(u_int_64));
+
+    for (size_t id = 0; id < ui8PartsCount; id++)
+    {
+        *dataPtr++ = std::byte{UI8()};
+    }
 }
 
 }// namespace GPlatform

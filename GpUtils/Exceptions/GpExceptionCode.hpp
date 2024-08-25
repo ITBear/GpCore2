@@ -4,8 +4,8 @@
 
 #if defined(GP_USE_EXCEPTIONS)
 
-#include "GpException.hpp"
-#include "../Types/Enums/GpEnum.hpp"
+#include <GpCore2/GpUtils/Exceptions/GpException.hpp>
+#include <GpCore2/GpUtils/Types/Enums/GpEnum.hpp>
 
 namespace GPlatform {
 
@@ -32,12 +32,12 @@ protected:
 };
 
 GpExceptionCode::GpExceptionCode (const GpExceptionCode& aException):
-GpException(aException)
+GpException{aException}
 {
 }
 
 GpExceptionCode::GpExceptionCode (GpExceptionCode&& aException):
-GpException(std::move(aException))
+GpException{std::move(aException)}
 {
 }
 
@@ -70,14 +70,14 @@ private: \
 }; \
  \
 NAME::NAME (const NAME& aException): \
-GpExceptionCode(aException), \
-iCode(aException.iCode) \
+GpExceptionCode{aException}, \
+iCode{aException.iCode} \
 { \
 } \
  \
 NAME::NAME (NAME&& aException): \
-GpExceptionCode(std::move(aException)), \
-iCode(std::move(aException.iCode)) \
+GpExceptionCode{std::move(aException)}, \
+iCode{std::move(aException.iCode)} \
 { \
 } \
  \
@@ -87,8 +87,8 @@ NAME::NAME \
     std::string_view        aMsg, \
     const SourceLocationT&  aSourceLocation \
 ) noexcept: \
-GpExceptionCode(aMsg, aSourceLocation), \
-iCode(aCode) \
+GpExceptionCode{aMsg, aSourceLocation}, \
+iCode{aCode} \
 { \
 } \
  \

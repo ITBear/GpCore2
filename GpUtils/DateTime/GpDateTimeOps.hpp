@@ -4,11 +4,10 @@
 
 #if defined(GP_USE_DATE_TIME)
 
-#include "../Types/Units/SI/GpUnitsSI_Time.hpp"
-#include "../Types/Units/Other/unix_ts_t.hpp"
-#include "GpDateTimeFormat.hpp"
-
 #include <GpCore2/Config/IncludeExt/fmt.hpp>
+#include <GpCore2/GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp>
+#include <GpCore2/GpUtils/Types/Units/Other/unix_ts_t.hpp>
+#include <GpCore2/GpUtils/DateTime/GpDateTimeFormat.hpp>
 
 namespace GPlatform {
 
@@ -29,9 +28,9 @@ public:
     static unix_ts_s_t      SUnixTsFromStr_s        (std::string_view   aStr,
                                                      std::string_view   aFormat);
     static unix_ts_ms_t     SUnixTsFromStr_ms       (std::string_view   aStr,
-                                                     const FormatTE     aFormat);
+                                                     FormatTE           aFormat);
     static unix_ts_s_t      SUnixTsFromStr_s        (std::string_view   aStr,
-                                                     const FormatTE     aFormat);
+                                                     FormatTE           aFormat);
 
     static microseconds_t   SSteadyTS_us            (void) noexcept;
     static milliseconds_t   SSteadyTS_ms            (void) noexcept;
@@ -42,14 +41,16 @@ public:
 
     static microseconds_t   SHighResTS_us           (void) noexcept;
 
-    static std::string      SUnixTsToStr            (const unix_ts_ms_t aTs,
+    static std::string      SUnixTsToStr            (unix_ts_ms_t       aTs,
                                                      std::string_view   aFormat);
-    static std::string      SUnixTsToStr            (const unix_ts_s_t  aTs,
+    static std::string      SUnixTsToStr            (unix_ts_s_t        aTs,
                                                      std::string_view   aFormat);
-    static std::string      SUnixTsToStr            (const unix_ts_ms_t aTs,
-                                                     const FormatTE     aFormat);
-    static std::string      SUnixTsToStr            (const unix_ts_s_t  aTs,
-                                                     const FormatTE     aFormat);
+    static std::string      SUnixTsToStr            (unix_ts_ms_t       aTs,
+                                                     FormatTE           aFormat);
+    static std::string      SUnixTsToStr            (unix_ts_s_t        aTs,
+                                                     FormatTE           aFormat);
+
+    static std::string      SToDaysHoursMinSec      (milliseconds_t aDuration);
 
 private:
     static const microseconds_t                                         sStartSteadyTSus;
@@ -61,7 +62,7 @@ private:
 
 // ------------------------------------ fmt ------------------------------------
 
-namespace fmt {
+namespace FMT_NAMESPASE {
 
 using namespace GPlatform;
 

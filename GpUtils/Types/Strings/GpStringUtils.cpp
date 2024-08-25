@@ -1,5 +1,4 @@
-#include "GpStringUtils.hpp"
-#include "GpUTF.hpp"
+#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
 
 #if defined(GP_USE_STRINGS)
 

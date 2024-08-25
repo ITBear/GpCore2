@@ -4,12 +4,12 @@
 
 #if defined(GP_USE_CONTAINERS)
 
-#include "../../SyncPrimitives/GpSpinLockRW.hpp"
-#include "../../SyncPrimitives/GpMutex.hpp"
-#include "../../SyncPrimitives/GpSharedMutex.hpp"
-#include "../../Macro/GpMacroTags.hpp"
-#include "../../Types/Strings/GpStringLiterals.hpp"
-#include "../../Exceptions/GpException.hpp"
+#include <GpCore2/GpUtils/SyncPrimitives/GpSpinLockRW.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSharedMutex.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringLiterals.hpp>
+#include <GpCore2/GpUtils/Exceptions/GpException.hpp>
 
 #include <mutex>
 #include <queue>
@@ -41,8 +41,8 @@ public:
                                         GpElementsPool          (void) noexcept;
     virtual                             ~GpElementsPool         (void) noexcept;
 
-    void                                Init                    (const size_t aInitCount,
-                                                                 const size_t aMaxCount);
+    void                                Init                    (size_t aInitCount,
+                                                                 size_t aMaxCount);
     void                                Clear                   (void) noexcept;
 
     std::optional<value_type>           Acquire                 (void);
@@ -54,7 +54,7 @@ public:
     bool                                IsInit                  (void) const noexcept;
 
 protected:
-    virtual void                        PreInit                 (const size_t aCount);
+    virtual void                        PreInit                 (size_t aCount);
     virtual value_type                  NewElement              (void);
     virtual void                        OnClear                 (void) noexcept;
     virtual bool                        Validate                (value_type& aElement) noexcept;

@@ -3,51 +3,40 @@
 
 namespace GPlatform {
 
-static constexpr std::string_view GpException_p1_std()  {return "[std::exception]: '"_sv;}
-static constexpr std::string_view GpException_p1_gp()   {return "[GpException]: '"_sv;}
-
-static constexpr std::string_view GpException_p2()      {return "'\n"_sv;}
-
-static constexpr std::string_view GpException_p3_std()  {return " Catch Function: '"_sv;}
-static constexpr std::string_view GpException_p3_gp()   {return "       Function: '"_sv;}
-
-static constexpr std::string_view GpException_p4()      {return "           File: '"_sv;}
-static constexpr std::string_view GpException_p5()      {return "           Line: "_sv;}
+static constexpr std::string_view GpException_p1()  {return "[Exception]: '"_sv;}
+static constexpr std::string_view GpException_p2()  {return "'\n"_sv;}
+static constexpr std::string_view GpException_p3()  {return " Function: '"_sv;}
+static constexpr std::string_view GpException_p4()  {return "     File: '"_sv;}
+static constexpr std::string_view GpException_p5()  {return "     Line: "_sv;}
 
 GpExceptionUtils::ToStrResT GpExceptionUtils::SToString
 (
-    const std::string_view      aMessage,
-    const SourceLocationT&      aSourceLocation,
-    const ExceptionType         aExceptionType,
-    std::optional<std::string>  aStackTrace
+    const std::string_view              aMessage,
+    const SourceLocationT&              aSourceLocation,
+    const std::optional<std::string>&   aStackTrace
 )
 {
-    std::string_view p1;
-    std::string_view p3;
-
-    if (aExceptionType == ExceptionType::STD)
-    {
-        p1 = GpException_p1_std();
-        p3 = GpException_p3_std();
-    } else//aExceptionType == ExceptionType::GP
-    {
-        p1 = GpException_p1_gp();
-        p3 = GpException_p3_gp();
-    }
-
+    std::string_view    p1 = GpException_p1();
+    std::string_view    p3 = GpException_p3();
     std::string_view    fileName(reinterpret_cast<const char*>(aSourceLocation.file_name()));
     std::string_view    functioneName(reinterpret_cast<const char*>(aSourceLocation.function_name()));
     const std::string   line(std::to_string(aSourceLocation.line()));
 
-    fileName = fileName.substr(fileName.find_last_of('/') + 1);
-    fileName = fileName.substr(0, fileName.find_last_of('.'));
+#if defined(GP_OS_WINDOWS)
+    constexpr const char PATH_SEPARATOR = '\\';
+#else
+    constexpr const char PATH_SEPARATOR = '/';
+#endif
+
+    fileName = fileName.substr(fileName.find_last_of(PATH_SEPARATOR) + 1);
+    //fileName = fileName.substr(0, fileName.find_last_of('.'));
 
     const size_t plen =
-          (p1.length()               + aMessage.length()      + GpException_p2().length())
-        + (p3.length()               + functioneName.length() + GpException_p2().length())
-        + (GpException_p4().length() + fileName.length()      + GpException_p2().length())
-        + (GpException_p5().length() + line.length())
-        + (aStackTrace.has_value() ? aStackTrace->length() : 0);
+          (std::size(p1)               + std::size(aMessage)      + std::size(GpException_p2()))
+        + (std::size(p3)               + std::size(functioneName) + std::size(GpException_p2()))
+        + (std::size(GpException_p4()) + std::size(fileName)      + std::size(GpException_p2()))
+        + (std::size(GpException_p5()) + std::size(line))
+        + (aStackTrace.has_value() ? std::size(aStackTrace.value()) : 0);
 
     ToStrResT res;
 
@@ -64,7 +53,7 @@ GpExceptionUtils::ToStrResT GpExceptionUtils::SToString
         res.fullMessage.append(aStackTrace.value());
     }
 
-    res.message = std::string_view(std::data(res.fullMessage) + p1.length(), std::size(aMessage));
+    res.message = std::string_view(std::data(res.fullMessage) + std::size(p1), std::size(aMessage));
 
     return res;
 }

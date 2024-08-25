@@ -1,7 +1,7 @@
-#include "GpThread.hpp"
-
-#include "../Types/Strings/GpStringUtils.hpp"
-#include "../Types/Strings/GpStringOps.hpp"
+#include <GpCore2/GpUtils/Threads/GpThread.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
+#include <GpCore2/GpUtils/Threads/GpSleepStrategy.hpp>
 
 #if defined(GP_OS_WINDOWS)
 #   include <GpCore2/Config/IncludeExt/windows.hpp>
@@ -14,7 +14,7 @@
 namespace GPlatform {
 
 GpThread::GpThread (std::string aName) noexcept:
-iName(std::move(aName))
+iName{std::move(aName)}
 {
     iThreadStopRequestF.clear();
     iThreadRunnableDoneF.test_and_set(std::memory_order_relaxed);
@@ -22,8 +22,8 @@ iName(std::move(aName))
 
 GpThread::~GpThread (void) noexcept
 {
-    GpStringUtils::SCout("[GpThread::~GpThread]: "_sv + Name());
     RequestStop();
+    Join();
     iThread = {};
 }
 
@@ -61,12 +61,12 @@ std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
         }
     );
 
+    iThreadId = iThread.get_id();
     iThread.detach();
+    iThread = {};
 #else
 #   error Unimplemented
 #endif
-
-    iThreadId = iThread.get_id();
 
     return iThreadId;
 }
@@ -89,10 +89,21 @@ void    GpThread::Join (void) noexcept
 {
     try
     {
-        while (!iThreadRunnableDoneF.test())
+        constexpr std::array<std::pair<size_t, std::chrono::milliseconds>, 2> tryStages =
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        }
+            std::pair<size_t, std::chrono::milliseconds>{10000, std::chrono::milliseconds(0)},
+            std::pair<size_t, std::chrono::milliseconds>{100, std::chrono::milliseconds(1)}
+        };
+
+        GpSleepStrategy::SWaitFor
+        (
+            [&]()-> bool
+            {
+                return iThreadRunnableDoneF.test();
+            },
+            tryStages,
+            std::chrono::milliseconds(10)
+        );
 
         {
             GpUniqueLock<GpMutex> uniqueLock{iMutex};
@@ -133,15 +144,7 @@ void    GpThread::SSetSysNameForCurrent (std::string_view aName)
     //);
 #elif defined(GP_OS_LINUX)
     const std::string name(aName.substr(0, NumOps::SMin<std::string_view::size_type>(15, std::size(aName))));
-
-    /*pthread_setname_np
-    (
-        pthread_self(),
-        std::data(name)
-    );*/
-
     prctl(PR_SET_NAME, (unsigned long)std::data(name), 0, 0, 0);
-
 #elif defined(GP_OS_ANDROID)
     const std::string name(aName);
 

@@ -6,6 +6,7 @@
 #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
 
 #include <GpCore2/GpUtils/Macro/GpMacroWarnings.hpp>
+#include <GpCore2/GpUtils/Threads/Timers/GpTimer.hpp>
 
 GP_WARNING_PUSH()
 //GP_WARNING_DISABLE(shorten-64-to-32)
@@ -35,12 +36,12 @@ public:
 
     virtual GpException::C::Opt         Clear                   (void) noexcept override final;
     virtual GpTaskRunRes::EnumT         Enter                   (GpTaskFiber& aTaskFiber) override final;
-    virtual void                        CallYield               (const GpTaskRunRes::EnumT aRunRes) override final;
-    virtual void                        CallYield               (const milliseconds_t aTimeout) override final;
+    virtual void                        CallYield               (GpTaskRunRes::EnumT aRunRes) override final;
+    [[nodiscard]] virtual TimeoutRes    CallYield               (milliseconds_t aTimeout) override final;
 
 private:
     static boost::context::fiber        SFiberFn                (boost::context::fiber&&    aFiber,
-                                                                 GpTaskFiberCtxBoost&       aFiberCtx);
+                                                                 GpTaskFiberCtxBoost&       aFiberCtxBoost);
 
 private:
     boost::context::fiber               iFiber;

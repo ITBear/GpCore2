@@ -4,16 +4,16 @@
 
 #if defined(GP_USE_STRINGS)
 
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Algorithms/GpSplit.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpBytesArray.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringLiterals.hpp>
+
 #include <vector>
-#include <string>
-#include <string_view>
+#include <array>
 #include <variant>
 #include <thread>
 #include <set>
-
-#include "../../Macro/GpMacroClass.hpp"
-#include "../../Algorithms/GpSplit.hpp"
-#include "../Containers/GpBytesArray.hpp"
 
 namespace GPlatform {
 
@@ -339,9 +339,9 @@ inline ::std::string operator+
     const ::std::string value(::std::to_string(aRight));
 
     ::std::string res;
-    res.reserve(aLeft.length() + value.length());
-    res.append(std::data(aLeft), aLeft.length());
-    res.append(std::data(value), value.length());
+    res.reserve(std::size(aLeft) + std::size(value));
+    res.append(std::data(aLeft), std::size(aLeft));
+    res.append(std::data(value), std::size(value));
 
     return res;
 }
@@ -353,9 +353,9 @@ inline ::std::string operator+
 )
 {
     ::std::string res;
-    res.reserve(aLeft.length() + aRight.length());
-    res.append(std::data(aLeft), aLeft.length());
-    res.append(std::data(aRight), aRight.length());
+    res.reserve(std::size(aLeft) + std::size(aRight));
+    res.append(std::data(aLeft), std::size(aLeft));
+    res.append(std::data(aRight), std::size(aRight));
 
     return res;
 }

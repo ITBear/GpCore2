@@ -1,6 +1,4 @@
-#include "GpEnum.hpp"
-#include "../Strings/GpStringOps.hpp"
-#include "../Strings/GpStringLiterals.hpp"
+#include <GpCore2/GpUtils/Types/Enums/GpEnum.hpp>
 
 #if defined(GP_USE_ENUMS)
 

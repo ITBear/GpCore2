@@ -4,10 +4,12 @@
 
 #if defined(GP_USE_ENUMS)
 
+#include <GpCore2/GpUtils/Types/Enums/GpEnumFlags.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringLiterals.hpp>
+
 #include <bit>
 #include <initializer_list>
-
-#include "GpEnumFlags.hpp"
 
 namespace GPlatform {
 
@@ -201,7 +203,7 @@ std::string_view    TYPE_NAME::TypeName (void) const noexcept\
 }// namespace GPlatform
 
 //********************** fmt *********************
-namespace fmt {
+namespace FMT_NAMESPASE {
 
 template<typename T>
 requires ::GPlatform::EnumConcepts::IsEnum<T>

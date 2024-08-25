@@ -252,7 +252,7 @@ size_byte_t GpFileImpl::STryWrite
     GpSpanByteR         aData
 )
 {
-    const DWORD bytesToWrite    = NumOps::SConvert<DWORD>(aData.Size().Value());
+    const DWORD bytesToWrite    = NumOps::SConvert<DWORD>(std::size(aData));
     DWORD       bytesWritten    = 0;
 
     const auto res = WriteFile
@@ -286,10 +286,15 @@ void    GpFileImpl::SWrite
 
     THROW_COND_GP
     (
-        bytesWritten == aData.Size(),
+        bytesWritten.Value() == std::size(aData),
         [&aData, bytesWritten]()
         {
-            return fmt::format("Failed to write to file, only {} bytes of {} was written", bytesWritten.Value(), aData.Size().Value());
+            return fmt::format
+            (
+                "Failed to write to file, only {} bytes of {} was written",
+                bytesWritten.Value(),
+                std::size(aData)
+            );
         }
     );
 }
@@ -300,7 +305,7 @@ size_byte_t GpFileImpl::STryRead
     GpSpanByteRW        aData
 )
 {
-    const DWORD bytesToRead = NumOps::SConvert<DWORD>(aData.Size().Value());
+    const DWORD bytesToRead = NumOps::SConvert<DWORD>(std::size(aData));
     DWORD       bytesRead   = 0;
 
     const auto res = ReadFile
@@ -334,10 +339,15 @@ void    GpFileImpl::SRead
 
     THROW_COND_GP
     (
-        bytesRead == aData.Size(),
+        bytesRead.Value() == std::size(aData),
         [&aData, bytesRead]()
         {
-            return fmt::format("Failed to read from file, only {} bytes of {} was read", bytesRead.Value(), aData.Size().Value());
+            return fmt::format
+            (
+                "Failed to read from file, only {} bytes of {} was read",
+                bytesRead.Value(),
+                std::size(aData)
+            );
         }
     );
 }

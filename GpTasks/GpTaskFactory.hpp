@@ -1,8 +1,7 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "GpTask.hpp"
+#include <GpCore2/GpTasks/GpTask.hpp>
 
 namespace GPlatform {
 

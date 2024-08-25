@@ -4,7 +4,7 @@
 
 #if defined(GP_USE_SYNC_PRIMITIVES)
 
-#include "../Threads/GpThreadsSafety.hpp"
+#include <GpCore2/GpUtils/Threads/GpThreadsSafety.hpp>
 #include <shared_mutex>
 
 namespace GPlatform {

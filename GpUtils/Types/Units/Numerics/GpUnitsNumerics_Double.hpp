@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../GpUnit.hpp"
-#include "../../Strings/GpStringTemplateArg.hpp"
+#include <GpCore2/GpUtils/Types/Units/GpUnit.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringTemplateArg.hpp>
 
 namespace GPlatform {
 

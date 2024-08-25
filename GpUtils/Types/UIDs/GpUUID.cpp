@@ -1,11 +1,11 @@
-#include "GpUUID.hpp"
+#include <GpCore2/GpUtils/Types/UIDs/GpUUID.hpp>
 
 #if defined(GP_USE_UUID)
 
-#include "../Strings/GpStringOps.hpp"
-#include "../Bits/GpBitOps.hpp"
-#include "../../Random/GpSRandom.hpp"
-#include "../../DateTime/GpDateTimeOps.hpp"
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
+#include <GpCore2/GpUtils/Types/Bits/GpBitOps.hpp>
+#include <GpCore2/GpUtils/Random/GpSRandom.hpp>
+#include <GpCore2/GpUtils/DateTime/GpDateTimeOps.hpp>
 
 namespace GPlatform {
 

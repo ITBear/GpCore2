@@ -1,4 +1,4 @@
-#include "GpByteWriterStorageByteArray.hpp"
+#include <GpCore2/GpUtils/Streams/GpByteWriterStorageByteArray.hpp>
 
 namespace GPlatform {
 

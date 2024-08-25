@@ -1,7 +1,6 @@
 #pragma once
 
-#include "GpTasks_global.hpp"
-
+#include <GpCore2/GpTasks/GpTasks_global.hpp>
 #include <GpCore2/Config/GpConfig.hpp>
 #include <GpCore2/GpUtils/Types/Enums/GpEnum.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>

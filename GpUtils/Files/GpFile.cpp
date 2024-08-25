@@ -1,11 +1,11 @@
-#include "GpFile.hpp"
+#include <GpCore2/GpUtils/Files/GpFile.hpp>
 
 #if defined(GP_USE_FILE_UTILS)
 
 #if defined(GP_POSIX)
-    #include "GpFilePosix.hpp"
+    #include <GpCore2/GpUtils/Files/GpFilePosix.hpp>
 #elif defined(GP_OS_WINDOWS)
-    #include "GpFileWindows.hpp"
+    #include <GpCore2/GpUtils/Files/GpFileWindows.hpp>
 #endif
 
 namespace GPlatform {

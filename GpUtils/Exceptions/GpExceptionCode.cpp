@@ -1,5 +1,4 @@
-#include "GpExceptionCode.hpp"
-#include "../Debugging/GpDebugging.hpp"
+#include <GpCore2/GpUtils/Exceptions/GpExceptionCode.hpp>
 
 #if defined(GP_USE_EXCEPTIONS)
 
@@ -10,7 +9,7 @@ GpExceptionCode::GpExceptionCode
     std::string_view        aMsg,
     const SourceLocationT&  aSourceLocation
 ) noexcept:
-GpException(aMsg, aSourceLocation)
+GpException{aMsg, aSourceLocation}
 {
     //GpDebugging::SBreakpoint();
 }

@@ -1,4 +1,4 @@
-#include "GpBase58.hpp"
+#include <GpCore2/GpUtils/Encoders/GpBase58.hpp>
 
 #if defined(GP_USE_BASE58)
 
@@ -41,10 +41,9 @@ void    GpBase58::SEncode
     std::memcpy(std::data(alphabet), std::data(Alphabet(aAlphabet)), 58);
 
     //----------------- Generate BASE58 -------------------
-    const size_t encodedSize = SEncodedSize(aData);
-
-    GpSpanByteRW base64StrOut   = aWriterBase58Str.OffsetAdd(encodedSize);
-    u_int_8* _R_    encodedStr  = base64StrOut.PtrAs<u_int_8*>() + encodedSize - 1;
+    const size_t encodedSize    = SEncodedSize(aData);
+    GpSpanByteRW base64StrOut   = aWriterBase58Str.SubspanThenOffsetAdd(encodedSize);
+    u_int_8* _R_ encodedStr     = base64StrOut.PtrAs<u_int_8*>() + encodedSize - 1;
 
     mpz_class data;
     mpz_class remainder;
@@ -239,7 +238,7 @@ void    GpBase58::SDecode
 {
     const mpz_class&    bigNum      = *static_cast<const mpz_class*>(aMpzClass);
     size_t              decodedSize = aDataSize;
-    GpSpanByteRW        dataOut     = aWriterData.OffsetAdd(decodedSize);
+    GpSpanByteRW        dataOut     = aWriterData.SubspanThenOffsetAdd(decodedSize);
 
     mpz_export(dataOut.Ptr(), &decodedSize, 1, 1, 0, 0, bigNum.get_mpz_t());
 }

@@ -1,11 +1,12 @@
 #pragma once
 
+#include <GpCore2/Config/IncludeExt/windows.hpp>
+
 #include "../GpUtils_global.hpp"
 #include "../Macro/GpMacroClass.hpp"
 
-#include <GpCore2/Config/IncludeExt/windows.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpUTF.hpp>
-#include <string>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
 namespace GPlatform {
 

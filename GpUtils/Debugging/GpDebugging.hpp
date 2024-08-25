@@ -1,10 +1,9 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "../GpUtils_global.hpp"
-#include "../Macro/GpMacroClass.hpp"
-#include "GpSourceLocation.hpp"
+#include <GpCore2/GpUtils/GpUtils_global.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Debugging/GpSourceLocation.hpp>
 
 namespace GPlatform {
 

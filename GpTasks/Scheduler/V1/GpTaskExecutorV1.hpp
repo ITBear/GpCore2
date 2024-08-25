@@ -29,6 +29,9 @@ public:
     size_t              Id                  (void) const noexcept {return iId;}
     virtual void        Run                 (std::atomic_flag& aStopRequest) noexcept override final;
 
+protected:
+    virtual void        OnNotify            (void) noexcept override final;
+
 private:
     const size_t        iId             = 0;
     GpTaskSchedulerV1&  iTasksScheduler;

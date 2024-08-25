@@ -4,8 +4,8 @@
 
 #if defined(GP_USE_MEMORY_OPS)
 
-#include "Macro/GpMacroClass.hpp"
-#include "Types/Numerics/GpNumericOps.hpp"
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Types/Numerics/GpNumericOps.hpp>
 
 #include <cstring>
 #include <utility>
@@ -103,6 +103,9 @@ public:
     template<MemOpsConcepts::IsNotRawCopyable T>
     static void                 SDestruct       (T*     aElements,
                                                  size_t aCount) noexcept;
+
+    template<MemOpsConcepts::IsRawCopyable T>
+    static constexpr T          SCopyBitCast    (const void* aElementsSrc);
 
     template<MemOpsConcepts::IsRawCopyable T>
     static constexpr void       SCopy           (T&         aElementsDst,
@@ -217,12 +220,14 @@ void    GpMemOps::SConstruct
         }
     } catch (...)
     {
-        if (constructedCnt > 0)
+        std::exception_ptr currentException = std::current_exception();
         {
-            SDestruct(aElements, constructedCnt);
+            if (constructedCnt > 0)
+            {
+                SDestruct(aElements, constructedCnt);
+            }
         }
-
-        throw;
+        std::rethrow_exception(currentException);
     }
 }
 
@@ -250,6 +255,14 @@ void    GpMemOps::SDestruct
         aElements->~T();
         aElements++;
     }
+}
+
+template<MemOpsConcepts::IsRawCopyable T>
+constexpr T GpMemOps::SCopyBitCast (const void* aElementsSrc)
+{
+    T value;
+    std::memcpy(&value, aElementsSrc, sizeof(T));
+    return value;
 }
 
 template<MemOpsConcepts::IsRawCopyable T>

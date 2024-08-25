@@ -1,9 +1,8 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "../../Macro/GpMacroTags.hpp"
-#include "../Numerics/GpNumericOps.hpp"
+#include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
+#include <GpCore2/GpUtils/Types/Numerics/GpNumericOps.hpp>
 
 #include <chrono>
 #include <type_traits>

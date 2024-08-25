@@ -4,9 +4,10 @@
 
 #if defined(GP_USE_SYNC_PRIMITIVES)
 
-#include "../Macro/GpMacroClass.hpp"
-#include "../Threads/GpThreadsSafety.hpp"
-#include "GpAsmSpinPause.hpp"
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Threads/GpThreadsSafety.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpAsmSpinPause.hpp>
+
 #include <atomic>
 
 namespace GPlatform {

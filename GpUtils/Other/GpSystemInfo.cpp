@@ -1,6 +1,7 @@
 #include "GpSystemInfo.hpp"
 
 #include <thread>
+#include <GpCore2/Config/IncludeExt/fmt.hpp>
 
 #include "../Exceptions/GpException.hpp"
 
@@ -11,8 +12,6 @@
 #if defined(GP_OS_WINDOWS)
 #   include "GpSystemInfoWin.hpp"
 #endif// #if defined(GP_OS_WINDOWS)
-
-#include <GpCore2/Config/IncludeExt/fmt.hpp>
 
 namespace GPlatform {
 

@@ -4,14 +4,14 @@
 
 #if defined(GP_USE_UUID)
 
-#include "../../GpUtils_global.hpp"
-#include "../../Macro/GpMacroClass.hpp"
-#include "../../Random/GpRandomIf.hpp"
-#include "../../GpMemOps.hpp"
-#include "../Containers/GpContainersT.hpp"
-#include "../Units/Other/unix_ts_t.hpp"
-
 #include <GpCore2/Config/IncludeExt/fmt.hpp>
+#include <GpCore2/GpUtils/GpUtils_global.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Random/GpRandomIf.hpp>
+#include <GpCore2/GpUtils/GpMemOps.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
+#include <GpCore2/GpUtils/Types/Units/Other/unix_ts_t.hpp>
+
 #include <bit>
 #include <string_view>
 
@@ -337,7 +337,7 @@ consteval inline ::GPlatform::GpUUID operator"" _uuid (const char* aStr, const s
 
 // ------------------------------------ fmt ------------------------------------
 
-namespace fmt {
+namespace FMT_NAMESPASE {
 
 using namespace GPlatform;
 

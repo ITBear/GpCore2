@@ -31,14 +31,14 @@ private:
 };
 
 GpExceptionTextCode::GpExceptionTextCode (const GpExceptionTextCode& aException):
-GpException(aException),
-iCode(aException.iCode)
+GpException{aException},
+iCode      {aException.iCode}
 {
 }
 
 GpExceptionTextCode::GpExceptionTextCode (GpExceptionTextCode&& aException):
-GpException(std::move(aException)),
-iCode(std::move(aException.iCode))
+GpException{std::move(aException)},
+iCode      {std::move(aException.iCode)}
 {
 }
 
@@ -48,8 +48,8 @@ GpExceptionTextCode::GpExceptionTextCode
     std::string             aCode,
     const SourceLocationT&  aSourceLocation
 ) noexcept:
-GpException(aMsg, aSourceLocation),
-iCode(std::move(aCode))
+GpException{aMsg, aSourceLocation},
+iCode      {std::move(aCode)}
 {
 }
 

@@ -4,13 +4,12 @@
 
 #if defined(GP_USE_CONTAINERS)
 
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Exceptions/GpException.hpp>
+#include <GpCore2/GpUtils/TypeTraits/GpTypeInfoUtils.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
+
 #include <typeinfo>
-
-#include "../../Macro/GpMacroClass.hpp"
-#include "../../Exceptions/GpException.hpp"
-#include "../../TypeTraits/GpTypeInfoUtils.hpp"
-#include "../Strings/GpStringOps.hpp"
-
 #include <tuple>
 
 namespace GPlatform {

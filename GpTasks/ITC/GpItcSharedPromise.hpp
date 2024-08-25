@@ -4,8 +4,7 @@
 #include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
-
-#include "GpItcSharedFuture.hpp"
+#include <GpCore2/GpTasks/ITC/GpItcSharedFuture.hpp>
 
 namespace GPlatform {
 
@@ -40,19 +39,19 @@ private:
 
 template<typename T>
 GpItcSharedPromise<T>::GpItcSharedPromise (void):
-iFuture(MakeSP<FutureT>())
+iFuture{MakeSP<FutureT>()}
 {
 }
 
 template<typename T>
 GpItcSharedPromise<T>::GpItcSharedPromise (const GpItcSharedPromise& aPromise):
-iFuture(aPromise.iFuture)
+iFuture{aPromise.iFuture}
 {
 }
 
 template<typename T>
 GpItcSharedPromise<T>::GpItcSharedPromise (GpItcSharedPromise&& aPromise) noexcept:
-iFuture(std::move(aPromise.iFuture))
+iFuture{std::move(aPromise.iFuture)}
 {
 }
 
@@ -63,7 +62,7 @@ GpItcSharedPromise<T>::~GpItcSharedPromise (void) noexcept
     {
         if (iFuture.IsNotNULL())
         {
-            Fulfill(GpException("Empty result"));
+            Fulfill(GpException{"Empty result"});
         }
     } catch (const GpException& e)
     {

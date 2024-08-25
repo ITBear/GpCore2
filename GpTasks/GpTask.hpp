@@ -25,68 +25,83 @@ public:
     CLASS_DD(GpTask)
     TAG_SET(THREAD_SAFE)
 
-    using StartPromiseT         = GpItcSharedPromise<GpAny>;
+    class StartPromiseShellType;
+    using StartPromiseRes       = GpTypeShell<GpAny, StartPromiseShellType>;
+    using StartPromiseT         = GpItcSharedPromise<StartPromiseRes>;
     using StartFutureT          = typename StartPromiseT::FutureT;
 
-    using DonePromiseT          = GpItcSharedPromise<GpAny>;
+    class DonePromiseShellType;
+    using DonePromiseRes        = GpTypeShell<GpAny, DonePromiseShellType>;
+    using DonePromiseT          = GpItcSharedPromise<DonePromiseRes>;
     using DoneFutureT           = typename DonePromiseT::FutureT;
 
     using MessageQueueT         = GpSharedQueueSimple<GpAny>;
     using AllTasksDictionaryT   = GpDictionary<std::unordered_map<GpTaskId, GpTask*>>;
 
 protected:
-                                    GpTask              (std::string                aName,
-                                                         const GpTaskMode::EnumT    aTaskMode) noexcept;
-                                    GpTask              (const GpTaskMode::EnumT    aTaskMode) noexcept;
+                                    GpTask                  (std::string        aName,
+                                                             GpTaskMode::EnumT  aTaskMode) noexcept;
+                                    GpTask                  (GpTaskMode::EnumT  aTaskMode) noexcept;
+                                    GpTask                  (std::string        aName,
+                                                             GpTaskMode::EnumT  aTaskMode,
+                                                             GpTaskId           aId) noexcept;
+                                    GpTask                  (GpTaskMode::EnumT  aTaskMode,
+                                                             GpTaskId           aId) noexcept;
 
 public:
-    virtual                         ~GpTask             (void) noexcept;
+    virtual                         ~GpTask                 (void) noexcept;
 
-    static GpTask::C::Opt::Ref      SCurrentTask        (void) noexcept;
-    static std::optional<GpTask*>   STaskById           (GpTaskId aTaskId) noexcept;
+    static GpTask::C::Opt::Ref      SCurrentTask            (void) noexcept;
+    static std::optional<GpTask*>   STaskById               (GpTaskId aTaskId) noexcept;
 
-    inline std::string_view         TaskName            (void) const noexcept;
-    inline GpTaskId                 TaskId              (void) const noexcept;
-    inline GpUUID                   TaskIdAsUUID        (void) const noexcept;
-    inline GpTaskMode::EnumT        TaskMode            (void) const noexcept;
+    inline std::string_view         TaskName                (void) const noexcept;
+    inline GpTaskId                 TaskId                  (void) const noexcept;
+    GpUUID                          TaskIdAsUUID            (void) const noexcept;
+    inline GpTaskMode::EnumT        TaskMode                (void) const noexcept;
 
-    GpTask::DoneFutureT::SP         RequestStop         (void);
+    GpTask::DoneFutureT::SP         RequestTaskStop         (void);
+    void                            RequestAndWaitForStop   (void);
 
     // Messages queue
-    void                            PushMessage         (GpAny aMessage);
+    void                            PushMessage             (GpAny aMessage);
+
 protected:
-    GpAny::C::Opt::Val              PopMessage          (void);
+    GpAny::C::Opt::Val              PopMessage              (void);
 
 public:
     // Vars
-    void                            SetVar              (std::string    aKey,
-                                                         GpAny          aValue);
-    GpTaskVarStorage::AnyOptT       GetVarCopy          (std::string_view   aKey) const;
-    GpTaskVarStorage::AnyOptCRefT   GetVarRef           (std::string_view   aKey) const;
+    void                            SetVar                  (std::string    aKey,
+                                                             GpAny          aValue);
+    GpTaskVarStorage::AnyOptT       GetVarCopy              (std::string_view   aKey) const;
+    GpTaskVarStorage::AnyOptCRefT   GetVarRef               (std::string_view   aKey) const;
 
     // Use only from Task Executor or Task Scheduler
-    GpTaskRunRes::EnumT             Execute             (GpMethodAccessGuard<GpTaskScheduler, GpTaskExecutor>) noexcept;
-    inline void                     UpStopRequestFlag   (GpMethodAccessGuard<GpTaskScheduler>) noexcept;
-    inline bool                     IsStopRequested     (void) const noexcept;
+    GpTaskRunRes::EnumT             Execute                 (GpMethodAccessGuard<GpTaskScheduler, GpTaskExecutor>) noexcept;
+    inline void                     UpStartRequestFlag      (GpMethodAccessGuard<GpTaskScheduler>) noexcept;
+    inline bool                     IsStartRequested        (void) const noexcept;
+    inline void                     UpStopRequestFlag       (GpMethodAccessGuard<GpTaskScheduler>) noexcept;
+    inline bool                     IsStopRequested         (void) const noexcept;
+    inline std::atomic_flag&        IsStopRequestedRef      (void) noexcept;
 
     // Task Start/Done promise
-    inline StartFutureT::SP         GetStartFuture      (void);
-    inline DoneFutureT::SP          GetDoneFuture       (void);
+    inline StartFutureT::SP         GetStartFuture          (void);
+    inline DoneFutureT::SP          GetDoneFuture           (void);
 
 protected:
-    virtual GpTaskRunRes::EnumT     Run                 (void) noexcept = 0;
+    virtual GpTaskRunRes::EnumT     Run                     (void) noexcept = 0;
 
-    inline StartPromiseT&           StartPromise        (void) noexcept;
-    inline DonePromiseT&            DonePromise         (void) noexcept;
+    inline StartPromiseT&           StartPromise            (void) noexcept;
+    inline DonePromiseT&            DonePromise             (void) noexcept;
 
 private:
-    inline static GpTaskId          SNextId             (void) noexcept;
+    inline static GpTaskId          SNextId                 (void) noexcept;
 
 private:
     const std::string               iName;
     const GpTaskId                  iId;
     const GpTaskMode::EnumT         iMode;  
-    std::atomic_bool                iIsStopRequested = false;
+    std::atomic_flag                iIsStartRequested   = false;
+    std::atomic_flag                iIsStopRequested    = false;
     StartPromiseT                   iStartPromise;
     DonePromiseT                    iDonePromise;
     MessageQueueT                   iMessagesQueue; 
@@ -105,31 +120,34 @@ GpTaskId    GpTask::TaskId (void) const noexcept
     return iId;
 }
 
-GpUUID  GpTask::TaskIdAsUUID (void) const noexcept
-{
-    GpUUID::DataT uuid;
-
-    const GpTaskId id = TaskId();
-
-    std::memcpy(std::data(uuid) + 0, "GpTask::", 8);
-    std::memcpy(std::data(uuid) + 8, &id, 8);
-
-    return GpUUID(uuid);
-}
-
 GpTaskMode::EnumT   GpTask::TaskMode (void) const noexcept
 {
     return iMode;
 }
 
+bool    GpTask::IsStartRequested (void) const noexcept
+{
+    return iIsStartRequested.test(std::memory_order_acquire);
+}
+
+void    GpTask::UpStartRequestFlag (GpMethodAccessGuard<GpTaskScheduler>) noexcept
+{
+    iIsStartRequested.test_and_set(std::memory_order_release);
+}
+
 bool    GpTask::IsStopRequested (void) const noexcept
 {
-    return iIsStopRequested.load(std::memory_order_acquire);
+    return iIsStopRequested.test(std::memory_order_acquire);
+}
+
+std::atomic_flag&   GpTask::IsStopRequestedRef (void) noexcept
+{
+    return iIsStopRequested;
 }
 
 void    GpTask::UpStopRequestFlag (GpMethodAccessGuard<GpTaskScheduler>) noexcept
 {
-    iIsStopRequested.store(true, std::memory_order_release);
+    iIsStopRequested.test_and_set(std::memory_order_release);
 }
 
 GpTask::StartFutureT::SP    GpTask::GetStartFuture (void)

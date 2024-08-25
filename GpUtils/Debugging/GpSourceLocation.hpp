@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Config/GpCompilerFeatures.hpp"
+#include <GpCore2/Config/GpCompilerFeatures.hpp>
 
 #if defined(GP_COMPILER_GCC) || defined(GP_COMPILER_CLANG)
 #   if (__cplusplus >= CPP_VERSION_20) && __has_include(<source_location>) && __has_builtin(__builtin_source_location)
@@ -62,14 +62,12 @@
     }
 #endif
 
-//----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
+#include <GpCore2/Config/IncludeExt/fmt.hpp>
 #include <GpCore2/GpUtils/Macro/GpMacroWarnings.hpp>
-#include <GpCore2/GpUtils/Types/Strings/GpUTF.hpp>
 #include <optional>
 
-#include <GpCore2/Config/IncludeExt/fmt.hpp>
-
-namespace fmt {
+namespace FMT_NAMESPASE {
 
 using namespace GPlatform;
 
@@ -118,4 +116,4 @@ struct formatter<std::optional<SourceLocationT>>
     }
 };
 
-}// namespace std
+}// namespace FMT_NAMESPASE

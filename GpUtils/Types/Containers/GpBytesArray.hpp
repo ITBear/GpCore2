@@ -4,7 +4,7 @@
 
 #if defined(GP_USE_CONTAINERS)
 
-#include "../Pointers/GpSpan.hpp"
+#include <GpCore2/GpUtils/Types/Pointers/GpSpan.hpp>
 
 namespace GPlatform {
 
@@ -20,19 +20,23 @@ class GpBytesArrayUtils
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpBytesArrayUtils)
 
 public:
-    template<typename FROM>
+    template<typename TO,
+             typename FROM>
     requires
-           Concepts::HasContiguousIter<FROM>
+           Concepts::HasContiguousIter<TO>
+        && Concepts::SizeOfValueType<TO, 1>
+        && Concepts::HasContiguousIter<FROM>
         && Concepts::SizeOfValueType<FROM, 1>
-    static GpBytesArray SMake (const FROM& aContainer)
+    static TO SMake (const FROM& aContainer)
     {
-        GpBytesArray res;
+        TO res;
 
         const size_t size = std::size(aContainer);
         res.resize(size);
+
         MemOps::SCopy
         (
-            std::data(res),
+            reinterpret_cast<std_byte_no_init*>(std::data(res)),
             reinterpret_cast<const std_byte_no_init*>(std::data(aContainer)),
             size
         );      
@@ -57,9 +61,10 @@ public:
         const size_t newSize = NumOps::SAdd(oldSize, srcSize);
 
         aDst.resize(newSize);
+
         MemOps::SCopy
         (
-            std::data(aDst) + oldSize,
+            reinterpret_cast<std::byte*>(std::data(aDst)) + oldSize,
             reinterpret_cast<const std::byte*>(std::data(aSrc)),
             srcSize
         );
@@ -78,6 +83,7 @@ public:
         const size_t newSize = NumOps::SAdd(oldSize, srcSize);
 
         aDst.resize(newSize);
+
         MemOps::SCopy
         (
             std::data(aDst) + oldSize,

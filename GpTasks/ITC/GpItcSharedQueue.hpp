@@ -30,19 +30,22 @@ public:
     bool                            Empty               (void) const noexcept;
     void                            Clear               (void);
 
+    void                            Interrupt           (void);
+
     [[nodiscard]] bool              PushAndNotifyOne    (const value_type& aValue);
     [[nodiscard]] bool              PushAndNotifyOne    (value_type&& aValue);
     [[nodiscard]] bool              PushAndNotifyAll    (const value_type& aValue);
     [[nodiscard]] bool              PushAndNotifyAll    (value_type&& aValue);
-    std::optional<value_type>       WaitAndPop          (const milliseconds_t aTimeout);
+    std::optional<value_type>       WaitAndPop          (milliseconds_t aTimeout);
 
     underlying_container&           UnderlyingContainer (void) noexcept REQUIRES(iSC);
     const underlying_container&     UnderlyingContainer (void) const noexcept REQUIRES(iSC);
 
 private:
     mutable GpItcSharedCondition    iSC;
-    underlying_container            iContainer  GUARDED_BY(iSC.Mutex());
-    size_t                          iMaxSize    GUARDED_BY(iSC.Mutex()) = std::numeric_limits<size_t>::max();
+    underlying_container            iContainer      GUARDED_BY(iSC.Mutex());
+    size_t                          iMaxSize        GUARDED_BY(iSC.Mutex()) = std::numeric_limits<size_t>::max();
+    bool                            iIsInterrupt    GUARDED_BY(iSC.Mutex()) = false;
 };
 
 template <typename T>
@@ -98,6 +101,14 @@ void    GpItcSharedQueue<T>::Clear (void)
         iContainer.pop();
     }
 
+    iSC.NotifyAll();
+}
+
+template <typename T>
+void    GpItcSharedQueue<T>::Interrupt (void)
+{
+    GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
+    iIsInterrupt = true;
     iSC.NotifyAll();
 }
 
@@ -176,13 +187,19 @@ std::optional<typename GpItcSharedQueue<T>::value_type> GpItcSharedQueue<T>::Wai
     (
         [&]() NO_THREAD_SAFETY_ANALYSIS -> bool // Check condition
         {
-            return !iContainer.empty();
+            return !iContainer.empty() || iIsInterrupt;
         },
         [&]() NO_THREAD_SAFETY_ANALYSIS -> std::optional<value_type> // condition met
         {
-            value_type e = std::move(iContainer.front());
-            iContainer.pop();
-            return e;
+            if (!iIsInterrupt) [[likely]]
+            {
+                value_type e = std::move(iContainer.front());
+                iContainer.pop();
+                return e;
+            } else
+            {
+                return std::nullopt;
+            }
         },
         aTimeout
     );

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../Types/Numerics/GpNumericTypes.hpp"
-#include "../GpMemOps.hpp"
+#include <GpCore2/GpUtils/GpMemOps.hpp>
 
 namespace GPlatform::Algo {
 

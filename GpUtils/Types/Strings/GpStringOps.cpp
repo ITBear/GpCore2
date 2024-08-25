@@ -1,4 +1,4 @@
-#include "GpStringOps.hpp"
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
 #if defined(GP_USE_STRINGS)
 
@@ -17,8 +17,8 @@ std::vector<std::string_view>   GpStringOps::SSplit
 {
     return Algo::Split<char, std::vector<std::string_view>>
     (
-        GpSpanCharR(aSourceStr),
-        GpSpanCharR(&aDelim, 1),
+        GpSpanCharR{aSourceStr},
+        GpSpanCharR{&aDelim, 1},
         aReturnPartsCountLimit,
         aDelimCountLimit,
         aSplitMode
@@ -36,8 +36,8 @@ std::vector<std::string_view>   GpStringOps::SSplit
 {
     return Algo::Split<char, std::vector<std::string_view>>
     (
-        GpSpanCharR(aSourceStr),
-        GpSpanCharR(aDelim),
+        GpSpanCharR{aSourceStr},
+        GpSpanCharR{aDelim},
         aReturnPartsCountLimit,
         aDelimCountLimit,
         aSplitMode
@@ -166,8 +166,7 @@ size_t  GpStringOps::SFromDouble
     //TODO reimplement
     const std::string   tmpS    = std::to_string(aValue);
     std::string         s       = std::string(reinterpret_cast<const char*>(std::data(tmpS)), std::size(tmpS));
-
-    const size_t length = s.length();
+    const size_t        length  = std::size(s);
 
     THROW_COND_GP
     (
@@ -184,7 +183,7 @@ size_t  GpStringOps::SFromDouble
 
 std::string GpStringOps::SFromDouble (const double aValue)
 {
-    //TODO reimplement
+    // TODO reimplement
     const std::string   tmpS    = std::to_string(aValue);
     std::string         s       = std::string(reinterpret_cast<const char*>(std::data(tmpS)), std::size(tmpS));
 
@@ -345,7 +344,7 @@ std::variant<s_int_64, double>  GpStringOps::SToNumeric
     size_t                          readCount   = 0;
     std::variant<s_int_64, double>  res         = SToSI64(aStr, readCount);
 
-    if (   (aStr.length() > readCount)
+    if (   (std::size(aStr) > readCount)
         && (aStr[readCount] == '.'))
     {
         readCount = 0;

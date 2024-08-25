@@ -1,12 +1,12 @@
-#include "GpTaskScheduler.hpp"
-#include "GpTaskSchedulerFactory.hpp"
+#include <GpCore2/GpTasks/Scheduler/GpTaskScheduler.hpp>
+#include <GpCore2/GpTasks/Scheduler/GpTaskSchedulerFactory.hpp>
 
 namespace GPlatform {
 
 GpTaskScheduler::SP GpTaskScheduler::sInstance;
 
 GpTaskScheduler::GpTaskScheduler (StopServiceFnT aStopServiceFn) noexcept:
-iStopServiceFn(aStopServiceFn)
+iStopServiceFn{aStopServiceFn}
 {
 }
 

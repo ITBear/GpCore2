@@ -5,7 +5,7 @@
 
 #if defined(GP_USE_SYNC_PRIMITIVES)
 
-//namespace GPlatform {
+// namespace GPlatform {
 //
 //template<typename T>
 //class /*SCOPED_CAPABILITY*/ GpUnlockGuard

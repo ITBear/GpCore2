@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpEnvironmentDetector.hpp"
+#include <GpCore2/Config/GpEnvironmentDetector.hpp>
 
 //******************* ARCH *****************
 #if defined(GP_ARCH_X86)

@@ -24,13 +24,22 @@ public:
     inline void                 Notify          (void) noexcept;
     inline bool                 WaitForAndReset (const milliseconds_t aTimeout) noexcept;
 
+protected:
+    virtual void                OnNotify        (void) noexcept = 0;
+
 private:
     mutable GpConditionVarFlag  iCVF;
 };
 
 void    GpRunnable::Notify (void) noexcept
 {
-    iCVF.NotifyAll();
+    iCVF.NotifyAll
+    (
+        [&]()
+        {
+            OnNotify();
+        }
+    );
 }
 
 bool    GpRunnable::WaitForAndReset (const milliseconds_t aTimeout) noexcept

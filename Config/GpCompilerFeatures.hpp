@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpEnvironmentDetector.hpp"
+#include <GpCore2/Config/GpEnvironmentDetector.hpp>
 
 #if defined (__cplusplus)
 

@@ -4,6 +4,10 @@
 
 #if defined(GP_USE_CONTAINERS)
 
+#include <GpCore2/Config/IncludeExt/boost_small_vector.hpp>
+#include <GpCore2/GpUtils/Types/Numerics/GpNumericTypes.hpp>
+#include <GpCore2/GpUtils/Types/Pointers/GpSharedPtr.hpp>
+
 #include <array>
 #include <vector>
 #include <deque>
@@ -17,14 +21,8 @@
 #include <unordered_set>
 #include <tuple>
 #include <optional>
-#include <string>
 #include <string_view>
 #include <functional>
-
-#include <GpCore2/Config/IncludeExt/boost_small_vector.hpp>
-
-#include "../Numerics/GpNumericTypes.hpp"
-#include "../Pointers/GpSharedPtr.hpp"
 
 namespace GPlatform {
 

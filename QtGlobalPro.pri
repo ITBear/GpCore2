@@ -1,5 +1,7 @@
-#qmake options for DEBUG:   CONFIG+=debug_build   CONFIG+=arc_x86_64  CONFIG+=os_linux CONFIG+=compiler_clang CONFIG+=use_asan_ubsan
-#qmake options for RELEASE: CONFIG+=release_build CONFIG+=arc_x86_64  CONFIG+=os_linux CONFIG+=compiler_clang
+#qmake options for DEBUG (asan, ubsan): CONFIG+=debug_build CONFIG+=arc_x86_64 CONFIG+=os_linux
+#qmake options for DEBUG (asan, ubsan): CONFIG+=debug_build CONFIG+=arc_x86_64 CONFIG+=os_linux CONFIG+=compiler_clang CONFIG+=use_asan_ubsan
+#qmake options for RELEASE: CONFIG+=release_build CONFIG+=arc_x86_64 CONFIG+=os_linux CONFIG+=compiler_clang
+#qmake options for RELEASE (static): CONFIG+=release_build_static CONFIG+=arc_x86_64 CONFIG+=os_linux CONFIG+=compiler_clang
 
 CONFIG		-= qt
 QT			-= core gui widgets
@@ -149,6 +151,26 @@ debug_build {
 
 	TARGET_POSTFIX		=
 	OUT_BUILD_MODE_PATH	= Release
+
+	equals(var_compiler, "clang") {
+		QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
+		QMAKE_CXXFLAGS	+= -flto
+		QMAKE_LFLAGS    += -flto
+	}
+	equals(var_compiler, "gcc") {
+		QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
+		QMAKE_CXXFLAGS	+= -flto
+		QMAKE_LFLAGS    += -flto
+	}
+	equals(var_compiler, "msvc") {
+
+	}
+} else:release_build_static {
+	message([$$PACKET_NAME]: ***************** Build mode RELEASE (STATIC) *****************)
+	DEFINES	+= RELEASE_BUILD_STATIC
+
+	TARGET_POSTFIX		=
+	OUT_BUILD_MODE_PATH	= Release_static
 
 	equals(var_compiler, "clang") {
 		QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3

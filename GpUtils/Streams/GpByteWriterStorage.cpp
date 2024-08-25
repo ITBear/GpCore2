@@ -1,4 +1,4 @@
-#include "GpByteWriterStorage.hpp"
+#include <GpCore2/GpUtils/Streams/GpByteWriterStorage.hpp>
 
 namespace GPlatform {
 
@@ -16,15 +16,14 @@ void    GpByteWriterStorage::Write
     iTotalWrite = NumOps::SAdd(iTotalWrite, aSize);
 }
 
-GpSpanByteRW    GpByteWriterStorage::OffsetAdd (const size_t aOffset)
+GpSpanByteRW    GpByteWriterStorage::SubspanThenOffsetAdd (const size_t aOffset)
 {
     ReserveNext(aOffset);
 
-    GpSpanByteRW storagePtrBeforeOffset = iStoragePtr;
-    iStoragePtr.OffsetAdd(aOffset);
+    GpSpanByteRW subspan = iStoragePtr.SubspanThenOffsetAdd(aOffset);
     iTotalWrite = NumOps::SAdd(iTotalWrite, aOffset);
 
-    return storagePtrBeforeOffset;
+    return subspan;
 }
 
 }// namespace GPlatform

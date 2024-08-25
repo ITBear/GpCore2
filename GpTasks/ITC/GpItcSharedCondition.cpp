@@ -54,9 +54,9 @@ GpItcSharedCondition::TaskInfo  GpItcSharedCondition::SCurrentTaskInfo (void)
     return {taskMode, taskId};
 }
 
-void    GpItcSharedCondition::SYeld (const milliseconds_t aTimeout)
+GpTaskFiberCtx::TimeoutRes  GpItcSharedCondition::SYeld (const milliseconds_t aTimeout)
 {
-    YELD_WAIT(aTimeout);
+    return YELD_WAIT(aTimeout);
 }
 
 }// namespace GPlatform

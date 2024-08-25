@@ -2,9 +2,9 @@
 
 #include <utility>
 #include <functional>
-#include <string>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
-#include "../../Macro/GpMacroTags.hpp"
+#include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
 
 namespace GPlatform {
 
@@ -67,25 +67,25 @@ constexpr GpTypeShell<T, SHELL>::GpTypeShell (void) noexcept
 
 template<typename T, typename SHELL>
 constexpr GpTypeShell<T, SHELL>::GpTypeShell (const GpTypeShell& aShell):
-iValue(aShell.iValue)
+iValue{aShell.iValue}
 {
 }
 
 template<typename T, typename SHELL>
 constexpr GpTypeShell<T, SHELL>::GpTypeShell (GpTypeShell&& aShell) noexcept:
-iValue(std::move(aShell.iValue))
+iValue{std::move(aShell.iValue)}
 {
 }
 
 template<typename T, typename SHELL>
 constexpr GpTypeShell<T, SHELL>::GpTypeShell (const T& aValue):
-iValue(aValue)
+iValue{aValue}
 {
 }
 
 template<typename T, typename SHELL>
 constexpr GpTypeShell<T, SHELL>::GpTypeShell (T&& aValue) noexcept:
-iValue(std::move(aValue))
+iValue{std::move(aValue)}
 {
 }
 

@@ -4,7 +4,7 @@
 
 #if defined(GP_USE_SHARED_POINTERS)
 
-#include "GpReferenceCounter.hpp"
+#include <GpCore2/GpUtils/Types/Pointers/GpReferenceCounter.hpp>
 
 namespace GPlatform {
 

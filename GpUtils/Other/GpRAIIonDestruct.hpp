@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../Macro/GpMacroClass.hpp"
-#include "../Types/Strings/GpStringUtils.hpp"
-#include "../Exceptions/GpExceptionUtils.hpp"
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
+#include <GpCore2/GpUtils/Exceptions/GpExceptionUtils.hpp>
 
 #include <functional>
 
@@ -34,10 +34,10 @@ GpRAIIonDestruct<FnT>::~GpRAIIonDestruct (void) noexcept
         iFn();
     } catch (const GpException& e)
     {
-        GpStringUtils::SCerr(GpExceptionUtils::SToString(e));
+        GpStringUtils::SCerr(e.what());
     } catch (const std::exception& e)
     {
-        GpStringUtils::SCerr(GpExceptionUtils::SToString(e));
+        GpStringUtils::SCerr(e.what());
     } catch (...)
     {
         GpStringUtils::SCerr("[GpRAIIonDestruct::~GpRAIIonDestruct]: Unknown exception"_sv);

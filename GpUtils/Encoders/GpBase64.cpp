@@ -1,11 +1,8 @@
-#include "GpBase64.hpp"
+#include <GpCore2/GpUtils/Encoders/GpBase64.hpp>
 
 #if defined(GP_USE_BASE64)
 
-#include "../Types/Strings/GpStringOps.hpp"
-#include "../Streams/GpByteWriter.hpp"
-#include "../Streams/GpByteWriterStorage.hpp"
-#include "../Streams/GpByteWriterStorageFixedSize.hpp"
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
 namespace GPlatform {
 
@@ -25,18 +22,18 @@ void    GpBase64::SEncode
 {
     static_assert(sizeof(size_t) >= 4, "sizeof(size_t) must be greater or equal to 4");
 
-    //Check if empty
+    // Check if empty
     if (aData.Empty())
     {
         return;
     }
 
-    //----------------- Generate BASE64 -------------------
+    // ----------------- Generate BASE64 -------------------
     const size_t        blocksCount     = SEncodedBlocksCount(aData);
     const size_t        encodedSize     = SEncodedSize(aData, aSingleLineMaxLength);
     size_t              dataBytesLeft   = aData.Count();
     const u_int_8* _R_  data            = aData.PtrAs<const u_int_8*>();
-    GpSpanByteRW        base64StrOut    = aWriterBase64Str.OffsetAdd(encodedSize);
+    GpSpanByteRW        base64StrOut    = aWriterBase64Str.SubspanThenOffsetAdd(encodedSize);
     u_int_8*            encodedStr      = base64StrOut.PtrAs<u_int_8*>();
 
     THROW_COND_GP
@@ -91,52 +88,16 @@ void    GpBase64::SEncode
     }
 }
 
-std::string GpBase64::SEncodeToStr
-(
-    GpSpanByteR     aData,
-    const size_t    aSingleLineMaxLength
-)
-{
-    const size_t    encodedSize = SEncodedSize(aData, aSingleLineMaxLength);
-    std::string     encodedStr;
-    encodedStr.resize(encodedSize);
-
-    GpByteWriterStorageFixedSize    writerStorge({std::data(encodedStr), std::size(encodedStr)});
-    GpByteWriter                    writer(writerStorge);
-
-    SEncode(aData, writer, aSingleLineMaxLength);
-
-    return encodedStr;
-}
-
-GpBytesArray    GpBase64::SEncodeToByteArray
-(
-    GpSpanByteR     aData,
-    const size_t    aSingleLineMaxLength
-)
-{
-    const size_t    encodedSize = SEncodedSize(aData, aSingleLineMaxLength);
-    GpBytesArray    encodedData;
-    encodedData.resize(encodedSize);
-
-    GpByteWriterStorageFixedSize    writerStorge({std::data(encodedData), std::size(encodedData)});
-    GpByteWriter                    writer(writerStorge);
-
-    SEncode(aData, writer, aSingleLineMaxLength);
-
-    return encodedData;
-}
-
 void    GpBase64::SDecode
 (
-    std::string_view    aBase64Str,
-    GpByteWriter&       aWriterData
+    GpSpanByteR     aBase64Str,
+    GpByteWriter&   aWriterData
 )
 {
     static_assert(sizeof(size_t) >= 4, "sizeof(size_t) must be greater or equal to 4");
 
-    //Check if empty
-    if (aBase64Str.empty())
+    // Check if empty
+    if (aBase64Str.Empty())
     {
         return;
     }
@@ -144,7 +105,7 @@ void    GpBase64::SDecode
     const size_t        base64StrSize   = std::size(aBase64Str);
     const u_int_8* _R_  base64StrPtr    = reinterpret_cast<const u_int_8*>(std::data(aBase64Str));
     const size_t        decodedSize     = SDecodedSize(aBase64Str);
-    GpSpanByteRW        dataOut         = aWriterData.OffsetAdd(decodedSize);
+    GpSpanByteRW        dataOut         = aWriterData.SubspanThenOffsetAdd(decodedSize);
     u_int_8* _R_        decodedData     = dataOut.PtrAs<u_int_8*>();
 
     THROW_COND_GP
@@ -210,34 +171,6 @@ void    GpBase64::SDecode
     }
 }
 
-std::string GpBase64::SDecodeToStr (std::string_view aBase64Str)
-{
-    const size_t    decodedSize = SDecodedSize(aBase64Str);
-    std::string     decodedStr;
-    decodedStr.resize(decodedSize);
-
-    GpByteWriterStorageFixedSize    writerStorge({std::data(decodedStr), std::size(decodedStr)});
-    GpByteWriter                    writer(writerStorge);
-
-    SDecode(aBase64Str, writer);
-
-    return decodedStr;
-}
-
-GpBytesArray    GpBase64::SDecodeToByteArray (std::string_view aBase64Str)
-{
-    const size_t    decodedSize = SDecodedSize(aBase64Str);
-    GpBytesArray    decodedBytesArray;
-    decodedBytesArray.resize(decodedSize);
-
-    GpByteWriterStorageFixedSize    writerStorge(GpSpanByteRW(std::data(decodedBytesArray), std::size(decodedBytesArray)));
-    GpByteWriter                    writer(writerStorge);
-
-    SDecode(aBase64Str, writer);
-
-    return decodedBytesArray;
-}
-
 size_t  GpBase64::SEncodedSize
 (
     GpSpanByteR     aData,
@@ -262,7 +195,7 @@ size_t  GpBase64::SEncodedSize
     return encodedSize;
 }
 
-size_t  GpBase64::SDecodedSize (std::string_view aBase64Str)
+size_t  GpBase64::SDecodedSize (GpSpanByteR aBase64Str)
 {
     const size_t base64Size = std::size(aBase64Str);
 

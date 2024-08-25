@@ -1,5 +1,6 @@
 #pragma once
 
+#include <GpCore2/Config/IncludeExt/boost_flat_set.hpp>
 #include <GpCore2/Config/GpConfig.hpp>
 
 #include "../GpTasks_global.hpp"
@@ -10,7 +11,7 @@
 #include <GpCore2/GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpConditionVar.hpp>
 #include <GpCore2/GpUtils/DateTime/GpDateTimeOps.hpp>
-#include <GpCore2/Config/IncludeExt/boost_flat_set.hpp>
+#include <GpCore2/GpTasks/Fibers/GpTaskFiberCtx.hpp>
 
 namespace GPlatform {
 
@@ -88,7 +89,8 @@ private:
                                                      milliseconds_t         aTimeout);
 
     static TaskInfo         SCurrentTaskInfo        (void);
-    static void             SYeld                   (milliseconds_t aTimeout);
+    [[nodiscard]] static GpTaskFiberCtx::TimeoutRes
+                            SYeld                   (milliseconds_t aTimeout);
 
 private:
     // For waiting threads
@@ -249,7 +251,7 @@ bool    GpItcSharedCondition::WaitForFiber
         }
 
         // Wait for
-        SYeld(aTimeout - passedTime);
+        std::ignore = SYeld(aTimeout - passedTime);
     }
 
     // Never reaches here
@@ -310,7 +312,7 @@ std::optional<T>    GpItcSharedCondition::WaitForFiber
         }
 
         // Wait for
-        SYeld(aTimeout - passedTime);
+        std::ignore = SYeld(aTimeout - passedTime);
     }
 
     // Never reaches here
@@ -384,7 +386,7 @@ std::optional<T>    GpItcSharedCondition::WaitForFiber
         }
 
         // Wait for
-        SYeld(aTimeout - passedTime);
+        std::ignore = SYeld(aTimeout - passedTime);
     }
 
     // Never reaches here

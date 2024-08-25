@@ -1,10 +1,8 @@
 #pragma once
 
-#include "../../Macro/GpMacroTags.hpp"
-#include "../../Exceptions/GpException.hpp"
-#include "../../GpMemOps.hpp"
-#include "../Numerics/GpNumericTypes.hpp"
-#include "../Strings/GpStringLiterals.hpp"
+#include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
+#include <GpCore2/GpUtils/GpMemOps.hpp>
+#include <GpCore2/GpUtils/Exceptions/GpException.hpp>
 
 #include <iterator>
 #include <vector>
@@ -98,8 +96,8 @@ public:
     constexpr                   GpSpan      (void) noexcept;
     constexpr                   GpSpan      (const this_type& aSpan) noexcept;
     constexpr                   GpSpan      (this_type&& aSpan) noexcept;
-    constexpr                   GpSpan      (pointer        aPtr,
-                                             const size_t   aCount);
+    constexpr                   GpSpan      (pointer    aPtr,
+                                             size_t     aCount);
 
     template<typename PtrT>
     requires SpanConcepts::IsConvertableFromPtr<PtrT, pointer>
@@ -149,19 +147,18 @@ public:
     constexpr bool              IsNotEqual  (const this_type& aSpan) const noexcept;
     constexpr bool              IsGreater   (const this_type& aSpan) const noexcept;
     constexpr bool              IsLess      (const this_type& aSpan) const noexcept;
-    //constexpr ssize_t         Compare     (const this_type& aSpan) const noexcept;
 
     constexpr size_t            Count       (void) const noexcept;
     constexpr size_t            SizeInBytes (void) const;
 
     constexpr void              Set         (const this_type& aSpan) noexcept;
     constexpr void              Set         (this_type&& aSpan) noexcept;
-    constexpr void              Set         (pointer aPtr, const size_t aCount);
+    constexpr void              Set         (pointer aPtr, size_t aCount);
 
     template<typename PtrT>
     requires SpanConcepts::IsConvertableFromPtr<PtrT, pointer>
-    constexpr void              Set         (PtrT           aPtr,
-                                             const size_t   aCount)
+    constexpr void              Set         (PtrT   aPtr,
+                                             size_t aCount)
     {
         Set
         (
@@ -211,13 +208,13 @@ public:
         return *this;
     }
 
-    constexpr value_type&       operator[]  (const size_t aOffset) const;
+    constexpr value_type&       operator[]  (size_t aOffset) const;
     constexpr value_type&       operator*   (void) const;
 
     constexpr this_type&        operator++  (void);
     constexpr this_type         operator++  (int);
 
-    constexpr this_type&        operator+=  (const size_t aOffset);
+    constexpr this_type&        operator+=  (size_t aOffset);
 
     constexpr bool              operator==  (const this_type& aSpan) const noexcept;
     constexpr bool              operator!=  (const this_type& aSpan) const noexcept;
@@ -228,7 +225,7 @@ public:
     constexpr bool              operator<=  (const this_type& aSpan) const noexcept;
 
     constexpr pointer           Ptr         (void) const;
-    constexpr pointer           Ptr         (const size_t aOffset) const;
+    constexpr pointer           Ptr         (size_t aOffset) const;
 
     template<typename PtrT>
     requires SpanConcepts::IsConvertableFromPtr<pointer, PtrT>
@@ -239,21 +236,22 @@ public:
 
     template<typename PtrT>
     requires SpanConcepts::IsConvertableFromPtr<pointer, PtrT>
-    constexpr PtrT              PtrAs           (const size_t aOffset) const
+    constexpr PtrT              PtrAs       (size_t aOffset) const
     {
         return _SPtrAs<PtrT>(Ptr(aOffset));
     }
 
-    constexpr value_type&       At              (const size_t aOffset) const;
-    constexpr this_type&        OffsetAdd       (const size_t aOffset);
-    constexpr this_type         SubspanBegin    (const size_t aOffset,
-                                                 const size_t aCount) const;
-    constexpr this_type         SubspanBegin    (const size_t aOffset) const;
+    constexpr value_type&       At                  (size_t aOffset) const;
+    constexpr this_type&        OffsetAdd           (size_t aOffset);
+    constexpr this_type         Subspan             (size_t aOffset,
+                                                     size_t aCount) const;
+    constexpr this_type         SubspanThenOffsetAdd(size_t aCount);
+    //constexpr this_type       Subspan             (size_t aOffset) const;
 
     template<typename SpanT>
     requires SpanConcepts::IsConvertableFromSpan<this_type, SpanT>
-    constexpr SpanT             SubspanBeginAs  (const size_t aOffset,
-                                                 const size_t aCount) const
+    constexpr SpanT             SubspanAs           (size_t aOffset,
+                                                     size_t aCount) const
     {
         const auto cnt = Count();
 
@@ -270,34 +268,11 @@ public:
         );
     }
 
-    constexpr this_type         SubspanEnd      (const size_t aOffset,
-                                                 const size_t aCount) const;
-
-    template<typename SpanT>
-    requires SpanConcepts::IsConvertableFromSpan<this_type, SpanT>
-    constexpr SpanT             SubspanEndAs    (const size_t aOffset,
-                                                 const size_t aCount) const
-    {
-        const auto cnt = Count();
-
-        THROW_COND_GP
-        (
-            NumOps::SAdd(aOffset, aCount) <= cnt,
-            "Out of range"_sv
-        );
-
-        return SpanT
-        (
-            _SPtrAs<typename SpanT::pointer>(iPtr + (cnt - aOffset - 1)),
-            _SCountAs<typename SpanT::pointer, pointer>(aCount)
-        );
-    }   
-
     template<typename SpanT>
     requires SpanConcepts::IsConvertableFromSpan<this_type, SpanT>
     constexpr SpanT             As              (void) const
     {
-        return SubspanBeginAs<SpanT>(0, Count());
+        return SubspanAs<SpanT>(0, Count());
     }
 
     template<typename SpanT>
@@ -332,10 +307,10 @@ private:
     static constexpr PtrToT                     _SPtrAs         (PtrFromT aFrom) noexcept;
 
     template<typename PtrToT, typename PtrFromT>
-    static constexpr size_t                     _SCountAs       (const size_t aValue) noexcept;
+    static constexpr size_t                     _SCountAs       (size_t aValue) noexcept;
 
-    void                                        _CheckPointers  (pointer        aPtr,
-                                                                 const size_t   aCount) const;
+    void                                        _CheckPointers  (pointer    aPtr,
+                                                                 size_t     aCount) const;
 
 protected:
     pointer     iPtr    = nullptr;
@@ -344,22 +319,22 @@ protected:
 
 template<typename T>
 constexpr   GpSpan<T>::GpSpan (void) noexcept:
-iPtr  (nullptr),
-iCount(0)
+iPtr  {nullptr},
+iCount{0}
 {
 }
 
 template<typename T>
 constexpr   GpSpan<T>::GpSpan (const this_type& aSpan) noexcept:
-iPtr  (aSpan.iPtr),
-iCount(aSpan.iCount)
+iPtr  {aSpan.iPtr},
+iCount{aSpan.iCount}
 {
 }
 
 template<typename T>
 constexpr   GpSpan<T>::GpSpan (this_type&& aSpan) noexcept:
-iPtr  (std::move(aSpan.iPtr)),
-iCount(std::move(aSpan.iCount))
+iPtr  {std::move(aSpan.iPtr)},
+iCount{std::move(aSpan.iCount)}
 {
     aSpan.Clear();
 }
@@ -370,8 +345,8 @@ constexpr   GpSpan<T>::GpSpan
     pointer         aPtr,
     const size_t    aCount
 ):
-iPtr  (aPtr),
-iCount(aCount)
+iPtr  {aPtr},
+iCount{aCount}
 {
     _CheckPointers(iPtr, iCount);
 }
@@ -611,30 +586,37 @@ constexpr typename GpSpan<T>::this_type&    GpSpan<T>::OffsetAdd (const size_t a
 }
 
 template<typename T>
-constexpr typename GpSpan<T>::this_type GpSpan<T>::SubspanBegin
+constexpr typename GpSpan<T>::this_type GpSpan<T>::Subspan
 (
     const size_t aOffset,
     const size_t aCount
 ) const
 {
-    return SubspanBeginAs<this_type>(aOffset, aCount);
+    return SubspanAs<this_type>(aOffset, aCount);
 }
 
 template<typename T>
-constexpr typename GpSpan<T>::this_type GpSpan<T>::SubspanBegin (const size_t aOffset) const
+constexpr typename GpSpan<T>::this_type GpSpan<T>::SubspanThenOffsetAdd (size_t aCount)
 {
-    return SubspanBeginAs<this_type>(aOffset, NumOps::SSub<size_t>(iCount, aOffset));
+    THROW_COND_GP
+    (
+        aCount <= Count(),
+        "Out of range"_sv
+    );
+
+    this_type subspan{iPtr, aCount};
+
+    iCount  -= aCount;
+    iPtr    += aCount;
+
+    return subspan;
 }
 
-template<typename T>
-constexpr typename GpSpan<T>::this_type GpSpan<T>::SubspanEnd
-(
-    const size_t aOffset,
-    const size_t aCount
-) const
-{
-    return SubspanEndAs<this_type>(aOffset, aCount);
-}
+//template<typename T>
+//constexpr typename GpSpan<T>::this_type   GpSpan<T>::Subspan (const size_t aOffset) const
+//{
+//  return SubspanAs<this_type>(aOffset, NumOps::SSub<size_t>(iCount, aOffset));
+//}
 
 template<typename T>
 constexpr std::string_view  GpSpan<T>::AsStringView (void) const

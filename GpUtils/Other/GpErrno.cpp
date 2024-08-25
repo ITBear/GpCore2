@@ -1,5 +1,5 @@
-#include "GpErrno.hpp"
-#include "../Macro/GpMacroWarnings.hpp"
+#include <GpCore2/GpUtils/Other/GpErrno.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroWarnings.hpp>
 
 #if defined(GP_OS_WINDOWS)
 #   include <GpCore2/Config/IncludeExt/windows.hpp>

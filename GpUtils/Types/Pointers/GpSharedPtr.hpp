@@ -4,11 +4,11 @@
 
 #if defined(GP_USE_SHARED_POINTERS)
 
-#include "../../Macro/GpMacroTags.hpp"
 #include "../../GpMemOps.hpp"
 #include "../../Exceptions/GpException.hpp"
 
-#include "GpReferenceStorage.hpp"
+#include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
+#include <GpCore2/GpUtils/Types/Pointers/GpReferenceStorage.hpp>
 
 namespace GPlatform {
 
@@ -157,14 +157,20 @@ public:
         return ptr;
     }
 
-    [[nodiscard]] const_value_type* P               (void) const {return const_cast<this_type&>(*this).P();}
+    [[nodiscard]] const_value_type* P               (void) const
+    {
+        return const_cast<this_type&>(*this).P();
+    }
 
     [[nodiscard]] value_type*       Pn              (void) noexcept
     {
         return iRefCounter->template ValuePtr<T>();
     }
 
-    [[nodiscard]] const_value_type* Pn              (void) const noexcept {return const_cast<this_type&>(*this).Pn();}
+    [[nodiscard]] const_value_type* Pn              (void) const noexcept
+    {
+        return const_cast<this_type&>(*this).Pn();
+    }
 
     [[nodiscard]] value_type*       operator->      (void)
     {

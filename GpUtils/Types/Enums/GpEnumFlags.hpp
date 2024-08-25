@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../GpUtils_global.hpp"
+#include <GpCore2/GpUtils/GpUtils_global.hpp>
 
 #if defined(GP_USE_ENUMS)
 
-#include "../../Macro/GpMacroClass.hpp"
-#include "../Containers/GpContainersT.hpp"
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 
 namespace GPlatform {
 
@@ -67,6 +67,7 @@ public:
     constexpr void                  Clear               (const value_type aId) noexcept {iValue &= ~value_type(value_type(1) << aId);}
     constexpr bool                  Test                (const value_type aId) const noexcept {return iValue & value_type(value_type(1) << aId);}
     constexpr bool                  Empty               (void) const noexcept {return iValue == 0;}
+    constexpr void                  ApplyMask           (const value_type aMask) noexcept {iValue &= aMask;}
 
     virtual const NamesListT&       Names               (void) const noexcept = 0;
     virtual void                    Combine             (std::string_view aEnumName) = 0;

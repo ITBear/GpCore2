@@ -1,13 +1,11 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "../../../Config/GpCompilerFeatures.hpp"
-#include "../../Macro/GpMacroClass.hpp"
-#include "../../Concepts/GpConcepts.hpp"
-#include "../../Exceptions/GpExceptionCe.hpp"
-#include "../../Exceptions/GpException.hpp"
-#include "GpNumericTypes.hpp"
+#include <GpCore2/Config/GpCompilerFeatures.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Concepts/GpConcepts.hpp>
+#include <GpCore2/GpUtils/Exceptions/GpExceptionCe.hpp>
+#include <GpCore2/GpUtils/Types/Numerics/GpNumericTypes.hpp>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -301,7 +299,7 @@ public:
 
             if (__builtin_add_overflow(a, b, &res))
             {
-                GpThrowCe<GpException>("Add overflow");
+                GpThrowCe<std::overflow_error>("Add overflow");
             }
 
             return res;
@@ -320,7 +318,7 @@ public:
 
             if (hres != S_OK)
             {
-                GpThrowCe<GpException>("Add overflow");
+                GpThrowCe<std::overflow_error>("Add overflow");
             }
 
             return res;
@@ -347,7 +345,7 @@ public:
 
             if (__builtin_sub_overflow(a, b, &res))
             {
-                GpThrowCe<GpException>("Sub overflow");
+                GpThrowCe<std::overflow_error>("Sub overflow");
             }
 
             return res;
@@ -366,7 +364,7 @@ public:
 
             if (hres != S_OK)
             {
-                GpThrowCe<GpException>("Sub overflow");
+                GpThrowCe<std::overflow_error>("Sub overflow");
             }
 
             return res;
@@ -393,7 +391,7 @@ public:
 
             if (__builtin_mul_overflow(a, b, &res))
             {
-                GpThrowCe<GpException>("Mul overflow");
+                GpThrowCe<std::overflow_error>("Mul overflow");
             }
 
             return res;
@@ -412,7 +410,7 @@ public:
 
             if (hres != S_OK)
             {
-                GpThrowCe<GpException>("Mul overflow");
+                GpThrowCe<std::overflow_error>("Mul overflow");
             }
 
             return res;
@@ -433,7 +431,7 @@ public:
             return a / b;
         } else
         {
-            GpThrowCe<GpException>("Div by zero");
+            GpThrowCe<std::overflow_error>("Div by zero");
         }
 
         return 0;
@@ -456,7 +454,7 @@ public:
             }
         } else
         {
-            GpThrowCe<GpException>("Div by zero");
+            GpThrowCe<std::overflow_error>("Div by zero");
         }
 
         return 0;
@@ -470,7 +468,7 @@ public:
             return a % b;
         } else
         {
-            GpThrowCe<GpException>("Mod by zero");
+            GpThrowCe<std::overflow_error>("Mod by zero");
         }
 
         return 0;
@@ -547,7 +545,7 @@ public:
 
                     if (aValueFrom < FROM(0))
                     {
-                        GpThrowCe<GpException>("GpNumericOps::SConvert out of range (A)");
+                        GpThrowCe<std::overflow_error>("GpNumericOps::SConvert out of range (A)");
                     }
 
                     return TO(aValueFrom);
@@ -561,7 +559,7 @@ public:
                     if ((aValueFrom > FROM(GpNumericOps::SMax<TO>())) ||
                         (aValueFrom < FROM(GpNumericOps::SMin<TO>())))
                     {
-                        GpThrowCe<GpException>("GpNumericOps::SConvert out of range (B)");
+                        GpThrowCe<std::overflow_error>("GpNumericOps::SConvert out of range (B)");
                     }
 
                     return TO(aValueFrom);
@@ -570,7 +568,7 @@ public:
                     //Check TO upper bound
                     if (aValueFrom > FROM(GpNumericOps::SMax<TO>()))
                     {
-                        GpThrowCe<GpException>("GpNumericOps::SConvert out of range (C)");
+                        GpThrowCe<std::overflow_error>("GpNumericOps::SConvert out of range (C)");
                     }
 
                     return TO(aValueFrom);
@@ -587,7 +585,7 @@ public:
             if ((aValueFrom > FROM(GpNumericOps::SMax<TO>())) ||
                 (aValueFrom < FROM(GpNumericOps::SMin<TO>())))
             {
-                GpThrowCe<GpException>("GpNumericOps::SConvert out of range (B)");
+                GpThrowCe<std::overflow_error>("GpNumericOps::SConvert out of range (D)");
             }
 
             return TO(aValueFrom);

@@ -12,8 +12,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "GpFile.hpp"
-#include "../Other/GpErrno.hpp"
+#include <GpCore2/GpUtils/Files/GpFile.hpp>
+#include <GpCore2/GpUtils/Other/GpErrno.hpp>
 
 namespace GPlatform {
 

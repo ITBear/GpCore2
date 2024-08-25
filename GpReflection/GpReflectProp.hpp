@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GpCore2/Config/GpConfig.hpp>
 #include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
+#include <GpCore2/Config/GpConfig.hpp>
 
 #include "GpReflectType.hpp"
 #include "GpReflectContainerType.hpp"

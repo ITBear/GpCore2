@@ -1,7 +1,5 @@
-#include "GpTaskExecutorV1.hpp"
-#include "GpTaskSchedulerV1.hpp"
-
-#include <iostream>
+#include <GpCore2/GpTasks/Scheduler/V1/GpTaskExecutorV1.hpp>
+#include <GpCore2/GpTasks/Scheduler/V1/GpTaskSchedulerV1.hpp>
 
 namespace GPlatform {
 
@@ -33,7 +31,7 @@ void    GpTaskExecutorV1::Run (std::atomic_flag& aStopRequest) noexcept
         while (!aStopRequest.test())
         {
             // Consume next task
-            GpTask::C::Opt::SP  taskOpt = iReadyTasksQueue.WaitAndPop(0.5_si_s);
+            GpTask::C::Opt::SP taskOpt = iReadyTasksQueue.WaitAndPop(0.25_si_s);
 
             if (!taskOpt.has_value())
             {
@@ -58,20 +56,40 @@ void    GpTaskExecutorV1::Run (std::atomic_flag& aStopRequest) noexcept
         return;
     } catch (const GpException& e)
     {
-        exMsg = "[GpTaskExecutor::Run]: executor id: "_sv + Id() + ", exception: "_sv + e.what();
+        exMsg = fmt::format
+        (
+            "[GpTaskExecutor::Run]: executor id: {} , exception: {}",
+            Id(),
+            e.what()
+        );
     } catch (const std::exception& e)
     {
-        exMsg = "[GpTaskExecutor::Run]: executor id: "_sv + Id() + ", exception: "_sv + e.what();
+        exMsg = fmt::format
+        (
+            "[GpTaskExecutor::Run]: executor id: {} , exception: {}",
+            Id(),
+            e.what()
+        );
     } catch (...)
     {
-        exMsg = "[GpTaskExecutor::Run]: executor id: "_sv + Id() + ",  unknown exception"_sv;
+        exMsg = fmt::format
+        (
+            "[GpTaskExecutor::Run]: executor id: {} , exception: {}",
+            Id(),
+            "unknown exception"
+        );
     }
 
-    GpStringUtils::SCerr(exMsg);
-    iDonePromise.Fulfill(GpException(exMsg));
+    // GpStringUtils::SCerr(exMsg);
+    iDonePromise.Fulfill(GpException{std::move(exMsg)});
 
     // Stop service
     GpTaskScheduler::S().StopService();
+}
+
+void    GpTaskExecutorV1::OnNotify (void) noexcept
+{
+    iReadyTasksQueue.Interrupt();
 }
 
 }// namespace GPlatform

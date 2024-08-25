@@ -4,14 +4,13 @@
 
 #if defined(GP_USE_EXCEPTIONS)
 
-#include "../GpUtils_global.hpp"
-#include "../Debugging/GpSourceLocation.hpp"
-#include "../Types/Strings/GpStringLiterals.hpp"
-#include "../Types/Strings/GpUTF.hpp"
+#include <GpCore2/GpUtils/GpUtils_global.hpp>
+#include <GpCore2/Config/IncludeExt/boost_small_vector.hpp>
+#include <GpCore2/GpUtils/Debugging/GpSourceLocation.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringLiterals.hpp>
 
 #include <exception>
 #include <functional>
-#include <optional>
 
 namespace GPlatform {
 
@@ -19,7 +18,10 @@ class GP_UTILS_API GpException: public std::exception
 {
 public:
     struct C {
-        using Opt = std::optional<GpException>;
+        using Opt       = std::optional<GpException>;
+
+        template <size_t N>
+        using SmallVec  = boost::container::small_vector<GpException, N>;
     };
 
 public:
@@ -44,23 +46,23 @@ private:
 };
 
 GpException::GpException (const GpException& aException):
-iWhat          (aException.iWhat),
-iMsg           (std::data(iWhat) + (std::data(aException.iMsg) - std::data(aException.iWhat)), aException.iMsg.length()),
-iSourceLocation(aException.iSourceLocation)
+iWhat          {aException.iWhat},
+iMsg           {std::data(iWhat) + (std::data(aException.iMsg) - std::data(aException.iWhat)), std::size(aException.iMsg)},
+iSourceLocation{aException.iSourceLocation}
 {
 }
 
 GpException::GpException (GpException&& aException):
-iWhat          (aException.iWhat),//do not std::move
-iMsg           (std::data(iWhat) + (std::data(aException.iMsg) - std::data(aException.iWhat)), aException.iMsg.length()),
-iSourceLocation(aException.iSourceLocation)//do not std::move
+iWhat          {aException.iWhat},//do not std::move
+iMsg           {std::data(iWhat) + (std::data(aException.iMsg) - std::data(aException.iWhat)), std::size(aException.iMsg)},
+iSourceLocation{aException.iSourceLocation}//do not std::move
 {
 }
 
 GpException&    GpException::operator= (const GpException&  aException)
 {
     iWhat           = aException.iWhat;
-    iMsg            = std::string_view(std::data(iWhat) + (std::data(aException.iMsg) - std::data(aException.iWhat)), aException.iMsg.length());
+    iMsg            = std::string_view(std::data(iWhat) + (std::data(aException.iMsg) - std::data(aException.iWhat)), std::size(aException.iMsg));
     iSourceLocation = aException.iSourceLocation;
 
     return *this;
@@ -69,7 +71,7 @@ GpException&    GpException::operator= (const GpException&  aException)
 GpException&    GpException::operator= (GpException&& aException)
 {
     iWhat           = aException.iWhat;
-    iMsg            = std::string_view(std::data(iWhat) + (std::data(aException.iMsg) - std::data(aException.iWhat)), aException.iMsg.length());
+    iMsg            = std::string_view(std::data(iWhat) + (std::data(aException.iMsg) - std::data(aException.iWhat)), std::size(aException.iMsg));
     iSourceLocation = aException.iSourceLocation;
 
     return *this;
@@ -81,7 +83,7 @@ GpException&    GpException::operator= (GpException&& aException)
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
 )
 {
-    throw GpException(aMsg, aSourceLocation);
+    throw GpException{aMsg, aSourceLocation};
 }
 
 [[noreturn]] inline void    THROW_GP_NOT_IMPLEMENTED
@@ -89,7 +91,7 @@ GpException&    GpException::operator= (GpException&& aException)
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
 )
 {
-    throw GpException("Not implemented yet..."_sv, aSourceLocation);
+    throw GpException{"Not implemented yet..."_sv, aSourceLocation};
 }
 
 inline void THROW_COND_GP
@@ -101,7 +103,7 @@ inline void THROW_COND_GP
 {
     if (!aCondition) [[unlikely]]
     {
-        throw GpException(aMsg, aSourceLocation);
+        throw GpException{aMsg, aSourceLocation};
     }
 }
 
@@ -114,7 +116,7 @@ inline void THROW_COND_GP
 {
     if (!aCondition) [[unlikely]]
     {
-        throw GpException(aMsgGenFn(), aSourceLocation);
+        throw GpException{aMsgGenFn(), aSourceLocation};
     }
 }
 

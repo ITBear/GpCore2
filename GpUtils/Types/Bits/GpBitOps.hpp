@@ -1,11 +1,10 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "../../Macro/GpMacroClass.hpp"
-#include "../../Concepts/GpConcepts.hpp"
-#include "../Numerics/GpNumericTypes.hpp"
-#include "../Pointers/GpSpan.hpp"
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Concepts/GpConcepts.hpp>
+#include <GpCore2/GpUtils/Types/Numerics/GpNumericTypes.hpp>
+#include <GpCore2/GpUtils/Types/Pointers/GpSpan.hpp>
 
 #include <bit>
 #include <tuple>

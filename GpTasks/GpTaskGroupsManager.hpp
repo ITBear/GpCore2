@@ -1,5 +1,8 @@
 #pragma once
 
+#include <GpCore2/Config/IncludeExt/boost_flat_set.hpp>
+#include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
+#include <GpCore2/Config/IncludeExt/boost_small_vector.hpp>
 #include <GpCore2/Config/GpConfig.hpp>
 #include <GpCore2/GpTasks/GpTaskEnums.hpp>
 #include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
@@ -7,9 +10,6 @@
 #include <GpCore2/GpUtils/SyncPrimitives/GpSpinLockRW.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpSharedMutex.hpp>
-#include <GpCore2/Config/IncludeExt/boost_flat_set.hpp>
-#include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
-#include <GpCore2/Config/IncludeExt/boost_small_vector.hpp>
 
 namespace GPlatform {
 

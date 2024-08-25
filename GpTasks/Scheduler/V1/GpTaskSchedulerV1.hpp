@@ -1,11 +1,10 @@
 #pragma once
 
-#include "../GpTaskScheduler.hpp"
-#include "../../GpTask.hpp"
-#include "GpTaskExecutorV1.hpp"
-
 #include <GpCore2/GpUtils/Threads/GpThread.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
+#include <GpCore2/GpTasks/Scheduler/GpTaskScheduler.hpp>
+#include <GpCore2/GpTasks/GpTask.hpp>
+#include <GpCore2/GpTasks/Scheduler/V1/GpTaskExecutorV1.hpp>
 
 #include <bitset>
 #include <array>
@@ -23,15 +22,15 @@ public:
 
     using ExecutorDoneFutureT   = GpItcSharedFuture<ssize_t>;
     using ReadyTasksQueueT      = GpItcSharedQueue<GpTask::SP>;
-    using WaitingTasksT         = std::unordered_map<GpTaskId, GpTask::SP>; //TODO: check perfomance and grow of id (test)
-    using MarkedAsReadyIdsT     = std::unordered_set<GpTaskId>; //TODO: check perfomance and grow of id (test)
+    using WaitingTasksT         = std::unordered_map<GpTaskId, GpTask::SP>; // TODO: check perfomance and grow of id (test)
+    using MarkedAsReadyIdsT     = std::unordered_set<GpTaskId>; // TODO: check perfomance and grow of id (test)
 
 public:
                                     GpTaskSchedulerV1       (StopServiceFnT aStopServiceFn) noexcept;
     virtual                         ~GpTaskSchedulerV1      (void) noexcept override final;
 
-    virtual void                    Start                   (const size_t aExecutorsCount,
-                                                             const size_t aTasksMaxCount) override final;
+    virtual void                    Start                   (size_t aExecutorsCount,
+                                                             size_t aTasksMaxCount) override final;
     virtual void                    RequestStopAndJoin      (void) noexcept override final;
 
     virtual void                    NewToReady              (GpTask::SP aTask) override final;

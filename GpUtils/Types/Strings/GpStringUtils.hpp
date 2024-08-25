@@ -4,8 +4,8 @@
 
 #if defined(GP_USE_STRINGS)
 
-#include "../../GpUtils_global.hpp"
-#include "../../Macro/GpMacroClass.hpp"
+#include <GpCore2/GpUtils/GpUtils_global.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
 
 #include <string_view>
 

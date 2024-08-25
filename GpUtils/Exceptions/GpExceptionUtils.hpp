@@ -4,11 +4,11 @@
 
 #if defined(GP_USE_EXCEPTIONS)
 
-#include <optional>
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Exceptions/GpException.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
-#include "../Macro/GpMacroClass.hpp"
-#include "GpException.hpp"
-#include "../Types/Strings/GpUTF.hpp"
+#include <optional>
 
 namespace GPlatform {
 
@@ -21,44 +21,14 @@ public:
     {
     public:
         std::string         fullMessage;
-        std::string_view    message;//view of part of fullMessage
-    };
-
-    enum class ExceptionType
-    {
-        STD,
-        GP
+        std::string_view    message;    // view of part of fullMessage
     };
 
 public:
-    static ToStrResT            SToString   (const std::string_view     aMessage,
-                                             const SourceLocationT&     aSourceLocation,
-                                             const ExceptionType        aExceptionType,
-                                             std::optional<std::string> aStackTrace);
-    static inline std::string   SToString   (const std::exception&  aException,
-                                             const SourceLocationT& aSourceLocation = SourceLocationT::current());
-    static inline std::string   SToString   (const GpException&     aException);
+    static ToStrResT    SToString   (const std::string_view             aMessage,
+                                     const SourceLocationT&             aSourceLocation,
+                                     const std::optional<std::string>&  aStackTrace);
 };
-
-std::string GpExceptionUtils::SToString
-(
-    const std::exception&   aException,
-    const SourceLocationT&  aSourceLocation
-)
-{
-    return SToString
-    (
-        aException.what(),
-        aSourceLocation,
-        ExceptionType::STD,
-        std::nullopt
-    ).fullMessage;
-}
-
-std::string GpExceptionUtils::SToString (const GpException& aException)
-{
-    return aException.what();
-}
 
 }// namespace GPlatform
 

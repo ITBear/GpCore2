@@ -4,14 +4,14 @@
 
 #if defined (GP_USE_EVENT_BUS)
 
-#include "../Macro/GpMacroClass.hpp"
-#include "../Macro/GpMacroTags.hpp"
-#include "../Types/Containers/GpContainersT.hpp"
-#include "../SyncPrimitives/GpSpinLock.hpp"
-#include "../SyncPrimitives/GpMutex.hpp"
-
 #include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
 #include <GpCore2/Config/IncludeExt/boost_small_vector.hpp>
+
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSpinLock.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
 
 namespace GPlatform {
 
@@ -30,7 +30,7 @@ public:
     using value_type    = ValueT;
 
     using CallbackFnT   = std::function<void(const UidT& aUid, const ValueT& aEvent)>;
-    using SubscribersT  = boost::container::small_flat_map<UidT, CallbackFnT, 16>;// TODO: add underlying container like boost::small_container
+    using SubscribersT  = boost::container::small_flat_map<UidT, CallbackFnT, 8>;
 
 public:
                         GpEventChannel  (void) noexcept = default;

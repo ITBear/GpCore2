@@ -1,6 +1,6 @@
-#include "GpLinkedLibsInfo.hpp"
-
 #include <GpCore2/Config/IncludeExt/fmt.hpp>
+
+#include "GpLinkedLibsInfo.hpp"
 
 namespace GPlatform {
 

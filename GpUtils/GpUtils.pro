@@ -1,16 +1,19 @@
 # ----------- Config -----------
 TEMPLATE        = lib
-#CONFIG        += staticlib
 QMAKE_CXXFLAGS += -DGP_REFLECTION_STATIC_ADD_TO_MANAGER
 QMAKE_CXXFLAGS += -DGP_MODULE_UUID=85f5a110-ed86-4537-682f-bfb939507969
 PACKET_NAME     = GpUtils
 DEFINES        += GP_UTILS_LIBRARY
 _VER_MAJ        = 2
 _VER_MIN        = 1
-_VER_PAT        = 5
+_VER_PAT        = 6
 DIR_LEVEL       = ./../..
 
 include($$DIR_LEVEL/../QtGlobalPro.pri)
+
+release_build_static{
+	CONFIG += staticlib
+}
 
 # ----------- Libraries -----------
 os_windows{
@@ -35,18 +38,14 @@ SOURCES += \
     Files/GpFile.cpp \
     Files/GpFileUtils.cpp \
     GpUtilsLib.cpp \
-    Lifetime/GpLifetimeManager.cpp \
     Other/GpErrno.cpp \
     Other/GpLinkedLibsInfo.cpp \
+    Other/GpStartStopManager.cpp \
     Other/GpSystemInfo.cpp \
     Random/GpRandom.cpp \
     Random/GpRandomDeviceWin.cpp \
     Random/GpRandomIf.cpp \
     Random/GpSRandom.cpp \
-    Streams/GpBitReader.cpp \
-    Streams/GpBitWriter.cpp \
-    Streams/GpBitWriterStorage.cpp \
-    Streams/GpBitWriterStorageByteArray.cpp \
     Streams/GpByteReader.cpp \
     Streams/GpByteWriter.cpp \
     Streams/GpByteWriterStorage.cpp \
@@ -79,7 +78,9 @@ HEADERS += \
     Encoders/GpBase58.hpp \
     Encoders/GpBase64.hpp \
     Encoders/GpEncoders.hpp \
+    EventBus/Events/GpDataProcessUpdateEvent.hpp \
     EventBus/GpEventChannel.hpp \
+    EventBus/GpEventChannelAny.hpp \
     Exceptions/GpException.hpp \
     Exceptions/GpExceptionCe.hpp \
     Exceptions/GpExceptionCode.hpp \
@@ -96,8 +97,6 @@ HEADERS += \
     GpUtilsLib.hpp \
     GpUtils_global.hpp \
     Lifetime/GpLifetime.hpp \
-    Lifetime/GpLifetimeElement.hpp \
-    Lifetime/GpLifetimeManager.hpp \
     Macro/GpMacroClass.hpp \
     Macro/GpMacroImportExport.hpp \
     Macro/GpMacroTags.hpp \
@@ -109,6 +108,7 @@ HEADERS += \
     Other/GpLinkedLibsInfo.hpp \
     Other/GpMethodAccessGuard.hpp \
     Other/GpRAIIonDestruct.hpp \
+    Other/GpStartStopManager.hpp \
     Other/GpSystemInfo.hpp \
     Other/GpSystemInfoWin.hpp \
     Random/GpRandom.hpp \
@@ -117,12 +117,6 @@ HEADERS += \
     Random/GpRandomGenerators.hpp \
     Random/GpRandomIf.hpp \
     Random/GpSRandom.hpp \
-    Streams/GpBitReader.hpp \
-    Streams/GpBitReaderStorage.hpp \
-    Streams/GpBitWriter.hpp \
-    Streams/GpBitWriterStorage.hpp \
-    Streams/GpBitWriterStorageByteArray.hpp \
-    Streams/GpBitWriterStorageFixedSize.hpp \
     Streams/GpByteReader.hpp \
     Streams/GpByteReaderStorage.hpp \
     Streams/GpByteSerializer.hpp \
@@ -132,7 +126,6 @@ HEADERS += \
     Streams/GpByteWriterStorage.hpp \
     Streams/GpByteWriterStorageByteArray.hpp \
     Streams/GpByteWriterStorageFixedSize.hpp \
-    Streams/GpStreams.hpp \
     SyncPrimitives/GpAsmSpinPause.hpp \
     SyncPrimitives/GpConditionVar.hpp \
     SyncPrimitives/GpConditionVarFlag.hpp \
@@ -142,6 +135,7 @@ HEADERS += \
     SyncPrimitives/GpSpinLockRW.hpp \
     SyncPrimitives/GpUnlockGuard.hpp \
     Threads/GpRunnable.hpp \
+    Threads/GpSleepStrategy.hpp \
     Threads/GpThread.hpp \
     Threads/GpThreadsSafety.hpp \
     Threads/Timers/GpDoOnceInPeriod.hpp \

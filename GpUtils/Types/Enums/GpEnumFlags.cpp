@@ -1,5 +1,5 @@
-#include "GpEnumFlags.hpp"
-#include "../Strings/GpStringOps.hpp"
+#include <GpCore2/GpUtils/Types/Enums/GpEnumFlags.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
 #if defined(GP_USE_ENUMS)
 

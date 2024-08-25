@@ -1,5 +1,5 @@
-#include "GpSRandom.hpp"
-#include "../SyncPrimitives/GpMutex.hpp"
+#include <GpCore2/GpUtils/Random/GpSRandom.hpp>
+#include <GPlatform/GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
 
 #if defined(GP_USE_RANDOM_GENERATORS)
 
@@ -121,6 +121,28 @@ std::string GpSRandom::String
 {
     GpUniqueLock<GpSpinLock> uniqueLock{iSpinLock};
     return iRandom.String(aMode, aSize);
+}
+
+GpBytesArray    GpSRandom::BytesArray (size_t aSize)
+{
+    GpUniqueLock<GpSpinLock> uniqueLock{iSpinLock};
+    return iRandom.BytesArray(aSize);
+}
+
+void    GpSRandom::BytesArray (GpSpanByteRW aSpanByteRW)
+{
+    GpUniqueLock<GpSpinLock> uniqueLock{iSpinLock};
+    return iRandom.BytesArray(aSpanByteRW);
+}
+
+void    GpSRandom::BytesArray
+(
+    GpByteWriter&   aDataWriter,
+    size_t          aSize
+)
+{
+    GpUniqueLock<GpSpinLock> uniqueLock{iSpinLock};
+    return iRandom.BytesArray(aDataWriter, aSize);
 }
 
 }// namespace GPlatform

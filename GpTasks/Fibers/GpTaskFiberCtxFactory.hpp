@@ -4,7 +4,7 @@
 
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
-#include "GpTaskFiberCtx.hpp"
+#include <GpCore2/GpTasks/Fibers/GpTaskFiberCtx.hpp>
 
 namespace GPlatform {
 

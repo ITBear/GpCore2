@@ -1,8 +1,11 @@
-#include "GpUTF.hpp"
+#include <GpCore2/GpUtils/Types/Strings/GpUTF.hpp>
 
 #if defined(GP_USE_STRINGS)
 
-#include "../Bits/GpBitOps.hpp"
+#include <GpCore2/GpUtils/Exceptions/GpExceptionCe.hpp>
+#include <GpCore2/GpUtils/Exceptions/GpException.hpp>
+#include <GpCore2/GpUtils/Types/Bits/GpBitOps.hpp>
+#include <array>
 
 namespace GPlatform {
 
@@ -32,7 +35,7 @@ std::u16string  GpUTF::S_UTF8_To_UTF16 (std::string_view aStr)
 
         if (leading1bitCnt == 1)
         {
-            resStr.append(1, char16_t(char8));
+            resStr.push_back(char16_t(char8));
         } else if (leading1bitCnt == 2)
         {
             //Byte 0: 110xxxxx
@@ -41,7 +44,7 @@ std::u16string  GpUTF::S_UTF8_To_UTF16 (std::string_view aStr)
             const u_int_32 char32 =   u_int_32((u_int_32(char8)      & u_int_32(0b00011111)) << 6)
                                     | u_int_32((u_int_32(utf8Str[1]) & u_int_32(0b00111111)) << 0);
 
-            resStr.append(1, char16_t(char32));
+            resStr.push_back(char16_t(char32));
         } else if (leading1bitCnt == 3)
         {
             //Byte 0: 1110xxxx
@@ -52,7 +55,7 @@ std::u16string  GpUTF::S_UTF8_To_UTF16 (std::string_view aStr)
                                     | u_int_32((u_int_32(utf8Str[1]) & u_int_32(0b00111111)) <<  6)
                                     | u_int_32((u_int_32(utf8Str[2]) & u_int_32(0b00111111)) <<  0);
 
-            resStr.append(1, char16_t(char32));
+            resStr.push_back(char16_t(char32));
         } else //if (leading1bitCnt == 4)
         {
             //Byte 0: 11110xxx
@@ -76,8 +79,8 @@ std::u16string  GpUTF::S_UTF8_To_UTF16 (std::string_view aStr)
             const char16_t lowSurrogate     = char16_t((u_int_32((char32 & u_int_32(~0b10000000000000000)) >>  0) & u_int_32(0b1111111111))
                                                        | u_int_32(0b1101110000000000));
 
-            resStr.append(1, highSurrogate);
-            resStr.append(1, lowSurrogate);
+            resStr.push_back(highSurrogate);
+            resStr.push_back(lowSurrogate);
         }
 
         utf8Str     += leading1bitCnt;
@@ -97,7 +100,7 @@ std::string GpUTF::S_UTF16_To_UTF8 (std::u16string_view aStr)
 {
     std::string resStr;
 
-    const size_t strLegth = aStr.length();
+    const size_t strLegth = std::size(aStr);
     resStr.reserve(NumOps::SMul<size_t>(strLegth, 2));
 
     GpUtf16Type prevType    = GpUtf16Type::REGULAR;
@@ -138,70 +141,68 @@ std::string GpUTF::S_UTF16_To_UTF8 (std::u16string_view aStr)
                 "Invalid UTF-16 low surrogate character"_sv
             );
 
-            //char32_t low_surrogate = static_cast<char32_t>(*(in_it + 1));
-
             code        = (code - char32_t(0xD800)) * char32_t(0x400) + (char32_t(val0) - char32_t(0xDC00)) + char32_t(0x10000);
             prevType    = type;
         }
 
         if (code <= char32_t(0x7F))
         {
-            resStr.append(1, char(code));
+            resStr.push_back(char(code));
         } else if (code <= char32_t(0x7FF))
         {
-            resStr.append(1, char(char32_t(0xC0) | char32_t(char32_t(code >>  6) & char32_t(0xFFFFFFFF))));
-            resStr.append(1, char(char32_t(0x80) | char32_t(char32_t(code >>  0) & char32_t(0x0000003F))));
+            resStr.push_back(char(char32_t(0xC0) | char32_t(char32_t(code >>  6) & char32_t(0xFFFFFFFF))));
+            resStr.push_back(char(char32_t(0x80) | char32_t(char32_t(code >>  0) & char32_t(0x0000003F))));
         } else if (code <= char32_t(0xFFFF))
         {
-            resStr.append(1, char(char32_t(0xE0) | char32_t(char32_t(code >> 12) & char32_t(0xFFFFFFFF))));
-            resStr.append(1, char(char32_t(0x80) | char32_t(char32_t(code >>  6) & char32_t(0x0000003F))));
-            resStr.append(1, char(char32_t(0x80) | char32_t(char32_t(code >>  0) & char32_t(0x0000003F))));
+            resStr.push_back(char(char32_t(0xE0) | char32_t(char32_t(code >> 12) & char32_t(0xFFFFFFFF))));
+            resStr.push_back(char(char32_t(0x80) | char32_t(char32_t(code >>  6) & char32_t(0x0000003F))));
+            resStr.push_back(char(char32_t(0x80) | char32_t(char32_t(code >>  0) & char32_t(0x0000003F))));
         } else
         {
-            resStr.append(1, char(char32_t(0xF0) | char32_t(char32_t(code >> 18) & char32_t(0xFFFFFFFF))));
-            resStr.append(1, char(char32_t(0x80) | char32_t(char32_t(code >> 12) & char32_t(0x0000003F))));
-            resStr.append(1, char(char32_t(0x80) | char32_t(char32_t(code >>  6) & char32_t(0x0000003F))));
-            resStr.append(1, char(char32_t(0x80) | char32_t(char32_t(code >>  0) & char32_t(0x0000003F))));
+            resStr.push_back(char(char32_t(0xF0) | char32_t(char32_t(code >> 18) & char32_t(0xFFFFFFFF))));
+            resStr.push_back(char(char32_t(0x80) | char32_t(char32_t(code >> 12) & char32_t(0x0000003F))));
+            resStr.push_back(char(char32_t(0x80) | char32_t(char32_t(code >>  6) & char32_t(0x0000003F))));
+            resStr.push_back(char(char32_t(0x80) | char32_t(char32_t(code >>  0) & char32_t(0x0000003F))));
         }
     }
 
     return resStr;
 }
 
-std::string GpUTF::S_UTF32_To_UTF8 (std::u32string_view /*aStr*/)
+std::string GpUTF::S_UTF32_To_UTF8 (std::u32string_view aStr)
 {
-    //std::string wstring_to_string(const std::wstring& wstr) {
-    //  if (wstr.empty()) return {};
+    std::string resStr;
 
-    //  int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)std::size(wstr), NULL, 0, NULL, NULL);
-    //  std::string strTo(sizeNeeded, 0);
-    //  WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)std::size(wstr), &strTo[0], sizeNeeded, NULL, NULL);
-    //  return strTo;
-    //}
+    const size_t strLegth = std::size(aStr);
+    resStr.reserve(NumOps::SMul<size_t>(strLegth, 4));
 
-    //TODO: implement
-    THROW_GP_NOT_IMPLEMENTED();
-
-    /*std::string resStr;
-
-    const size_t strLegth = aStr.length();
-    resStr.reserve(NumOps::SMul<size_t>(strLegth, 3));
-
-    for (size_t id = 0; id < strLegth; id++)
+    for (char32_t code: aStr)
     {
-        std::array<char, 4> valueUtf8;
-        const size_t bytesCount = S_UTF32_To_UTF8(aStr[id], valueUtf8);
-
-        resStr.resize(std::size(resStr) + bytesCount);
-        std::memcpy
-        (
-            std::data(resStr) + std::size(resStr) - bytesCount,
-            std::data(valueUtf8),
-            bytesCount
-        );
+        if (code <= 0x7F)
+        {
+            resStr.push_back(static_cast<char>(code));
+        } else if (code <= 0x7FF)
+        {
+            resStr.push_back(static_cast<char>(0xC0 | ((code >> 6) & 0x1F)));
+            resStr.push_back(static_cast<char>(0x80 | (code & 0x3F)));
+        } else if (code <= 0xFFFF)
+        {
+            resStr.push_back(static_cast<char>(0xE0 | ((code >> 12) & 0x0F)));
+            resStr.push_back(static_cast<char>(0x80 | ((code >> 6) & 0x3F)));
+            resStr.push_back(static_cast<char>(0x80 | (code & 0x3F)));
+        } else if (code <= 0x10FFFF)
+        {
+            resStr.push_back(static_cast<char>(0xF0 | ((code >> 18) & 0x07)));
+            resStr.push_back(static_cast<char>(0x80 | ((code >> 12) & 0x3F)));
+            resStr.push_back(static_cast<char>(0x80 | ((code >> 6) & 0x3F)));
+            resStr.push_back(static_cast<char>(0x80 | (code & 0x3F)));
+        } else
+        {
+            THROW_GP("Invalid UTF-32 code point");
+        }
     }
 
-    return resStr;*/
+    return resStr;
 }
 
 size_t  GpUTF::SCharsCount (std::string_view aStr)

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Types/Containers/GpBytesArray.hpp"
-#include "../Types/Bits/GpBitOps.hpp"
+#include <GpCore2/GpUtils/Types/Containers/GpBytesArray.hpp>
+#include <GpCore2/GpUtils/Types/Bits/GpBitOps.hpp>
 
 namespace GPlatform {
 
@@ -15,16 +15,16 @@ public:
     using value_type    = T;
 
 public:
-                        GpByteWriterRef     (void) = delete;
-                        GpByteWriterRef     (size_t     aOffset,
-                                             WriterT&   aWriter) noexcept;
-                        ~GpByteWriterRef    (void) noexcept = default;
+                    GpByteWriterRef     (void) = delete;
+                    GpByteWriterRef     (size_t     aOffset,
+                                         WriterT&   aWriter) noexcept;
+                    ~GpByteWriterRef    (void) noexcept = default;
 
-    void                Write               (T aValue);
+    void            Write               (T aValue);
 
 private:
-    const size_t        iOffset;
-    WriterT&            iWriter;
+    const size_t    iOffset;
+    WriterT&        iWriter;
 };
 
 template<typename T,
@@ -35,8 +35,8 @@ GpByteWriterRef<T, WriterT>::GpByteWriterRef
     const size_t    aOffset,
     WriterT&        aWriter
 ) noexcept:
-iOffset(aOffset),
-iWriter(aWriter)
+iOffset{aOffset},
+iWriter{aWriter}
 {
 }
 
@@ -48,7 +48,7 @@ void    GpByteWriterRef<T, WriterT>::Write (const T aValue)
     GpSpanByteRW    storage     = iWriter.StoragePtr();
     const size_t    totalWrite  = iWriter.TotalWrite();
     void*           ptr         = storage.Ptr() - totalWrite + iOffset;
-    T               val         = BitOps::H2N(aValue);
+    const T         val         = BitOps::H2N(aValue);
 
     std::memcpy(ptr, &val, sizeof(T));
 }

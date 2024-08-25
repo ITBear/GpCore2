@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Types/Containers/GpBytesArray.hpp"
+#include <GpCore2/GpUtils/Types/Containers/GpBytesArray.hpp>
 
 namespace GPlatform {
 
@@ -9,40 +9,40 @@ class GP_UTILS_API GpByteWriterStorage
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpByteWriterStorage)
 
 protected:
-    inline                  GpByteWriterStorage     (GpSpanByteRW aStoragePtr) noexcept;
+    inline              GpByteWriterStorage     (GpSpanByteRW aStoragePtr) noexcept;
 
 public:
-    virtual                 ~GpByteWriterStorage    (void) noexcept = default;
+    virtual             ~GpByteWriterStorage    (void) noexcept = default;
 
-    inline GpSpanByteRW     StoragePtr              (void) const noexcept;
-    inline size_t           SizeLeft                (void) const noexcept;
-    inline size_t           TotalWrite              (void) const noexcept;
-    inline void             OnEnd                   (void);
-    inline void             ReserveNext             (const size_t aSize);
-    inline void             Write                   (GpSpanByteR aData);
-    void                    Write                   (const void*    aPtr,
-                                                     const size_t   aSize);
+    inline GpSpanByteRW StoragePtr              (void) const noexcept;
+    inline size_t       SizeLeft                (void) const noexcept;
+    inline size_t       TotalWrite              (void) const noexcept;
+    inline void         OnEnd                   (void);
+    inline void         ReserveNext             (size_t aSize);
+    inline void         Write                   (GpSpanByteR aData);
+    void                Write                   (const void*    aPtr,
+                                                 size_t         aSize);
 
     /**
      * @brief OffsetAdd - make iData offset (allocate memory if need)
      * @param aOffset - size in bytes to `skip`
-     * @return - SpanPtr to memory before offset
+     * @return - SpanPtr to memory before offset (size is aOffset)
      */
-    GpSpanByteRW            OffsetAdd               (const size_t aOffset);
-    inline void             OffsetToEnd             (void);
+    GpSpanByteRW        SubspanThenOffsetAdd    (size_t aOffset);
+    inline void         OffsetToEnd             (void);
 
 protected:
-    virtual void            AllocateAdd             (const size_t   aSizeToAdd,
-                                                     GpSpanByteRW&  aStoragePtr) = 0;
-    virtual void            _OnEnd                  (void) = 0;
+    virtual void        AllocateAdd             (size_t         aSizeToAdd,
+                                                 GpSpanByteRW&  aStoragePtr) = 0;
+    virtual void        _OnEnd                  (void) = 0;
 
 private:
-    GpSpanByteRW            iStoragePtr;
-    size_t                  iTotalWrite = 0;
+    GpSpanByteRW        iStoragePtr;
+    size_t              iTotalWrite = 0;
 };
 
 GpByteWriterStorage::GpByteWriterStorage (GpSpanByteRW aStoragePtr) noexcept:
-iStoragePtr(aStoragePtr)
+iStoragePtr{aStoragePtr}
 {
 }
 

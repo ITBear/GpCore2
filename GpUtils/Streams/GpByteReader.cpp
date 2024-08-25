@@ -1,4 +1,4 @@
-#include "GpByteReader.hpp"
+#include <GpCore2/GpUtils/Streams/GpByteReader.hpp>
 
 namespace GPlatform {
 
@@ -49,7 +49,7 @@ GpSpanByteR GpByteReader::BytesWithLen (void)
     return Bytes(size);
 }
 
-GpSpanByteR GpByteReader::NextTextLine (void)
+GpSpanByteR GpByteReader::TextLine (void)
 {
     const char* _R_ dataPtr     = iStorage.StoragePtr().PtrAs<const char*>();
     const size_t    sizeLeft    = SizeLeft();
@@ -60,23 +60,46 @@ GpSpanByteR GpByteReader::NextTextLine (void)
 
         if (ch == '\n') [[unlikely]]
         {
-            return iStorage.Read(id+1).SubspanBegin(0, id);
+            return iStorage.Read(id+1).Subspan(0, id);
         } else if (ch == '\r') [[unlikely]]
         {
             // Check next char
             if (   ((id+1) < sizeLeft)
                 && (ch == '\n'))
             {
-                return iStorage.Read(id+2).SubspanBegin(0, id);
+                return iStorage.Read(id+2).Subspan(0, id);
             } else
             {
-                return iStorage.Read(id+1).SubspanBegin(0, id);
+                return iStorage.Read(id+1).Subspan(0, id);
             }
         }
     }
 
     // Read all data left
     return iStorage.Read(sizeLeft);
+}
+
+std::string_view    GpByteReader::NullTerminatedString (void)
+{
+    const char* _R_ dataPtr     = iStorage.StoragePtr().PtrAs<const char*>();
+    const size_t    sizeLeft    = SizeLeft();
+
+    THROW_COND_GP
+    (
+        sizeLeft > 0,
+        "Out of range"_sv
+    );
+
+    std::string_view    str{dataPtr, sizeLeft};
+    const size_t        nullTerminatorPos = str.find('\x0');
+
+    if (nullTerminatorPos != std::string_view::npos) [[likely]]
+    {
+        OffsetAdd(nullTerminatorPos + 1);
+        return str.substr(0, nullTerminatorPos);
+    }
+
+    THROW_GP("Null terminated string not found");
 }
 
 }// namespace GPlatform

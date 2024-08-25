@@ -4,10 +4,10 @@
 
 #if defined(GP_USE_SYNC_PRIMITIVES)
 
-#include "../Types/Containers/GpContainersT.hpp"
-#include "../Types/Units/SI/GpUnitsSI_Time.hpp"
-#include "../Other/GpRAIIonDestruct.hpp"
-#include "GpMutex.hpp"
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
+#include <GpCore2/GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp>
+#include <GpCore2/GpUtils/Other/GpRAIIonDestruct.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
 
 #include <condition_variable>
 

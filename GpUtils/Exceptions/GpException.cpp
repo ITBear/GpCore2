@@ -1,10 +1,9 @@
-#include "GpException.hpp"
+#include <GpCore2/GpUtils/Exceptions/GpException.hpp>
 
 #if defined(GP_USE_EXCEPTIONS)
 
-#include "GpExceptionUtils.hpp"
-#include "../Types/Strings/GpStringOps.hpp"
-#include "../Types/Strings/GpStringUtils.hpp"
+#include <GpCore2/GpUtils/Exceptions/GpExceptionUtils.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
 
 #if defined(GP_PRINT_EXCEPTIONS_STACKTRACE)
 #   include "../Debugging/GpStackTrace.hpp"
@@ -40,7 +39,6 @@ try
     (
         aMsg,
         aSourceLocation,
-        GpExceptionUtils::ExceptionType::GP,
         stackTraceStrOpt
     );
 

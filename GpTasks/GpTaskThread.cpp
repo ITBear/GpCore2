@@ -16,7 +16,7 @@ GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
             OnStart();
 
             iIsStartCalled = true;
-            StartPromise().Fulfill(GpAny{});
+            StartPromise().Fulfill(StartPromiseRes{});
         }
 
         //
@@ -52,7 +52,7 @@ GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
         }
     } catch (const std::exception& e)
     {
-        ex = GpException(e.what());
+        ex = GpException{e.what()};
 
         if (!iIsStopCalled)
         {
@@ -61,7 +61,7 @@ GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
         }
     } catch (...)
     {
-        ex = GpException("[GpTaskThread::Run]: unknown exception"_sv);
+        ex = GpException{"[GpTaskThread::Run]: unknown exception"_sv};
 
         if (!iIsStopCalled)
         {
@@ -73,15 +73,15 @@ GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
     // Check if there are was exception
     if (ex.has_value())
     {
-        GpStringUtils::SCerr(ex->what());
+        //GpStringUtils::SCerr(ex->what());
         res = GpTaskRunRes::DONE;
 
         StartPromise().Fulfill(ex.value());
         DonePromise().Fulfill(ex.value());
     } else if (res == GpTaskRunRes::DONE) // Check if result is DONE
     {
-        StartPromise().Fulfill(GpAny{});
-        DonePromise().Fulfill(GpAny{});
+        StartPromise().Fulfill(StartPromiseRes{});
+        DonePromise().Fulfill(DonePromiseRes{});
     }
 
     return res;

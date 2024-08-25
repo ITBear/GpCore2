@@ -1,9 +1,8 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "GpItcSharedCondition.hpp"
-#include "GpItcResult.hpp"
+#include <GpCore2/GpTasks/ITC/GpItcSharedCondition.hpp>
+#include <GpCore2/GpTasks/ITC/GpItcResult.hpp>
 
 namespace GPlatform {
 
@@ -27,13 +26,9 @@ public:
                                             GpItcSharedFuture   (void) noexcept = default;
                                             ~GpItcSharedFuture  (void) noexcept = default;
 
-    bool                                    WaitFor             (const milliseconds_t   aTimeout);
+    bool                                    WaitFor             (milliseconds_t aTimeout);
     [[nodiscard]] std::optional<ItcResultT> TryGetResult        (void);
     bool                                    IsReady             (void) const noexcept;
-
-    static bool                             SCheckIfReady       (GpItcSharedFuture&                             aFuture,
-                                                                 const std::function<void(T&)>&                 aOnValueFn,
-                                                                 const std::function<void(const GpException&)>& aOnExceptionFn);
 
 private:
     bool                                    SetResult           (ItcResultT&& aResult);
@@ -41,7 +36,6 @@ private:
 private:
     mutable GpItcSharedCondition            iSC;
     std::optional<ItcResultT>               iResultOpt  GUARDED_BY(iSC.Mutex());
-    bool                                    iIsSet      GUARDED_BY(iSC.Mutex()) = false;
 };
 
 template<typename T>
@@ -51,7 +45,7 @@ bool    GpItcSharedFuture<T>::WaitFor (const milliseconds_t aTimeout)
     (
         [&]() NO_THREAD_SAFETY_ANALYSIS
         {
-            return iIsSet;
+            return iResultOpt.has_value();
         },
         aTimeout
     );
@@ -68,36 +62,8 @@ template<typename T>
 bool    GpItcSharedFuture<T>::IsReady (void) const noexcept
 {
     GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
-    return iIsSet;
-}
 
-template<typename T>
-bool    GpItcSharedFuture<T>::SCheckIfReady
-(
-    GpItcSharedFuture&                              aFuture,
-    const std::function<void(T&)>&                  aOnValueFn,
-    const std::function<void(const GpException&)>&  aOnExceptionFn
-)
-{
-    std::optional<ItcResultT> resOpt = aFuture.TryGetResult();
-
-    if (!resOpt.has_value()) [[likely]]
-    {
-        return false;
-    }
-
-    ItcResultT& res = resOpt.value();
-
-    if (res.IsPayload()) [[likely]]
-    {
-        T& payload = res.PayloadOrThrow();
-        aOnValueFn(payload);
-    } else
-    {
-        aOnExceptionFn(res.Exception());
-    }
-
-    return true;
+    return iResultOpt.has_value();
 }
 
 template<typename T>
@@ -105,13 +71,12 @@ bool    GpItcSharedFuture<T>::SetResult (ItcResultT&& aResult)
 {
     GpUniqueLock<GpMutex> uniqueLock{iSC.Mutex()};
 
-    if (iIsSet)
+    if (iResultOpt.has_value())
     {
         return false;
     }
 
-    iResultOpt  = std::move(aResult);
-    iIsSet      = true;
+    iResultOpt = std::move(aResult);
 
     iSC.NotifyAll();
 

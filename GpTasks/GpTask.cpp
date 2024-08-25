@@ -2,6 +2,8 @@
 #include <GpCore2/GpTasks/GpTaskGroupsManager.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 #include <GpCore2/GpTasks/Scheduler/GpTaskScheduler.hpp>
+#include <GpCore2/GpTasks/ITC/GpItcSharedFutureUtils.hpp>
+#include <GpService/GpServiceMainTask.hpp>
 
 namespace GPlatform {
 
@@ -28,79 +30,107 @@ iMode{aTaskMode}
     GpTask::sAllTasksDictionary.SetOrUpdate(iId, this);
 }
 
-GpTask::~GpTask (void) noexcept
+GpTask::GpTask
+(
+    std::string             aName,
+    const GpTaskMode::EnumT aTaskMode,
+    const GpTaskId          aId
+) noexcept:
+iName{std::move(aName)},
+iId  {aId},
+iMode{aTaskMode}
 {
-    const GpTaskId taskId = TaskId();
-
-    // Remove task data from GpTaskVarStorage
-    try
-    {
-        GpTaskVarStorage::S().RemoveTask(taskId);
-    } catch (const GpException& e)
-    {
-        GpStringUtils::SCerr
-        (
-            fmt::format
-            (
-                "[GpTask::~GpTask]: GpTaskVarStorage::RemoveTask exception: {}",
-                e.what()
-            )
-        );
-    } catch (const std::exception& e)
-    {
-        GpStringUtils::SCerr
-        (
-            fmt::format
-            (
-                "[GpTask::~GpTask]: GpTaskVarStorage::RemoveTask exception: {}",
-                e.what()
-            )
-        );
-    } catch (...)
-    {
-        GpStringUtils::SCerr("[GpTask::~GpTask]: GpTaskVarStorage::RemoveTask unknown exception"_sv);
-    }
-
-    // Remove task from GpTaskGroupsManager
-    try
-    {
-        GpTaskGroupsManager::S().RemoveTaskFromAllGroups(taskId);
-    } catch (const GpException& e)
-    {
-        GpStringUtils::SCerr
-        (
-            fmt::format
-            (
-                "[GpTask::~GpTask]: GpTaskGroupsManager::RemoveTaskFromAllGroups exception: {}",
-                e.what()
-            )
-        );
-    } catch (const std::exception& e)
-    {
-        GpStringUtils::SCerr
-        (
-            fmt::format
-            (
-                "[GpTask::~GpTask]: GpTaskGroupsManager::RemoveTaskFromAllGroups exception: {}",
-                e.what()
-            )
-        );
-    } catch (...)
-    {
-        GpStringUtils::SCerr("[GpTask::~GpTask]: GpTaskGroupsManager::RemoveTaskFromAllGroups unknown exception"_sv);
-    }
-
-    // Fullfill promises
-    StartPromise().Fulfill(GpAny{});
-    DonePromise().Fulfill(GpAny{});
-
-    //
-    GpTask::sAllTasksDictionary.Erase(iId);
+    GpTask::sAllTasksDictionary.SetOrUpdate(iId, this);
 }
 
-GpTask::DoneFutureT::SP GpTask::RequestStop (void)
+GpTask::GpTask
+(
+    const GpTaskMode::EnumT aTaskMode,
+    const GpTaskId          aId
+) noexcept:
+iId  {aId},
+iMode{aTaskMode}
+{
+    GpTask::sAllTasksDictionary.SetOrUpdate(iId, this);
+}
+
+GpTask::~GpTask (void) noexcept
+{
+    try
+    {
+        const GpTaskId taskId = TaskId();
+
+        // Remove task data from GpTaskVarStorage
+        GpTaskVarStorage::S().RemoveTask(taskId);
+
+        // Remove task from GpTaskGroupsManager
+        GpTaskGroupsManager::S().RemoveTaskFromAllGroups(taskId);
+
+
+        // Fulfill promises
+        StartPromise().Fulfill(StartPromiseRes{});
+        DonePromise().Fulfill(DonePromiseRes{});
+
+        //
+        GpTask::sAllTasksDictionary.Erase(iId);
+    } catch (const std::exception& e)
+    {
+        GpStringUtils::SCerr
+        (
+            fmt::format
+            (
+                "[GpTask::~GpTask]: {}",
+                e.what()
+            )
+        );
+    } catch (...)
+    {
+        GpStringUtils::SCerr("[GpTask::~GpTask]: unknown exception"_sv);
+    }   
+}
+
+GpUUID  GpTask::TaskIdAsUUID (void) const noexcept
+{
+    GpUUID::DataT uuid;
+
+    const GpTaskId id = TaskId();
+
+    std::memcpy(std::data(uuid) + 0, "GpTask::", 8);
+    std::memcpy(std::data(uuid) + 8, &id, 8);
+
+    return GpUUID(uuid);
+}
+
+GpTask::DoneFutureT::SP GpTask::RequestTaskStop (void)
 {
     return GpTaskScheduler::S().RequestStop(*this);
+}
+
+void    GpTask::RequestAndWaitForStop (void)
+{
+    // Request stop
+    GpTask::DoneFutureT::SP doneFutureSP    = RequestTaskStop();
+    GpTask::DoneFutureT&    doneFuture      = doneFutureSP.V();
+
+    // Wait for stop
+    if (IsStartRequested() == false) [[unlikely]]
+    {
+        return;
+    }
+
+    GpItcSharedFutureUtils::SWaitForInf
+    (
+        doneFuture,
+        [&](typename DoneFutureT::value_type&)// OnSuccessFnT
+        {
+            // NOP
+        },
+        [&](const GpException& aEx)// OnExceptionFnT
+        {
+            throw aEx;
+        },
+        100.0_si_ms
+    );
 }
 
 GpTask::C::Opt::Ref GpTask::SCurrentTask (void) noexcept
@@ -125,8 +155,8 @@ GpAny::C::Opt::Val  GpTask::PopMessage (void)
 
 void    GpTask::SetVar
 (
-    std::string     aKey,
-    GpAny           aValue
+    std::string aKey,
+    GpAny       aValue
 )
 {
     GpTaskVarStorage::S().SetVar

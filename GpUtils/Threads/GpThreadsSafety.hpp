@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Config/GpEnvironmentDetector.hpp"
+#include <GpCore2/Config/GpEnvironmentDetector.hpp>
 
 #include <mutex>
 #include <shared_mutex>

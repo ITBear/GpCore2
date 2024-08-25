@@ -1,4 +1,5 @@
-#include "GpByteWriter.hpp"
+#include <GpCore2/GpUtils/Streams/GpByteWriter.hpp>
+#include <array>
 
 namespace GPlatform {
 

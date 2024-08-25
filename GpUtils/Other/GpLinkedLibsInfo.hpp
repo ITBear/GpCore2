@@ -5,7 +5,7 @@
 #include "../SyncPrimitives/GpMutex.hpp"
 #include "../Types/Strings/GpStringOps.hpp"
 
-#include <string>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 #include <vector>
 
 namespace GPlatform {
@@ -26,23 +26,23 @@ public:
     using InfoAsTextT = std::vector<std::tuple<std::string/*Name*/, std::string/*Value*/>>;
 
 private:
-                                            GpLinkedLibsInfo    (void) noexcept;
-                                            ~GpLinkedLibsInfo   (void) noexcept;
+                                        GpLinkedLibsInfo    (void) noexcept;
+                                        ~GpLinkedLibsInfo   (void) noexcept;
 
 public:
-    static GpLinkedLibsInfo&                S                   (void) noexcept;
+    static GpLinkedLibsInfo&            S                   (void) noexcept;
 
-    void                                    Register            (std::string    aName,
-                                                                 const size_t   aVersionMaj,
-                                                                 const size_t   aVersionMin,
-                                                                 const size_t   aVersionPat);
+    void                                Register            (std::string    aName,
+                                                             const size_t   aVersionMaj,
+                                                             const size_t   aVersionMin,
+                                                             const size_t   aVersionPat);
 
-    const std::vector<GpLinkedLibInfo>&     Libs                (void) const noexcept REQUIRES(iMutex) {return iLibs;}
-    InfoAsTextT                             InfoAsText          (void) const;
+    const std::vector<GpLinkedLibInfo>& Libs                (void) const noexcept REQUIRES(iMutex) {return iLibs;}
+    InfoAsTextT                         InfoAsText          (void) const;
 
 private:
-    mutable GpMutex                         iMutex;
-    std::vector<GpLinkedLibInfo>            iLibs GUARDED_BY(iMutex);
+    mutable GpMutex                     iMutex;
+    std::vector<GpLinkedLibInfo>        iLibs GUARDED_BY(iMutex);
 };
 
 inline void GP_REGISTER_CURRENT_LIB_TO_LINKED_LIBS_INFO (void)

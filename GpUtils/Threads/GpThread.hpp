@@ -1,10 +1,9 @@
 #pragma once
 
-#include "../GpUtils_global.hpp"
+#include <GpCore2/GpUtils/GpUtils_global.hpp>
+#include <GpCore2/GpUtils/Threads/GpRunnable.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
 
-#include "GpRunnable.hpp"
-#include "../SyncPrimitives/GpMutex.hpp"
-#include <shared_mutex>
 #include <thread>
 
 namespace GPlatform {

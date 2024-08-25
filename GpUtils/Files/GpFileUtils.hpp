@@ -4,7 +4,8 @@
 
 #if defined(GP_USE_FILE_UTILS)
 
-#include "../Types/Containers/GpBytesArray.hpp"
+#include <GpCore2/GpUtils/Types/Containers/GpBytesArray.hpp>
+#include <GpCore2/GpUtils/Types/Units/Other/size_byte_t.hpp>
 
 namespace GPlatform {
 
@@ -21,8 +22,7 @@ public:
     static void             SCopy       (std::string_view aFrom,
                                          std::string_view aTo);
     static bool             SIsExists   (std::string_view aFileName);
-private:
-
+    static size_byte_t      SSize       (std::string_view aFileName);
 };
 
 }// namespace GPlatform

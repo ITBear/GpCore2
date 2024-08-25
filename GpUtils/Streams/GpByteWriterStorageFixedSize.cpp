@@ -1,4 +1,4 @@
-#include "GpByteWriterStorageFixedSize.hpp"
+#include <GpCore2/GpUtils/Streams/GpByteWriterStorageFixedSize.hpp>
 
 namespace GPlatform {
 
