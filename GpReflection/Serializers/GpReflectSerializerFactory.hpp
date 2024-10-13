@@ -1,8 +1,7 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "GpReflectSerializer.hpp"
+#include <GpCore2/GpReflection/Serializers/GpReflectSerializer.hpp>
 
 namespace GPlatform {
 

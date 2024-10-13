@@ -2,10 +2,10 @@
 
 #include <GpCore2/Config/GpConfig.hpp>
 
-#include "GpReflection_global.hpp"
-#include "GpReflectType.hpp"
-#include "GpReflectContainerType.hpp"
-#include "GpReflectObjWrapVector.hpp"
+#include <GpCore2/GpReflection/GpReflection_global.hpp>
+#include <GpCore2/GpReflection/GpReflectType.hpp>
+#include <GpCore2/GpReflection/GpReflectContainerType.hpp>
+#include <GpCore2/GpReflection/GpReflectObjWrapVector.hpp>
 
 #include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
 #include <GpCore2/GpUtils/Types/UIDs/GpUUID.hpp>
@@ -14,6 +14,7 @@ namespace GPlatform {
 
 class GpReflectObject;
 class GpReflectModel;
+class GpReflectProp;
 
 TAG_REGISTER(GpReflectObject)
 
@@ -145,9 +146,16 @@ public:
     template<typename T> [[nodiscard]] static
     T                               SCopyValue                  (const T& aValue);
 
-    static void                     SGenerateOnce               (const GpReflectModel&                  aModel,
-                                                                 std::vector<GpSP<GpReflectObject>>&    aItems);
-    static void                     SGenerateOnce               (GpReflectObject&                       aItem);
+    static void                     SAssignValueToProp          (void*                  aDataPtrDst,
+                                                                 const GpReflectProp&   aPropDst,
+                                                                 const void*            aDataPtrSrc,
+                                                                 const GpReflectProp&   aPropSrc);
+    static void                     SAssignValueToObject        (GpReflectObject&       aObjDst,
+                                                                 const GpReflectObject& aObjSrc);
+
+    //static void                   SGenerateOnce               (const GpReflectModel&                  aModel,
+    //                                                           std::vector<GpSP<GpReflectObject>>&    aItems);
+    //static void                   SGenerateOnce               (GpReflectObject&                       aItem);
 };
 
 template<typename T> [[nodiscard]]

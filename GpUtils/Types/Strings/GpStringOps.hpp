@@ -8,12 +8,14 @@
 #include <GpCore2/GpUtils/Algorithms/GpSplit.hpp>
 #include <GpCore2/GpUtils/Types/Containers/GpBytesArray.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringLiterals.hpp>
+#include <GpCore2/Config/IncludeExt/boost_flat_set.hpp>
 
 #include <vector>
 #include <array>
 #include <variant>
 #include <thread>
 #include <set>
+#include <regex>
 
 namespace GPlatform {
 
@@ -22,92 +24,101 @@ class GP_UTILS_API GpStringOps
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpStringOps)
 
 public:
-    static std::vector<std::string_view>    SSplit          (std::string_view       aSourceStr,
-                                                             const char             aDelim,
-                                                             const size_t           aReturnPartsCountLimit,
-                                                             const size_t           aDelimCountLimit,
-                                                             const Algo::SplitMode  aSplitMode);
+    static std::vector<std::string_view>    SSplit              (std::string_view   aSourceStr,
+                                                                 char               aDelim,
+                                                                 size_t             aReturnPartsCountLimit,
+                                                                 size_t             aDelimCountLimit,
+                                                                 Algo::SplitMode    aSplitMode);
 
-    static std::vector<std::string_view>    SSplit          (std::string_view       aSourceStr,
-                                                             std::string_view       aDelim,
-                                                             const size_t           aReturnPartsCountLimit,
-                                                             const size_t           aDelimCountLimit,
-                                                             const Algo::SplitMode  aSplitMode);
+    static std::vector<std::string_view>    SSplit              (std::string_view   aSourceStr,
+                                                                 std::string_view   aDelim,
+                                                                 size_t             aReturnPartsCountLimit,
+                                                                 size_t             aDelimCountLimit,
+                                                                 Algo::SplitMode    aSplitMode);
 
-    static inline std::string_view          SFromChar       (const char* aStrPtr);
+    static inline std::string_view          SFromChar           (const char* aStrPtr);
 
-    static inline std::string               STrimLeft       (std::string_view   aStr,
-                                                             const char         aChar);
-    static inline std::string               STrimRight      (std::string_view   aStr,
-                                                             const char         aChar);
+    static inline std::string               STrimLeft           (std::string_view   aStr,
+                                                                 char               aChar);
+    static inline std::string               STrimRight          (std::string_view   aStr,
+                                                                 char               aChar);
 
     // -------------------------------- Compare ----------------------------------
     static bool                             SIsEqualCaseInsensitive8bit
-                                                            (std::string_view   aStr1,
-                                                             std::string_view   aStr2) noexcept;
+                                                                (std::string_view   aStr1,
+                                                                 std::string_view   aStr2) noexcept;
+    static std::regex                       SPrepareRegexFilter (std::string_view   aFilter);
 
     // ------------------------- Numeric from/to string --------------------------
-    static size_t                           SFromUI64       (const u_int_64 aValue,
-                                                             GpSpanCharRW   aStrOut);
-    static std::string                      SFromUI64       (const u_int_64 aValue);
+    static size_t                           SFromUI64           (u_int_64       aValue,
+                                                                 GpSpanCharRW   aStrOut);
+    static std::string                      SFromUI64           (u_int_64       aValue);
 
-    static size_t                           SFromSI64       (const s_int_64 aValue,
-                                                             GpSpanCharRW   aStrOut);
-    static std::string                      SFromSI64       (const s_int_64 aValue);
+    static size_t                           SFromSI64           (s_int_64       aValue,
+                                                                 GpSpanCharRW   aStrOut);
+    static std::string                      SFromSI64           (s_int_64       aValue);
 
-    static size_t                           SFromDouble     (const double   aValue,
-                                                             GpSpanCharRW   aStrOut);
-    static std::string                      SFromDouble     (const double aValue);
+    static size_t                           SFromDouble         (double         aValue,
+                                                                 GpSpanCharRW   aStrOut);
+    static std::string                      SFromDouble         (double         aValue);
 
-    static u_int_64                         SToUI64         (std::string_view                               aStr,
-                                                             std::optional<std::reference_wrapper<size_t>>  aReadCountOut = std::nullopt);
-    static s_int_64                         SToSI64         (std::string_view                               aStr,
-                                                             std::optional<std::reference_wrapper<size_t>>  aReadCountOut = std::nullopt);
+    static u_int_64                         SToUI64             (std::string_view                               aStr,
+                                                                 std::optional<std::reference_wrapper<size_t>>  aReadCountOut = std::nullopt);
+    static s_int_64                         SToSI64             (std::string_view                               aStr,
+                                                                 std::optional<std::reference_wrapper<size_t>>  aReadCountOut = std::nullopt);
 
     // Supported format: [+-][UInt64][.[UInt64]]
-    static double                           SToDouble       (std::string_view                               aStr,
-                                                             std::optional<std::reference_wrapper<size_t>>  aReadCountOut = std::nullopt);
+    static double                           SToDouble           (std::string_view                               aStr,
+                                                                 std::optional<std::reference_wrapper<size_t>>  aReadCountOut = std::nullopt);
 
     // [+-][UInt64][.[UInt64]] - DOUBLE
     // [+-]digits - INT
-    static std::variant<s_int_64, double>   SToNumeric      (std::string_view                               aStr,
-                                                             std::optional<std::reference_wrapper<size_t>>  aReadCountOut = std::nullopt);
+    static std::variant<s_int_64, double>   SToNumeric          (std::string_view                               aStr,
+                                                                 std::optional<std::reference_wrapper<size_t>>  aReadCountOut = std::nullopt);
 
     // ------------------------- Bytes from/to string --------------------------
-    static size_t                           SFromBytesHex   (GpSpanByteR    aData,
-                                                             GpSpanCharRW   aStrOut);
-    static std::string                      SFromBytesHex   (GpSpanByteR    aData);
-    static inline std::array<char, 2>       SFromByteHex    (const u_int_8  aData) noexcept;
+    static size_t                           SFromBytesHex       (GpSpanByteR    aData,
+                                                                 GpSpanCharRW   aStrOut);
+    static std::string                      SFromBytesHex       (GpSpanByteR    aData);
+    static inline std::array<char, 2>       SFromByteHex        (u_int_8    aData) noexcept;
 
-    static size_t                           SToBytesHex     (std::string_view   aStr,
-                                                             GpSpanByteRW       aDataOut);
-    static GpBytesArray                     SToBytesHex     (std::string_view   aStr);
-    static constexpr u_int_8                SToByteHex      (std::array<char, 2>aStr);
+    static size_t                           SToBytesHex         (std::string_view   aStr,
+                                                                 GpSpanByteRW       aDataOut);
+    static GpBytesArray                     SToBytesHex         (std::string_view   aStr);
+    static constexpr u_int_8                SToByteHex          (std::array<char, 2>aStr);
 
-    // ------------------------- Encode --------------------------
-    static std::string                      SPercentEncode  (std::string_view aSrc);
+    // ------------------------- Encode/Escape --------------------------
+    static std::string                      SPercentEncode      (std::string_view aSrc);
+    static std::string                      SEscapeForSyscall   (std::string_view aSrc);
 
     // -----------------------------------------------------------
     template<typename E,
              typename T>
-    static std::string                      SJoin           (const T&           aArray,
-                                                             std::string_view   aSeparator);
+    static std::string                      SJoin               (const T&           aArray,
+                                                                 std::string_view   aSeparator);
 
     template<typename E,
              typename T>
-    static std::string                      SJoin           (const T&                                       aArray,
-                                                             std::function<E(typename T::const_iterator&)>  aGetterFn,
-                                                             std::string_view                               aSeparator);
+    static std::string                      SJoin               (const T&                                       aArray,
+                                                                 std::function<E(typename T::const_iterator&)>  aGetterFn,
+                                                                 std::string_view                               aSeparator);
 
-    static constexpr size_t                 SCharsCount     (std::string_view   aStr,
-                                                             const char         aChar) noexcept;
+    static constexpr size_t                 SCharsCount         (std::string_view   aStr,
+                                                                 char               aChar) noexcept;
+    static bool                             SContainsOnlyRange  (std::string_view   aStr,
+                                                                 char               aCharRangeBegin,
+                                                                 char               aCharRangeEnd) noexcept;
+    static bool                             SContainsOnlyRanges (std::string_view   aStr,
+                                                                 boost::container::small_vector<std::tuple<char, char>, 8>  aRanges) noexcept;
+    static bool                             SContainsOnlySet    (std::string_view                           aStr,
+                                                                 boost::container::small_flat_set<char, 64> aSet) noexcept;
 
 private:
-    static void                             _SFromUI64      (const u_int_64 aValue,
-                                                             GpSpanCharRW   aStrOut);
+    static void                             _SFromUI64          (u_int_64       aValue,
+                                                                 GpSpanCharRW   aStrOut);
 
 private:
-    static const std::array<char, 201>&     SDigits         (void) noexcept;
+    static const std::array<char, 201>&     SDigits             (void) noexcept;
 };
 
 std::string_view    GpStringOps::SFromChar (const char* aStrPtr)
@@ -320,6 +331,11 @@ inline ::std::string    to_string (const ::std::thread::id aThreadId)
 inline ::std::string_view   to_string (const bool aValue) noexcept
 {
     return aValue ? "true"_sv : "false"_sv;
+}
+
+inline ::std::string    to_string (const ::GPlatform::GpSpanByteR& aValue)
+{
+    return ::GPlatform::StrOps::SFromBytesHex(aValue);
 }
 
 inline ::std::string    to_string (const ::GPlatform::GpBytesArray& aValue)

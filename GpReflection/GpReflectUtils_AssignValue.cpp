@@ -1,5 +1,4 @@
-#include "GpReflectUtils_AssignValue.hpp"
-
+#include <GpCore2/GpReflection/GpReflectUtils_AssignValue.hpp>
 #include <GpCore2/GpReflection/GpReflectVisitor.hpp>
 #include <GpCore2/GpReflection/GpReflectManager.hpp>
 

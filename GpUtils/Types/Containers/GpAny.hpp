@@ -28,14 +28,18 @@ concept IsNotAny = requires()
 
 class GpAnyHolderBase
 {
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpAnyHolderBase)
+
+protected:
+                                GpAnyHolderBase     (void) noexcept = default;
+
 public:
-                                    GpAnyHolderBase     (void) noexcept = default;
-    virtual                         ~GpAnyHolderBase    (void) noexcept = default;
+    virtual                     ~GpAnyHolderBase    (void) noexcept = default;
 
     virtual std::tuple<const std::type_info&, const void*>
-                                    TypeInfoAndPtr      (void) const noexcept = 0;
-    virtual GpAnyHolderBase*        Copy                (void) const = 0;
-    virtual GpAnyHolderBase*        Move                (void) const = 0;
+                                TypeInfoAndPtr      (void) const noexcept = 0;
+    virtual GpAnyHolderBase*    Copy                (void) const = 0;
+    virtual GpAnyHolderBase*    Move                (void) const = 0;
 };
 
 template<AnyConcepts::IsNotAny T>
@@ -44,18 +48,17 @@ class GpAnyHolder final: public GpAnyHolderBase
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpAnyHolder)
 
 public:
-                                    GpAnyHolder     (const T& aValue): GpAnyHolderBase(), iValue(aValue) {}
-    template<typename... Ts>
-                                    GpAnyHolder     (Ts&&... aArgs): GpAnyHolderBase(), iValue(std::forward<Ts>(aArgs)...) {}
-    virtual                         ~GpAnyHolder    (void) noexcept override final = default;
+                                GpAnyHolder     (const T& aValue): iValue{aValue} {}
+                                GpAnyHolder     (T&& aValue): iValue{std::move(aValue)} {}
+    virtual                     ~GpAnyHolder    (void) noexcept override final = default;
 
     virtual std::tuple<const std::type_info&, const void*>
-                                    TypeInfoAndPtr  (void) const noexcept override final {return {typeid(T), &iValue};}
-    virtual GpAnyHolderBase*        Copy            (void) const override final {return new GpAnyHolder<T>(iValue);}
-    virtual GpAnyHolderBase*        Move            (void) const override final {return new GpAnyHolder<T>(std::move(iValue));}
+                                TypeInfoAndPtr  (void) const noexcept override final {return {typeid(T), &iValue};}
+    virtual GpAnyHolderBase*    Copy            (void) const override final {return new GpAnyHolder<T>(iValue);}
+    virtual GpAnyHolderBase*    Move            (void) const override final {return new GpAnyHolder<T>(std::move(iValue));}
 
 private:
-    T                               iValue;
+    T                           iValue;
 };
 
 class GpAny
@@ -70,92 +73,79 @@ public:
     };
 
 public:
-                                    GpAny           (void) noexcept = default;
-    inline                          GpAny           (const GpAny& aAny);
-    inline                          GpAny           (GpAny&& aAny) noexcept;
+                        GpAny           (void) noexcept = default;
+    inline              GpAny           (const GpAny& aAny);
+    inline              GpAny           (GpAny&& aAny) noexcept;
 
     template<AnyConcepts::IsNotAny T>
-                                    GpAny           (const T& aValue);
+                        GpAny           (const T& aValue);
     template<AnyConcepts::IsNotAny T>
-                                    GpAny           (T& aValue);
-    template<AnyConcepts::IsNotAny T>
-                                    GpAny           (T&& aValue);
-    template<AnyConcepts::IsNotAny T,
-             typename... Ts>
-                                    GpAny           (Ts&&... aArgs):
-                                    iPtrHolder(new GpAnyHolder<T>(std::forward<Ts>(aArgs)...))
-                                    {
-                                    }
+                        GpAny           (T&& aValue);
 
-    inline                          ~GpAny          (void) noexcept;
+    inline              ~GpAny          (void) noexcept;
 
-    inline void                     Clear           (void) noexcept;
-    inline bool                     Empty           (void) const noexcept;
+    inline void         Clear           (void) noexcept;
+    inline bool         Empty           (void) const noexcept;
 
     template<AnyConcepts::IsNotAny T>
-    GpAny&                          operator=       (const T& aValue);
+    GpAny&              operator=       (const T& aValue);
 
     template<AnyConcepts::IsNotAny T>
-    GpAny&                          operator=       (T& aValue);
+    GpAny&              operator=       (T& aValue);
 
     template<AnyConcepts::IsNotAny T>
-    GpAny&                          operator=       (T&& aValue);
+    GpAny&              operator=       (T&& aValue);
 
-    inline GpAny&                   operator=       (const GpAny& aAny);
-    inline GpAny&                   operator=       (GpAny&& aAny);
+    inline GpAny&       operator=       (const GpAny& aAny);
+    inline GpAny&       operator=       (GpAny&& aAny);
 
-    inline const std::type_info&    TypeInfo        (void) const noexcept;
-
-    template<AnyConcepts::IsNotAny T>
-    bool                            IsContatinType  (void) const noexcept;
+    inline const std::type_info&
+                        TypeInfo        (void) const noexcept;
 
     template<AnyConcepts::IsNotAny T>
-    const T&                        Value           (void) const;
+    bool                IsContatinType  (void) const noexcept;
 
     template<AnyConcepts::IsNotAny T>
-    T&                              Value           (void);
+    const T&            Value           (void) const;
 
     template<AnyConcepts::IsNotAny T>
-    const T&                        ValueNoCheck    (void) const;
+    T&                  Value           (void);
 
     template<AnyConcepts::IsNotAny T>
-    T&                              ValueNoCheck    (void);
+    const T&            ValueNoCheck    (void) const;
+
+    template<AnyConcepts::IsNotAny T>
+    T&                  ValueNoCheck    (void);
 
 private:
-    GpAnyHolderBase*                iPtrHolder  = nullptr;
+    GpAnyHolderBase*    iPtrHolder  = nullptr;
 };
 
 GpAny::GpAny (const GpAny& aAny):
 iPtrHolder
-(
+{
      (aAny.iPtrHolder != nullptr) ?
       aAny.iPtrHolder->Copy()
     : nullptr
-)
+}
 {
 }
 
 GpAny::GpAny (GpAny&& aAny) noexcept:
-iPtrHolder(std::move(aAny.iPtrHolder))
+iPtrHolder{aAny.iPtrHolder}
 {
     aAny.iPtrHolder = nullptr;
 }
 
 template<AnyConcepts::IsNotAny T>
 GpAny::GpAny (const T& aValue):
-iPtrHolder(new GpAnyHolder<T>(aValue))
-{
-}
-
-template<AnyConcepts::IsNotAny T>
-GpAny::GpAny (T& aValue):
-iPtrHolder(new GpAnyHolder<T>(aValue))
+iPtrHolder{new GpAnyHolder<std::remove_cvref_t<T>>(aValue)}
 {
 }
 
 template<AnyConcepts::IsNotAny T>
 GpAny::GpAny (T&& aValue):
-iPtrHolder(new GpAnyHolder<T>(std::move(aValue)))
+iPtrHolder{new GpAnyHolder<std::remove_cvref_t<T>>(std::move(aValue))}
 {
 }
 

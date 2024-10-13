@@ -1,8 +1,7 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "GpReflectObjectDynamic.hpp"
+#include <GpCore2/GpReflection/GpReflectObjectDynamic.hpp>
 
 namespace GPlatform {
 

@@ -1,4 +1,4 @@
-#include "GpReflectType.hpp"
+#include <GpCore2/GpReflection/GpReflectType.hpp>
 
 namespace GPlatform {
 

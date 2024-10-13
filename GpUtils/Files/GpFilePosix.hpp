@@ -20,38 +20,50 @@ namespace GPlatform {
 class GpFileImpl
 {
 public:
-    static inline GpFile::HandlerT  SOpen           (std::string_view   aName,
-                                                     const GpFileFlags  aFlags);
-    static inline void              SClose          (GpFile::HandlerT aHandler) noexcept;
-    static inline void              SFlush          (GpFile::HandlerT aHandler);
-    static inline size_byte_t       SSize           (GpFile::HandlerT aHandler);
+    static inline GpFile::HandlerT  SOpen                   (std::string_view   aFileName,
+                                                             GpFileFlags        aFlags);
+    static inline void              SClose                  (GpFile::HandlerT   aHandler) noexcept;
+    static inline void              SFlush                  (GpFile::HandlerT   aHandler,
+                                                             std::string_view   aFileName);
+    static inline size_byte_t       SSize                   (GpFile::HandlerT   aHandler,
+                                                             std::string_view   aFileName);
 
-    static inline void              SGoToPos        (GpFile::HandlerT   aHandler,
-                                                     const size_byte_t  aPos);
-    static inline void              SGoToStartPos   (GpFile::HandlerT aHandler);
-    static inline size_byte_t       SGoToEndPos     (GpFile::HandlerT aHandler);
-    static inline size_byte_t       SCurrentPos     (GpFile::HandlerT aHandler);
+    static inline void              SGoToPos                (GpFile::HandlerT   aHandler,
+                                                             size_byte_t        aPos,
+                                                             std::string_view   aFileName);
+    static inline void              SGoToStartPos           (GpFile::HandlerT   aHandler,
+                                                             std::string_view   aFileName);
+    static inline size_byte_t       SGoToEndPos             (GpFile::HandlerT   aHandler,
+                                                             std::string_view   aFileName);
+    static inline size_byte_t       SCurrentPos             (GpFile::HandlerT   aHandler,
+                                                             std::string_view   aFileName);
+    static inline void              STruncateToCurrentPos   (GpFile::HandlerT   aHandler,
+                                                             std::string_view   aFileName);
 
-    static inline size_byte_t       STryWrite       (GpFile::HandlerT   aHandler,
-                                                     GpSpanByteR        aData);
+    static inline size_byte_t       STryWrite               (GpFile::HandlerT   aHandler,
+                                                             GpSpanByteR        aData,
+                                                             std::string_view   aFileName);
 
-    static inline void              SWrite          (GpFile::HandlerT   aHandler,
-                                                     GpSpanByteR        aData);
+    static inline void              SWrite                  (GpFile::HandlerT   aHandler,
+                                                             GpSpanByteR        aData,
+                                                             std::string_view   aFileName);
 
-     static inline size_byte_t      STryRead        (GpFile::HandlerT   aHandler,
-                                                     GpSpanByteRW       aData);
+     static inline size_byte_t      STryRead                (GpFile::HandlerT   aHandler,
+                                                             GpSpanByteRW       aData,
+                                                             std::string_view   aFileName);
 
-    static inline void              SRead           (GpFile::HandlerT   aHandler,
-                                                     GpSpanByteRW       aData);
+    static inline void              SRead                   (GpFile::HandlerT   aHandler,
+                                                             GpSpanByteRW       aData,
+                                                             std::string_view   aFileName);
 };
 
 GpFile::HandlerT    GpFileImpl::SOpen
 (
-    std::string_view    aName,
+    std::string_view    aFileName,
     const GpFileFlags   aFlags
 )
 {
-    std::string fname(aName);//fname must be 0-teminated string
+    const std::string fileName{aFileName};// fileName must be 0-teminated string
 
     int flags = O_CLOEXEC;
 
@@ -93,7 +105,7 @@ GpFile::HandlerT    GpFileImpl::SOpen
     {
         fd = open64
         (
-            std::data(fname),
+            std::data(fileName),
             flags,
             0666
         );
@@ -101,7 +113,7 @@ GpFile::HandlerT    GpFileImpl::SOpen
     {
         fd = open64
         (
-            std::data(fname),
+            std::data(fileName),
             flags
         );
     }
@@ -109,12 +121,12 @@ GpFile::HandlerT    GpFileImpl::SOpen
     THROW_COND_GP
     (
         fd >= 0,
-        [&aName]()
+        [&fileName]()
         {
             return fmt::format
             (
-                "Failed to open file '{}', open64 return error code {}",
-                aName,
+                "Failed to open file '{}'. open64 returned error: {}",
+                fileName,
                 GpErrno::SGetAndClear()
             );
         }
@@ -128,26 +140,34 @@ void    GpFileImpl::SClose (GpFile::HandlerT aHandler) noexcept
     close(aHandler);
 }
 
-void    GpFileImpl::SFlush (GpFile::HandlerT aHandler)
+void    GpFileImpl::SFlush
+(
+    GpFile::HandlerT    aHandler,
+    std::string_view    aFileName
+)
 {
     const int res = fsync(aHandler);
 
     THROW_COND_GP
     (
         res == 0,
-        [&aHandler]()
+        [aFileName]()
         {
             return fmt::format
             (
-                "Failed to flush data to file (fd = {}), fsync return error code {}",
-                aHandler,
+                "Failed to flush data for file '{}', error: {}",
+                aFileName,
                 GpErrno::SGetAndClear()
             );
         }
     );
 }
 
-size_byte_t GpFileImpl::SSize (GpFile::HandlerT aHandler)
+size_byte_t GpFileImpl::SSize
+(
+    GpFile::HandlerT    aHandler,
+    std::string_view    aFileName
+)
 {
     struct stat st;
     const auto res = fstat(aHandler, &st);
@@ -155,12 +175,12 @@ size_byte_t GpFileImpl::SSize (GpFile::HandlerT aHandler)
     THROW_COND_GP
     (
         res == 0,
-        [&aHandler]()
+        [aFileName]()
         {
             return fmt::format
             (
-                "Failed to get file info (fd = {}), fstat return error code {}",
-                aHandler,
+                "Failed to get file '{}' size, error: {}",
+                aFileName,
                 GpErrno::SGetAndClear()
             );
         }
@@ -172,7 +192,8 @@ size_byte_t GpFileImpl::SSize (GpFile::HandlerT aHandler)
 void    GpFileImpl::SGoToPos
 (
     GpFile::HandlerT    aHandler,
-    const size_byte_t   aPos
+    const size_byte_t   aPos,
+    std::string_view    aFileName
 )
 {
     const auto res = lseek64
@@ -185,25 +206,33 @@ void    GpFileImpl::SGoToPos
     THROW_COND_GP
     (
         res != -1,
-        [&aPos, &aHandler]()
+        [aPos, aFileName]()
         {
             return fmt::format
             (
-                "Failed to set file position (target pos = {}, fd = {}), lseek64 return error code {}",
+                "Failed to set position for file '{}' (target position = {}), error: {}",
+                aFileName,
                 aPos.Value(),
-                aHandler,
                 GpErrno::SGetAndClear()
             );
         }
     );
 }
 
-void    GpFileImpl::SGoToStartPos (GpFile::HandlerT aHandler)
+void    GpFileImpl::SGoToStartPos
+(
+    GpFile::HandlerT    aHandler,
+    std::string_view    aFileName
+)
 {
-    SGoToPos(aHandler, 0_byte);
+    SGoToPos(aHandler, 0_byte, aFileName);
 }
 
-size_byte_t GpFileImpl::SGoToEndPos (GpFile::HandlerT aHandler)
+size_byte_t GpFileImpl::SGoToEndPos
+(
+    GpFile::HandlerT    aHandler,
+    std::string_view    aFileName
+)
 {
     const auto res = lseek64
     (
@@ -215,12 +244,12 @@ size_byte_t GpFileImpl::SGoToEndPos (GpFile::HandlerT aHandler)
     THROW_COND_GP
     (
         res != -1,
-        [&aHandler]()
+        [aFileName]()
         {
             return fmt::format
             (
-                "Failed to set file position (target pos = END, fd = {}), lseek64 return error code {}",
-                aHandler,
+                "Failed to set the position of file '{}' to the end, error: {}",
+                aFileName,
                 GpErrno::SGetAndClear()
             );
         }
@@ -229,7 +258,11 @@ size_byte_t GpFileImpl::SGoToEndPos (GpFile::HandlerT aHandler)
     return size_byte_t::SMake(res);
 }
 
-size_byte_t GpFileImpl::SCurrentPos (GpFile::HandlerT aHandler)
+size_byte_t GpFileImpl::SCurrentPos
+(
+    GpFile::HandlerT    aHandler,
+    std::string_view    aFileName
+)
 {
     const auto res = lseek64
     (
@@ -241,12 +274,12 @@ size_byte_t GpFileImpl::SCurrentPos (GpFile::HandlerT aHandler)
     THROW_COND_GP
     (
         res != -1,
-        [&aHandler]()
+        [aFileName]()
         {
             return fmt::format
             (
-                "Failed to set file position (target pos = CURRENT, fd = {}), lseek64 return error code {}",
-                aHandler,
+                "Failed to get file '{}' position, error: {}",
+                aFileName,
                 GpErrno::SGetAndClear()
             );
         }
@@ -255,10 +288,34 @@ size_byte_t GpFileImpl::SCurrentPos (GpFile::HandlerT aHandler)
     return size_byte_t::SMake(res);
 }
 
+void    GpFileImpl::STruncateToCurrentPos
+(
+    GpFile::HandlerT    aHandler,
+    std::string_view    aFileName
+)
+{
+    const size_byte_t currentPos = SCurrentPos(aHandler, aFileName);
+
+    THROW_COND_GP
+    (
+        ftruncate(aHandler, NumOps::SConvert<__off_t>(currentPos.Value())) != -1,
+        [aFileName]()
+        {
+            return fmt::format
+            (
+                "Failed to set end of file '{}', error: {}",
+                aFileName,
+                GpErrno::SGetAndClear()
+            );
+        }
+    );
+}
+
 size_byte_t GpFileImpl::STryWrite
 (
     GpFile::HandlerT    aHandler,
-    GpSpanByteR         aData
+    GpSpanByteR         aData,
+    std::string_view    aFileName
 )
 {
     const size_t sizeToWrite = aData.SizeInBytes();
@@ -273,12 +330,12 @@ size_byte_t GpFileImpl::STryWrite
     THROW_COND_GP
     (
         res != -1,
-        [&aHandler]()
+        [aFileName]()
         {
             return fmt::format
             (
-                "Failed to write to file (fd = {}), write return error code {}",
-                aHandler,
+                "Failed to write to file '{}', error: {}",
+                aFileName,
                 GpErrno::SGetAndClear()
             );
         }
@@ -290,19 +347,21 @@ size_byte_t GpFileImpl::STryWrite
 void    GpFileImpl::SWrite
 (
     GpFile::HandlerT    aHandler,
-    GpSpanByteR         aData
+    GpSpanByteR         aData,
+    std::string_view    aFileName
 )
 {
-    const size_byte_t sizeWritten = STryWrite(aHandler, aData);
+    const size_byte_t sizeWritten = STryWrite(aHandler, aData, aFileName);
 
     THROW_COND_GP
     (
         sizeWritten == size_byte_t::SMake(aData.SizeInBytes()),
-        [&sizeWritten, &aData]()
+        [sizeWritten, aFileName, &aData]()
         {
             return fmt::format
             (
-                "Failed to write. Only {} of {} bytes was written",
+                "Failed to write to file '{}', only {} bytes out of {} were written",
+                aFileName,
                 sizeWritten.Value(),
                 aData.SizeInBytes()
             );
@@ -313,7 +372,8 @@ void    GpFileImpl::SWrite
 size_byte_t GpFileImpl::STryRead
 (
     GpFile::HandlerT    aHandler,
-    GpSpanByteRW        aData
+    GpSpanByteRW        aData,
+    std::string_view    aFileName
 )
 {
     const size_t sizeToRead = NumOps::SConvert<size_t>(aData.SizeInBytes());
@@ -328,12 +388,12 @@ size_byte_t GpFileImpl::STryRead
     THROW_COND_GP
     (
         res != -1,
-        [&aHandler]()
+        [aFileName]()
         {
             return fmt::format
             (
-                "Failed to read from file (fd = {}), read return error code {}",
-                aHandler,
+                "Failed to read from file '{}', error: {}",
+                aFileName,
                 GpErrno::SGetAndClear()
             );
         }
@@ -345,19 +405,21 @@ size_byte_t GpFileImpl::STryRead
 void    GpFileImpl::SRead
 (
     GpFile::HandlerT    aHandler,
-    GpSpanByteRW        aData
+    GpSpanByteRW        aData,
+    std::string_view    aFileName
 )
 {
-    const size_byte_t sizeRead = STryRead(aHandler, aData);
+    const size_byte_t sizeRead = STryRead(aHandler, aData, aFileName);
 
     THROW_COND_GP
     (
         sizeRead == size_byte_t::SMake(aData.SizeInBytes()),
-        [&sizeRead, &aData]()
+        [sizeRead, aFileName, &aData]()
         {
             return fmt::format
             (
-                "Failed to read. Only {} of {} bytes was read",
+                "Failed to read from file '{}', only {} bytes out of {} were read",
+                aFileName,
                 sizeRead.Value(),
                 aData.SizeInBytes()
             );

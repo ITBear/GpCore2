@@ -11,16 +11,17 @@ DIR_LEVEL       = ./../..
 
 include($$DIR_LEVEL/../QtGlobalPro.pri)
 
-release_build_static{
+equals(var_link, "static") {
 	CONFIG += staticlib
 }
 
 # ----------- Libraries -----------
-os_windows{
-	LIBS += -lAdvapi32
+equals(var_os, "windows") {
+	#LIBS += -lAdvapi32
 }
 
-os_linux{
+equals(var_os, "linux") {
+	LIBS += -lfmt
 }
 
 # ----------- Sources and headers -----------
@@ -36,8 +37,14 @@ SOURCES += \
     Exceptions/GpExceptionTextCode.cpp \
     Exceptions/GpExceptionUtils.cpp \
     Files/GpFile.cpp \
+    Files/GpFileMemMap.cpp \
     Files/GpFileUtils.cpp \
     GpUtilsLib.cpp \
+    Other/ArgParser/GpArgParser.cpp \
+    Other/ArgParser/GpArgParserArgument.cpp \
+    Other/ArgParser/GpArgParserArgumentBuilder.cpp \
+    Other/ArgParser/GpArgParserRes.cpp \
+    Other/GpEmscriptenUtils.cpp \
     Other/GpErrno.cpp \
     Other/GpLinkedLibsInfo.cpp \
     Other/GpStartStopManager.cpp \
@@ -63,7 +70,30 @@ SOURCES += \
     Types/UIDs/GpUUID.cpp
 
 HEADERS += \
-    Algorithms/GpAlgorithms.hpp \
+    ../Config/GpCompilerFeatures.hpp \
+    ../Config/GpConfig.hpp \
+    ../Config/GpConfig_arch_arm_5T.hpp \
+    ../Config/GpConfig_arch_arm_7A.hpp \
+    ../Config/GpConfig_arch_arm_CORTEX_M.hpp \
+    ../Config/GpConfig_arch_mips.hpp \
+    ../Config/GpConfig_arch_wasm_32.hpp \
+    ../Config/GpConfig_arch_wasm_64.hpp \
+    ../Config/GpConfig_arch_x86.hpp \
+    ../Config/GpConfig_arch_x86_64.hpp \
+    ../Config/GpConfig_os_android.hpp \
+    ../Config/GpConfig_os_baremetal.hpp \
+    ../Config/GpConfig_os_browser.hpp \
+    ../Config/GpConfig_os_ios.hpp \
+    ../Config/GpConfig_os_ios_simulator.hpp \
+    ../Config/GpConfig_os_linux.hpp \
+    ../Config/GpConfig_os_macosx.hpp \
+    ../Config/GpConfig_os_windows.hpp \
+    ../Config/GpEnvironmentDetector.hpp \
+    ../Config/IncludeExt/boost_flat_map.hpp \
+    ../Config/IncludeExt/boost_flat_set.hpp \
+    ../Config/IncludeExt/boost_small_vector.hpp \
+    ../Config/IncludeExt/fmt.hpp \
+    ../Config/IncludeExt/windows.hpp \
     Algorithms/GpAverage.hpp \
     Algorithms/GpDistributeProportional.hpp \
     Algorithms/GpFind.hpp \
@@ -77,7 +107,6 @@ HEADERS += \
     Debugging/GpStackTrace.hpp \
     Encoders/GpBase58.hpp \
     Encoders/GpBase64.hpp \
-    Encoders/GpEncoders.hpp \
     EventBus/Events/GpDataProcessUpdateEvent.hpp \
     EventBus/GpEventChannel.hpp \
     EventBus/GpEventChannelAny.hpp \
@@ -86,24 +115,27 @@ HEADERS += \
     Exceptions/GpExceptionCode.hpp \
     Exceptions/GpExceptionTextCode.hpp \
     Exceptions/GpExceptionUtils.hpp \
-    Exceptions/GpExceptions.hpp \
     Exceptions/GpOnThrowStackUnwindFn.hpp \
     Files/GpFile.hpp \
+    Files/GpFileMemMap.hpp \
     Files/GpFilePosix.hpp \
     Files/GpFileUtils.hpp \
     Files/GpFileWindows.hpp \
-    Files/GpFiles.hpp \
     GpMemOps.hpp \
     GpUtilsLib.hpp \
     GpUtils_global.hpp \
-    Lifetime/GpLifetime.hpp \
     Macro/GpMacroClass.hpp \
     Macro/GpMacroImportExport.hpp \
     Macro/GpMacroTags.hpp \
     Macro/GpMacroWarnings.hpp \
+    Other/ArgParser/GpArgParser.hpp \
+    Other/ArgParser/GpArgParserArgument.hpp \
+    Other/ArgParser/GpArgParserArgumentBuilder.hpp \
+    Other/ArgParser/GpArgParserRes.hpp \
     Other/GpCallHandler.hpp \
     Other/GpCallHandler2.hpp \
     Other/GpCallOnce.hpp \
+    Other/GpEmscriptenUtils.hpp \
     Other/GpErrno.hpp \
     Other/GpLinkedLibsInfo.hpp \
     Other/GpMethodAccessGuard.hpp \
@@ -114,7 +146,6 @@ HEADERS += \
     Random/GpRandom.hpp \
     Random/GpRandomDeviceIf.hpp \
     Random/GpRandomDeviceWin.hpp \
-    Random/GpRandomGenerators.hpp \
     Random/GpRandomIf.hpp \
     Random/GpSRandom.hpp \
     Streams/GpByteReader.hpp \
@@ -147,7 +178,6 @@ HEADERS += \
     TypeTraits/GpTypeTraitsResultOf.hpp \
     TypeTraits/GpTypeTraitsTuple.hpp \
     Types/Bits/GpBitOps.hpp \
-    Types/Bits/GpBitset.hpp \
     Types/Bool/GpBool.hpp \
     Types/Containers/GpAny.hpp \
     Types/Containers/GpBytesArray.hpp \
@@ -176,11 +206,9 @@ HEADERS += \
     Types/Strings/GpStringOps.hpp \
     Types/Strings/GpStringTemplateArg.hpp \
     Types/Strings/GpStringUtils.hpp \
-    Types/Strings/GpStrings.hpp \
     Types/Strings/GpUTF.hpp \
     Types/UIDs/GpUUID.hpp \
     Types/Units/GpUnit.hpp \
-    Types/Units/GpUnits.hpp \
     Types/Units/Numerics/GpUnitsNumerics_Double.hpp \
     Types/Units/Numerics/GpUnitsNumerics_Float.hpp \
     Types/Units/Numerics/GpUnitsNumerics_SInt16.hpp \

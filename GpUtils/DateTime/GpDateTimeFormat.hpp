@@ -4,7 +4,7 @@
 
 #if defined(GP_USE_DATE_TIME)
 
-#include "../Types/Enums/GpEnum.hpp"
+#include <GpCore2/GpUtils/Types/Enums/GpEnum.hpp>
 
 namespace GPlatform {
 

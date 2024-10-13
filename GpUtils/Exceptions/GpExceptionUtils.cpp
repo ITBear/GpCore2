@@ -1,5 +1,5 @@
-#include "GpExceptionUtils.hpp"
-#include "../Types/Strings/GpStringOps.hpp"
+#include <GpCore2/GpUtils/Exceptions/GpExceptionUtils.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
 namespace GPlatform {
 
@@ -53,9 +53,19 @@ GpExceptionUtils::ToStrResT GpExceptionUtils::SToString
         res.fullMessage.append(aStackTrace.value());
     }
 
-    res.message = std::string_view(std::data(res.fullMessage) + std::size(p1), std::size(aMessage));
+    res.message = std::string_view{std::data(res.fullMessage) + std::size(p1), std::size(aMessage)};
 
     return res;
+}
+
+GpExceptionUtils::ToStrResT GpExceptionUtils::SToString (const GpException& aExeption)
+{
+    return SToString
+    (
+        aExeption.what(),
+        aExeption.SourceLocation(),
+        std::nullopt
+    );
 }
 
 }// namespace GPlatform

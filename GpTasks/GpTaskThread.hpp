@@ -2,7 +2,9 @@
 
 #include <GpCore2/Config/GpConfig.hpp>
 
-#include "GpTask.hpp"
+#if defined(GP_USE_MULTITHREADING)
+
+#include <GpCore2/GpTasks/GpTask.hpp>
 
 namespace GPlatform {
 
@@ -51,3 +53,5 @@ GpTask(GpTaskMode::THREAD)
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

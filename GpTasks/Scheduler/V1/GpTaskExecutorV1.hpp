@@ -5,6 +5,8 @@
 #include <GpCore2/GpTasks/ITC/GpItcSharedQueue.hpp>
 #include <GpCore2/GpTasks/GpTask.hpp>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 class GpTaskSchedulerV1;
@@ -40,3 +42,5 @@ private:
 };
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

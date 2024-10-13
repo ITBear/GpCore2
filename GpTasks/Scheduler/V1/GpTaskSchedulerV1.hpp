@@ -9,6 +9,8 @@
 #include <bitset>
 #include <array>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 class GpTaskSchedulerV1 final: public GpTaskScheduler
@@ -67,3 +69,5 @@ private:
 };
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

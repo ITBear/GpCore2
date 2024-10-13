@@ -2,9 +2,8 @@
 
 #include <GpCore2/Config/GpConfig.hpp>
 #include <GpCore2/GpUtils/Types/UIDs/GpUUID.hpp>
-
-#include "../GpReflection_global.hpp"
-#include "GpReflectDiffArray.hpp"
+#include <GpCore2/GpReflection/GpReflection_global.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffArray.hpp>
 
 namespace GPlatform {
 

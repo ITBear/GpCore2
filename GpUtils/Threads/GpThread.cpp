@@ -3,6 +3,8 @@
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 #include <GpCore2/GpUtils/Threads/GpSleepStrategy.hpp>
 
+#if defined(GP_USE_MULTITHREADING)
+
 #if defined(GP_OS_WINDOWS)
 #   include <GpCore2/Config/IncludeExt/windows.hpp>
 #endif// #if defined(GP_OS_WINDOWS)
@@ -45,19 +47,18 @@ std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
     iThread = std::thread
     (
         [
-            _runnable               = iRunnable,
-            _threadName             = std::string(Name()),
-            _stopRequest            = &iThreadStopRequestF,
-            _threadRunnableDoneF    = &iThreadRunnableDoneF
-        ]() noexcept
+            iRunnable               = iRunnable,
+            iName                   = std::string{this->Name()},
+            iThreadStopRequestF     = &iThreadStopRequestF,
+            iThreadRunnableDoneF    = &iThreadRunnableDoneF
+        ]() mutable noexcept
         {
-            _threadRunnableDoneF->clear();
+            iThreadRunnableDoneF->clear();
 
-            SSetSysNameForCurrent(_threadName);
-            GpRunnable::SP _r = std::move(_runnable);
-            _r->Run(*_stopRequest);
+            SSetSysNameForCurrent(std::move(iName));
+            iRunnable->Run(*iThreadStopRequestF);
 
-            _threadRunnableDoneF->test_and_set();
+            iThreadRunnableDoneF->test_and_set();
         }
     );
 
@@ -91,8 +92,8 @@ void    GpThread::Join (void) noexcept
     {
         constexpr std::array<std::pair<size_t, std::chrono::milliseconds>, 2> tryStages =
         {
-            std::pair<size_t, std::chrono::milliseconds>{10000, std::chrono::milliseconds(0)},
-            std::pair<size_t, std::chrono::milliseconds>{100, std::chrono::milliseconds(1)}
+            std::pair<size_t, std::chrono::milliseconds>{size_t{10000}, std::chrono::milliseconds(0)},
+            std::pair<size_t, std::chrono::milliseconds>{size_t{100}, std::chrono::milliseconds(1)}
         };
 
         GpSleepStrategy::SWaitFor
@@ -133,15 +134,14 @@ void    GpThread::SSetSysNameForCurrent (std::string_view aName)
     }
 
 #if defined(GP_OS_WINDOWS)
+    const std::wstring name(aName.begin(), aName.end());
 
-    // TODO: find out why SetThreadDescription wont compile
+    SetThreadDescription
+    (
+        GetCurrentThread(),
+        std::data(name)
+    );
 
-    //const std::string name(aName);
-    //[[maybe_unused]] const HRESULT res = SetThreadDescription
-    //(
-    //  GetCurrentThread(),
-    //  std::data(name)
-    //);
 #elif defined(GP_OS_LINUX)
     const std::string name(aName.substr(0, NumOps::SMin<std::string_view::size_type>(15, std::size(aName))));
     prctl(PR_SET_NAME, (unsigned long)std::data(name), 0, 0, 0);
@@ -165,3 +165,5 @@ void    GpThread::SSetSysNameForCurrent (std::string_view aName)
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

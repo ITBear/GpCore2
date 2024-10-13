@@ -6,6 +6,8 @@
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 #include <GpCore2/GpUtils/Types/Containers/GpTypeShell.hpp>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 GP_ENUM(GP_TASKS_API, GpTaskRunRes,
@@ -19,6 +21,13 @@ GP_ENUM(GP_TASKS_API, GpTaskMode,
     FIBER
 );
 
+GP_ENUM(GP_TASKS_API, GpTaskState,
+    NOT_STARTED,
+    WAITING,
+    RUNING,
+    DONE
+);
+
 class GpTaskId_type;
 using GpTaskId      = GpTypeShell<u_int_64, GpTaskId_type>;
 
@@ -26,3 +35,5 @@ class GpTaskGroupId_type;
 using GpTaskGroupId = GpTypeShell<u_int_64, GpTaskGroupId_type>;
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

@@ -48,7 +48,7 @@ void    GpDebugging_SArchBreakpoint (void)
 #       error Unsupported compiler
 #   endif
 #else
-#   error Unsupported ARCH
+#   error Unsupported CPU architecture
 #endif
 }
 
@@ -83,7 +83,7 @@ void    GpDebugging::SBreakpoint ([[maybe_unused]] const SourceLocationT& aSourc
 #elif defined(GP_COMPILER_MSVC)
     __debugbreak();
 #else
-#   error Unsupported compiller
+#   error Unsupported compiler
 #endif
 }
 

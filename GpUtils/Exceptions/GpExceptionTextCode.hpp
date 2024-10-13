@@ -4,8 +4,8 @@
 
 #if defined(GP_USE_EXCEPTIONS)
 
-#include "GpException.hpp"
-#include "../Types/Enums/GpEnum.hpp"
+#include <GpCore2/GpUtils/Exceptions/GpException.hpp>
+#include <GpCore2/GpUtils/Types/Enums/GpEnum.hpp>
 
 namespace GPlatform {
 

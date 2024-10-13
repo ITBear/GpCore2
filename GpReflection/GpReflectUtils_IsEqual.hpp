@@ -1,16 +1,14 @@
 #pragma once
 
 #include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
-
 #include <GpCore2/Config/GpConfig.hpp>
 #include <GpCore2/GpUtils/Types/Containers/GpMultiKeyManager.hpp>
-
-#include "GpReflectObject.hpp"
+#include <GpCore2/GpReflection/GpReflectObject.hpp>
 
 namespace GPlatform {
 
 namespace IsEqual {
-class GpReflectUtils_VisitCtx;
+    class GpReflectUtils_VisitCtx;
 }// namespace IsEqual
 
 class GP_REFLECTION_API GpReflectUtils_IsEqual
@@ -18,8 +16,11 @@ class GP_REFLECTION_API GpReflectUtils_IsEqual
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpReflectUtils_IsEqual)
 
-    using CacheMKeyManagerT = GpMultiKeyManager<u_int_32/*multikey*/,
-                                                boost::container::small_flat_map<const GpReflectObject*, u_int_16/*internal index*/, 64>>;
+    using CacheMKeyManagerT = GpMultiKeyManager
+    <
+        u_int_32/*multikey*/,
+        boost::container::small_flat_map<const GpReflectObject*, u_int_16/*internal index*/, 64>
+    >;
     using CacheMapT         = boost::container::small_flat_map<u_int_32/*multikey*/, bool/*is equal*/, 32>;
     using CacheT            = std::tuple<CacheMKeyManagerT, CacheMapT>;
     using CacheRefOptT      = std::optional<std::reference_wrapper<CacheT>>;

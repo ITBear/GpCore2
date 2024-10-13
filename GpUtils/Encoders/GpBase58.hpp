@@ -4,11 +4,9 @@
 
 #if defined(GP_USE_BASE58)
 
-#include "../Streams/GpStreams.hpp"
-#include "../Types/Enums/GpEnum.hpp"
-#include "../Types/Containers/GpContainersT.hpp"
-#include "../Types/Strings/GpStringOps.hpp"
-#include "../Types/Strings/GpUTF.hpp"
+#include <GpCore2/GpUtils/Types/Enums/GpEnum.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
 namespace GPlatform {
 

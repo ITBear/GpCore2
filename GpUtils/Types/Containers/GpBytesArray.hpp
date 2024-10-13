@@ -25,7 +25,7 @@ public:
     requires
            Concepts::HasContiguousIter<TO>
         && Concepts::SizeOfValueType<TO, 1>
-        && Concepts::HasContiguousIter<FROM>
+        && (Concepts::HasContiguousIter<FROM> || GpHasTag_GpSpan<FROM>())
         && Concepts::SizeOfValueType<FROM, 1>
     static TO SMake (const FROM& aContainer)
     {
@@ -48,7 +48,7 @@ public:
     requires
        Concepts::HasContiguousIter<T1>
     && Concepts::SizeOfValueType<T1, 1>
-    && Concepts::HasContiguousIter<T2>
+    && (Concepts::HasContiguousIter<T2> || GpHasTag_GpSpan<T2>())
     && Concepts::SizeOfValueType<T2, 1>
     static T1&  SAppend
     (
@@ -72,27 +72,27 @@ public:
         return aDst;
     }
 
-    static GpBytesArray&    SAppend
-    (
-        GpBytesArray&   aDst,
-        GpSpanByteR     aSrc
-    )
-    {
-        const size_t oldSize = std::size(aDst);
-        const size_t srcSize = aSrc.SizeInBytes();
-        const size_t newSize = NumOps::SAdd(oldSize, srcSize);
+    //static GpBytesArray&  SAppend
+    //(
+    //  GpBytesArray&   aDst,
+    //  GpSpanByteR     aSrc
+    //)
+    //{
+    //  const size_t oldSize = std::size(aDst);
+    //  const size_t srcSize = aSrc.SizeInBytes();
+    //  const size_t newSize = NumOps::SAdd(oldSize, srcSize);
 
-        aDst.resize(newSize);
+    //  aDst.resize(newSize);
 
-        MemOps::SCopy
-        (
-            std::data(aDst) + oldSize,
-            reinterpret_cast<const std_byte_no_init*>(std::data(aSrc)),
-            srcSize
-        );
+    //  MemOps::SCopy
+    //  (
+    //      std::data(aDst) + oldSize,
+    //      reinterpret_cast<const std_byte_no_init*>(std::data(aSrc)),
+    //      srcSize
+    //  );
 
-        return aDst;
-    }
+    //  return aDst;
+    //}
 
     static GpSpanByteRW     SFillZero (GpSpanByteRW aData)
     {

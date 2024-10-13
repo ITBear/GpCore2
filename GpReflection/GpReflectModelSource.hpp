@@ -1,8 +1,7 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "GpReflectModel.hpp"
+#include <GpCore2/GpReflection/GpReflectModel.hpp>
 
 namespace GPlatform {
 

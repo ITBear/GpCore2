@@ -6,6 +6,8 @@
 #include <queue>
 #include <optional>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 template <typename T>
@@ -218,3 +220,5 @@ const typename GpItcSharedQueue<T>::underlying_container&   GpItcSharedQueue<T>:
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

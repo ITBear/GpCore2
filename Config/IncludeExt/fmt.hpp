@@ -22,4 +22,25 @@
 #   include <format>
 #   define FMT_NAMESPASE std
     namespace fmt = std;
+
+    namespace FMT_NAMESPASE {
+        template <typename T>
+        std::string join(const T& aContainer, std::string_view aDelimiter)
+        {
+            std::string result;
+            bool first = true;
+            for (const auto& elem: aContainer)
+            {
+                if (!first) [[likely]]
+                {
+                    result += aDelimiter;
+                }
+
+                result += ::fmt::format("{}", elem);
+                first = false;
+            }
+
+            return result;
+        }
+    }// namespace FMT_NAMESPASE
 #endif

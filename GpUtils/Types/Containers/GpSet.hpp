@@ -4,8 +4,8 @@
 
 #if defined(GP_USE_CONTAINERS)
 
-#include "GpContainersT.hpp"
-#include "../../SyncPrimitives/GpSpinLockRW.hpp"
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSpinLockRW.hpp>
 
 #include <set>
 #include <mutex>

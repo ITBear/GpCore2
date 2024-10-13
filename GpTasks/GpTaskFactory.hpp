@@ -3,6 +3,8 @@
 #include <GpCore2/Config/GpConfig.hpp>
 #include <GpCore2/GpTasks/GpTask.hpp>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 class GpTaskFactory
@@ -22,3 +24,5 @@ public:
 };
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

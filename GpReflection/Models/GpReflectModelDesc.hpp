@@ -1,12 +1,10 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "../GpReflectObject.hpp"
-#include "../GpReflectUtils.hpp"
-#include "../GpReflectManager.hpp"
-
-#include "GpReflectPropDesc.hpp"
+#include <GpCore2/GpReflection/GpReflectObject.hpp>
+#include <GpCore2/GpReflection/GpReflectUtils.hpp>
+#include <GpCore2/GpReflection/GpReflectManager.hpp>
+#include <GpCore2/GpReflection/Models/GpReflectPropDesc.hpp>
 
 namespace GPlatform {
 

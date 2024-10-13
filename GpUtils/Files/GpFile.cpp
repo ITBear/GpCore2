@@ -18,63 +18,72 @@ void    GpFile::Open
     const GpFileFlags   aFlags
 )
 {
-    if (iHandler != HandlerT())
+    if (iHandler != HandlerT{})
     {
         Close();
     }
 
-    iHandler = GpFileImpl::SOpen(aName, aFlags);
+    iHandler    = GpFileImpl::SOpen(aName, aFlags);
+    iName       = aName;
+    iFlags      = aFlags;
 }
 
 void    GpFile::Close (void) noexcept
 {
-    if (iHandler == HandlerT())
+    if (iHandler == HandlerT{})
     {
         return;
     }
 
     GpFileImpl::SClose(iHandler);
-    iHandler = HandlerT();
+    iHandler = HandlerT{};
+    iName.clear();
+    iFlags.Clear();
 }
 
 void    GpFile::Flush (void)
 {
-    GpFileImpl::SFlush(iHandler);
+    GpFileImpl::SFlush(iHandler, iName);
 }
 
 size_byte_t GpFile::Size (void) const
 {
-    return GpFileImpl::SSize(iHandler);
+    return GpFileImpl::SSize(iHandler, iName);
 }
 
 void    GpFile::GoToPos (const size_byte_t aPos)
 {
-    GpFileImpl::SGoToPos(iHandler, aPos);
+    GpFileImpl::SGoToPos(iHandler, aPos, iName);
 }
 
 void    GpFile::GoToStartPos (void)
 {
-    GpFileImpl::SGoToStartPos(iHandler);
+    GpFileImpl::SGoToStartPos(iHandler, iName);
 }
 
 size_byte_t GpFile::GoToEndPos (void)
 {
-    return GpFileImpl::SGoToEndPos(iHandler);
+    return GpFileImpl::SGoToEndPos(iHandler, iName);
 }
 
 size_byte_t GpFile::CurrentPos (void) const
 {
-    return GpFileImpl::SCurrentPos(iHandler);
+    return GpFileImpl::SCurrentPos(iHandler, iName);
+}
+
+void    GpFile::TruncateToCurrentPos (void)
+{
+    GpFileImpl::STruncateToCurrentPos(iHandler, iName);
 }
 
 void    GpFile::Write (GpSpanByteR aData)
 {
-    return GpFileImpl::SWrite(iHandler, aData);
+    return GpFileImpl::SWrite(iHandler, aData, iName);
 }
 
 void    GpFile::Read (GpSpanByteRW aData)
 {
-    return GpFileImpl::SRead(iHandler, aData);
+    return GpFileImpl::SRead(iHandler, aData, iName);
 }
 
 }// namespace GPlatform

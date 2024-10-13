@@ -1,4 +1,4 @@
-#include "GpReflectDiffProp_VecUI16.hpp"
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecUI16.hpp>
 
 namespace GPlatform {
 

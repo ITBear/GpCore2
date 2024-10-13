@@ -1,4 +1,4 @@
-#include "GpTimersManager.hpp"
+#include <GpCore2/GpUtils/Threads/Timers/GpTimersManager.hpp>
 
 #if defined(GP_USE_TIMERS)
 

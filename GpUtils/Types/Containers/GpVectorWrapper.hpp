@@ -52,11 +52,11 @@ public:
 
 public:
                             GpVectorWrapper     (void) = default;
-                            GpVectorWrapper     (const GpVectorWrapper& aVectorWrapper): iVector(aVectorWrapper.iVector) {}
-                            GpVectorWrapper     (GpVectorWrapper&& aVectorWrapper) noexcept: iVector(std::move(aVectorWrapper.iVector)) {}
-                            GpVectorWrapper     (const vector_type& aVector): iVector(aVector) {}
-                            GpVectorWrapper     (vector_type&& aVector) noexcept: iVector(std::move(aVector)) {}
-    virtual                 ~GpVectorWrapper    (void) noexcept override final {};
+                            GpVectorWrapper     (const GpVectorWrapper& aVectorWrapper): iVector{aVectorWrapper.iVector} {}
+                            GpVectorWrapper     (GpVectorWrapper&& aVectorWrapper) noexcept: iVector{std::move(aVectorWrapper.iVector)} {}
+                            GpVectorWrapper     (const vector_type& aVector): iVector{aVector} {}
+                            GpVectorWrapper     (vector_type&& aVector) noexcept: iVector{std::move(aVector)} {}
+    virtual                 ~GpVectorWrapper    (void) noexcept override final {}
 
     const vector_type&      InnerVector         (void) const noexcept {return iVector;}
     vector_type&            InnerVector         (void) noexcept {return iVector;}
@@ -70,7 +70,7 @@ public:
     virtual void            shrink_to_fit       (void) override final {return iVector.shrink_to_fit();}
 
     virtual size_t          size                (void) const noexcept override final {return std::size(iVector);}
-    virtual size_t          stride              (void) const noexcept override final {return sizeof(T);}
+    virtual size_t          stride              (void) const noexcept override final {return std::max(sizeof(T), alignof(T));}
     virtual const BaseT*    data                (void) const noexcept override final {return std::data(iVector);}
     virtual BaseT*          data                (void) noexcept override final {return std::data(iVector);}
     virtual bool            empty               (void) const noexcept override final {return std::empty(iVector);}
@@ -84,6 +84,6 @@ private:
     vector_type             iVector;
 };
 
-}// GPlatform
+}// namespace GPlatform
 
 #endif// #if defined(GP_USE_CONTAINERS)

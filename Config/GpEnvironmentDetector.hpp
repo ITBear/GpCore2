@@ -165,6 +165,7 @@
 #       define GP_OS_BARE_METAL
 #   elif defined(OS_BROWSER)
 #       define GP_OS_BROWSER
+#       define GP_OS_NAME "Browser: WASM"
 #   else
 #       error Can`t detect OS platform...
 #   endif

@@ -1,4 +1,4 @@
-#include "GpStackImplPoolBoost.hpp"
+#include <GpCore2/GpTasks/Fibers/Boost/GpStackImplPoolBoost.hpp>
 
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)

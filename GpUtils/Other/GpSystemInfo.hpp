@@ -1,8 +1,7 @@
 #pragma once
 
-#include "../GpUtils_global.hpp"
-#include "../Macro/GpMacroClass.hpp"
-
+#include <GpCore2/GpUtils/GpUtils_global.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
 namespace GPlatform {

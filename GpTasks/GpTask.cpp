@@ -3,7 +3,8 @@
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 #include <GpCore2/GpTasks/Scheduler/GpTaskScheduler.hpp>
 #include <GpCore2/GpTasks/ITC/GpItcSharedFutureUtils.hpp>
-#include <GpService/GpServiceMainTask.hpp>
+
+#if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
 
@@ -179,11 +180,27 @@ GpTaskVarStorage::AnyOptCRefT   GpTask::GetVarRef (std::string_view aKey) const
 
 GpTaskRunRes::EnumT GpTask::Execute (GpMethodAccessGuard<GpTaskScheduler, GpTaskExecutor>) noexcept
 {
+    // Update task for current thread
     __GpTask__thread_current_task = *this;
+
+    // Update task state (GpTaskState::RUNING)
+    iState.store(GpTaskState::RUNING, std::memory_order_release);
+
+    // Run task
     const GpTaskRunRes::EnumT runRes = Run();
+
+    // Update task state
+    iState.store
+    (
+        runRes != GpTaskRunRes::DONE ? GpTaskState::WAITING : GpTaskState::DONE,
+        std::memory_order_release
+    );
+
     __GpTask__thread_current_task.reset();
 
     return runRes;
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

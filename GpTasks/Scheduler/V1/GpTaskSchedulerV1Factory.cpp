@@ -1,5 +1,7 @@
-#include "GpTaskSchedulerV1Factory.hpp"
-#include "GpTaskSchedulerV1.hpp"
+#include <GpCore2/GpTasks/Scheduler/V1/GpTaskSchedulerV1Factory.hpp>
+#include <GpCore2/GpTasks/Scheduler/V1/GpTaskSchedulerV1.hpp>
+
+#if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
 
@@ -13,3 +15,5 @@ GpSP<GpTaskScheduler>   GpTaskSchedulerV1Factory::NewInstance (StopServiceFnT aS
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

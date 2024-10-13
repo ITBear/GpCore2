@@ -1,4 +1,4 @@
-#include "GpReflectDiffProp_VecSI8.hpp"
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecSI8.hpp>
 
 namespace GPlatform {
 

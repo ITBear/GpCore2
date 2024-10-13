@@ -1,287 +1,408 @@
-#qmake options for DEBUG (asan, ubsan): CONFIG+=debug_build CONFIG+=arc_x86_64 CONFIG+=os_linux
-#qmake options for DEBUG (asan, ubsan): CONFIG+=debug_build CONFIG+=arc_x86_64 CONFIG+=os_linux CONFIG+=compiler_clang CONFIG+=use_asan_ubsan
-#qmake options for RELEASE: CONFIG+=release_build CONFIG+=arc_x86_64 CONFIG+=os_linux CONFIG+=compiler_clang
-#qmake options for RELEASE (static): CONFIG+=release_build_static CONFIG+=arc_x86_64 CONFIG+=os_linux CONFIG+=compiler_clang
+# OS:           os_linux|os_windows|os_browser
+# Architecture: architecture_x86_64|architecture_x86|architecture_wasm32|architecture_wasm64
+# Compiler:     compiler_gcc|compiler_clang|compiler_msvc|compiler_emscripten
+# Build mode:   build_release|build_debug
+# Link mode:    link_shared|link_static
+# Sanitizers:   sanitizers_asan_ubsan|sanitizers_tsan
 
-CONFIG		-= qt
-QT			-= core gui widgets
-CONFIG		+= warn_on
-DEFINES		+= HAVE_NETINET_IN_H \
-			   _GLIBCXX_USE_NANOSLEEP
+# Windows_x86_64_clang_debug_shared: CONFIG+=build_debug   CONFIG+=os_windows CONFIG+=architecture_x86_64 CONFIG+=compiler_clang CONFIG+=link_shared
+# Windows_x86_64_clang_debug_static: CONFIG+=build_release CONFIG+=os_windows CONFIG+=architecture_x86_64 CONFIG+=compiler_clang CONFIG+=link_shared
 
-# ------------ vars for use in equals() -----------------
-use_asan_ubsan {
-	var_sanitizers = use_asan_ubsan
-}
+# Linux_x86_64_clang_debug_shared:            CONFIG+=build_debug   CONFIG+=os_linux CONFIG+=architecture_x86_64 CONFIG+=compiler_clang CONFIG+=link_shared
+# Linux_x86_64_clang_debug_shared_asan_ubsan: CONFIG+=build_debug   CONFIG+=os_linux CONFIG+=architecture_x86_64 CONFIG+=compiler_clang CONFIG+=link_shared CONFIG+=sanitizers_asan_ubsan
+# Linux_x86_64_clang_debug_shared_tsan:       CONFIG+=build_debug   CONFIG+=os_linux CONFIG+=architecture_x86_64 CONFIG+=compiler_clang CONFIG+=link_shared CONFIG+=sanitizers_tsan
+# Linux_x86_64_clang_release_shared:          CONFIG+=build_release CONFIG+=os_linux CONFIG+=architecture_x86_64 CONFIG+=compiler_clang CONFIG+=link_shared
+# Linux_x86_64_clang_release_static:          CONFIG+=build_release CONFIG+=os_linux CONFIG+=architecture_x86_64 CONFIG+=compiler_clang CONFIG+=link_static
 
-use_tsan {
-	var_sanitizers = use_tsan
-}
+# ============================================= COMMON =============================================
+# ------------ remove Qt ------------
+CONFIG			-= qt
+QT				-= core gui widgets
 
+# ------------ C++ version ------------
+CONFIG			+=	c++20
+CONFIG			+=	c17
+
+# ------------ Default warning serrings ------------
+CONFIG			+= warn_on
+QMAKE_CXXFLAGS	+= -Wall
+
+# ------------ Boost ------------
+BOOST_POSTFIX	 = _fcontext
+BOOST_VERSION	 = 1_86_0
+
+# ------------ Postfix ------------
+TARGET_POSTFIX	 =
+
+# ------------ Version defines ------------
+DEFINES			+= "GP_CURRENT_LIB_VER_MAJ=\\\"$$_VER_MAJ\\\""
+DEFINES			+= "GP_CURRENT_LIB_VER_MIN=\\\"$$_VER_MIN\\\""
+DEFINES			+= "GP_CURRENT_LIB_VER_PAT=\\\"$$_VER_PAT\\\""
+DEFINES			+= "GP_CURRENT_LIB_PACKET_NAME=\\\"$$PACKET_NAME\\\""
+
+# ============================================= VARS =============================================
+# ------------ vars (os) ------------
 os_linux {
-   var_os = linux
-}
-
-os_browser {
-	var_os = browser
+   var_os = "linux"
 }
 
 os_windows {
-	var_os = windows
+	var_os = "windows"
 }
 
+os_browser {
+	var_os = "browser"
+}
+
+equals(var_os, "") {
+    error(Unknown OS. Set CONFIG+=os_linux|os_windows|os_browser)
+}
+
+# ------------ vars (architecture) ------------
+architecture_x86_64 {
+	var_architecture = "x86_64"
+}
+
+architecture_x86 {
+	var_architecture = "x86"
+}
+
+architecture_wasm32 {
+	var_architecture = "wasm32"
+}
+
+architecture_wasm64 {
+	var_architecture = "wasm64"
+}
+
+equals(var_architecture, "") {
+    error(Unknown architecture. Set CONFIG+=architecture_x86_64|architecture_x86|architecture_wasm32|architecture_wasm64)
+}
+
+# ------------ vars (compiler) ------------
 compiler_gcc{
-	var_compiler = gcc
+	var_compiler = "gcc"
 }
 
 compiler_clang{
-	var_compiler = clang
+	var_compiler = "clang"
 }
 
 compiler_msvc{
-	var_compiler = msvc
+	var_compiler = "msvc"
 }
 
 compiler_emscripten{
-	var_compiler = emscripten
+	var_compiler = "emscripten"
 }
 
-# -----------------------------
+equals(var_compiler, "") {
+    error(Unknown compiler. Set CONFIG+=compiler_gcc|compiler_clang|compiler_msvc|compiler_emscripten)
+}
 
-compiler_gcc{
-	QMAKE_CC		=	gcc-12
-	QMAKE_CXX		=	g++-12
-	QMAKE_LINK		=	g++-12
+# ------------ vars (build) ------------
+build_release{
+	var_build = "release"
+}
 
-	equals(var_os, "linux") {
-		QMAKE_CXXFLAGS	+= -Wplacement-new -Wlogical-op -Wduplicated-cond -Wduplicated-branches -Wrestrict -Wno-terminate
-		QMAKE_CXXFLAGS	+= -fstack-clash-protection
+build_debug{
+	var_build = "debug"
+}
+
+equals(var_build, "") {
+    error(Unknown build mode. Set CONFIG+=build_release|build_debug)
+}
+
+# ------------ vars (link) ------------
+link_shared{
+	var_link = "shared"
+}
+
+link_static{
+	var_link = "static"
+}
+
+equals(var_link, "") {
+    error(Unknown link mode. Set CONFIG+=link_shared|link_static)
+}
+
+# ------------ vars (sanitizers) ------------
+sanitizers_asan_ubsan {
+	var_sanitizers = "asan_ubsan"
+}
+
+sanitizers_tsan {
+	var_sanitizers = "tsan"
+}
+
+# ============================================= SETTINGS =============================================
+# ------------ settings (os) ------------
+equals(var_os, "linux") {
+	OUT_PATH_OS = "Linux"
+
+    #QMAKE_CXXFLAGS	+= -g
+}
+
+equals(var_os, "windows") {
+	OUT_PATH_OS = "Windows"
+}
+
+equals(var_os, "browser") {
+	OUT_PATH_OS = "Browser"
+}
+
+# ------------ settings (architecture) ------------
+equals(var_architecture, "x86_64") {
+	OUT_PATH_ARCHITECTURE = "x86_64"
+
+    equals(var_compiler, "clang") {
+	    QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
 	}
+
+    equals(var_compiler, "gcc") {
+	    QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
+	}
+
+    equals(var_compiler, "msvc") {
+	    QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
+	}
+
+    equals(var_compiler, "emscripten") {
+	    error(Unsupported compiler)
+	}
+}
+
+equals(var_architecture, "x86") {
+	OUT_PATH_ARCHITECTURE = "x86"
+
+    equals(var_compiler, "clang") {
+	    QMAKE_CXXFLAGS	+= -mtune=generic -march=i686
+	}
+
+    equals(var_compiler, "gcc") {
+	    QMAKE_CXXFLAGS	+= -mtune=generic -march=i686
+	}
+
+    equals(var_compiler, "msvc") {
+	    QMAKE_CXXFLAGS	+= -mtune=generic -march=i686
+	}
+
+    equals(var_compiler, "emscripten") {
+	    error(Unsupported compiler)
+	}
+}
+
+equals(var_architecture, "wasm32") {
+	OUT_PATH_ARCHITECTURE = "wasm32"
+
+    equals(var_compiler, "clang") {
+	    error(Unsupported compiler)
+	}
+
+    equals(var_compiler, "gcc") {
+	    error(Unsupported compiler)
+	}
+
+    equals(var_compiler, "msvc") {
+	    error(Unsupported compiler)
+	}
+
+    equals(var_compiler, "emscripten") {
+	    # NOP
+	}
+}
+
+equals(var_architecture, "wasm64") {
+	OUT_PATH_ARCHITECTURE = "wasm64"
+
+    equals(var_compiler, "clang") {
+	    error(Unsupported compiler)
+	}
+
+    equals(var_compiler, "gcc") {
+	    error(Unsupported compiler)
+	}
+
+    equals(var_compiler, "msvc") {
+	    error(Unsupported compiler)
+	}
+
+    equals(var_compiler, "emscripten") {
+	    # NOP
+	}
+}
+
+# ------------ settings (compiler) ------------
+equals(var_compiler, "gcc") {
+    # ------------ Tools name ------------
+	OUT_PATH_COMPILER	 = "gcc"
+	COMPILER_VERSION	 = "-12"
+
+    QMAKE_CC			 = gcc$$COMPILER_VERSION
+	QMAKE_CXX			 = g++$$COMPILER_VERSION
+	QMAKE_LINK			 = g++$$COMPILER_VERSION
+	#QMAKE_LFLAGS		+=
+
+    # ------------ Flags ------------
+	QMAKE_CXXFLAGS	+= -Wplacement-new -Wlogical-op -Wduplicated-cond -Wduplicated-branches -Wrestrict -Wno-terminate
+	QMAKE_CXXFLAGS	+= -fstack-clash-protection
 	QMAKE_CXXFLAGS	+= -Wextra -Wno-comment -Wdouble-promotion -Wswitch-enum -Wuninitialized -Wfloat-equal -Wshadow -Wcast-align -Wconversion -Wnull-dereference -Wno-switch-default
 	QMAKE_CXXFLAGS	+= -fstrict-aliasing -Wstrict-aliasing -ffunction-sections -fdata-sections -fexceptions
-	QMAKE_CXXFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden
-}else:compiler_clang{
-	QMAKE_CC		=	clang-16
-	QMAKE_CXX		=	clang++-16
-	QMAKE_LINK		=	clang++-16
 
-	#QMAKE_CXXFLAGS += -stdlib=libc++
-	#QMAKE_LFLAGS   += -stdlib=libc++
+    QMAKE_LFLAGS	+= -Wl,--no-undefined
+}
 
-	QMAKE_CXXFLAGS	+= -stdlib=libstdc++
-	QMAKE_LFLAGS    += -stdlib=libstdc++
+equals(var_compiler, "clang") {
+    # ------------ Tools name ------------
+	OUT_PATH_COMPILER	 = "clang"
+	COMPILER_VERSION	 = "-18"
 
+    QMAKE_CC			 = clang$$COMPILER_VERSION
+	QMAKE_CXX			 = clang++$$COMPILER_VERSION
+	QMAKE_LINK			 = clang++$$COMPILER_VERSION
+	QMAKE_LFLAGS		+= -fuse-ld=lld$$COMPILER_VERSION
+
+    # ------------ Flags ------------
 	QMAKE_CXXFLAGS	+= -Werror -Wextra -Wdouble-promotion -Wswitch-enum -Wuninitialized -Wfloat-equal -Wshadow -Wcast-align -Wconversion -Wnull-dereference -Wno-switch-default -Wno-comment -Wthread-safety-analysis -Wthread-safety
 	QMAKE_CXXFLAGS	+= -fstrict-aliasing -Wstrict-aliasing -ffunction-sections -fdata-sections -fexceptions
-	QMAKE_CXXFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden
-}else:compiler_msvc{
-	#QMAKE_CXXFLAGS += -fpermissive-
-	QMAKE_CXXFLAGS += -std:c++latest
-}else:compiler_emscripten{
-	# NOP
-}else{
-	error("Unknown compiler mode. Set CONFIG+=[compiler_gcc,compiler_clang,compiler_msvc,compiler_emscripten]")
+
+    QMAKE_LFLAGS	+= -Wl,--no-undefined
+
+    # ------------ STD library implementation ------------
+	#QMAKE_CXXFLAGS += -stdlib=libc++
+	#QMAKE_LFLAGS   += -stdlib=libc++
+	QMAKE_CXXFLAGS	+= -stdlib=libstdc++
+	QMAKE_LFLAGS    += -stdlib=libstdc++
 }
 
-#c++20
-CONFIG			+=	c++latest
-CONFIG			+=	c17
-#QMAKE_CXXFLAGS	+=	-std=gnu++20
-
-QMAKE_CXXFLAGS	+= -Wall
-#QMAKE_LFLAGS    += -Wl,-E,--gc-sections -v
-
-os_linux {
-    #For symbol info
-	QMAKE_CXXFLAGS += -g
-	BOOST_POSTFIX	= _fcontext
+equals(var_compiler, "msvc") {
+	OUT_PATH_COMPILER = "msvc"
 }
 
-os_browser {
-	QMAKE_LFLAGS += -s DISABLE_EXCEPTION_CATCHING=0
+equals(var_compiler, "emscripten") {
+	OUT_PATH_COMPILER = "emscripten"
+
+    QMAKE_LFLAGS			+= -s DISABLE_EXCEPTION_CATCHING=0 -s WASM=1
+	QMAKE_CXXFLAGS_RELEASE	 = -O3
+	QMAKE_CFLAGS_RELEASE	 = -O3
 }
 
-os_windows {
-	BOOST_POSTFIX	= _fcontext
+# ------------ settings (build) ------------
+equals(var_build, "release") {
+	OUT_PATH_BUILD	 = "release"
+	DEFINES			+= RELEASE_BUILD
+	TARGET_POSTFIX	 =
+
+    equals(var_compiler, "clang") {
+	    QMAKE_CXXFLAGS	+= -flto
+		QMAKE_LFLAGS    += -flto
+	}
+	equals(var_compiler, "gcc") {
+	    QMAKE_CXXFLAGS	+= -flto
+		QMAKE_LFLAGS    += -flto
+	}
+	equals(var_compiler, "emscripten") {
+	    QMAKE_CXXFLAGS	+= -flto
+		QMAKE_LFLAGS    += -flto
+	}
+	equals(var_compiler, "msvc") {
+	    QMAKE_CXXFLAGS	+= -flto
+		QMAKE_LFLAGS    += -flto
+	}
 }
 
-# ------------------------ DEBUG or RELEASE ---------------------
-debug_build {
-	message([$$PACKET_NAME]: ***************** Build mode DEBUG *****************)
+equals(var_build, "debug") {
+	OUT_PATH_BUILD		= "debug"
 	DEFINES			   += DEBUG_BUILD
 	TARGET_POSTFIX		= _d
-	OUT_BUILD_MODE_PATH	= Debug
-
-	equals(var_sanitizers, "use_tsan") {		
-		var_sanitizers      = "tsan"
-		OUT_BUILD_MODE_PATH	= DebugTsan
-
-		DEFINES			+= BOOST_USE_TSAN
-		DEFINES		    += BOOST_USE_UCONTEXT
-		BOOST_POSTFIX	= _ucontext_tsan
-
-		QMAKE_CXXFLAGS	+= -fsanitize=thread -fno-omit-frame-pointer -fno-optimize-sibling-calls
-		LIBS			+= -ltsan
-	}
-
-	equals(var_sanitizers, "use_asan_ubsan") {
-		var_sanitizers      = "asan, ubsan"
-		OUT_BUILD_MODE_PATH	= DebugAsanUBsan
-
-		DEFINES	+= BOOST_USE_ASAN
-		DEFINES	+= BOOST_USE_UBSAN
-		DEFINES += BOOST_USE_UCONTEXT
-		BOOST_POSTFIX	= _ucontext_asan_ubsan
-
-		QMAKE_CXXFLAGS	+= -fsanitize=address -fsanitize=undefined -fno-sanitize=vptr
-		QMAKE_CXXFLAGS	+= -fsanitize-recover=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
-		LIBS			+= -lasan
-		LIBS			+= -lubsan
-	}
-} else:profile_build {
-	message([$$PACKET_NAME]: ***************** Build mode PROFILE *****************)
-	DEFINES	+= DEBUG_BUILD
-	DEFINES	+= PROFILE_BUILD
-
-	TARGET_POSTFIX		= _d
-	OUT_BUILD_MODE_PATH	= Profile
-} else:release_build {
-	message([$$PACKET_NAME]: ***************** Build mode RELEASE *****************)
-	DEFINES	+= RELEASE_BUILD
-
-	TARGET_POSTFIX		=
-	OUT_BUILD_MODE_PATH	= Release
-
-	equals(var_compiler, "clang") {
-		QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
-		QMAKE_CXXFLAGS	+= -flto
-		QMAKE_LFLAGS    += -flto
-	}
-	equals(var_compiler, "gcc") {
-		QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
-		QMAKE_CXXFLAGS	+= -flto
-		QMAKE_LFLAGS    += -flto
-	}
-	equals(var_compiler, "msvc") {
-
-	}
-} else:release_build_static {
-	message([$$PACKET_NAME]: ***************** Build mode RELEASE (STATIC) *****************)
-	DEFINES	+= RELEASE_BUILD_STATIC
-
-	TARGET_POSTFIX		=
-	OUT_BUILD_MODE_PATH	= Release_static
-
-	equals(var_compiler, "clang") {
-		QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
-		QMAKE_CXXFLAGS	+= -flto
-		QMAKE_LFLAGS    += -flto
-	}
-	equals(var_compiler, "gcc") {
-		QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
-		QMAKE_CXXFLAGS	+= -flto
-		QMAKE_LFLAGS    += -flto
-	}
-	equals(var_compiler, "msvc") {
-
-	}
-} else {
-	error("Unknown build mode. Set CONFIG+=debug_build CONFIG+=profile_build OR CONFIG+=release_build")
 }
 
-# ------------------------ OS ---------------------
-os_linux {
-	OUT_BUILD_OS_PATH = Linux
-} else:os_android {
-	OUT_BUILD_OS_PATH = Android
-} else:os_ios {
-	OUT_BUILD_OS_PATH = Ios
-} else:os_windows {
-	OUT_BUILD_OS_PATH = Windows
-} else:os_macx {
-	OUT_BUILD_OS_PATH = Macx
-} else:os_browser {
-	OUT_BUILD_OS_PATH = Browser
-} else {
-	error("Unknown OS. Set CONFIG+=... one of values: os_linux, os_android, os_ios, os_windows, os_macx, os_browser, os_baremetal")
-}
-
-# ------------------------ ARC ---------------------
-arc_x86_64 {
-	OUT_BUILD_ARCH_PATH = x86_64
+# ------------ settings (link) ------------
+equals(var_link, "shared") {
+	OUT_PATH_LINK	 = "shared"
+	DEFINES			+= SHARED_LINK
 
 	equals(var_compiler, "clang") {
-		QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
+		QMAKE_CXXFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden
 	}
 	equals(var_compiler, "gcc") {
-		QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
+		QMAKE_CXXFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden
 	}
-} else:arc_x86 {
-	OUT_BUILD_ARCH_PATH = x86
+}
+
+equals(var_link, "static") {
+	OUT_PATH_LINK	 = "static"
+	DEFINES			+= STATIC_LINK
 
 	equals(var_compiler, "clang") {
-		QMAKE_CXXFLAGS	+= -mtune=generic -march=i686
+		#QMAKE_CXXFLAGS	+= -ffat-lto-objects
 	}
 	equals(var_compiler, "gcc") {
-		QMAKE_CXXFLAGS	+= -mtune=generic -march=i686
+		#QMAKE_CXXFLAGS	+= -ffat-lto-objects
 	}
-} else:arc_arm_v6 {
-	OUT_BUILD_ARCH_PATH = arm_v6
-} else:arc_armeabi_v7a {
-	OUT_BUILD_ARCH_PATH = armeabi_v7a
-} else:arc_arm64_v8a {
-	OUT_BUILD_ARCH_PATH = arm64_v8a
-} else:arc_mips {
-	OUT_BUILD_ARCH_PATH = mips
-} else:arc_wasm32 {
-	OUT_BUILD_ARCH_PATH = wasm32
-} else:arc_wasm64 {
-	OUT_BUILD_ARCH_PATH = wasm64
-} else {
-	error("Unknown ARC. Set CONFIG+=... one of values: arc_x86_64, arc_x86, arc_arm_v6, arc_armeabi_v7a, arc_arm64_v8a, arc_mips, arc_wasm32, arc_wasm64")
+	equals(var_compiler, "emscripten") {
+		#QMAKE_CXXFLAGS	+= -ffat-lto-objects
+	}
 }
 
-# ----------- Version -----------
-os_linux {
-	VER_MAJ = $$_VER_MAJ
-	VER_MIN = $$_VER_MIN
-	VER_PAT = $$_VER_PAT
+# ------------ settings (sanitizers) ------------
+equals(var_sanitizers, "asan_ubsan") {
+	OUT_PATH_SANITIZERS = "asan_ubsan"
+	BOOST_POSTFIX		= _ucontext_asan
+
+    DEFINES            += BOOST_USE_ASAN
+	DEFINES            += BOOST_USE_UCONTEXT
+	QMAKE_CXXFLAGS	   += -fsanitize=address -fno-sanitize=vptr -fsanitize-recover=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
+	LIBS			   += -lasan
 }
 
-DEFINES += "GP_CURRENT_LIB_VER_MAJ=\\\"$$_VER_MAJ\\\""
-DEFINES += "GP_CURRENT_LIB_VER_MIN=\\\"$$_VER_MIN\\\""
-DEFINES += "GP_CURRENT_LIB_VER_PAT=\\\"$$_VER_PAT\\\""
-DEFINES += "GP_CURRENT_LIB_PACKET_NAME=\\\"$$PACKET_NAME\\\""
+equals(var_sanitizers, "tsan") {
+	OUT_PATH_SANITIZERS = "tsan"
+	BOOST_POSTFIX		= _ucontext_tsan
 
-# ----------- Path -----------
+    DEFINES			   += BOOST_USE_TSAN
+	DEFINES		       += BOOST_USE_UCONTEXT
+	QMAKE_CXXFLAGS	   += -fsanitize=thread #-fno-omit-frame-pointer -fno-optimize-sibling-calls
+	QMAKE_LFLAGS	   += -fsanitize=thread
+	#LIBS			   += -ltsan
+}
+
+# ------------ Binary out path (DESTDIR) ------------
+SP = _
+BINARY_OUT_PATH = $$DIR_LEVEL/../../../Bin/$$OUT_PATH_OS$$SP$$OUT_PATH_ARCHITECTURE$$SP$$OUT_PATH_COMPILER$$COMPILER_VERSION$$SP$$OUT_PATH_BUILD$$SP$$OUT_PATH_LINK
+
+!equals(var_sanitizers, "") {
+    BINARY_OUT_PATH = $$BINARY_OUT_PATH$$SP$$OUT_PATH_SANITIZERS
+}
+
+DESTDIR = $$BINARY_OUT_PATH/
+
+# ------------ Binary out name (TARGET) ------------
+VER_MAJ = $$_VER_MAJ
+VER_MIN = $$_VER_MIN
+VER_PAT = $$_VER_PAT
 
 TARGET = $$PACKET_NAME$$TARGET_POSTFIX
-OUT_BUILD_PATH  = $$DIR_LEVEL/../../../Bin_tmp/
 
-SP = _
-DESTDIR                = $$OUT_BUILD_PATH$$OUT_BUILD_MODE_PATH$$SP$$OUT_BUILD_OS_PATH$$SP$$OUT_BUILD_ARCH_PATH/
-INCLUSE_EXTRAS_DESTDIR = $$DIR_LEVEL/../../../../../Extras/
+# ------------ Log message ------------
+message("[$$PACKET_NAME]: -------------------------------------------------")
+message("[$$PACKET_NAME]: Target name:         $$TARGET")
+message("[$$PACKET_NAME]: Build dir:           $$DESTDIR")
+message("[$$PACKET_NAME]: Target OS:           $$OUT_PATH_OS")
+message("[$$PACKET_NAME]: Target architecture: $$OUT_PATH_ARCHITECTURE")
+message("[$$PACKET_NAME]: Compiler:            $$OUT_PATH_COMPILER$$COMPILER_VERSION")
+message("[$$PACKET_NAME]: Build:               $$OUT_PATH_BUILD")
+message("[$$PACKET_NAME]: Link:                $$OUT_PATH_LINK")
+message("[$$PACKET_NAME]: Sanitizers:          $$OUT_PATH_SANITIZERS")
+message("[$$PACKET_NAME]: -------------------------------------------------")
 
-message([$$PACKET_NAME]: -------------------------------------------------)
-message([$$PACKET_NAME]: Target name:     $$TARGET)
-message([$$PACKET_NAME]: Target arch:     $$OUT_BUILD_ARCH_PATH)
-message([$$PACKET_NAME]: Target OS:       $$OUT_BUILD_OS_PATH)
-message([$$PACKET_NAME]: Compiler:        $$var_compiler)
-message([$$PACKET_NAME]: Use sanitizers:  $$var_sanitizers)
-message([$$PACKET_NAME]: Build dir:       $$DESTDIR)
-message([$$PACKET_NAME]: Inc. extras dir: $$INCLUSE_EXTRAS_DESTDIR)
-message([$$PACKET_NAME]: -------------------------------------------------)
-
+# ------------ Libraries path ------------
 LIBS += -L$$DESTDIR
 
+# ------------ Include path ------------
 INCLUDEPATH += \
-	$$DIR_LEVEL/../../../../../Extras/Boost/boost_1_84_0$$BOOST_POSTFIX \
-	$$DIR_LEVEL/../../../../../Extras/fmt/include \	
+    $$DIR_LEVEL/../../../../../Extras/Boost/boost_$$BOOST_VERSION$$BOOST_POSTFIX \
+	$$DIR_LEVEL/../../../../../Extras/fmt/include \
 	$$DIR_LEVEL/../../../../../Extras \
 	$$DIR_LEVEL/../GPlatform \
-	$$DIR_LEVEL/../ \
-
-os_windows {
-#	INCLUDEPATH += \
-#		c:/msys64/usr/include/w32api/
-}
+	$$DIR_LEVEL/../

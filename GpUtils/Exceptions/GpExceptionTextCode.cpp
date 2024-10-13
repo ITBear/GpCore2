@@ -1,4 +1,4 @@
-#include "GpExceptionTextCode.hpp"
+#include <GpCore2/GpUtils/Exceptions/GpExceptionTextCode.hpp>
 
 #if defined(GP_USE_EXCEPTIONS)
 

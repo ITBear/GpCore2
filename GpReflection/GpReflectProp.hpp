@@ -3,11 +3,11 @@
 #include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
 #include <GpCore2/Config/GpConfig.hpp>
 
-#include "GpReflectType.hpp"
-#include "GpReflectContainerType.hpp"
-#include "GpReflectPropFlags.hpp"
-#include "GpReflectObjWrapVector.hpp"
-#include "GpReflectUtils.hpp"
+#include <GpCore2/GpReflection/GpReflectType.hpp>
+#include <GpCore2/GpReflection/GpReflectContainerType.hpp>
+#include <GpCore2/GpReflection/GpReflectPropFlags.hpp>
+#include <GpCore2/GpReflection/GpReflectObjWrapVector.hpp>
+#include <GpCore2/GpReflection/GpReflectUtils.hpp>
 
 namespace GPlatform {
 
@@ -206,13 +206,13 @@ public:
     //template<typename Key> const auto&Map_EnumFlags   (const void* aDataPtr) const{return CastValueAsConst<std::map<Key, GpEnumFlags>, std::less<>>(aDataPtr);}
     //template<typename Key> auto&      Map_EnumFlags   (void* aDataPtr) const      {return CastValueAs<std::map<Key, GpEnumFlags>, std::less<>>(aDataPtr);}
 
-private:
     template<typename T>
     const T&                            CastValueAsConst(const void* aDataPtr) const;
 
     template<typename T>
     T&                                  CastValueAs     (void* aDataPtr) const;
 
+private:
     inline const void*                  PropPtrConst    (const void* aDataPtr) const;
     inline void*                        PropPtr         (void* aDataPtr) const;
 

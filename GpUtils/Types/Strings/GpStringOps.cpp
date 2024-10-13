@@ -63,6 +63,54 @@ bool    GpStringOps::SIsEqualCaseInsensitive8bit
     );
 }
 
+std::regex  GpStringOps::SPrepareRegexFilter (std::string_view aFilter)
+{
+    THROW_COND_GP
+    (
+        aFilter.empty() == false,
+        "The filter string is empty"
+    );
+
+    const auto escapeRegexFn = [](std::string_view aSrc) -> std::string
+    {
+        std::string escaped;
+
+        for (const char ch : aSrc)
+        {
+            switch (ch) {
+                case '^': case '$': case '.': case '+': case '?': case '(': case ')':
+                case '[': case ']': case '{': case '}': case '|': case '\\':
+                {
+                    escaped.push_back('\\');
+                    escaped.push_back(ch);
+                } break;
+                default:
+                {
+                    escaped.push_back(ch);
+                } break;
+            }
+        }
+
+        return escaped;
+    };
+
+    const auto wildcardToRegexFn = [&](std::string_view pattern) -> std::string
+    {
+        std::string regexPattern    = escapeRegexFn(pattern);
+        size_t      pos             = 0;
+
+        while ((pos = regexPattern.find('*', pos)) != std::string::npos)
+        {
+            regexPattern.replace(pos, 1, ".*");
+            pos += 2;
+        }
+
+        return regexPattern;
+    };
+
+    return std::regex{wildcardToRegexFn(aFilter)};
+}
+
 size_t  GpStringOps::SFromUI64
 (
     const u_int_64  aValue,
@@ -531,6 +579,128 @@ std::string GpStringOps::SPercentEncode (std::string_view aSrc)
     return encodedStr;
 }
 
+std::string GpStringOps::SEscapeForSyscall (std::string_view aSrc)
+{
+    std::string escapedStr;
+    escapedStr.reserve(std::size(aSrc)*2);
+
+    for (const char ch: aSrc)
+    {
+        switch (ch)
+        {
+            case ' ': [[fallthrough]];
+            case '\\':[[fallthrough]];
+            case '"': [[fallthrough]];
+            case '\'':[[fallthrough]];
+            case '`': [[fallthrough]];
+            case '$': [[fallthrough]];
+            case '&': [[fallthrough]];
+            case '|': [[fallthrough]];
+            case ';': [[fallthrough]];
+            case '>': [[fallthrough]];
+            case '<': [[fallthrough]];
+            case '(': [[fallthrough]];
+            case ')': [[fallthrough]];
+            case '{': [[fallthrough]];
+            case '}': [[fallthrough]];
+            case '[': [[fallthrough]];
+            case ']': [[fallthrough]];
+            case '*': [[fallthrough]];
+            case '?': [[fallthrough]];
+            case '!': [[fallthrough]];
+            case '~': [[fallthrough]];
+            case '^':
+            {
+                escapedStr.push_back('\\');
+            } [[fallthrough]];
+            default:
+            {
+                escapedStr.push_back(ch);
+            }
+        }
+    }
+
+    return escapedStr;
+}
+
+bool    GpStringOps::SContainsOnlyRange
+(
+    std::string_view    aStr,
+    char                aCharRangeBegin,
+    char                aCharRangeEnd
+) noexcept
+{
+    const char* _R_ strPtr  = std::data(aStr);
+    const size_t    strSize = std::size(aStr);
+
+    for (size_t id = 0; id < strSize; id++)
+    {
+        const char ch           = *strPtr++;
+        const bool isInRange    = NumOps::SIsBetween<char>(ch, aCharRangeBegin, aCharRangeEnd);
+
+        if (!isInRange) [[unlikely]]
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool    GpStringOps::SContainsOnlyRanges
+(
+    std::string_view                                            aStr,
+    boost::container::small_vector<std::tuple<char, char>, 8>   aRanges
+) noexcept
+{
+    const char* _R_ strPtr  = std::data(aStr);
+    const size_t    strSize = std::size(aStr);
+
+    for (size_t id = 0; id < strSize; id++)
+    {
+        const char ch   = *strPtr++;
+        bool isInRange  = false;
+
+        for (const auto[charRangeBegin, charRangeEnd]: aRanges)
+        {
+            if (NumOps::SIsBetween<char>(ch, charRangeBegin, charRangeEnd))
+            {
+                isInRange = true;
+                break;
+            }
+        }
+
+        if (!isInRange) [[unlikely]]
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool    GpStringOps::SContainsOnlySet
+(
+    std::string_view                            aStr,
+    boost::container::small_flat_set<char, 64>  aSet
+) noexcept
+{
+    const char* _R_ strPtr  = std::data(aStr);
+    const size_t    strSize = std::size(aStr);
+
+    for (size_t id = 0; id < strSize; id++)
+    {
+        const char ch = *strPtr++;
+
+        if (aSet.count(ch) == 0) [[unlikely]]
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void    GpStringOps::_SFromUI64
 (
     const u_int_64  aValue,
@@ -541,9 +711,9 @@ void    GpStringOps::_SFromUI64
     const char* _R_ digits  = std::data(SDigits());
     char* _R_       strPtr  = aStrOut.Ptr();
 
-    if (value < 10)
+    if (value < u_int_64{10})
     {
-        *strPtr = char(size_t{'0'} + size_t{value});
+        *strPtr = char(u_int_64{'0'} + value);
         return;
     }
 
@@ -553,10 +723,10 @@ void    GpStringOps::_SFromUI64
         strPtr += offset;
     }
 
-    while (value >= 100)
+    while (value >= u_int_64{100})
     {
-        const size_t i = size_t{(value % u_int_64(100)) * 2};
-        value /= 100;
+        const size_t i = static_cast<size_t>((value % u_int_64{100}) * u_int_64{2});
+        value /= u_int_64{100};
 
         MemOps::SCopy(strPtr, digits + i, 2);
         strPtr -= 2;
@@ -566,10 +736,10 @@ void    GpStringOps::_SFromUI64
     if (value < 10)
     {
         strPtr++;
-        *strPtr = char(size_t{'0'} + size_t{value});
+        *strPtr = char(u_int_64{'0'} + u_int_64{value});
     } else
     {
-        const size_t i = size_t{value} * 2;
+        const size_t i = static_cast<size_t>(value * u_int_64{2});
         MemOps::SCopy(strPtr, digits + i, 2);
     }
 }

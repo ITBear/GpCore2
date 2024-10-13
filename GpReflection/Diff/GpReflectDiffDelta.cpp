@@ -1,4 +1,4 @@
-#include "GpReflectDiffDelta.hpp"
+#include <GpCore2/GpReflection/Diff/GpReflectDiffDelta.hpp>
 
 namespace GPlatform {
 
@@ -36,7 +36,7 @@ bool    GpReflectDiffDelta::AddDiff_UI8
 {
     if (aValueFrom != aValueTo)
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, aValueTo});
+        iDeltaProps.emplace_back(aPropIdx, aValueTo);
         return true;
     }
 
@@ -52,7 +52,7 @@ bool    GpReflectDiffDelta::AddDiff_SI8
 {
     if (aValueFrom != aValueTo)
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, aValueTo});
+        iDeltaProps.emplace_back(aPropIdx, aValueTo);
         return true;
     }
 
@@ -68,7 +68,7 @@ bool    GpReflectDiffDelta::AddDiff_UI16
 {
     if (aValueFrom != aValueTo)
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, aValueTo});
+        iDeltaProps.emplace_back(aPropIdx, aValueTo);
         return true;
     }
 
@@ -84,7 +84,7 @@ bool    GpReflectDiffDelta::AddDiff_SI16
 {
     if (aValueFrom != aValueTo)
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, aValueTo});
+        iDeltaProps.emplace_back(aPropIdx, aValueTo);
         return true;
     }
 
@@ -100,7 +100,7 @@ bool    GpReflectDiffDelta::AddDiff_UI32
 {
     if (aValueFrom != aValueTo)
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, aValueTo});
+        iDeltaProps.emplace_back(aPropIdx, aValueTo);
         return true;
     }
 
@@ -116,7 +116,7 @@ bool    GpReflectDiffDelta::AddDiff_SI32
 {
     if (aValueFrom != aValueTo)
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, aValueTo});
+        iDeltaProps.emplace_back(aPropIdx, aValueTo);
         return true;
     }
 
@@ -132,7 +132,7 @@ bool    GpReflectDiffDelta::AddDiff_UI64
 {
     if (aValueFrom != aValueTo)
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, aValueTo});
+        iDeltaProps.emplace_back(aPropIdx, aValueTo);
         return true;
     }
 
@@ -148,7 +148,7 @@ bool    GpReflectDiffDelta::AddDiff_SI64
 {
     if (aValueFrom != aValueTo)
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, aValueTo});
+        iDeltaProps.emplace_back(aPropIdx, aValueTo);
         return true;
     }
 
@@ -164,7 +164,7 @@ bool    GpReflectDiffDelta::AddDiff_Double
 {
     if (!NumOps::SIsEqual(aValueFrom, aValueTo))
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, aValueTo});
+        iDeltaProps.emplace_back(aPropIdx, aValueTo);
         return true;
     }
 
@@ -180,7 +180,7 @@ bool    GpReflectDiffDelta::AddDiff_Float
 {
     if (!NumOps::SIsEqual(aValueFrom, aValueTo))
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, aValueTo});
+        iDeltaProps.emplace_back(aPropIdx, aValueTo);
         return true;
     }
 
@@ -196,7 +196,7 @@ bool    GpReflectDiffDelta::AddDiff_Bool
 {
     if (aValueFrom != aValueTo)
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, aValueTo});
+        iDeltaProps.emplace_back(aPropIdx, aValueTo);
         return true;
     }
 
@@ -212,7 +212,7 @@ bool    GpReflectDiffDelta::AddDiff_UUID
 {
     if (aValueFrom != aValueTo)
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, aValueTo});
+        iDeltaProps.emplace_back(aPropIdx, aValueTo);
         return true;
     }
 
@@ -229,7 +229,7 @@ bool    GpReflectDiffDelta::AddDiff_String
     auto diffPropOpt = GpReflectDiffPropString::SCheckAndMake(aValueFrom, aValueTo);
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -246,7 +246,7 @@ bool    GpReflectDiffDelta::AddDiff_BLOB
     auto diffPropOpt = GpReflectDiffPropBLOB::SCheckAndMake(aValueFrom, aValueTo);
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -265,7 +265,7 @@ bool    GpReflectDiffDelta::AddDiff_Object
     auto diffPropOpt = GpReflectDiffPropObject::SCheckAndMake(aValueFrom, aValueTo, aIsEqualCache, aTotalMemoryUseCache);
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -284,7 +284,7 @@ bool    GpReflectDiffDelta::AddDiff_ObjectSP
     auto diffPropOpt = GpReflectDiffPropObjectSP::SCheckAndMake(aValueFrom, aValueTo, aIsEqualCache, aTotalMemoryUseCache);
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -301,7 +301,7 @@ bool    GpReflectDiffDelta::AddDiff_Enum
     auto diffPropOpt = GpReflectDiffPropEnum::SCheckAndMake(aValueFrom, aValueTo);
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -318,7 +318,7 @@ bool    GpReflectDiffDelta::AddDiff_EnumFlags
     auto diffPropOpt = GpReflectDiffPropEnumFlags::SCheckAndMake(aValueFrom, aValueTo);
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -338,7 +338,7 @@ bool    GpReflectDiffDelta::AddDiff_VecUI8
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -356,7 +356,7 @@ bool    GpReflectDiffDelta::AddDiff_VecSI8
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -374,7 +374,7 @@ bool    GpReflectDiffDelta::AddDiff_VecUI16
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -392,7 +392,7 @@ bool    GpReflectDiffDelta::AddDiff_VecSI16
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -410,7 +410,7 @@ bool    GpReflectDiffDelta::AddDiff_VecUI32
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -428,7 +428,7 @@ bool    GpReflectDiffDelta::AddDiff_VecSI32
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -446,7 +446,7 @@ bool    GpReflectDiffDelta::AddDiff_VecUI64
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -464,7 +464,7 @@ bool    GpReflectDiffDelta::AddDiff_VecSI64
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -482,7 +482,7 @@ bool    GpReflectDiffDelta::AddDiff_VecDouble
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -500,7 +500,7 @@ bool    GpReflectDiffDelta::AddDiff_VecFloat
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -518,7 +518,7 @@ bool    GpReflectDiffDelta::AddDiff_VecUUID
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -536,7 +536,7 @@ bool    GpReflectDiffDelta::AddDiff_VecString
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -554,7 +554,7 @@ bool    GpReflectDiffDelta::AddDiff_VecBLOB
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -580,7 +580,7 @@ bool    GpReflectDiffDelta::AddDiff_VecObject
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 
@@ -606,7 +606,7 @@ bool    GpReflectDiffDelta::AddDiff_VecObjectSP
 
     if (diffPropOpt.has_value())
     {
-        iDeltaProps.emplace_back(DeltaPropT{aPropIdx, std::move(diffPropOpt.value())});
+        iDeltaProps.emplace_back(aPropIdx, std::move(diffPropOpt.value()));
         return true;
     }
 

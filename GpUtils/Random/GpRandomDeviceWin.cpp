@@ -1,12 +1,12 @@
-#include "GpRandomDeviceWin.hpp"
-#include "../Types/Strings/GpStringOps.hpp"
+#include <GpCore2/GpUtils/Random/GpRandomDeviceWin.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
 #if defined(GP_USE_RANDOM_GENERATORS) && defined(GP_OS_WINDOWS)
 
 #include <GpCore2/Config/IncludeExt/windows.hpp>
 #include <wincrypt.h>
 
-#include "../Other/GpErrno.hpp"
+#include <GpCore2/GpUtils/Other/GpErrno.hpp>
 
 namespace GPlatform {
 

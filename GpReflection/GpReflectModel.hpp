@@ -3,8 +3,8 @@
 #include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
 #include <GpCore2/Config/GpConfig.hpp>
 
-#include "GpReflectProp.hpp"
-#include "GpReflectObjectFactory.hpp"
+#include <GpCore2/GpReflection/GpReflectProp.hpp>
+#include <GpCore2/GpReflection/GpReflectObjectFactory.hpp>
 
 namespace GPlatform {
 

@@ -7,6 +7,8 @@
 
 #include <variant>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 template<typename T>
@@ -49,37 +51,37 @@ private:
 
 template<typename T>
 GpItcResult<T>::GpItcResult (const this_type& aRes):
-iVariants(aRes.iVariants)
+iVariants{aRes.iVariants}
 {
 }
 
 template<typename T>
 GpItcResult<T>::GpItcResult (this_type&& aRes):
-iVariants(std::move(aRes.iVariants))
+iVariants{std::move(aRes.iVariants)}
 {
 }
 
 template<typename T>
 GpItcResult<T>::GpItcResult (const GpException& aException):
-iVariants(aException)
+iVariants{aException}
 {
 }
 
 template<typename T>
 GpItcResult<T>::GpItcResult (GpException&& aException):
-iVariants(std::move(aException))
+iVariants{std::move(aException)}
 {
 }
 
 template<typename T>
 GpItcResult<T>::GpItcResult (const T& aPayload):
-iVariants(aPayload)
+iVariants{aPayload}
 {
 }
 
 template<typename T>
 GpItcResult<T>::GpItcResult (T&& aPayload):
-iVariants(std::move(aPayload))
+iVariants{std::move(aPayload)}
 {
 }
 
@@ -158,3 +160,5 @@ typename GpItcResult<T>::VariantsT& GpItcResult<T>::Variants (void) noexcept
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

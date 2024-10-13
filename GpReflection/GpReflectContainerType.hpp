@@ -1,8 +1,7 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "GpReflection_global.hpp"
+#include <GpCore2/GpReflection/GpReflection_global.hpp>
 #include <GpCore2/GpUtils/Types/Enums/GpEnum.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 

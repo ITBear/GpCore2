@@ -2,16 +2,16 @@
 
 #include <GpCore2/Config/IncludeExt/boost_flat_set.hpp>
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "../GpTasks_global.hpp"
-#include "../GpTaskEnums.hpp"
-
+#include <GpCore2/GpTasks/GpTasks_global.hpp>
+#include <GpCore2/GpTasks/GpTaskEnums.hpp>
 #include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
 #include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 #include <GpCore2/GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpConditionVar.hpp>
 #include <GpCore2/GpUtils/DateTime/GpDateTimeOps.hpp>
 #include <GpCore2/GpTasks/Fibers/GpTaskFiberCtx.hpp>
+
+#if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
 
@@ -452,3 +452,5 @@ std::optional<T>    GpItcSharedCondition::WaitForThread
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

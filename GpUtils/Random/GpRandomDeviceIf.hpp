@@ -4,7 +4,8 @@
 
 #if defined(GP_USE_RANDOM_GENERATORS)
 
-#include "../Types/Numerics/GpNumericOps.hpp"
+#include <GpCore2/GpUtils/Types/Numerics/GpNumericOps.hpp>
+
 #include <random>
 
 namespace GPlatform {

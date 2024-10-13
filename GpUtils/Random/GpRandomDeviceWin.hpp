@@ -4,7 +4,7 @@
 
 #if defined(GP_USE_RANDOM_GENERATORS) && defined(GP_OS_WINDOWS)
 
-#include "GpRandomDeviceIf.hpp"
+#include <GpCore2/GpUtils/Random/GpRandomDeviceIf.hpp>
 
 namespace GPlatform {
 

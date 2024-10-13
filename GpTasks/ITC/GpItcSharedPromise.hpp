@@ -6,6 +6,8 @@
 #include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
 #include <GpCore2/GpTasks/ITC/GpItcSharedFuture.hpp>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 template<typename T>
@@ -24,6 +26,9 @@ public:
                             GpItcSharedPromise  (const GpItcSharedPromise& aPromise);
                             GpItcSharedPromise  (GpItcSharedPromise&& aPromise) noexcept;
                             ~GpItcSharedPromise (void) noexcept;
+
+    GpItcSharedPromise&     operator=           (const GpItcSharedPromise& aPromise);
+    GpItcSharedPromise&     operator=           (GpItcSharedPromise&& aPromise) noexcept;
 
     bool                    Fulfill             (const T& aResult);
     bool                    Fulfill             (T&& aResult);
@@ -60,7 +65,8 @@ GpItcSharedPromise<T>::~GpItcSharedPromise (void) noexcept
 {
     try
     {
-        if (iFuture.IsNotNULL())
+        if (   iFuture.IsNotNULL()
+            && (iFuture.Vn().IsReady() == false))
         {
             Fulfill(GpException{"Empty result"});
         }
@@ -74,6 +80,22 @@ GpItcSharedPromise<T>::~GpItcSharedPromise (void) noexcept
     {
         GpStringUtils::SCerr("[GpItcSharedPromise::~GpItcSharedPromise]: unknown exception"_sv);
     }
+}
+
+template<typename T>
+GpItcSharedPromise<T>&  GpItcSharedPromise<T>::operator= (const GpItcSharedPromise& aPromise)
+{
+    iFuture = aPromise.iFuture;
+
+    return *this;
+}
+
+template<typename T>
+GpItcSharedPromise<T>&  GpItcSharedPromise<T>::operator= (GpItcSharedPromise&& aPromise) noexcept
+{
+    iFuture = std::move(aPromise.iFuture);
+
+    return *this;
 }
 
 template<typename T>
@@ -119,3 +141,5 @@ typename GpItcSharedPromise<T>::FutureT::SP GpItcSharedPromise<T>::Future (void)
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

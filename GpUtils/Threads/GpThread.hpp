@@ -6,6 +6,8 @@
 
 #include <thread>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 class GP_UTILS_API GpThread
@@ -50,4 +52,6 @@ std::thread::id GpThread::ThreadId (void) const noexcept
     return iThreadId;
 }
 
-}// GPlatform
+}// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

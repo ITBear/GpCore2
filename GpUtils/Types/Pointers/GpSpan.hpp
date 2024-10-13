@@ -41,12 +41,14 @@ concept IsConvertableFromPtr = requires()
         || (   std::is_same_v<TO, const char*>              //TO is one byte type (const)
             || std::is_same_v<TO, const unsigned char*>
             || std::is_same_v<TO, const std::byte*>
-            || std::is_same_v<TO, const u_int_8*>)
+            || std::is_same_v<TO, const u_int_8*>
+            || std::is_same_v<TO, const std_byte_no_init*>)
         || (   !std::is_const_v<std::remove_pointer_t<FROM>>//From is not const and TO is one byte type
             && (   std::is_same_v<TO, char*>                //TO is one byte type (const)
                 || std::is_same_v<TO, unsigned char*>
                 || std::is_same_v<TO, std::byte*>
-                || std::is_same_v<TO, u_int_8*>)
+                || std::is_same_v<TO, u_int_8*>
+                || std::is_same_v<TO, std_byte_no_init*>)
            )
     );
 };
@@ -241,17 +243,18 @@ public:
         return _SPtrAs<PtrT>(Ptr(aOffset));
     }
 
-    constexpr value_type&       At                  (size_t aOffset) const;
-    constexpr this_type&        OffsetAdd           (size_t aOffset);
-    constexpr this_type         Subspan             (size_t aOffset,
-                                                     size_t aCount) const;
-    constexpr this_type         SubspanThenOffsetAdd(size_t aCount);
-    //constexpr this_type       Subspan             (size_t aOffset) const;
+    constexpr value_type&       At                      (size_t aOffset) const;
+    constexpr this_type&        OffsetAdd               (size_t aOffset);
+    constexpr this_type         Subspan                 (size_t aOffset,
+                                                         size_t aCount) const;
+    constexpr this_type         SubspanFromOffsetToEnd  (size_t aOffset) const;
+    constexpr this_type         SubspanThenOffsetAdd    (size_t aCount);
+    //constexpr this_type       Subspan                 (size_t aOffset) const;
 
     template<typename SpanT>
     requires SpanConcepts::IsConvertableFromSpan<this_type, SpanT>
-    constexpr SpanT             SubspanAs           (size_t aOffset,
-                                                     size_t aCount) const
+    constexpr SpanT             SubspanAs               (size_t aOffset,
+                                                         size_t aCount) const
     {
         const auto cnt = Count();
 
@@ -297,20 +300,20 @@ public:
     this_type&                  CopyFrom            (const SpanT& aSpan);
 
     //for static_cast<std::vector<std::byte>>
-    operator                                    std::vector<std::byte>() const  {return ToByteArray();}
+    operator                    std::vector<std::byte>() const  {return ToByteArray();}
 
     //for static_cast<std::vector<u_int_8>>
-    operator                                    std::vector<u_int_8>() const    {return ToUI8Array();}
+    operator                    std::vector<u_int_8>() const    {return ToUI8Array();}
 
 private:
     template<typename PtrToT, typename PtrFromT>
-    static constexpr PtrToT                     _SPtrAs         (PtrFromT aFrom) noexcept;
+    static constexpr PtrToT     _SPtrAs         (PtrFromT aFrom) noexcept;
 
     template<typename PtrToT, typename PtrFromT>
-    static constexpr size_t                     _SCountAs       (size_t aValue) noexcept;
+    static constexpr size_t     _SCountAs       (size_t aValue) noexcept;
 
-    void                                        _CheckPointers  (pointer    aPtr,
-                                                                 size_t     aCount) const;
+    //void                      _CheckPointers  (pointer    aPtr,
+    //                                           size_t     aCount) const;
 
 protected:
     pointer     iPtr    = nullptr;
@@ -348,7 +351,7 @@ constexpr   GpSpan<T>::GpSpan
 iPtr  {aPtr},
 iCount{aCount}
 {
-    _CheckPointers(iPtr, iCount);
+    //_CheckPointers(iPtr, iCount);
 }
 
 template<typename T>
@@ -450,7 +453,7 @@ constexpr void  GpSpan<T>::Set (this_type&& aSpan) noexcept
 template<typename T>
 constexpr void  GpSpan<T>::Set (pointer aPtr, const size_t aCount)
 {
-    _CheckPointers(aPtr, aCount);
+    //_CheckPointers(aPtr, aCount);
 
     iPtr    = aPtr;
     iCount  = aCount;
@@ -596,6 +599,12 @@ constexpr typename GpSpan<T>::this_type GpSpan<T>::Subspan
 }
 
 template<typename T>
+constexpr typename GpSpan<T>::this_type GpSpan<T>::SubspanFromOffsetToEnd (const size_t aOffset) const
+{
+    return SubspanAs<this_type>(aOffset, NumOps::SSub<size_t>(iCount, aOffset));
+}
+
+template<typename T>
 constexpr typename GpSpan<T>::this_type GpSpan<T>::SubspanThenOffsetAdd (size_t aCount)
 {
     THROW_COND_GP
@@ -611,12 +620,6 @@ constexpr typename GpSpan<T>::this_type GpSpan<T>::SubspanThenOffsetAdd (size_t 
 
     return subspan;
 }
-
-//template<typename T>
-//constexpr typename GpSpan<T>::this_type   GpSpan<T>::Subspan (const size_t aOffset) const
-//{
-//  return SubspanAs<this_type>(aOffset, NumOps::SSub<size_t>(iCount, aOffset));
-//}
 
 template<typename T>
 constexpr std::string_view  GpSpan<T>::AsStringView (void) const
@@ -738,6 +741,7 @@ constexpr size_t    GpSpan<T>::_SCountAs (const size_t aValue) noexcept
     GpThrowCe<GpException>("GpSpan<T>::_SCountAs wrong types");
 }
 
+/*
 template<typename T>
 void    GpSpan<T>::_CheckPointers
 (
@@ -754,6 +758,7 @@ void    GpSpan<T>::_CheckPointers
         "(nullptr and not empty) or (not nullptr and empty)"_sv
     );
 }
+*/
 
 }// namespace GPlatform
 

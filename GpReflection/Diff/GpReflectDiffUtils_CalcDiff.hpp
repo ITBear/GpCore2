@@ -2,9 +2,8 @@
 
 #include <GpCore2/Config/GpConfig.hpp>
 #include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
-
-#include "../GpReflectUtils_IsEqual.hpp"
-#include "../GpReflectUtils_TotalMemoryUse.hpp"
+#include <GpCore2/GpReflection/GpReflectUtils_IsEqual.hpp>
+#include <GpCore2/GpReflection/GpReflectUtils_TotalMemoryUse.hpp>
 
 namespace GPlatform {
 

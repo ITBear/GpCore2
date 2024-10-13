@@ -4,9 +4,10 @@
 
 #if defined(GP_USE_TIMERS)
 
+#include <GpCore2/GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp>
+#include <GpCore2/GpUtils/DateTime/GpDateTimeOps.hpp>
+
 #include <functional>
-#include "../../Types/Units/SI/GpUnitsSI_Time.hpp"
-#include "../../DateTime/GpDateTimeOps.hpp"
 
 namespace GPlatform {
 

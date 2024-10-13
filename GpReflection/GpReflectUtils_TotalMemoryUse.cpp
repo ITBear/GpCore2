@@ -1,6 +1,5 @@
-#include "GpReflectUtils_TotalMemoryUse.hpp"
-
-#include "GpReflectVisitor.hpp"
+#include <GpCore2/GpReflection/GpReflectUtils_TotalMemoryUse.hpp>
+#include <GpCore2/GpReflection/GpReflectVisitor.hpp>
 
 namespace GPlatform {
 

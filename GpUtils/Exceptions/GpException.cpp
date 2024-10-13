@@ -6,7 +6,7 @@
 #include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
 
 #if defined(GP_PRINT_EXCEPTIONS_STACKTRACE)
-#   include "../Debugging/GpStackTrace.hpp"
+#   include <GpCore2/GpUtils/Debugging/GpStackTrace.hpp>
 #endif// #if defined(GP_PRINT_EXCEPTIONS_STACKTRACE)
 
 #if defined(GP_POSIX)

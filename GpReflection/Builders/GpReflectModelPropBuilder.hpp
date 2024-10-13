@@ -1,9 +1,8 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "../GpReflectModel.hpp"
-#include "../GpReflectUtils.hpp"
+#include <GpCore2/GpReflection/GpReflectModel.hpp>
+#include <GpCore2/GpReflection/GpReflectUtils.hpp>
 
 #include <memory>
 

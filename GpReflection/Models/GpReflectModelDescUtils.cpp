@@ -1,5 +1,5 @@
-#include "GpReflectModelDescUtils.hpp"
-#include "../Builders/GpReflectModelBuilder.hpp"
+#include <GpCore2/GpReflection/Models/GpReflectModelDescUtils.hpp>
+#include <GpCore2/GpReflection/Builders/GpReflectModelBuilder.hpp>
 
 namespace GPlatform {
 

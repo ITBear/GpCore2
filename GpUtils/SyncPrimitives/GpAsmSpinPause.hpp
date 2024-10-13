@@ -18,7 +18,7 @@ inline void GP_ASM_SPIN_PAUSE (void) noexcept
     asm volatile ("yield");
 #else
     //NOP
-//# error Unsupported arc
+//# error Unsupported CPU architecture
 #endif
 }
 

@@ -297,7 +297,7 @@ public:
 #   if defined(GP_COMPILER_CLANG) || defined(GP_COMPILER_GCC)
             T res = a;
 
-            if (__builtin_add_overflow(a, b, &res))
+            if (__builtin_add_overflow(a, b, &res)) [[unlikely]]
             {
                 GpThrowCe<std::overflow_error>("Add overflow");
             }
@@ -316,7 +316,7 @@ public:
             else if constexpr(std::is_same_v<u_int_64, T>)  hres = UInt64Add(a, b, &res);
             else if constexpr(std::is_same_v<s_int_64, T>)  hres = Int64Add(a, b, &res);
 
-            if (hres != S_OK)
+            if (hres != S_OK) [[unlikely]]
             {
                 GpThrowCe<std::overflow_error>("Add overflow");
             }
@@ -343,7 +343,7 @@ public:
 #   if defined(GP_COMPILER_CLANG) || defined(GP_COMPILER_GCC)
             T res = a;
 
-            if (__builtin_sub_overflow(a, b, &res))
+            if (__builtin_sub_overflow(a, b, &res)) [[unlikely]]
             {
                 GpThrowCe<std::overflow_error>("Sub overflow");
             }
@@ -362,7 +362,7 @@ public:
             else if constexpr(std::is_same_v<u_int_64, T>)  hres = UInt64Sub(a, b, &res);
             else if constexpr(std::is_same_v<s_int_64, T>)  hres = Int64Sub(a, b, &res);
 
-            if (hres != S_OK)
+            if (hres != S_OK) [[unlikely]]
             {
                 GpThrowCe<std::overflow_error>("Sub overflow");
             }
@@ -389,7 +389,7 @@ public:
 #   if defined(GP_COMPILER_CLANG) || defined(GP_COMPILER_GCC)
             T res = a;
 
-            if (__builtin_mul_overflow(a, b, &res))
+            if (__builtin_mul_overflow(a, b, &res)) [[unlikely]]
             {
                 GpThrowCe<std::overflow_error>("Mul overflow");
             }
@@ -408,7 +408,7 @@ public:
             else if constexpr(std::is_same_v<u_int_64, T>)  hres = UInt64Mult(a, b, &res);
             else if constexpr(std::is_same_v<s_int_64, T>)  hres = Int64Mult(a, b, &res);
 
-            if (hres != S_OK)
+            if (hres != S_OK) [[unlikely]]
             {
                 GpThrowCe<std::overflow_error>("Mul overflow");
             }
@@ -543,7 +543,7 @@ public:
                     //FROM(Signed) -> TO(Unsigned)
                     //Check TO lower bound
 
-                    if (aValueFrom < FROM(0))
+                    if (aValueFrom < FROM(0)) [[unlikely]]
                     {
                         GpThrowCe<std::overflow_error>("GpNumericOps::SConvert out of range (A)");
                     }
@@ -557,7 +557,7 @@ public:
                     //Check TO upper bound
                     //Check TO lower bound
                     if ((aValueFrom > FROM(GpNumericOps::SMax<TO>())) ||
-                        (aValueFrom < FROM(GpNumericOps::SMin<TO>())))
+                        (aValueFrom < FROM(GpNumericOps::SMin<TO>()))) [[unlikely]]
                     {
                         GpThrowCe<std::overflow_error>("GpNumericOps::SConvert out of range (B)");
                     }
@@ -566,7 +566,7 @@ public:
                 } else
                 {
                     //Check TO upper bound
-                    if (aValueFrom > FROM(GpNumericOps::SMax<TO>()))
+                    if (aValueFrom > FROM(GpNumericOps::SMax<TO>())) [[unlikely]]
                     {
                         GpThrowCe<std::overflow_error>("GpNumericOps::SConvert out of range (C)");
                     }
@@ -583,7 +583,7 @@ public:
         } else if constexpr(std::is_floating_point<FROM>() && std::is_integral<TO>())
         {
             if ((aValueFrom > FROM(GpNumericOps::SMax<TO>())) ||
-                (aValueFrom < FROM(GpNumericOps::SMin<TO>())))
+                (aValueFrom < FROM(GpNumericOps::SMin<TO>()))) [[unlikely]]
             {
                 GpThrowCe<std::overflow_error>("GpNumericOps::SConvert out of range (D)");
             }
@@ -601,9 +601,9 @@ private:
     }
 
     static inline constexpr
-    double                      _SNewtonSqrtDouble  (const double aValue,
-                                                     const double aValueNow,
-                                                     const double aValueBefore) noexcept;
+    double                      _SNewtonSqrtDouble  (double aValue,
+                                                     double aValueNow,
+                                                     double aValueBefore) noexcept;
 };
 
 size_t  GpNumericOps::SDecDigsCountUI64 (const u_int_64 aValue) noexcept

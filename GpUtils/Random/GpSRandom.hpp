@@ -59,6 +59,9 @@ public:
     virtual void            BytesArray      (GpByteWriter&  aDataWriter,
                                              size_t         aSize) override final;
 
+    template<typename T>
+    T&                      BytesArray      (T&     aBufferToWrite,
+                                             size_t aSize);
 
 private:
     mutable GpSpinLock  iSpinLock;
@@ -66,6 +69,16 @@ private:
 
     static GpSRandom    sInstance;
 };
+
+template<typename T>
+T&  GpSRandom::BytesArray
+(
+    T&              aBufferToWrite,
+    const size_t    aSize
+)
+{
+    return GpRandomIf::BytesArray<T>(aBufferToWrite, aSize);
+}
 
 }// namespace GPlatform
 

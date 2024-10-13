@@ -64,14 +64,14 @@ public:
     constexpr void                  SetAllFromRaw       (const value_type aValue) noexcept {iValue = aValue;}
     constexpr void                  CombineFromRaw      (const value_type aValue) noexcept {iValue |= aValue;}
     constexpr void                  Combine             (const value_type aId) noexcept {iValue |=  value_type(value_type(1) << aId);}
-    constexpr void                  Clear               (const value_type aId) noexcept {iValue &= ~value_type(value_type(1) << aId);}
+    constexpr void                  Unset               (const value_type aId) noexcept {iValue &= ~value_type(value_type(1) << aId);}
     constexpr bool                  Test                (const value_type aId) const noexcept {return iValue & value_type(value_type(1) << aId);}
     constexpr bool                  Empty               (void) const noexcept {return iValue == 0;}
     constexpr void                  ApplyMask           (const value_type aMask) noexcept {iValue &= aMask;}
 
     virtual const NamesListT&       Names               (void) const noexcept = 0;
     virtual void                    Combine             (std::string_view aEnumName) = 0;
-    virtual void                    Clear               (std::string_view aEnumName) = 0;
+    virtual void                    Unset               (std::string_view aEnumName) = 0;
     virtual bool                    Test                (std::string_view aEnumName) const = 0;
     virtual std::string_view        ToStringFlag        (const value_type aId) const = 0;
     virtual value_type              FromStringFlag      (std::string_view aEnumName) const = 0;
@@ -147,9 +147,9 @@ public:
         GpEnumFlags::Combine(GpEnumFlags::value_type(aEnum));
     }
 
-    constexpr void          Clear           (const EnumTE aEnum) noexcept
+    constexpr void          Unset           (const EnumTE aEnum) noexcept
     {
-        GpEnumFlags::Clear(GpEnumFlags::value_type(aEnum));
+        GpEnumFlags::Unset(GpEnumFlags::value_type(aEnum));
     }
 
     constexpr bool          Test            (const EnumTE aEnum) const noexcept
@@ -168,9 +168,9 @@ public:
         GpEnumFlags::Combine(GpEnumFlags::value_type(E::SFromString(aEnumName)));
     }
 
-    virtual void            Clear           (std::string_view aEnumName) override final
+    virtual void            Unset           (std::string_view aEnumName) override final
     {
-        GpEnumFlags::Clear(GpEnumFlags::value_type(E::SFromString(aEnumName)));
+        GpEnumFlags::Unset(GpEnumFlags::value_type(E::SFromString(aEnumName)));
     }
 
     virtual bool            Test            (std::string_view aEnumName) const override final

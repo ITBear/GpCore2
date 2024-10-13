@@ -1,4 +1,4 @@
-#include "GpGlobalStructCatalogC.hpp"
+#include <GpCore2/GpUtils/Types/Containers/GpGlobalStructCatalogC.hpp>
 
 namespace GPlatform {
 

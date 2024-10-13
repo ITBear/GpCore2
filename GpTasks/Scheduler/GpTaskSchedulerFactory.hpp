@@ -7,6 +7,8 @@
 
 #include <functional>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 class GpTaskScheduler;
@@ -29,3 +31,5 @@ public:
 };
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

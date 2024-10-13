@@ -1,4 +1,4 @@
-#include "GpReflectPropFlags.hpp"
+#include <GpCore2/GpReflection/GpReflectPropFlags.hpp>
 
 namespace GPlatform {
 

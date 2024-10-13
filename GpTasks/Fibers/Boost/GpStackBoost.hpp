@@ -5,7 +5,7 @@
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
 
-#include "GpFixedSizeStackBoost.hpp"
+#include <GpCore2/GpTasks/Fibers/Boost/GpFixedSizeStackBoost.hpp>
 
 #if defined(GP_POSIX)
 #   include <unistd.h>

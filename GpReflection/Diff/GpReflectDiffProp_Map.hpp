@@ -2,12 +2,11 @@
 
 #include <GpCore2/Config/GpConfig.hpp>
 
-#include "../GpReflectUtils_IsEqual.hpp"
-#include "../GpReflectUtils_TotalMemoryUse.hpp"
-
-#include "GpReflectDiffPropBLOB.hpp"
-#include "GpReflectDiffPropString.hpp"
-#include "GpReflectDiffPropObjectSP.hpp"
+#include <GpCore2/GpReflection/GpReflectUtils_IsEqual.hpp>
+#include <GpCore2/GpReflection/GpReflectUtils_TotalMemoryUse.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffPropBLOB.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffPropString.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffPropObjectSP.hpp>
 
 namespace GPlatform {
 

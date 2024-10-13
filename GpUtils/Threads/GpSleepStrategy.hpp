@@ -1,9 +1,13 @@
 #pragma once
 
+#include <GpCore2/Config/GpConfig.hpp>
+
 #include <array>
 #include <functional>
 #include <chrono>
 #include <thread>
+
+#if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
 
@@ -58,3 +62,5 @@ void    GpSleepStrategy::SWaitFor
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

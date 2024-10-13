@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../Macro/GpMacroClass.hpp"
-#include "../../Concepts/GpConcepts.hpp"
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Concepts/GpConcepts.hpp>
 
 #define _USE_MATH_DEFINES
 #include <math.h>

@@ -11,6 +11,8 @@
 
 #include <GpCore2/GpUtils/Types/Numerics/GpNumericTypes.hpp>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 class GpTasksSettings
@@ -23,3 +25,5 @@ public:
 };
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

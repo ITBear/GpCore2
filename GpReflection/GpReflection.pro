@@ -11,16 +11,19 @@ DIR_LEVEL       = ./../..
 
 include($$DIR_LEVEL/../QtGlobalPro.pri)
 
-release_build_static{
+equals(var_link, "static") {
 	CONFIG += staticlib
 }
 
 # ----------- Libraries -----------
-os_windows{
+equals(var_os, "windows") {
 	LIBS += -lGpUtils$$TARGET_POSTFIX
 }
 
-os_linux{
+equals(var_os, "linux") {
+	LIBS += -lGpUtils$$TARGET_POSTFIX
+
+	LIBS += -lfmt
 }
 
 # ----------- Sources and headers -----------
@@ -66,6 +69,7 @@ SOURCES += \
     GpReflectUtils.cpp \
     GpReflectUtils_AssignValue.cpp \
     GpReflectUtils_IsEqual.cpp \
+    GpReflectUtils_Iterator.cpp \
     GpReflectUtils_TotalMemoryUse.cpp \
     GpReflectionLib.cpp \
     Models/GpExceptionDesc.cpp \
@@ -115,6 +119,7 @@ HEADERS += \
     GpReflectPropUtils.hpp \
     GpReflectUtils_AssignValue.hpp \
     GpReflectUtils_IsEqual.hpp \
+    GpReflectUtils_Iterator.hpp \
     GpReflectUtils_TotalMemoryUse.hpp \
     GpReflectVisitor.hpp \
     GpReflectionLib.hpp \

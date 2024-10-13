@@ -1,9 +1,8 @@
-#include "GpReflectObjectDynamicUtils.hpp"
-
-#include "GpReflectManager.hpp"
-#include "GpReflectVisitor.hpp"
-
+#include <GpCore2/GpReflection/GpReflectObjectDynamicUtils.hpp>
+#include <GpCore2/GpReflection/GpReflectManager.hpp>
+#include <GpCore2/GpReflection/GpReflectVisitor.hpp>
 #include <GpCore2/GpUtils/Other/GpRAIIonDestruct.hpp>
+
 #include <cstddef>
 #include <memory>
 

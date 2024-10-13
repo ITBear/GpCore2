@@ -1,4 +1,4 @@
-#include "GpReflectProp.hpp"
+#include <GpCore2/GpReflection/GpReflectProp.hpp>
 
 namespace GPlatform {
 
@@ -24,59 +24,59 @@ GpReflectProp::GpReflectProp
     FromStringFnMapT&&      aFromStringFns,
     const size_t            aIdxInProps
 ) noexcept:
-iType             (aType),
-iModelUid         (aModelUid),
-iContainer        (aContainer),
-iContainerKeyType (aContainerKeyType),
-iName             (std::move(aName)),
-iAlign            (aAlign),
-iSize             (aSize),
-iOffset           (aOffset),
-iFlags            (std::move(aFlags)),
-iFlagArgs         (aFlagArgs),
-iGenFn            (aGenFn),
-iConstructCustomFn(aConstructCustomFn),
-iDestructCustomFn (aDestructCustomFn),
-iFromStringFns    (std::move(aFromStringFns)),
-iIdxInProps       (aIdxInProps)
+iType             {aType},
+iModelUid         {aModelUid},
+iContainer        {aContainer},
+iContainerKeyType {aContainerKeyType},
+iName             {std::move(aName)},
+iAlign            {aAlign},
+iSize             {aSize},
+iOffset           {aOffset},
+iFlags            {std::move(aFlags)},
+iFlagArgs         {aFlagArgs},
+iGenFn            {aGenFn},
+iConstructCustomFn{aConstructCustomFn},
+iDestructCustomFn {aDestructCustomFn},
+iFromStringFns    {std::move(aFromStringFns)},
+iIdxInProps       {aIdxInProps}
 {
 }
 
 GpReflectProp::GpReflectProp (const GpReflectProp& aProp):
-iType             (aProp.iType),
-iModelUid         (aProp.iModelUid),
-iContainer        (aProp.iContainer),
-iContainerKeyType (aProp.iContainerKeyType),
-iName             (aProp.iName),
-iAlign            (aProp.iAlign),
-iSize             (aProp.iSize),
-iOffset           (aProp.iOffset),
-iFlags            (aProp.iFlags),
-iFlagArgs         (aProp.iFlagArgs),
-iGenFn            (aProp.iGenFn),
-iConstructCustomFn(aProp.iConstructCustomFn),
-iDestructCustomFn (aProp.iDestructCustomFn),
-iFromStringFns    (aProp.iFromStringFns),
-iIdxInProps       (aProp.iIdxInProps)
+iType             {aProp.iType},
+iModelUid         {aProp.iModelUid},
+iContainer        {aProp.iContainer},
+iContainerKeyType {aProp.iContainerKeyType},
+iName             {aProp.iName},
+iAlign            {aProp.iAlign},
+iSize             {aProp.iSize},
+iOffset           {aProp.iOffset},
+iFlags            {aProp.iFlags},
+iFlagArgs         {aProp.iFlagArgs},
+iGenFn            {aProp.iGenFn},
+iConstructCustomFn{aProp.iConstructCustomFn},
+iDestructCustomFn {aProp.iDestructCustomFn},
+iFromStringFns    {aProp.iFromStringFns},
+iIdxInProps       {aProp.iIdxInProps}
 {
 }
 
 GpReflectProp::GpReflectProp (GpReflectProp&& aProp) noexcept:
 iType(std::move(aProp.iType)),
-iModelUid         (std::move(aProp.iModelUid)),
-iContainer        (std::move(aProp.iContainer)),
-iContainerKeyType (std::move(aProp.iContainerKeyType)),
-iName             (std::move(aProp.iName)),
-iAlign            (std::move(aProp.iAlign)),
-iSize             (std::move(aProp.iSize)),
-iOffset           (std::move(aProp.iOffset)),
-iFlags            (std::move(aProp.iFlags)),
-iFlagArgs         (std::move(aProp.iFlagArgs)),
-iGenFn            (std::move(aProp.iGenFn)),
-iConstructCustomFn(std::move(aProp.iConstructCustomFn)),
-iDestructCustomFn (std::move(aProp.iDestructCustomFn)),
-iFromStringFns    (std::move(aProp.iFromStringFns)),
-iIdxInProps       (std::move(aProp.iIdxInProps))
+iModelUid         {std::move(aProp.iModelUid)},
+iContainer        {std::move(aProp.iContainer)},
+iContainerKeyType {std::move(aProp.iContainerKeyType)},
+iName             {std::move(aProp.iName)},
+iAlign            {std::move(aProp.iAlign)},
+iSize             {std::move(aProp.iSize)},
+iOffset           {std::move(aProp.iOffset)},
+iFlags            {std::move(aProp.iFlags)},
+iFlagArgs         {std::move(aProp.iFlagArgs)},
+iGenFn            {std::move(aProp.iGenFn)},
+iConstructCustomFn{std::move(aProp.iConstructCustomFn)},
+iDestructCustomFn {std::move(aProp.iDestructCustomFn)},
+iFromStringFns    {std::move(aProp.iFromStringFns)},
+iIdxInProps       {std::move(aProp.iIdxInProps)}
 {
 }
 

@@ -12,6 +12,7 @@
 #include <GpCore2/GpUtils/Types/Enums/GpEnum.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 #include <GpCore2/GpUtils/Streams/GpByteWriter.hpp>
+#include <GpCore2/GpUtils/Streams/GpByteWriterStorageFixedSize.hpp>
 
 namespace GPlatform {
 
@@ -74,6 +75,10 @@ public:
     virtual void            BytesArray      (GpByteWriter&  aDataWriter,
                                              size_t         aSize) = 0;
 
+    template<typename T>
+    T&                      BytesArray      (T&     aBufferToWrite,
+                                             size_t aSize);
+
     template<EnumConcepts::IsEnum T>
     typename T::EnumT       Enum            (void) noexcept;
 
@@ -85,13 +90,31 @@ protected:
     static std::array<const std::string, 4> sStrs;
 };
 
+
+template<typename T>
+T&  GpRandomIf::BytesArray
+(
+    T&              aBufferToWrite,
+    const size_t    aSize
+)
+{
+    aBufferToWrite.resize(aSize);
+
+    GpByteWriterStorageFixedSize    storage{aBufferToWrite};
+    GpByteWriter                    writer{storage};
+
+    BytesArray(writer, aSize);
+
+    return aBufferToWrite;
+}
+
 template<EnumConcepts::IsEnum T>
 typename T::EnumT   GpRandomIf::Enum (void) noexcept
 {
     const u_int_64 pos = UI64
     (
-        u_int_64(0),
-        NumOps::SSub<u_int_64>(u_int_64(T::SCount()), 1)
+        u_int_64{0},
+        NumOps::SSub<u_int_64>(u_int_64{T::SCount()}, 1)
     );
 
     return T().FromNumPos(NumOps::SConvert<size_t>(pos));

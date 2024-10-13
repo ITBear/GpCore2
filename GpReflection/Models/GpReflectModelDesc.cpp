@@ -1,5 +1,4 @@
-#include "GpReflectModelDesc.hpp"
-
+#include <GpCore2/GpReflection/Models/GpReflectModelDesc.hpp>
 #include <GpCore2/GpReflection/GpReflectManager.hpp>
 #include <GpCore2/GpReflection/GpReflectPropUtils.hpp>
 

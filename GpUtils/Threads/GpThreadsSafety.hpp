@@ -1,76 +1,94 @@
 #pragma once
 
-#include <GpCore2/Config/GpEnvironmentDetector.hpp>
+#include <GpCore2/Config/GpConfig.hpp>
 
 #include <mutex>
 #include <shared_mutex>
 
-#if defined(GP_COMPILER_CLANG)
+#if defined(GP_COMPILER_CLANG) && !defined(GP_OS_BROWSER)
 #   define THREAD_ANNOTATION_ATTRIBUTE__(x) __attribute__((x))
+
+#   define CAPABILITY(x) \
+     THREAD_ANNOTATION_ATTRIBUTE__(capability(x))
+
+#   define SCOPED_CAPABILITY \
+     THREAD_ANNOTATION_ATTRIBUTE__(scoped_lockable)
+
+#   define GUARDED_BY(x) \
+     THREAD_ANNOTATION_ATTRIBUTE__(guarded_by(x))
+
+#   define PT_GUARDED_BY(x) \
+     THREAD_ANNOTATION_ATTRIBUTE__(pt_guarded_by(x))
+
+#   define ACQUIRED_AFTER(...) \
+     THREAD_ANNOTATION_ATTRIBUTE__(acquired_after(__VA_ARGS__))
+
+#   define ACQUIRED_BEFORE(...) \
+     THREAD_ANNOTATION_ATTRIBUTE__(acquired_before(__VA_ARGS__))
+
+#   define ACQUIRE(...) \
+     THREAD_ANNOTATION_ATTRIBUTE__(acquire_capability(__VA_ARGS__))
+
+#   define ACQUIRE_SHARED(...) \
+     THREAD_ANNOTATION_ATTRIBUTE__(acquire_shared_capability(__VA_ARGS__))
+
+#   define TRY_ACQUIRE(...) \
+     THREAD_ANNOTATION_ATTRIBUTE__(try_acquire_capability(__VA_ARGS__))
+
+#   define TRY_ACQUIRE_SHARED(...) \
+     THREAD_ANNOTATION_ATTRIBUTE__(try_acquire_shared_capability(__VA_ARGS__))
+
+#   define RELEASE(...) \
+     THREAD_ANNOTATION_ATTRIBUTE__(release_capability(__VA_ARGS__))
+
+#   define RELEASE_SHARED(...) \
+     THREAD_ANNOTATION_ATTRIBUTE__(release_shared_capability(__VA_ARGS__))
+
+#   define RELEASE_GENERIC(...) \
+     THREAD_ANNOTATION_ATTRIBUTE__(release_generic_capability(__VA_ARGS__))
+
+#   define REQUIRES(...) \
+     THREAD_ANNOTATION_ATTRIBUTE__(requires_capability(__VA_ARGS__))
+
+#   define REQUIRES_SHARED(...) \
+     THREAD_ANNOTATION_ATTRIBUTE__(requires_shared_capability(__VA_ARGS__))
+
+#   define NO_THREAD_SAFETY_ANALYSIS \
+     THREAD_ANNOTATION_ATTRIBUTE__(no_thread_safety_analysis)
+
+#   define EXCLUDES(...) \
+     THREAD_ANNOTATION_ATTRIBUTE__(locks_excluded(__VA_ARGS__))
+
+#   define ASSERT_CAPABILITY(x) \
+     THREAD_ANNOTATION_ATTRIBUTE__(assert_capability(x))
+
+#   define ASSERT_SHARED_CAPABILITY(x) \
+     THREAD_ANNOTATION_ATTRIBUTE__(assert_shared_capability(x))
+
+#   define RETURN_CAPABILITY(x) \
+     THREAD_ANNOTATION_ATTRIBUTE__(lock_returned(x))
 #else
-#   define THREAD_ANNOTATION_ATTRIBUTE__(x)
+#   define CAPABILITY(x)
+#   define SCOPED_CAPABILITY
+#   define GUARDED_BY(x)
+#   define PT_GUARDED_BY(x)
+#   define ACQUIRED_AFTER(...)
+#   define ACQUIRED_BEFORE(...)
+#   define ACQUIRE(...)
+#   define ACQUIRE_SHARED(...)
+#   define TRY_ACQUIRE(...)
+#   define TRY_ACQUIRE_SHARED(...)
+#   define RELEASE(...)
+#   define RELEASE_SHARED(...)
+#   define RELEASE_GENERIC(...)
+#   define REQUIRES(...)
+#   define REQUIRES_SHARED(...)
+#   define NO_THREAD_SAFETY_ANALYSIS
+#   define EXCLUDES(...)
+#   define ASSERT_CAPABILITY(x)
+#   define ASSERT_SHARED_CAPABILITY(x)
+#   define RETURN_CAPABILITY(x)
 #endif
-
-#define CAPABILITY(x) \
-  THREAD_ANNOTATION_ATTRIBUTE__(capability(x))
-
-#define SCOPED_CAPABILITY \
-  THREAD_ANNOTATION_ATTRIBUTE__(scoped_lockable)
-
-#define GUARDED_BY(x) \
-  THREAD_ANNOTATION_ATTRIBUTE__(guarded_by(x))
-
-#define PT_GUARDED_BY(x) \
-  THREAD_ANNOTATION_ATTRIBUTE__(pt_guarded_by(x))
-
-#define ACQUIRED_AFTER(...) \
-  THREAD_ANNOTATION_ATTRIBUTE__(acquired_after(__VA_ARGS__))
-
-#define ACQUIRED_BEFORE(...) \
-  THREAD_ANNOTATION_ATTRIBUTE__(acquired_before(__VA_ARGS__))
-
-#define ACQUIRE(...) \
-  THREAD_ANNOTATION_ATTRIBUTE__(acquire_capability(__VA_ARGS__))
-
-#define ACQUIRE_SHARED(...) \
-  THREAD_ANNOTATION_ATTRIBUTE__(acquire_shared_capability(__VA_ARGS__))
-
-#define TRY_ACQUIRE(...) \
-  THREAD_ANNOTATION_ATTRIBUTE__(try_acquire_capability(__VA_ARGS__))
-
-#define TRY_ACQUIRE_SHARED(...) \
-  THREAD_ANNOTATION_ATTRIBUTE__(try_acquire_shared_capability(__VA_ARGS__))
-
-#define RELEASE(...) \
-  THREAD_ANNOTATION_ATTRIBUTE__(release_capability(__VA_ARGS__))
-
-#define RELEASE_SHARED(...) \
-  THREAD_ANNOTATION_ATTRIBUTE__(release_shared_capability(__VA_ARGS__))
-
-#define RELEASE_GENERIC(...) \
-  THREAD_ANNOTATION_ATTRIBUTE__(release_generic_capability(__VA_ARGS__))
-
-#define REQUIRES(...) \
-  THREAD_ANNOTATION_ATTRIBUTE__(requires_capability(__VA_ARGS__))
-
-#define REQUIRES_SHARED(...) \
-  THREAD_ANNOTATION_ATTRIBUTE__(requires_shared_capability(__VA_ARGS__))
-
-#define NO_THREAD_SAFETY_ANALYSIS \
-  THREAD_ANNOTATION_ATTRIBUTE__(no_thread_safety_analysis)
-
-#define EXCLUDES(...) \
-  THREAD_ANNOTATION_ATTRIBUTE__(locks_excluded(__VA_ARGS__))
-
-#define ASSERT_CAPABILITY(x) \
-  THREAD_ANNOTATION_ATTRIBUTE__(assert_capability(x))
-
-#define ASSERT_SHARED_CAPABILITY(x) \
-  THREAD_ANNOTATION_ATTRIBUTE__(assert_shared_capability(x))
-
-#define RETURN_CAPABILITY(x) \
-  THREAD_ANNOTATION_ATTRIBUTE__(lock_returned(x))
-
 
 namespace GPlatform::ThreadSafety {
 

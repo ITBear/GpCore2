@@ -1,5 +1,5 @@
-#include "GpReflectModel.hpp"
-#include "GpReflectManager.hpp"
+#include <GpCore2/GpReflection/GpReflectModel.hpp>
+#include <GpCore2/GpReflection/GpReflectManager.hpp>
 
 namespace GPlatform {
 

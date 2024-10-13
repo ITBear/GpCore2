@@ -1,8 +1,7 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "GpReflectProp.hpp"
+#include <GpCore2/GpReflection/GpReflectProp.hpp>
 
 #include <array>
 

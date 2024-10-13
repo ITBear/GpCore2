@@ -1,4 +1,4 @@
-#include "GpReflectDiffProp_VecUUID.hpp"
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecUUID.hpp>
 
 namespace GPlatform {
 

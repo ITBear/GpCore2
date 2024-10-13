@@ -5,9 +5,8 @@
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
 
-#include "../../GpTasks_global.hpp"
-#include "GpStackBoost.hpp"
-
+#include <GpCore2/GpTasks/GpTasks_global.hpp>
+#include <GpCore2/GpTasks/Fibers/Boost/GpStackBoost.hpp>
 #include <GpCore2/GpUtils/Types/Containers/GpElementsPool.hpp>
 #include <GpCore2/GpUtils/Types/Units/Other/size_byte_t.hpp>
 

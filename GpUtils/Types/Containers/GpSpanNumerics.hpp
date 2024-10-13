@@ -4,7 +4,7 @@
 
 #if defined(GP_USE_CONTAINERS)
 
-#include "../Pointers/GpSpan.hpp"
+#include <GpCore2/GpUtils/Types/Pointers/GpSpan.hpp>
 
 namespace GPlatform {
 

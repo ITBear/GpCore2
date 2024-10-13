@@ -1,4 +1,4 @@
-#include "GpReflectDiffPropString.hpp"
+#include <GpCore2/GpReflection/Diff/GpReflectDiffPropString.hpp>
 
 namespace GPlatform {
 

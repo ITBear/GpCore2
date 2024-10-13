@@ -2,9 +2,41 @@
 #include <GpCore2/GpReflection/GpReflectObject.hpp>
 #include <GpCore2/GpReflection/GpReflectProp.hpp>
 #include <GpCore2/GpReflection/GpReflectPropUtils.hpp>
+#include <GpCore2/GpReflection/GpReflectUtils_AssignValue.cpp>
 
 namespace GPlatform {
 
+void    GpReflectUtils::SAssignValueToProp
+(
+    void*                   aDataPtrDst,
+    const GpReflectProp&    aPropDst,
+    const void*             aDataPtrSrc,
+    const GpReflectProp&    aPropSrc
+)
+{
+    GpReflectUtils_AssignValue::SDo
+    (
+        aDataPtrDst,
+        aPropDst,
+        aDataPtrSrc,
+        aPropSrc
+    );
+}
+
+void    GpReflectUtils::SAssignValueToObject
+(
+    GpReflectObject&        aObjDst,
+    const GpReflectObject&  aObjSrc
+)
+{
+    GpReflectUtils_AssignValue::SDo
+    (
+        aObjDst,
+        aObjSrc
+    );
+}
+
+/*
 void    GpReflectUtils::SGenerateOnce
 (
     const GpReflectModel&           aModel,
@@ -41,5 +73,6 @@ void    GpReflectUtils::SGenerateOnce (GpReflectObject& aItem)
         prop.GenFn(itemDataPtr);
     }
 }
+*/
 
 }// namespace GPlatform

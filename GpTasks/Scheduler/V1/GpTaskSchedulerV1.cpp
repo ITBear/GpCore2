@@ -4,10 +4,11 @@
 #include <GpCore2/GpUtils/Exceptions/GpExceptionUtils.hpp>
 #include <GpCore2/GpUtils/Debugging/GpDebugging.hpp>
 #include <GpCore2/GpTasks/ITC/GpItcSharedFutureUtils.hpp>
-#include <GpService/GpServiceMainTask.hpp>
 
 #include <tuple>
 #include <utility>
+
+#if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
 
@@ -406,3 +407,5 @@ void    GpTaskSchedulerV1::_MoveToWaiting (GpTask::SP aTask)
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

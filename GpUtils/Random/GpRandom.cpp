@@ -6,7 +6,7 @@
 #include <functional>
 
 #   if defined(GP_OS_WINDOWS)
-#       include "GpRandomDeviceWin.hpp"
+#       include <GpCore2/GpUtils/Random/GpRandomDeviceWin.hpp>
 #   endif//if defined(GP_OS_WINDOWS)
 
 namespace GPlatform {

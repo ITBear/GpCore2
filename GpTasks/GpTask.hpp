@@ -13,6 +13,8 @@
 #include <GpCore2/GpUtils/Types/UIDs/GpUUID.hpp>
 #include <GpCore2/GpUtils/Other/GpMethodAccessGuard.hpp>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 class GpTaskScheduler;
@@ -58,6 +60,7 @@ public:
     inline GpTaskId                 TaskId                  (void) const noexcept;
     GpUUID                          TaskIdAsUUID            (void) const noexcept;
     inline GpTaskMode::EnumT        TaskMode                (void) const noexcept;
+    inline GpTaskState::EnumT       TaskState               (void) const noexcept;
 
     GpTask::DoneFutureT::SP         RequestTaskStop         (void);
     void                            RequestAndWaitForStop   (void);
@@ -99,9 +102,10 @@ private:
 private:
     const std::string               iName;
     const GpTaskId                  iId;
-    const GpTaskMode::EnumT         iMode;  
-    std::atomic_flag                iIsStartRequested   = false;
-    std::atomic_flag                iIsStopRequested    = false;
+    const GpTaskMode::EnumT         iMode;
+    std::atomic<GpTaskState::EnumT> iState;
+    std::atomic_flag                iIsStartRequested   = ATOMIC_FLAG_INIT;
+    std::atomic_flag                iIsStopRequested    = ATOMIC_FLAG_INIT;
     StartPromiseT                   iStartPromise;
     DonePromiseT                    iDonePromise;
     MessageQueueT                   iMessagesQueue; 
@@ -123,6 +127,11 @@ GpTaskId    GpTask::TaskId (void) const noexcept
 GpTaskMode::EnumT   GpTask::TaskMode (void) const noexcept
 {
     return iMode;
+}
+
+GpTaskState::EnumT  GpTask::TaskState (void) const noexcept
+{
+    return iState.load(std::memory_order_acquire);
 }
 
 bool    GpTask::IsStartRequested (void) const noexcept
@@ -176,3 +185,5 @@ GpTaskId    GpTask::SNextId (void) noexcept
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

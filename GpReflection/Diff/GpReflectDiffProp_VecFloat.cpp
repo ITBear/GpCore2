@@ -1,4 +1,4 @@
-#include "GpReflectDiffProp_VecFloat.hpp"
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecFloat.hpp>
 
 namespace GPlatform {
 

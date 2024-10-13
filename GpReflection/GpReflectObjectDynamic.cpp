@@ -1,7 +1,6 @@
-#include "GpReflectObjectDynamic.hpp"
-#include "GpReflectObjectDynamicUtils.hpp"
-#include "GpReflectManager.hpp"
-
+#include <GpCore2/GpReflection/GpReflectObjectDynamic.hpp>
+#include <GpCore2/GpReflection/GpReflectObjectDynamicUtils.hpp>
+#include <GpCore2/GpReflection/GpReflectManager.hpp>
 #include <GpCore2/GpReflection/GpReflectUtils_AssignValue.hpp>
 
 namespace GPlatform {

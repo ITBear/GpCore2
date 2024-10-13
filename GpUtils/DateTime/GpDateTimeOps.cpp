@@ -1,4 +1,4 @@
-#include "GpDateTimeOps.hpp"
+#include <GpCore2/GpUtils/DateTime/GpDateTimeOps.hpp>
 
 #if defined(GP_USE_DATE_TIME)
 
@@ -201,11 +201,11 @@ std::string GpDateTimeOps::SToDaysHoursMinSec (const milliseconds_t aDuration)
     // To string
     return fmt::format
     (
-        "{} days, {} hours, {} minutes, {} seconds",
+        "{} days, {} hours, {} minutes, {:.6f} seconds",
         days,
         hours,
         minutes,
-        StrOps::SFromDouble(seconds)
+        seconds
     );
 }
 

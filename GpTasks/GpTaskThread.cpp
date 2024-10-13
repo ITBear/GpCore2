@@ -1,4 +1,6 @@
-#include "GpTaskThread.hpp"
+#include <GpCore2/GpTasks/GpTaskThread.hpp>
+
+#if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
 
@@ -94,3 +96,5 @@ GpException::C::Opt GpTaskThread::CallOnStop (void) noexcept
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

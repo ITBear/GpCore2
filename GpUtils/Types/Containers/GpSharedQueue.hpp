@@ -1,10 +1,9 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "../Units/SI/GpUnitsSI_Time.hpp"
-#include "../../Macro/GpMacroTags.hpp"
-#include "../../SyncPrimitives/GpConditionVar.hpp"
+#include <GpCore2/GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpConditionVar.hpp>
 
 #include <queue>
 #include <optional>
@@ -23,33 +22,33 @@ public:
     using underlying_container  = std::queue<value_type>;
 
 public:
-                                    GpSharedQueue       (void) noexcept;
-                                    GpSharedQueue       (size_t aMaxSize) noexcept;
-                                    ~GpSharedQueue      (void) noexcept = default;
+                                GpSharedQueue       (void) noexcept;
+                                GpSharedQueue       (size_t aMaxSize) noexcept;
+                                ~GpSharedQueue      (void) noexcept = default;
 
-    size_t                          MaxSize             (void) const noexcept;
-    void                            SetMaxSize          (size_t aMaxSize) noexcept;
-    size_t                          Size                (void) const noexcept;
-    bool                            Empty               (void) const noexcept;
-    void                            Clear               (void);
+    size_t                      MaxSize             (void) const noexcept;
+    void                        SetMaxSize          (size_t aMaxSize) noexcept;
+    size_t                      Size                (void) const noexcept;
+    bool                        Empty               (void) const noexcept;
+    void                        Clear               (void);
 
-    [[nodiscard]] bool              Push                (const value_type& aValue);
-    [[nodiscard]] bool              Push                (value_type&& aValue);
-    [[nodiscard]] bool              PushAndNotifyOne    (const value_type& aValue);
-    [[nodiscard]] bool              PushAndNotifyOne    (value_type&& aValue);
-    [[nodiscard]] bool              PushAndNotifyAll    (const value_type& aValue);
-    [[nodiscard]] bool              PushAndNotifyAll    (value_type&& aValue);
+    [[nodiscard]] bool          Push                (const value_type& aValue);
+    [[nodiscard]] bool          Push                (value_type&& aValue);
+    [[nodiscard]] bool          PushAndNotifyOne    (const value_type& aValue);
+    [[nodiscard]] bool          PushAndNotifyOne    (value_type&& aValue);
+    [[nodiscard]] bool          PushAndNotifyAll    (const value_type& aValue);
+    [[nodiscard]] bool          PushAndNotifyAll    (value_type&& aValue);
 
-    std::optional<value_type>       Pop                 (void);
-    std::optional<value_type>       WaitAndPop          (const milliseconds_t aTimeout);
+    std::optional<value_type>   Pop                 (void);
+    std::optional<value_type>   WaitAndPop          (const milliseconds_t aTimeout);
 
-    underlying_container&           UnderlyingContainer (void) noexcept REQUIRES(iCV);
-    const underlying_container&     UnderlyingContainer (void) const noexcept REQUIRES(iCV);
+    underlying_container&       UnderlyingContainer (void) noexcept REQUIRES(iCV);
+    const underlying_container& UnderlyingContainer (void) const noexcept REQUIRES(iCV);
 
 private:
-    mutable GpConditionVar          iCV;
-    underlying_container            iContainer  GUARDED_BY(iCV.Mutex());
-    size_t                          iMaxSize    GUARDED_BY(iCV.Mutex()) = std::numeric_limits<size_t>::max();
+    mutable GpConditionVar      iCV;
+    underlying_container        iContainer  GUARDED_BY(iCV.Mutex());
+    size_t                      iMaxSize    GUARDED_BY(iCV.Mutex()) = std::numeric_limits<size_t>::max();
 };
 
 template <typename T>
@@ -59,7 +58,7 @@ GpSharedQueue<T>::GpSharedQueue (void) noexcept
 
 template <typename T>
 GpSharedQueue<T>::GpSharedQueue (size_t aMaxSize) noexcept:
-iMaxSize(aMaxSize)
+iMaxSize{aMaxSize}
 {
 }
 

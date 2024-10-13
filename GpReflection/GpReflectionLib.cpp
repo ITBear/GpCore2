@@ -1,7 +1,7 @@
-#include "GpReflectionLib.hpp"
+#include <GpCore2/GpReflection/GpReflectionLib.hpp>
 
 namespace GPlatform {
 
-GP_IMPLEMENT_LIB(GpReflectionLib)
+GP_IMPLEMENT_LIB_REGISTRATOR(GpReflectionLib)
 
-}// GPlatform
+}// namespace GPlatform

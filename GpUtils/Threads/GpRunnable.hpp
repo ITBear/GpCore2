@@ -5,6 +5,8 @@
 #include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpConditionVarFlag.hpp>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 class GpRunnable
@@ -48,3 +50,5 @@ bool    GpRunnable::WaitForAndReset (const milliseconds_t aTimeout) noexcept
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

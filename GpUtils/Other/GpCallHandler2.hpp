@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Macro/GpMacroClass.hpp"
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
 
 #include <functional>
 #include <optional>

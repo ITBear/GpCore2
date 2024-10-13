@@ -1,5 +1,4 @@
 #include <GpCore2/GpTasks/Fibers/GpTaskFiber.hpp>
-#include <GpService/GpServiceMainTask.hpp>
 
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 

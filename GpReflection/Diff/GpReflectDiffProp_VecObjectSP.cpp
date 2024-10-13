@@ -1,4 +1,4 @@
-#include "GpReflectDiffProp_VecObjectSP.hpp"
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecObjectSP.hpp>
 
 namespace GPlatform {
 

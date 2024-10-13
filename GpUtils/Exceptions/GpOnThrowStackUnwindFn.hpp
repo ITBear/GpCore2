@@ -4,7 +4,7 @@
 
 #if defined(GP_USE_EXCEPTIONS)
 
-#include "../Macro/GpMacroClass.hpp"
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
 
 #include <functional>
 #include <stack>

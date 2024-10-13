@@ -1,34 +1,30 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "GpReflectDiffPropString.hpp"
-#include "GpReflectDiffPropBLOB.hpp"
-#include "GpReflectDiffPropObject.hpp"
-#include "GpReflectDiffPropObjectSP.hpp"
-#include "GpReflectDiffPropEnum.hpp"
-#include "GpReflectDiffPropEnumFlags.hpp"
-
-#include "GpReflectDiffProp_VecUI8.hpp"
-#include "GpReflectDiffProp_VecSI8.hpp"
-#include "GpReflectDiffProp_VecUI16.hpp"
-#include "GpReflectDiffProp_VecSI16.hpp"
-#include "GpReflectDiffProp_VecUI32.hpp"
-#include "GpReflectDiffProp_VecSI32.hpp"
-#include "GpReflectDiffProp_VecUI64.hpp"
-#include "GpReflectDiffProp_VecSI64.hpp"
-#include "GpReflectDiffProp_VecDouble.hpp"
-#include "GpReflectDiffProp_VecFloat.hpp"
-#include "GpReflectDiffProp_VecUUID.hpp"
-#include "GpReflectDiffProp_VecString.hpp"
-#include "GpReflectDiffProp_VecBLOB.hpp"
-#include "GpReflectDiffProp_VecObject.hpp"
-#include "GpReflectDiffProp_VecObjectSP.hpp"
-
-#include "GpReflectDiffProp_Map.hpp"
-
-#include "../GpReflectUtils_IsEqual.hpp"
-#include "../GpReflectUtils_TotalMemoryUse.hpp"
+#include <GpCore2/GpReflection/Diff/GpReflectDiffPropString.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffPropBLOB.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffPropObject.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffPropObjectSP.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffPropEnum.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffPropEnumFlags.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecUI8.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecSI8.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecUI16.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecSI16.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecUI32.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecSI32.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecUI64.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecSI64.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecDouble.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecFloat.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecUUID.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecString.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecBLOB.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecObject.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_VecObjectSP.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffProp_Map.hpp>
+#include <GpCore2/GpReflection/GpReflectUtils_IsEqual.hpp>
+#include <GpCore2/GpReflection/GpReflectUtils_TotalMemoryUse.hpp>
 
 namespace GPlatform {
 

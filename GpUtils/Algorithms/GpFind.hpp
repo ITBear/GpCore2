@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GpUtils_global.hpp"
+#include <GpCore2/GpUtils/GpUtils_global.hpp>
 
 namespace GPlatform::Algo {
 

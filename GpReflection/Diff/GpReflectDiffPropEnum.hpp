@@ -2,8 +2,7 @@
 
 #include <GpCore2/Config/GpConfig.hpp>
 #include <GpCore2/GpUtils/Types/Enums/GpEnum.hpp>
-
-#include "../GpReflection_global.hpp"
+#include <GpCore2/GpReflection/GpReflection_global.hpp>
 
 namespace GPlatform {
 

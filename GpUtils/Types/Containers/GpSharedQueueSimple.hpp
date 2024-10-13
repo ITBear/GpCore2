@@ -2,11 +2,11 @@
 
 #include <GpCore2/Config/GpConfig.hpp>
 
-#include "GpContainersT.hpp"
-#include "../../Macro/GpMacroTags.hpp"
-#include "../../SyncPrimitives/GpSpinLockRW.hpp"
-#include "../../SyncPrimitives/GpMutex.hpp"
-#include "../../SyncPrimitives/GpSharedMutex.hpp"
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSpinLockRW.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSharedMutex.hpp>
 
 #include <queue>
 #include <optional>
@@ -57,7 +57,7 @@ GpSharedQueueSimple<T>::GpSharedQueueSimple (void) noexcept
 
 template <typename T>
 GpSharedQueueSimple<T>::GpSharedQueueSimple (size_t aMaxSize) noexcept:
-    iMaxSize(aMaxSize)
+iMaxSize{aMaxSize}
 {
 }
 

@@ -2,9 +2,10 @@
 
 #include <GpCore2/Config/GpConfig.hpp>
 
-#include "GpTasks_global.hpp"
-#include "GpTaskEnums.hpp"
+#if defined(GP_USE_MULTITHREADING)
 
+#include <GpCore2/GpTasks/GpTasks_global.hpp>
+#include <GpCore2/GpTasks/GpTaskEnums.hpp>
 #include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
 #include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpSpinLockRW.hpp>
@@ -123,3 +124,5 @@ GpTaskVarStorage::AnyOptCRefT   GpTaskVarStorage::GetVarRef
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

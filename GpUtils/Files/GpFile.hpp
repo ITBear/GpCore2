@@ -40,28 +40,33 @@ public:
 #endif
 
 public:
-                    GpFile          (void) noexcept = default;
-                    ~GpFile         (void) noexcept {Close();}
+                        GpFile                  (void) noexcept = default;
+                        ~GpFile                 (void) noexcept {Close();}
 
-    HandlerT        Handler         (void) noexcept {return iHandler;}
+    HandlerT            Handler                 (void) noexcept {return iHandler;}
 
-    void            Open            (std::string_view   aName,
-                                     const GpFileFlags  aFlags);
-    bool            IsOpen          (void) const noexcept {return iHandler != HandlerT();}
-    void            Close           (void) noexcept;
-    void            Flush           (void);
-    size_byte_t     Size            (void) const;
+    void                Open                    (std::string_view   aName,
+                                                 GpFileFlags        aFlags);
+    std::string_view    Name                    (void) const noexcept {return iName;}
+    const GpFileFlags&  Flags                   (void) const noexcept {return iFlags;}
+    bool                IsOpen                  (void) const noexcept {return iHandler != HandlerT();}
+    void                Close                   (void) noexcept;
+    void                Flush                   (void);
+    size_byte_t         Size                    (void) const;
 
-    void            GoToPos         (const size_byte_t aPos);
-    void            GoToStartPos    (void);
-    size_byte_t     GoToEndPos      (void);
-    size_byte_t     CurrentPos      (void) const;
+    void                GoToPos                 (const size_byte_t aPos);
+    void                GoToStartPos            (void);
+    size_byte_t         GoToEndPos              (void);
+    size_byte_t         CurrentPos              (void) const;
+    void                TruncateToCurrentPos    (void);
 
-    void            Write           (GpSpanByteR    aData);
-    void            Read            (GpSpanByteRW   aData);
+    void                Write                   (GpSpanByteR    aData);
+    void                Read                    (GpSpanByteRW   aData);
 
 private:
-    HandlerT        iHandler = HandlerT{};
+    std::string         iName;
+    GpFileFlags         iFlags;
+    HandlerT            iHandler = HandlerT{};
 };
 
 }// namespace GPlatform

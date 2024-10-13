@@ -1,6 +1,6 @@
-#include "GpStackTrace.hpp"
-#include "../Types/Strings/GpStringUtils.hpp"
-#include "../Types/Strings/GpStringOps.hpp"
+#include <GpCore2/GpUtils/Debugging/GpStackTrace.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
 #if defined(GP_COMPILER_CLANG) || defined(GP_COMPILER_GCC)
     GP_WARNING_PUSH()
@@ -10,9 +10,11 @@
 
 #if defined(GP_POSIX)
 #   include <execinfo.h>
-#else
+#elif defined(GP_OS_WINDOWS) || defined(GP_OS_BROWSER)
 #   include <boost/stacktrace/stacktrace.hpp>
-#endif// #if defined(GP_POSIX)
+#else
+#   error Unsupported platform
+#endif
 
 namespace GPlatform {
 
@@ -42,7 +44,7 @@ std::string GpStackTrace::STraceToStr (void)
     }
 
     std::free(stackTracePtrs);
-#elif defined(GP_OS_WINDOWS)
+#elif defined(GP_OS_WINDOWS) || defined(GP_OS_BROWSER)
     stackTraceStr = boost::stacktrace::to_string(boost::stacktrace::stacktrace());
 #else
 #   error Unsupported platform

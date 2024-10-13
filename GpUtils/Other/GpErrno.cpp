@@ -1,5 +1,4 @@
 #include <GpCore2/GpUtils/Other/GpErrno.hpp>
-#include <GpCore2/GpUtils/Macro/GpMacroWarnings.hpp>
 
 #if defined(GP_OS_WINDOWS)
 #   include <GpCore2/Config/IncludeExt/windows.hpp>
@@ -11,11 +10,11 @@ namespace GPlatform {
 
 std::string GpErrno::SWinGetAndClear (void)
 {
-    //Get the error message, if any.
+    // Get the error message, if any.
     const DWORD code = ::GetLastError();
     if (code == 0)
     {
-        return std::string(); //No error message has been recorded
+        return std::string(); // No error message has been recorded
     }
 
     LPSTR buff = nullptr;
@@ -32,6 +31,7 @@ std::string GpErrno::SWinGetAndClear (void)
 
     std::string message(buff, size);
     LocalFree(buff);
+
     return message;
 }
 

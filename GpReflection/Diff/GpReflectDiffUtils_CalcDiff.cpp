@@ -1,11 +1,8 @@
-#include "GpReflectDiffUtils_CalcDiff.hpp"
-
+#include <GpCore2/GpReflection/Diff/GpReflectDiffUtils_CalcDiff.hpp>
 #include <GpCore2/GpUtils/Exceptions/GpException.hpp>
-
-#include "../GpReflectManager.hpp"
-#include "../GpReflectVisitor.hpp"
-
-#include "GpReflectDiffDelta.hpp"
+#include <GpCore2/GpReflection/GpReflectManager.hpp>
+#include <GpCore2/GpReflection/GpReflectVisitor.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffDelta.hpp>
 
 namespace GPlatform {
 

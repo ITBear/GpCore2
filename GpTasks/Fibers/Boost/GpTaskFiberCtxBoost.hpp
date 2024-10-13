@@ -15,9 +15,9 @@ GP_WARNING_PUSH()
 
 GP_WARNING_POP()
 
-#include "../../GpTaskEnums.hpp"
-#include "../GpTaskFiberCtx.hpp"
-#include "GpStackBoost.hpp"
+#include <GpCore2/GpTasks/GpTaskEnums.hpp>
+#include <GpCore2/GpTasks/Fibers/GpTaskFiberCtx.hpp>
+#include <GpCore2/GpTasks/Fibers/Boost/GpStackBoost.hpp>
 
 namespace GPlatform {
 

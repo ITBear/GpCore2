@@ -4,6 +4,8 @@
 #include <GpCore2/GpTasks/ITC/GpItcSharedCondition.hpp>
 #include <GpCore2/GpTasks/ITC/GpItcResult.hpp>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 template<typename T>
@@ -19,8 +21,8 @@ public:
     CLASS_DD(GpItcSharedFuture<T>)
     TAG_SET(THREAD_SAFE)
 
-    using value_type        = T;
-    using ItcResultT        = GpItcResult<T>;
+    using value_type    = T;
+    using ItcResultT    = GpItcResult<T>;
 
 public:
                                             GpItcSharedFuture   (void) noexcept = default;
@@ -84,3 +86,5 @@ bool    GpItcSharedFuture<T>::SetResult (ItcResultT&& aResult)
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

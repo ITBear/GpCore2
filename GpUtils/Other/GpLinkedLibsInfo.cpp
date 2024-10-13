@@ -1,6 +1,5 @@
 #include <GpCore2/Config/IncludeExt/fmt.hpp>
-
-#include "GpLinkedLibsInfo.hpp"
+#include <GpCore2/GpUtils/Other/GpLinkedLibsInfo.hpp>
 
 namespace GPlatform {
 
@@ -15,6 +14,7 @@ GpLinkedLibsInfo::~GpLinkedLibsInfo (void) noexcept
 GpLinkedLibsInfo&   GpLinkedLibsInfo::S (void) noexcept
 {
     static GpLinkedLibsInfo sInstance;
+
     return sInstance;
 }
 
@@ -30,7 +30,8 @@ void    GpLinkedLibsInfo::Register
 
     iLibs.emplace_back
     (
-        GpLinkedLibInfo{
+        GpLinkedLibInfo
+        {
             .iName          = aName,
             .iVersionMaj    = aVersionMaj,
             .iVersionMin    = aVersionMin,
@@ -58,4 +59,4 @@ GpLinkedLibsInfo::InfoAsTextT   GpLinkedLibsInfo::InfoAsText (void) const
     return infoAsText;
 }
 
-}// GPlatform
+}// namespace GPlatform

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
 #include <GpCore2/GpUtils/Types/Containers/GpVectorWrapper.hpp>
 
 namespace GPlatform {

@@ -1,16 +1,14 @@
-#include "GpSystemInfo.hpp"
-
-#include <thread>
+#include <GpCore2/GpUtils/Other/GpSystemInfo.hpp>
 #include <GpCore2/Config/IncludeExt/fmt.hpp>
+#include <GpCore2/GpUtils/Exceptions/GpException.hpp>
+#include <thread>
 
-#include "../Exceptions/GpException.hpp"
-
-#if defined(GP_OS_LINUX)
+#if defined(GP_OS_LINUX )|| defined(GP_OS_BROWSER)
 #   include <sys/utsname.h>
 #endif// #if defined(GP_OS_LINUX)
 
 #if defined(GP_OS_WINDOWS)
-#   include "GpSystemInfoWin.hpp"
+#   include <GpCore2/GpUtils/Other/GpSystemInfoWin.hpp>
 #endif// #if defined(GP_OS_WINDOWS)
 
 namespace GPlatform {
@@ -24,7 +22,7 @@ std::string GpSystemInfo::SOsInfo (void)
 {
     std::string info;
 
-#if defined(GP_OS_LINUX)
+#if defined(GP_OS_LINUX) || defined(GP_OS_BROWSER)
     struct utsname buffer;
 
     THROW_COND_GP

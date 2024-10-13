@@ -20,14 +20,15 @@ public:
     class ToStrResT
     {
     public:
-        std::string         fullMessage;
-        std::string_view    message;    // view of part of fullMessage
+        std::string     fullMessage;
+        std::string     message;
     };
 
 public:
     static ToStrResT    SToString   (const std::string_view             aMessage,
                                      const SourceLocationT&             aSourceLocation,
                                      const std::optional<std::string>&  aStackTrace);
+    static ToStrResT    SToString   (const GpException& aExeption);
 };
 
 }// namespace GPlatform

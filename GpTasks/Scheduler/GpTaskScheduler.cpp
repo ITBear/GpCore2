@@ -1,6 +1,8 @@
 #include <GpCore2/GpTasks/Scheduler/GpTaskScheduler.hpp>
 #include <GpCore2/GpTasks/Scheduler/GpTaskSchedulerFactory.hpp>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 GpTaskScheduler::SP GpTaskScheduler::sInstance;
@@ -67,3 +69,5 @@ void    GpTaskScheduler::Start
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

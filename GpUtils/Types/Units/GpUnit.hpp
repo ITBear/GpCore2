@@ -57,15 +57,15 @@ public:
 
 protected:
     constexpr           GpUnit      (const value_type aValue) noexcept:
-                                    iValue(aValue)
+                                    iValue{aValue}
                                     {}
 
 public:
-    constexpr           GpUnit      (void) noexcept:iValue()
+    constexpr           GpUnit      (void) noexcept:iValue{}
                                     {}
 
     constexpr explicit  GpUnit      (const this_type& aUnit) noexcept:
-                                    iValue(aUnit.iValue)
+                                    iValue{aUnit.iValue}
                                     {}
 
     template<Concepts::Unit::IsUnit T2>

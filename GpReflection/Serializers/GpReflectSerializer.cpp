@@ -1,5 +1,4 @@
-#include "GpReflectSerializer.hpp"
-
+#include <GpCore2/GpReflection/Serializers/GpReflectSerializer.hpp>
 #include <GpCore2/GpUtils/Streams/GpByteWriter.hpp>
 #include <GpCore2/GpUtils/Streams/GpByteWriterStorageByteArray.hpp>
 

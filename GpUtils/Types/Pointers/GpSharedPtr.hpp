@@ -4,9 +4,8 @@
 
 #if defined(GP_USE_SHARED_POINTERS)
 
-#include "../../GpMemOps.hpp"
-#include "../../Exceptions/GpException.hpp"
-
+#include <GpCore2/GpUtils/GpMemOps.hpp>
+#include <GpCore2/GpUtils/Exceptions/GpException.hpp>
 #include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
 #include <GpCore2/GpUtils/Types/Pointers/GpReferenceStorage.hpp>
 
@@ -97,12 +96,24 @@ public:
     template<Concepts::SharedPtr::IsSharedPtr TSP>
     requires Concepts::SharedPtr::CastableDown<TSP, this_type>
                                     GpSharedPtrBase (const TSP& aSharedPtr) noexcept:
-    iRefCounter(aSharedPtr._RefCounter())
+    iRefCounter{aSharedPtr._RefCounter()}
     {
         if (iRefCounter)
         {
             iRefCounter->Acquire<_IsWeak>();
         }
+    }
+
+    template<Concepts::SharedPtr::IsSharedPtr TSP>
+    requires Concepts::SharedPtr::CastableDown<TSP, this_type>
+                                    //GpSharedPtrBase (std::remove_cv_t<TSP>&& aSharedPtr) noexcept:
+                                    GpSharedPtrBase (TSP&& aSharedPtr) noexcept:
+    iRefCounter{aSharedPtr._MoveRefCounter()}
+    {
+        //if (iRefCounter)
+        //{
+        //  iRefCounter->Acquire<_IsWeak>();
+        //}
     }
 
                                     GpSharedPtrBase (void) noexcept;
@@ -128,6 +139,22 @@ public:
             {
                 iRefCounter->Acquire<_IsWeak>();
             }
+        }
+    }
+
+    template<Concepts::SharedPtr::IsSharedPtr TSP>
+    requires Concepts::SharedPtr::CastableDown<TSP, this_type>
+    void                            Set             (TSP&& aSharedPtr) noexcept
+    {
+        if (iRefCounter != aSharedPtr._RefCounter())
+        {
+            Clear();
+            iRefCounter = aSharedPtr._MoveRefCounter();
+
+            //if (iRefCounter)
+            //{
+            //  iRefCounter->Acquire<_IsWeak>();
+            //}
         }
     }
 
@@ -199,12 +226,13 @@ public:
         return *this;
     }
 
-    /*template<typename TSP, typename = IsMovable<TSP, this_type>>
+    template<Concepts::SharedPtr::IsSharedPtr TSP>
+    requires Concepts::SharedPtr::CastableDown<this_type, TSP>
     this_type&                      operator=       (TSP&& aSharedPtr) noexcept
     {
         Set(std::move(aSharedPtr));
         return *this;
-    }*/
+    }
 
     template<Concepts::SharedPtr::IsSharedPtr TSP>
     requires Concepts::SharedPtr::CastableDown<this_type, TSP>
@@ -228,7 +256,12 @@ public:
     }
 
     GpReferenceCounter* _RefCounter                 (void) const noexcept {return iRefCounter;}
-    GpReferenceCounter* _MoveRefCounter             (void) noexcept {GpReferenceCounter* r = iRefCounter; iRefCounter = nullptr; return r;}
+    GpReferenceCounter* _MoveRefCounter             (void) noexcept
+    {
+        GpReferenceCounter* r = iRefCounter;
+        iRefCounter = nullptr;
+        return r;
+    }
 
     static this_type    _SConstructFromRefCounter   (GpReferenceCounter* aRefCounter)
     {
@@ -246,7 +279,7 @@ private:
 
 template <typename T, bool _IsWeak>
 GpSharedPtrBase<T, _IsWeak>::GpSharedPtrBase (GpReferenceCounter* aRefCounter) noexcept:
-iRefCounter(aRefCounter)
+iRefCounter{aRefCounter}
 {
 }
 
@@ -257,7 +290,7 @@ GpSharedPtrBase<T, _IsWeak>::GpSharedPtrBase (void) noexcept
 
 template <typename T, bool _IsWeak>
 GpSharedPtrBase<T, _IsWeak>::GpSharedPtrBase (const this_type& aSharedPtr) noexcept:
-iRefCounter(aSharedPtr._RefCounter())
+iRefCounter{aSharedPtr._RefCounter()}
 {
     if (iRefCounter)
     {
@@ -267,7 +300,7 @@ iRefCounter(aSharedPtr._RefCounter())
 
 template <typename T, bool _IsWeak>
 GpSharedPtrBase<T, _IsWeak>::GpSharedPtrBase (this_type&& aSharedPtr) noexcept:
-iRefCounter(aSharedPtr._MoveRefCounter())
+iRefCounter{aSharedPtr._MoveRefCounter()}
 {
 }
 

@@ -4,7 +4,7 @@
 
 #if defined(GP_USE_EXCEPTIONS)
 
-#include "../GpReflectObject.hpp"
+#include <GpCore2/GpReflection/GpReflectObject.hpp>
 
 namespace GPlatform {
 

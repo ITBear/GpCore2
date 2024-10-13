@@ -1,5 +1,4 @@
-#include "GpExceptionDesc.hpp"
-
+#include <GpCore2/GpReflection/Models/GpExceptionDesc.hpp>
 #include <GpCore2/GpReflection/GpReflectManager.hpp>
 #include <GpCore2/GpReflection/GpReflectPropUtils.hpp>
 
@@ -14,22 +13,22 @@ GpExceptionDesc::GpExceptionDesc (void) noexcept
 }
 
 GpExceptionDesc::GpExceptionDesc (const GpExceptionDesc& aDesc):
-GpReflectObject(aDesc),
-message      (GpReflectUtils::SCopyValue(aDesc.message)),
-line         (GpReflectUtils::SCopyValue(aDesc.line)),
-column       (GpReflectUtils::SCopyValue(aDesc.column)),
-file_name    (GpReflectUtils::SCopyValue(aDesc.file_name)),
-function_name(GpReflectUtils::SCopyValue(aDesc.function_name))
+GpReflectObject{aDesc},
+message      {GpReflectUtils::SCopyValue(aDesc.message)},
+line         {GpReflectUtils::SCopyValue(aDesc.line)},
+column       {GpReflectUtils::SCopyValue(aDesc.column)},
+file_name    {GpReflectUtils::SCopyValue(aDesc.file_name)},
+function_name{GpReflectUtils::SCopyValue(aDesc.function_name)}
 {
 }
 
 GpExceptionDesc::GpExceptionDesc (GpExceptionDesc&& aDesc) noexcept:
-GpReflectObject(std::move(aDesc)),
-message      (std::move(aDesc.message)),
-line         (std::move(aDesc.line)),
-column       (std::move(aDesc.column)),
-file_name    (std::move(aDesc.file_name)),
-function_name(std::move(aDesc.function_name))
+GpReflectObject{std::move(aDesc)},
+message      {std::move(aDesc.message)},
+line         {std::move(aDesc.line)},
+column       {std::move(aDesc.column)},
+file_name    {std::move(aDesc.file_name)},
+function_name{std::move(aDesc.function_name)}
 {
 }
 

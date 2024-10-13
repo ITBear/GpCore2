@@ -1,6 +1,5 @@
-#include "GpReflectUtils_IsEqual.hpp"
-
-#include "GpReflectVisitor.hpp"
+#include <GpCore2/GpReflection/GpReflectUtils_IsEqual.hpp>
+#include <GpCore2/GpReflection/GpReflectVisitor.hpp>
 
 namespace GPlatform {
 

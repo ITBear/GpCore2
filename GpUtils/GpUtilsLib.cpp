@@ -1,7 +1,7 @@
-#include "GpUtilsLib.hpp"
+#include <GpCore2/GpUtils/GpUtilsLib.hpp>
 
 namespace GPlatform {
 
-GP_IMPLEMENT_LIB(GpUtilsLib)
+GP_IMPLEMENT_LIB_REGISTRATOR(GpUtilsLib)
 
-}// GPlatform
+}// namespace GPlatform

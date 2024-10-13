@@ -1,14 +1,13 @@
-#include "GpTaskFiberCtxBoost.hpp"
+#include <GpCore2/GpTasks/Fibers/Boost/GpTaskFiberCtxBoost.hpp>
 
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 #if defined(GP_USE_MULTITHREADING_FIBERS_BOOST_IMPL)
 
-#include "GpStackImplPoolBoost.hpp"
-#include "../GpTaskFiber.hpp"
-#include "../../Scheduler/GpTaskScheduler.hpp"
-#include "../GpTaskFiber.hpp"
-#include "../GpTaskFiberCtxForceUnwind.hpp"
-
+#include <GpCore2/GpTasks/Fibers/Boost/GpStackImplPoolBoost.hpp>
+#include <GpCore2/GpTasks/Fibers/GpTaskFiber.hpp>
+#include <GpCore2/GpTasks/Scheduler/GpTaskScheduler.hpp>
+#include <GpCore2/GpTasks/Fibers/GpTaskFiber.hpp>
+#include <GpCore2/GpTasks/Fibers/GpTaskFiberCtxForceUnwind.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
 #include <GpCore2/GpUtils/Threads/Timers/GpTimersManager.hpp>
 
@@ -178,7 +177,8 @@ boost::context::fiber   GpTaskFiberCtxBoost::SFiberFn
 
     GpTaskFiber* task = aFiberCtxBoost.iTaskFiber;
 
-    if (task != nullptr) [[likely]]
+    if (   (task != nullptr)
+        && (task->TaskState() != GpTaskState::DONE)) [[likely]]
     {
         try
         {

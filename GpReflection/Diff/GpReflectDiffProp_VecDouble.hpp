@@ -1,9 +1,8 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "../GpReflection_global.hpp"
-#include "GpReflectDiffArray.hpp"
+#include <GpCore2/GpReflection/GpReflection_global.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffArray.hpp>
 
 namespace GPlatform {
 

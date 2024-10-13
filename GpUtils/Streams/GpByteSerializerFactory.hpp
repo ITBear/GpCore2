@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpByteSerializer.hpp"
+#include <GpCore2/GpUtils/Streams/GpByteSerializer.hpp>
 
 namespace GPlatform {
 

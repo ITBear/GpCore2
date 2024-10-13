@@ -8,6 +8,8 @@
 #include <GpCore2/GpTasks/GpTaskEnums.hpp>
 #include <GpCore2/GpTasks/GpTask.hpp>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 class GpTaskSchedulerFactory;
@@ -37,7 +39,8 @@ public:
     size_t                      ExecutorsCount          (void) const noexcept {return iExecutorsCount;}
     size_t                      TasksMaxCount           (void) const noexcept {return iTasksMaxCount;}
 
-    GpTask::DoneFutureT::SP     NewToReadyDepend        (GpSP<GpTask> aTaskSP);
+    [[nodiscard]] GpTask::DoneFutureT::SP
+                                NewToReadyDepend        (GpSP<GpTask> aTaskSP);
 
     // Task wait/ready
     virtual void                NewToReady              (GpSP<GpTask> aTaskSP) = 0;
@@ -54,7 +57,8 @@ public:
     virtual bool                RemoveTaskFromGroup     (GpTaskId       aTaskGuid,
                                                          GpTaskGroupId  aGpTaskGroupId) = 0;
 
-    GpTask::DoneFutureT::SP     RequestStop             (GpTask& aTask);
+    [[nodiscard]] GpTask::DoneFutureT::SP
+                                RequestStop             (GpTask& aTask);
     virtual bool                Reschedule              (GpTaskRunRes::EnumT    aRunRes,
                                                          GpSP<GpTask>&&         aTaskSP) noexcept = 0;
 
@@ -72,3 +76,5 @@ private:
 };
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

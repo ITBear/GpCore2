@@ -1,10 +1,9 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "../GpReflection_global.hpp"
-#include "../GpReflectUtils_IsEqual.hpp"
-#include "../GpReflectUtils_TotalMemoryUse.hpp"
+#include <GpCore2/GpReflection/GpReflection_global.hpp>
+#include <GpCore2/GpReflection/GpReflectUtils_IsEqual.hpp>
+#include <GpCore2/GpReflection/GpReflectUtils_TotalMemoryUse.hpp>
 
 namespace GPlatform {
 

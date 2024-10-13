@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../Types/Containers/GpContainersT.hpp"
-#include "../Types/Containers/GpAny.hpp"
-#include "GpByteWriter.hpp"
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpAny.hpp>
+#include <GpCore2/GpUtils/Streams/GpByteWriter.hpp>
 
 namespace GPlatform {
 

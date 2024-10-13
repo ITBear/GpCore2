@@ -2,6 +2,8 @@
 
 #include <GpCore2/GpTasks/ITC/GpItcSharedFuture.hpp>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 class GpItcSharedFutureUtils
@@ -238,3 +240,5 @@ bool    GpItcSharedFutureUtils::SCheckIfIsFulfilledAny
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

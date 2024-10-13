@@ -11,25 +11,30 @@ DIR_LEVEL       = ./../..
 
 include($$DIR_LEVEL/../QtGlobalPro.pri)
 
-release_build_static{
+equals(var_link, "static") {
 	CONFIG += staticlib
 }
 
 # ----------- Libraries -----------
-os_windows{
+equals(var_os, "windows") {
 	LIBS += -lGpUtils$$TARGET_POSTFIX
 
-	QMAKE_LFLAGS += /NODEFAULTLIB:libboost_fiber-vc143-mt-x64-1_84
-	QMAKE_LFLAGS += /NODEFAULTLIB:libboost_fiber-vc143-mt-gd-x64-1_84
-	QMAKE_LFLAGS += /NODEFAULTLIB:boost_fiber-vc143-mt-gd-x64-1_84
-	LIBS +=  -lboost_fiber-vc143-mt-x64-1_84
-	QMAKE_LFLAGS += /NODEFAULTLIB:libboost_context-vc143-mt-x64-1_84
-	QMAKE_LFLAGS += /NODEFAULTLIB:libboost_context-vc143-mt-gd-x64-1_84
-	QMAKE_LFLAGS += /NODEFAULTLIB:boost_context-vc143-mt-gd-x64-1_84
-	LIBS += -lboost_context-vc143-mt-x64-1_84
+#	QMAKE_LFLAGS += /NODEFAULTLIB:libboost_fiber-vc143-mt-x64-1_84
+#	QMAKE_LFLAGS += /NODEFAULTLIB:libboost_fiber-vc143-mt-gd-x64-1_84
+#	QMAKE_LFLAGS += /NODEFAULTLIB:boost_fiber-vc143-mt-gd-x64-1_84
+#	LIBS +=  -lboost_fiber-vc143-mt-x64-1_84
+
+	QMAKE_LFLAGS += /NODEFAULTLIB:libboost_context-vc143-mt-x64-1_86
+	QMAKE_LFLAGS += /NODEFAULTLIB:libboost_context-vc143-mt-gd-x64-1_86
+	QMAKE_LFLAGS += /NODEFAULTLIB:boost_context-vc143-mt-gd-x64-1_86
+	LIBS += -lboost_context-vc143-mt-x64-1_86
 }
 
-os_linux{
+equals(var_os, "linux") {
+	LIBS += -lGpUtils$$TARGET_POSTFIX
+
+	LIBS += -lboost_context
+	LIBS += -lfmt
 }
 
 # ----------- Sources and headers -----------
@@ -43,8 +48,8 @@ SOURCES += \
     GpTask.cpp \
     GpTaskEnums.cpp \
 	GpTaskGroupsManager.cpp \
-	GpTaskLib.cpp \
 	GpTaskThread.cpp \
+	GpTasksLib.cpp \
     ITC/GpItcSharedCondition.cpp \
     Scheduler/GpTaskScheduler.cpp \
 	GpTaskVarStorage.cpp \
@@ -66,8 +71,8 @@ HEADERS += \
     GpTaskEnums.hpp \
     GpTaskFactory.hpp \
 	GpTaskGroupsManager.hpp \
-	GpTaskLib.hpp \
 	GpTaskThread.hpp \
+	GpTasksLib.hpp \
     GpTasks_global.hpp \
     ITC/GpItcResult.hpp \
     ITC/GpItcSharedCondition.hpp \

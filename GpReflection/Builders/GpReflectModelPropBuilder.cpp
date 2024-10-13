@@ -1,6 +1,5 @@
-#include "GpReflectModelPropBuilder.hpp"
-
-#include "../GpReflectObject.hpp"
+#include <GpCore2/GpReflection/Builders/GpReflectModelPropBuilder.hpp>
+#include <GpCore2/GpReflection/GpReflectObject.hpp>
 
 namespace GPlatform {
 

@@ -1,6 +1,8 @@
 #include <GpCore2/GpTasks/Scheduler/V1/GpTaskExecutorV1.hpp>
 #include <GpCore2/GpTasks/Scheduler/V1/GpTaskSchedulerV1.hpp>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 GpTaskExecutorV1::GpTaskExecutorV1
@@ -93,3 +95,5 @@ void    GpTaskExecutorV1::OnNotify (void) noexcept
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

@@ -1,6 +1,8 @@
 #pragma once
 
-#include "../GpTaskSchedulerFactory.hpp"
+#include <GpCore2/GpTasks/Scheduler/GpTaskSchedulerFactory.hpp>
+
+#if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
 
@@ -20,3 +22,5 @@ public:
 };
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

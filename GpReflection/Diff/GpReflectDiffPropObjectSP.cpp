@@ -1,21 +1,21 @@
-#include "GpReflectDiffPropObjectSP.hpp"
-#include "GpReflectDiffDelta.hpp"
-#include "GpReflectDiffUtils_CalcDiff.hpp"
+#include <GpCore2/GpReflection/Diff/GpReflectDiffPropObjectSP.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffDelta.hpp>
+#include <GpCore2/GpReflection/Diff/GpReflectDiffUtils_CalcDiff.hpp>
 
 namespace GPlatform {
 
 GpReflectDiffPropObjectSP::GpReflectDiffPropObjectSP (const GpReflectDiffPropObjectSP& aDiffProp):
-iValue(aDiffProp.iValue)
+iValue{aDiffProp.iValue}
 {
 }
 
 GpReflectDiffPropObjectSP::GpReflectDiffPropObjectSP (GpReflectDiffPropObjectSP&& aDiffProp) noexcept:
-iValue(std::move(aDiffProp.iValue))
+iValue{std::move(aDiffProp.iValue)}
 {
 }
 
 GpReflectDiffPropObjectSP::GpReflectDiffPropObjectSP (GpSP<GpReflectDiffDelta> aValue) noexcept:
-iValue(std::move(aValue))
+iValue{std::move(aValue)}
 {
 }
 

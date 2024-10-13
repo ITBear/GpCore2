@@ -1,8 +1,7 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-
-#include "../Numerics/GpNumericOps.hpp"
+#include <GpCore2/GpUtils/Types/Numerics/GpNumericOps.hpp>
 
 namespace GPlatform {
 

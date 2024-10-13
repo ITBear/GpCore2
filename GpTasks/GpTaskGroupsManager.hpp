@@ -11,6 +11,8 @@
 #include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpSharedMutex.hpp>
 
+#if defined(GP_USE_MULTITHREADING)
+
 namespace GPlatform {
 
 class GP_TASKS_API GpTaskGroupsManager
@@ -172,3 +174,5 @@ void    GpTaskGroupsManager::FindTasksByGroupId
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)

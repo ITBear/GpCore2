@@ -1,8 +1,10 @@
-#include "GpItcSharedCondition.hpp"
+#include <GpCore2/GpTasks/ITC/GpItcSharedCondition.hpp>
 
-#include "../Scheduler/GpTaskScheduler.hpp"
-#include "../Fibers/GpTaskFiber.hpp"
-#include "../GpTask.hpp"
+#if defined(GP_USE_MULTITHREADING)
+
+#include <GpCore2/GpTasks/Scheduler/GpTaskScheduler.hpp>
+#include <GpCore2/GpTasks/Fibers/GpTaskFiber.hpp>
+#include <GpCore2/GpTasks/GpTask.hpp>
 
 namespace GPlatform {
 
@@ -60,3 +62,5 @@ GpTaskFiberCtx::TimeoutRes  GpItcSharedCondition::SYeld (const milliseconds_t aT
 }
 
 }// namespace GPlatform
+
+#endif// #if defined(GP_USE_MULTITHREADING)
