@@ -24,48 +24,40 @@ public:
     using StopServiceFnT = std::function<void()>;
 
 public:
-                                GpTaskScheduler         (StopServiceFnT aStopServiceFn) noexcept;
-    virtual                     ~GpTaskScheduler        (void) noexcept = default;
+                                GpTaskScheduler     (StopServiceFnT aStopServiceFn) noexcept;
+    virtual                     ~GpTaskScheduler    (void) noexcept = default;
 
-    static GpTaskScheduler&     S                       (void) noexcept {return sInstance.Vn();}
-    static void                 SStart                  (const GpTaskSchedulerFactory&  aFactory,
-                                                         size_t                         aExecutorsCount,
-                                                         size_t                         aTasksMaxCount,
-                                                         StopServiceFnT                 aStopServiceFn);
-    static void                 SStopAndClear           (void);
+    static GpTaskScheduler&     S                   (void) noexcept {return sInstance.Vn();}
+    static void                 SStart              (const GpTaskSchedulerFactory&  aFactory,
+                                                     size_t                         aExecutorsCount,
+                                                     size_t                         aTasksMaxCount,
+                                                     StopServiceFnT                 aStopServiceFn);
+    static void                 SStopAndClear       (void);
 
-    void                        StopService             (void);
+    void                        StopService         (void);
 
-    size_t                      ExecutorsCount          (void) const noexcept {return iExecutorsCount;}
-    size_t                      TasksMaxCount           (void) const noexcept {return iTasksMaxCount;}
+    size_t                      ExecutorsCount      (void) const noexcept {return iExecutorsCount;}
+    size_t                      TasksMaxCount       (void) const noexcept {return iTasksMaxCount;}
 
-    [[nodiscard]] GpTask::DoneFutureT::SP
-                                NewToReadyDepend        (GpSP<GpTask> aTaskSP);
+    [[nodiscard]] GpTask::DoneFutureT::C::Opts::SP
+                                NewToReadyDepend    (GpSP<GpTask> aTaskSP);
 
     // Task wait/ready
-    virtual void                NewToReady              (GpSP<GpTask> aTaskSP) = 0;
-    virtual void                NewToWaiting            (GpSP<GpTask> aTaskSP) = 0;
-    virtual void                MakeTaskReady           (GpTaskId   aTaskGuid) = 0;
-    virtual void                MakeTaskReady           (GpTaskId   aTaskGuid,
-                                                         GpAny      aMessage) = 0;
+    [[nodiscard]] virtual bool  NewToReady          (GpSP<GpTask> aTaskSP) = 0;
+    [[nodiscard]] virtual bool  NewToWaiting        (GpSP<GpTask> aTaskSP) = 0;
+    [[nodiscard]] virtual bool  MakeTaskReady       (GpTaskId   aTaskGuid) = 0;
+    [[nodiscard]] virtual bool  MakeTaskReady       (GpTaskId   aTaskGuid,
+                                                     GpAny      aMessage) = 0;
 
-    // Task groups
-    virtual void                MakeTasksReadyByGroupId (GpTaskGroupId  aGpTaskGroupId,
-                                                         GpAny          aMessage) = 0;
-    virtual bool                AddTaskToGroup          (GpTaskId       aTaskGuid,
-                                                         GpTaskGroupId  aGpTaskGroupId) = 0;
-    virtual bool                RemoveTaskFromGroup     (GpTaskId       aTaskGuid,
-                                                         GpTaskGroupId  aGpTaskGroupId) = 0;
-
-    [[nodiscard]] GpTask::DoneFutureT::SP
-                                RequestStop             (GpTask& aTask);
-    virtual bool                Reschedule              (GpTaskRunRes::EnumT    aRunRes,
-                                                         GpSP<GpTask>&&         aTaskSP) noexcept = 0;
+    [[nodiscard]] GpTask::DoneFutureT::C::Opts::SP
+                                RequestStop         (GpTask& aTask);
+    virtual bool                Reschedule          (GpTaskRunRes::EnumT    aRunRes,
+                                                     GpSP<GpTask>&&         aTaskSP) noexcept = 0;
 
 protected:
-    virtual void                Start                   (size_t aExecutorsCount,
-                                                         size_t aTasksMaxCount);
-    virtual void                RequestStopAndJoin      (void) noexcept = 0;
+    virtual void                Start               (size_t aExecutorsCount,
+                                                     size_t aTasksMaxCount);
+    virtual void                RequestStopAndJoin  (void) noexcept = 0;
 
 private:
     size_t                      iExecutorsCount = 0;

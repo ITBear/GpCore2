@@ -15,7 +15,7 @@ void    GpEnum::FromID (const value_type aId)
         }
     }
 
-    THROW_GP
+    THROW
     (
         fmt::format
         (
@@ -72,7 +72,7 @@ GpEnum::value_type  GpEnum::_SFromString
         }
     }
 
-    THROW_GP
+    THROW
     (
         fmt::format
         (
@@ -104,7 +104,7 @@ void    GpEnum::_SParseEnumValues
 )
 {
     // Split by ','
-    const std::vector<std::string_view> elements = StrOps::SSplit
+    const std::vector<std::string_view> elements = StrOps::SSplitExt
     (
         aEnumElementsStr,
         ',',
@@ -121,7 +121,7 @@ void    GpEnum::_SParseEnumValues
     for (std::string_view element: elements)
     {
         // Split by ' '
-        const std::vector<std::string_view> parts = StrOps::SSplit
+        const std::vector<std::string_view> parts = StrOps::SSplitExt
         (
             element,
             ' ',
@@ -145,7 +145,7 @@ void    GpEnum::_SParseEnumValues
             id      = NumOps::SConvert<value_type>(StrOps::SToUI64(id_str));
         } else
         {
-            THROW_GP
+            THROW
             (
                 fmt::format
                 (

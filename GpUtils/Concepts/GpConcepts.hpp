@@ -1,5 +1,7 @@
 #pragma once
 
+#include <GpCore2/GpUtils/Types/Numerics/GpNumericTypes.hpp>
+
 #include <iterator>
 #include <type_traits>
 
@@ -45,11 +47,14 @@ concept IsReference = requires()
 };
 
 template <typename T>
-concept IsIntergal = requires()
+concept IsIntegral = requires()
 {
     requires
-        std::is_integral_v<T>
-    && !std::is_same_v<T, bool>;
+    (     std::is_integral_v<T>
+      && !std::is_same_v<T, bool>
+    )
+    || std::is_same_v<T, u_int_128>
+    || std::is_same_v<T, s_int_128>;
 };
 
 template <typename T>

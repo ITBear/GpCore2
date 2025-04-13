@@ -59,7 +59,7 @@ public:
     inline                  GpReflectDiffProp_VecBLOB   (ArrayT::ReplaceVariantT&& aReplaceData) noexcept;
                             ~GpReflectDiffProp_VecBLOB  (void) noexcept;
 
-    static C::Opt::Val      SCheckAndMake               (const ContainerT& aValueFrom,
+    static C::Opts::Val     SCheckAndMake               (const ContainerT& aValueFrom,
                                                          const ContainerT& aValueTo);
 private:
     ArrayT::ReplaceVariantT iReplaceData;

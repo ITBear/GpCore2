@@ -17,7 +17,7 @@ equals(var_link, "static") {
 
 # ----------- Libraries -----------
 equals(var_os, "windows") {
-	LIBS += -lGpUtils$$TARGET_POSTFIX
+	LIBS += -lGpUtils$$TARGET_POSTFIX$$_VER_MAJ
 
 #	QMAKE_LFLAGS += /NODEFAULTLIB:libboost_fiber-vc143-mt-x64-1_84
 #	QMAKE_LFLAGS += /NODEFAULTLIB:libboost_fiber-vc143-mt-gd-x64-1_84
@@ -47,10 +47,11 @@ SOURCES += \
     Fibers/GpTaskFiberCtxForceUnwind.cpp \
     GpTask.cpp \
     GpTaskEnums.cpp \
-	GpTaskGroupsManager.cpp \
+	GpTaskGroupsManager_.cpp \
 	GpTaskThread.cpp \
 	GpTasksLib.cpp \
-    ITC/GpItcSharedCondition.cpp \
+	ITC/GpItcCondition.cpp \
+	ITC/GpItcFutureUtils.cpp \
     Scheduler/GpTaskScheduler.cpp \
 	GpTaskVarStorage.cpp \
 	Scheduler/V1/GpTaskExecutorV1.cpp \
@@ -70,16 +71,22 @@ HEADERS += \
     GpTask.hpp \
     GpTaskEnums.hpp \
     GpTaskFactory.hpp \
-	GpTaskGroupsManager.hpp \
+	GpTaskGroupsManager_.hpp \
 	GpTaskThread.hpp \
 	GpTasksLib.hpp \
     GpTasks_global.hpp \
+	ITC/GpItcCacheMap.hpp \
+	ITC/GpItcCondition.hpp \
+	ITC/GpItcFuture.hpp \
+	ITC/GpItcFutureUtils.hpp \
+	ITC/GpItcKeyBasedLock.hpp \
+	ITC/GpItcLock.hpp \
+	ITC/GpItcLockRW.hpp \
+	ITC/GpItcPromise.hpp \
+	ITC/GpItcQueue.hpp \
+	ITC/GpItcRecursiveLock.hpp \
     ITC/GpItcResult.hpp \
-    ITC/GpItcSharedCondition.hpp \
-	ITC/GpItcSharedFuture.hpp \
-	ITC/GpItcSharedFutureUtils.hpp \
-	ITC/GpItcSharedPromise.hpp \
-    ITC/GpItcSharedQueue.hpp \
+	ITC/_GpItcCacheMapTransactionGuard.hpp \
 	Scheduler/GpTaskExecutor.hpp \
     Scheduler/GpTaskScheduler.hpp \
     Scheduler/GpTaskSchedulerFactory.hpp \

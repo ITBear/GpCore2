@@ -38,7 +38,7 @@ GpArgParser&    GpArgParserArgumentBuilder::Done (void)
 
 GpArgParserArgumentBuilder& GpArgParserArgumentBuilder::AddName (std::string_view aName)
 {
-    THROW_COND_GP
+    VERIFY
     (
         iNames.count(aName) == 0,
         [aName]()

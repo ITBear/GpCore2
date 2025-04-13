@@ -202,6 +202,17 @@ std::string_view    TYPE_NAME::TypeName (void) const noexcept\
 
 }// namespace GPlatform
 
+//********************** Concepts *********************
+namespace GPlatform::Concepts {
+
+template <typename T>
+concept IsEnum = requires(T t)
+{
+    requires GpHasTag_GpEnum<T>();
+};
+
+}// namespace GPlatform::Concepts
+
 //********************** fmt *********************
 namespace FMT_NAMESPASE {
 
@@ -224,7 +235,7 @@ struct formatter<T>
     }
 };
 
-}// namespace std
+}// namespace FMT_NAMESPASE
 
 //********************** Hash *********************
 namespace std {

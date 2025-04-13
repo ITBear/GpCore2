@@ -6,6 +6,7 @@
 
 #include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
 #include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
+#include <GpCore2/GpUtils/Types/Bits/GpBitOps.hpp>
 
 namespace GPlatform {
 
@@ -17,6 +18,12 @@ template <typename T>
 concept IsEnum = requires()
 {
     requires GpHasTag_GpEnum<T>();
+};
+
+template <typename T>
+concept IsEnumFlags = requires()
+{
+    requires GpHasTag_GpEnumFlags<T>();
 };
 
 }// namespace EnumConcepts
@@ -38,36 +45,37 @@ protected:
                                     }
 
     constexpr                       GpEnumFlags (const GpEnumFlags& aFlags) noexcept:
-                                    iValue(aFlags.iValue)
+                                    iRawValue{aFlags.iRawValue}
                                     {
                                     }
 
     constexpr                       GpEnumFlags (GpEnumFlags&& aFlags) noexcept:
-                                    iValue(aFlags.iValue)
+                                    iRawValue{aFlags.iRawValue}
                                     {
                                     }
 
-    constexpr explicit              GpEnumFlags (const value_type aValue) noexcept:
-                                    iValue(aValue)
+    constexpr explicit              GpEnumFlags (const value_type aRawValue) noexcept:
+                                    iRawValue{aRawValue}
                                     {
                                     }
 
 public:
     virtual                         ~GpEnumFlags(void) noexcept
                                     {
-                                        iValue = 0;
+                                        iRawValue = 0;
                                     }
 
-    constexpr void                  Clear               (void) noexcept {iValue = 0;}
+    constexpr void                  Clear               (void) noexcept {iRawValue = 0;}
 
-    constexpr value_type            Value               (void) const noexcept {return iValue;}
-    constexpr void                  SetAllFromRaw       (const value_type aValue) noexcept {iValue = aValue;}
-    constexpr void                  CombineFromRaw      (const value_type aValue) noexcept {iValue |= aValue;}
-    constexpr void                  Combine             (const value_type aId) noexcept {iValue |=  value_type(value_type(1) << aId);}
-    constexpr void                  Unset               (const value_type aId) noexcept {iValue &= ~value_type(value_type(1) << aId);}
-    constexpr bool                  Test                (const value_type aId) const noexcept {return iValue & value_type(value_type(1) << aId);}
-    constexpr bool                  Empty               (void) const noexcept {return iValue == 0;}
-    constexpr void                  ApplyMask           (const value_type aMask) noexcept {iValue &= aMask;}
+    constexpr value_type            RawValue            (void) const noexcept {return iRawValue;}
+    constexpr void                  SetAllFromRaw       (const value_type aRawValue) noexcept {iRawValue = aRawValue;}
+    constexpr void                  CombineFromRaw      (const value_type aRawValue) noexcept {iRawValue |= aRawValue;}
+    constexpr void                  Combine             (const value_type aId) noexcept {iRawValue |=  value_type(value_type(1) << aId);}
+    constexpr void                  Unset               (const value_type aId) noexcept {iRawValue &= ~value_type(value_type(1) << aId);}
+    constexpr size_t                UpCount             (void) const noexcept {return BitOps::PopCount(iRawValue);}
+    constexpr bool                  Test                (const value_type aId) const noexcept {return iRawValue & value_type(value_type(1) << aId);}
+    constexpr bool                  Empty               (void) const noexcept {return iRawValue == 0;}
+    constexpr void                  ApplyMask           (const value_type aMask) noexcept {iRawValue &= aMask;}
 
     virtual const NamesListT&       Names               (void) const noexcept = 0;
     virtual void                    Combine             (std::string_view aEnumName) = 0;
@@ -84,10 +92,11 @@ public:
     std::string                     Echo                (void) const;
 
 protected:
-    value_type                      iValue  = 0;
+    value_type                      iRawValue   = 0;
 };
 
-template<typename E> class GpEnumFlagsST final: public GpEnumFlags
+template<typename E>
+class GpEnumFlagsST final: public GpEnumFlags
 {
 public:
     using this_type         = GpEnumFlagsST<E>;
@@ -101,12 +110,12 @@ public:
                             }
 
     constexpr               GpEnumFlagsST   (const GpEnumFlagsST& aFlags) noexcept:
-                            GpEnumFlags(aFlags)
+                            GpEnumFlags{aFlags}
                             {
                             }
 
     constexpr               GpEnumFlagsST   (GpEnumFlagsST&& aFlags) noexcept:
-                            GpEnumFlags(std::move(aFlags))
+                            GpEnumFlags{std::move(aFlags)}
                             {
                             }
 
@@ -115,8 +124,8 @@ public:
                                 Combine(aFlags);
                             }
 
-    constexpr explicit      GpEnumFlagsST   (const value_type aFlagsRaw) noexcept:
-                            GpEnumFlags(aFlagsRaw)
+    constexpr explicit      GpEnumFlagsST   (const value_type aRawValue) noexcept:
+                            GpEnumFlags{aRawValue}
                             {
                             }
 
@@ -188,26 +197,31 @@ public:
         return GpEnumFlags::value_type(E::SFromString(aEnumName));
     }
 
+    bool                    operator==      (const this_type& aFlags) const noexcept
+    {
+        return iRawValue == aFlags.iRawValue;
+    }
+
     this_type&              operator=       (const this_type& aFlags) noexcept
     {
-        iValue = aFlags.iValue;
+        iRawValue = aFlags.iRawValue;
         return *this;
     }
 
     this_type&              operator|=      (const typename E::EnumT aFlag) noexcept
     {
-        iValue |= value_type(value_type(1) << aFlag);
+        iRawValue |= value_type(value_type(1) << aFlag);
         return *this;
     }
 
     friend this_type        operator|       (const this_type& aFlagsLeft, const this_type& aFlagsRight) noexcept
     {
-        return this_type(aFlagsLeft.iValue | aFlagsRight.iValue);
+        return this_type(aFlagsLeft.iRawValue | aFlagsRight.iRawValue);
     }
 
     friend this_type        operator|       (const this_type& aFlagsLeft, const typename E::EnumT aFlagRight) noexcept
     {
-        return this_type(aFlagsLeft.iValue | value_type(value_type(1) << aFlagRight));
+        return this_type(aFlagsLeft.iRawValue | value_type(value_type(1) << aFlagRight));
     }
 
     template<typename T>
@@ -215,11 +229,34 @@ public:
 
     friend this_type        operator|       (const typename E::EnumT aFlagLeft, const this_type& aFlagsRight) noexcept
     {
-        return this_type(value_type(value_type(1) << aFlagLeft) | aFlagsRight.iValue);
+        return this_type(value_type(value_type(1) << aFlagLeft) | aFlagsRight.iRawValue);
     }
 };
 
 }// namespace GPlatform
+
+//********************** fmt *********************
+namespace FMT_NAMESPASE {
+
+template<typename T>
+struct formatter<GpEnumFlagsST<T>>
+{
+    using enum_flags_type = GpEnumFlagsST<T>;
+
+    template<typename ParseContext>
+    constexpr auto parse(ParseContext& aCtx)
+    {
+        return std::begin(aCtx);
+    }
+
+    template<typename FormatContext>
+    auto format(const enum_flags_type& aEnumFlags, FormatContext& aCtx) const
+    {
+        return ::fmt::format_to(aCtx.out(), "{}", aEnumFlags.ToStringViewArray());
+    }
+};
+
+}// namespace FMT_NAMESPASE
 
 // ********************** Hash *********************
 namespace std {
@@ -231,9 +268,14 @@ template<> struct hash<GPlatform::GpEnumFlags>
 
     result_type operator()(argument_type const& aArg) const noexcept
     {
-        return result_type(aArg.Value());
+        return result_type(aArg.RawValue());
     }
 };
+
+inline string to_string(const ::GPlatform::GpEnumFlags& aEnumFlags)
+{
+    return ::fmt::format("{}", ::fmt::join(aEnumFlags.ToStringViewArray(), ","));
+}
 
 }// namespace std
 

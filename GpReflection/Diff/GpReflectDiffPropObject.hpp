@@ -18,22 +18,22 @@ public:
     using TotalMemoryUseCacheRefOptT    = GpReflectUtils_TotalMemoryUse::CacheRefOptT;
 
 public:
-                                                GpReflectDiffPropObject     (void) noexcept = default;
-                                                GpReflectDiffPropObject     (const GpReflectDiffPropObject& aDiffProp);
-                                                GpReflectDiffPropObject     (GpReflectDiffPropObject&& aDiffProp) noexcept;
-                                                GpReflectDiffPropObject     (GpSP<GpReflectDiffDelta> aValue) noexcept;
-                                                ~GpReflectDiffPropObject    (void) noexcept;
+                                                    GpReflectDiffPropObject     (void) noexcept = default;
+                                                    GpReflectDiffPropObject     (const GpReflectDiffPropObject& aDiffProp);
+                                                    GpReflectDiffPropObject     (GpReflectDiffPropObject&& aDiffProp) noexcept;
+                                                    GpReflectDiffPropObject     (GpSP<GpReflectDiffDelta> aValue) noexcept;
+                                                    ~GpReflectDiffPropObject    (void) noexcept;
 
-    const GpSP<GpReflectDiffDelta>&             Value                       (void) const noexcept {return iValue;}
-    GpSP<GpReflectDiffDelta>&                   Value                       (void) noexcept {return iValue;}
+    const GpSP<GpReflectDiffDelta>&                 Value                       (void) const noexcept {return iValue;}
+    GpSP<GpReflectDiffDelta>&                       Value                       (void) noexcept {return iValue;}
 
-    static GpReflectDiffPropObject::C::Opt::Val SCheckAndMake               (const GpReflectObject&         aValueFrom,
-                                                                             const GpReflectObject&         aValueTo,
-                                                                             IsEqualCacheRefOptT&           aIsEqualCache,
-                                                                             TotalMemoryUseCacheRefOptT&    aTotalMemoryUseCache);
+    static GpReflectDiffPropObject::C::Opts::Val    SCheckAndMake               (const GpReflectObject&         aValueFrom,
+                                                                                 const GpReflectObject&         aValueTo,
+                                                                                 IsEqualCacheRefOptT&           aIsEqualCache,
+                                                                                 TotalMemoryUseCacheRefOptT&    aTotalMemoryUseCache);
 
 private:
-    GpSP<GpReflectDiffDelta>                    iValue;
+    GpSP<GpReflectDiffDelta>                        iValue;
 };
 
 }// namespace GPlatform

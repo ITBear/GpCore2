@@ -9,7 +9,8 @@
 
 namespace GPlatform {
 
-using GpMutex = ThreadSafety::MutexWrap<std::mutex>;
+using GpMutex           = ThreadSafety::MutexWrap<std::mutex>;
+using GpRecursiveMutex  = ThreadSafety::MutexWrap<std::recursive_mutex>;
 
 template<class MutexWrapT>
 using GpUniqueLock  = ThreadSafety::MutexLockerWrap<MutexWrapT, std::unique_lock>;

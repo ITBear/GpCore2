@@ -2,7 +2,7 @@
 
 #include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
 
-#include <GpCore2/GpUtils/Types/Containers/GpDictionary.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpSharedMap.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpSpinLock.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
 #include <GpCore2/GpReflection/GpReflectModelSource.hpp>
@@ -16,7 +16,7 @@ public:
     CLASS_DD(GpReflectManager)
     TAG_SET(THREAD_SAFE)
 
-    using ElementsT = GpDictionary<boost::container::flat_map<GpUUID, GpReflectModel::CSP>>;
+    using ElementsT = GpSharedMap<boost::container::flat_map<GpUUID, GpReflectModel::CSP>>;
 
 public:
                                     GpReflectManager    (void) noexcept;
@@ -30,15 +30,15 @@ public:
     void                            Register            (GpReflectModel::CSP aModelCSP);
     [[nodiscard]] bool              TryRegister         (GpReflectModel::CSP aModelCSP);
     GpReflectModel::CSP             Find                (const GpUUID& aModelUid);
-    GpReflectModel::C::Opt::CSP     FindOpt             (const GpUUID& aModelUid) noexcept;
+    GpReflectModel::C::Opts::CSP    FindOpt             (const GpUUID& aModelUid) noexcept;
 
     bool                            IsBaseOf            (const GpUUID& aBaseModelUid,
                                                          const GpUUID& aDerivedModelUid);
     bool                            IsBaseOfNoEx        (const GpUUID& aBaseModelUid,
                                                          const GpUUID& aDerivedModelUid) noexcept;
-    GpReflectModel::C::Opt::CRef    SelectBaseModel     (const GpReflectModel&  aModelA,
+    GpReflectModel::C::Opts::CRef   SelectBaseModel     (const GpReflectModel&  aModelA,
                                                          const GpReflectModel&  aModelB);
-    GpUUID::C::Opt::Val             SelectBaseModel     (const GpUUID& aModelUidA,
+    GpUUID::C::Opts::Val            SelectBaseModel     (const GpUUID& aModelUidA,
                                                          const GpUUID& aModelUidB);
 
     template<typename TO_SP, typename FROM_SP>
@@ -69,7 +69,7 @@ public:
 
 private:
     GpReflectModel::CSP             FromSources         (const GpUUID& aModelUid);
-    GpReflectModel::C::Opt::CSP     FromSourcesOpt      (const GpUUID& aModelUid);
+    GpReflectModel::C::Opts::CSP    FromSourcesOpt      (const GpUUID& aModelUid);
 
 private:
     ElementsT                           iElements;
@@ -90,7 +90,7 @@ template<typename TO_SP, typename FROM_SP>
     GpReflectModel::CSP     toModelCSP      = TO_VAL_T::SReflectModel();
     const GpReflectModel&   toModel         = toModelCSP.Vn();
 
-    THROW_COND_GP
+    VERIFY
     (
         IsBaseOf
         (
@@ -121,7 +121,7 @@ template<typename TO, typename FROM>
     GpReflectModel::CSP     toModelCSP      = TO_VAL_T::SReflectModel();
     const GpReflectModel&   toModel         = toModelCSP.Vn();
 
-    THROW_COND_GP
+    VERIFY
     (
         IsBaseOf
         (
@@ -177,7 +177,7 @@ template<typename TO, typename FROM>
     GpReflectModel::CSP     toModelCSP      = TO_VAL_T::SReflectModel();
     const GpReflectModel&   toModel         = toModelCSP.Vn();
 
-    THROW_COND_GP
+    VERIFY
     (
         IsBaseOf
         (

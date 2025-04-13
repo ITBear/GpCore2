@@ -73,7 +73,7 @@ GpReflectModelPropBuilder   GpReflectModelDescUtils::SDescToModelPropBuilder (co
             } break;
             default:
             {
-                THROW_GP("Unsupported container type"_sv);
+                THROW("Unsupported container type"_sv);
             }
         }
     }
@@ -162,17 +162,17 @@ void    GpReflectModelDescUtils::SAddProps_Val
         case GpReflectType::ENUM:
         {
             //TODO: implement enum
-            THROW_GP_NOT_IMPLEMENTED();
+            THROW_NOT_IMPLEMENTED();
         } break;
         case GpReflectType::ENUM_FLAGS:
         {
             //TODO: implement enum flags
-            THROW_GP_NOT_IMPLEMENTED();
+            THROW_NOT_IMPLEMENTED();
         } break;
         case GpReflectType::NOT_SET:[[fallthrough]];
         default:
         {
-            THROW_GP("Unsupported value type"_sv);
+            THROW("Unsupported value type"_sv);
         }
     }
 }
@@ -255,7 +255,7 @@ void    GpReflectModelDescUtils::SAddProps_Vec
         case GpReflectType::NOT_SET:    [[fallthrough]];
         default:
         {
-            THROW_GP("Unsupported value type"_sv);
+            THROW("Unsupported value type"_sv);
         }
     }
 }
@@ -337,7 +337,7 @@ void    GpReflectModelDescUtils::SAddProps_Map
         case GpReflectType::NOT_SET:    [[fallthrough]];
         default:
         {
-            THROW_GP("Unsupported value type"_sv);
+            THROW("Unsupported value type"_sv);
         }
     }
 }

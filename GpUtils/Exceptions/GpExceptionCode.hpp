@@ -49,7 +49,7 @@ public: \
     using CodeTE    = CodeT::EnumT; \
  \
 private: \
-                                NAME            (void) noexcept = delete; \
+                                NAME        (void) noexcept = delete; \
  \
 public: \
     inline                      NAME        (const NAME&    aException); \
@@ -92,7 +92,7 @@ iCode{aCode} \
 { \
 } \
  \
-[[noreturn]] inline void THROW_##SHORT_NAME \
+[[noreturn]] inline void THROW \
 ( \
     const NAME##Code::EnumT aCode, \
     std::string_view        aMsg, \
@@ -102,7 +102,7 @@ iCode{aCode} \
     throw NAME(aCode, aMsg, aSourceLocation); \
 } \
  \
-inline void THROW_COND_##SHORT_NAME \
+inline void VERIFY \
 ( \
     const bool              aCondition, \
     const NAME##Code::EnumT aCode, \
@@ -116,7 +116,7 @@ inline void THROW_COND_##SHORT_NAME \
     } \
 } \
  \
-inline void THROW_COND_##SHORT_NAME \
+inline void VERIFY \
 ( \
     const bool                      aCondition, \
     const NAME##Code::EnumT         aCode, \
@@ -130,7 +130,7 @@ inline void THROW_COND_##SHORT_NAME \
     } \
 } \
  \
-inline void THROW_COND_##SHORT_NAME \
+inline void VERIFY \
 ( \
     const bool              aCondition, \
     const NAME##Code::EnumT aCode, \

@@ -8,7 +8,7 @@
 
 namespace GPlatform {
 
-class GP_TASKS_API GpTaskThread: public GpTask
+/*class GP_TASKS_API GpTaskThread: public GpTask
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskThread)
@@ -51,6 +51,7 @@ GpTaskThread::GpTaskThread (void) noexcept:
 GpTask(GpTaskMode::THREAD)
 {
 }
+*/
 
 }// namespace GPlatform
 

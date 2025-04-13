@@ -100,9 +100,9 @@ public:
 public:
     // ------------------------------------ Network/Host byte order (N2H/H2N) --------------------------------
     template<Concepts::IsIntegralUpTo128 T>
-    static T                        BSwap               (const T aValue);
+    static T                        BSwap               (T aValue);
 
-    static inline double            BSwap               (const double aValue);
+    static inline double            BSwap               (double aValue);
 
     static inline float             BSwap               (float aValue);
 
@@ -127,8 +127,8 @@ public:
     // ------------------------------------ Interleave16_16(Morton Codes) ------------------------------------
     template<u_int_16 Left, u_int_16 Right>
     static constexpr u_int_32           Interleave16_16     (void) noexcept;
-    static inline u_int_32              Interleave16_16     (const u_int_16 aLeft, const u_int_16 aRight) noexcept;
-    static constexpr inline u_int_32    Interleave16_16_std (const u_int_16 aLeft, const u_int_16 aRight) noexcept;
+    static inline u_int_32              Interleave16_16     (u_int_16 aLeft, u_int_16 aRight) noexcept;
+    static constexpr inline u_int_32    Interleave16_16_std (u_int_16 aLeft, u_int_16 aRight) noexcept;
 
 #if defined(GP_CPU_USE_BMI2)
     static inline  u_int_32             Interleave16_16_bmi (const u_int_16 aLeft, const u_int_16 aRight) noexcept;
@@ -137,8 +137,8 @@ public:
     // ------------------------------------ Interleave32_32(Morton Codes) ------------------------------------
     template<u_int_32 Left, u_int_32 Right>
     static constexpr u_int_64           Interleave32_32     (void) noexcept;
-    static inline u_int_64              Interleave32_32     (const u_int_32 aLeft, const u_int_32 aRight) noexcept;
-    static constexpr inline u_int_64    Interleave32_32_std (const u_int_32 aLeft, const u_int_32 aRight) noexcept;
+    static inline u_int_64              Interleave32_32     (u_int_32 aLeft, u_int_32 aRight) noexcept;
+    static constexpr inline u_int_64    Interleave32_32_std (u_int_32 aLeft, u_int_32 aRight) noexcept;
 
 #if defined(GP_CPU_USE_BMI2)
     static inline u_int_64              Interleave32_32_bmi (const u_int_32 aLeft, const u_int_32 aRight) noexcept;
@@ -152,11 +152,11 @@ public:
 
     static inline
     std::tuple<u_int_16/*left*/,
-               u_int_16/*right*/>   Deinterleave16_16       (const u_int_32 aValue) noexcept;
+               u_int_16/*right*/>   Deinterleave16_16       (u_int_32 aValue) noexcept;
 
     static constexpr inline
     std::tuple<u_int_16/*left*/,
-               u_int_16/*right*/>   Deinterleave16_16_std   (const u_int_32 aValue) noexcept;
+               u_int_16/*right*/>   Deinterleave16_16_std   (u_int_32 aValue) noexcept;
 
 #if defined(GP_CPU_USE_BMI2)
     static inline
@@ -171,11 +171,11 @@ public:
 
     static inline
     std::tuple<u_int_32/*left*/,
-               u_int_32/*right*/>   Deinterleave32_32       (const u_int_64 aValue) noexcept;
+               u_int_32/*right*/>   Deinterleave32_32       (u_int_64 aValue) noexcept;
 
     static constexpr inline
     std::tuple<u_int_32/*left*/,
-               u_int_32/*right*/>   Deinterleave32_32_std   (const u_int_64 aValue) noexcept;
+               u_int_32/*right*/>   Deinterleave32_32_std   (u_int_64 aValue) noexcept;
 
 #if defined(GP_CPU_USE_BMI2)
     static inline
@@ -184,70 +184,70 @@ public:
 #endif// GP_CPU_USE_BMI2
 
     // ----------------------------- Determine if a word has a byte = 0 -------------------------
-    static constexpr inline bool    Has0ByteIn32            (const u_int_32 aValue) noexcept;
-    static constexpr inline bool    Has0ByteIn64            (const u_int_64 aValue) noexcept;
+    static constexpr inline bool    Has0ByteIn32            (u_int_32 aValue) noexcept;
+    static constexpr inline bool    Has0ByteIn64            (u_int_64 aValue) noexcept;
 
     // ----------------------------- Determine if a word has a byte = V -------------------------
-    static constexpr inline bool    HasSpecificByteIn32     (const u_int_32 aValue,
-                                                             const u_int_8  aSpecific) noexcept;
-    static constexpr inline bool    HasSpecificByteIn64     (const u_int_64 aValue,
-                                                             const u_int_8  aSpecific) noexcept;
+    static constexpr inline bool    HasSpecificByteIn32     (u_int_32 aValue,
+                                                             u_int_8  aSpecific) noexcept;
+    static constexpr inline bool    HasSpecificByteIn64     (u_int_64 aValue,
+                                                             u_int_8  aSpecific) noexcept;
 
     // ------------------------------------------------------------------------------------------
     template<Concepts::IsIntegralUpTo128 T>
-    static constexpr T              SetByMask           (const T aValueDst,
-                                                         const T aValueSrc,
-                                                         const T aMask) noexcept;
+    static constexpr T              SetByMask           (T aValueDst,
+                                                         T aValueSrc,
+                                                         T aMask) noexcept;
     template<Concepts::IsIntegralUpTo128 T>
-    static constexpr T              And_by_mask         (const T aValue, const T aBitMask) noexcept;
+    static constexpr T              And_by_mask         (T aValue, T aBitMask) noexcept;
 
     template<Concepts::IsIntegralUpTo128 T>
-    static constexpr T              And_by_id           (const T aValue, const size_t aBitId) noexcept;
+    static constexpr T              And_by_id           (T aValue, size_t aBitId) noexcept;
 
     template<Concepts::IsIntegralUpTo128 T>
-    static constexpr T              Up_by_mask          (const T aValue, const T aBitMask) noexcept;
+    static constexpr T              Up_by_mask          (T aValue, T aBitMask) noexcept;
 
     template<Concepts::IsIntegralUpTo128 T>
-    static constexpr T              Up_by_id            (const T aValue, const size_t aBitId) noexcept;
+    static constexpr T              Up_by_id            (T aValue, size_t aBitId) noexcept;
 
     template<Concepts::IsIntegralUpTo128 T>
-    static constexpr T              Down_by_mask        (const T aValue, const T aBitMask) noexcept;
+    static constexpr T              Down_by_mask        (T aValue, T aBitMask) noexcept;
 
     template<Concepts::IsIntegralUpTo128 T>
-    static constexpr T              Down_by_id          (const T aValue, const size_t aBitId) noexcept;
+    static constexpr T              Down_by_id          (T aValue, size_t aBitId) noexcept;
 
     template<Concepts::IsIntegralUpTo128 T>
-    static constexpr T              UpAndDown_by_mask   (const T aValue, const T aUpBitMask, const T aDownBitMask) noexcept;
+    static constexpr T              UpAndDown_by_mask   (T aValue, T aUpBitMask, const T aDownBitMask) noexcept;
 
     template<Concepts::IsIntegralUpTo128 T>
-    static constexpr T              Invert_by_mask      (const T aValue, const T aBitMask) noexcept;
+    static constexpr T              Invert_by_mask      (T aValue, T aBitMask) noexcept;
 
     template<Concepts::IsIntegralUpTo128 T>
-    static constexpr T              Invert_by_id        (const T aValue, const size_t aBitId) noexcept;
+    static constexpr T              Invert_by_id        (T aValue, size_t aBitId) noexcept;
 
     template<Concepts::IsIntegralUpTo128 T>
-    static constexpr bool           TestAny_by_mask     (const T aValue, const T aBitMask) noexcept;
+    static constexpr bool           TestAny_by_mask     (T aValue, T aBitMask) noexcept;
 
     template<Concepts::IsIntegralUpTo128 T>
-    static constexpr T              Test_by_id          (const T aValue, const size_t aBitId) noexcept;
+    static constexpr T              Test_by_id          (T aValue, size_t aBitId) noexcept;
 
     template<Concepts::IsIntegralUpTo128 T>
-    static constexpr bool           TestAll_by_mask     (const T aValue, const T aBitMask) noexcept;
+    static constexpr bool           TestAll_by_mask     (T aValue, T aBitMask) noexcept;
 
     template<Concepts::IsIntegralUpTo128 T>
-    static constexpr bool           Match_by_mask       (const T aValueA, const T aValueB, const T aBitMask) noexcept;
+    static constexpr bool           Match_by_mask       (T aValueA, T aValueB, T aBitMask) noexcept;
 
     template<Concepts::IsIntegralUpTo128 TValue>
-    static constexpr TValue         SHL                 (const TValue aValue, const size_t aShift) noexcept;
+    static constexpr TValue         SHL                 (TValue aValue, size_t aShift) noexcept;
 
     template<Concepts::IsIntegralUpTo128 TValue>
-    static constexpr TValue         SHR                 (const TValue aValue, const size_t aShift) noexcept;
+    static constexpr TValue         SHR                 (TValue aValue, size_t aShift) noexcept;
 
     template<Concepts::IsIntegralUpTo128 TValue>
-    static constexpr TValue         SHL_C               (const TValue aValue, const size_t aShift) noexcept;
+    static constexpr TValue         SHL_C               (TValue aValue, size_t aShift) noexcept;
 
     template<Concepts::IsIntegralUpTo128 TValue>
-    static constexpr TValue         SHR_C               (const TValue aValue, const size_t aShift) noexcept;
+    static constexpr TValue         SHR_C               (TValue aValue, size_t aShift) noexcept;
 
     template<Concepts::IsIntegralUpTo64 T>
     static constexpr size_t         Leading0bitCnt      (T aValue) noexcept;
@@ -270,6 +270,9 @@ public:
 
     template<Concepts::IsIntegralUpTo64 T>
     static constexpr T              MakeMaskLO          (void);
+
+    template<Concepts::IsIntegral T>
+    static constexpr T              MakeMask1           (size_t aBitsCount);
 };
 
 // ------------------------------------ Network/Host byte order (N2H/H2N) --------------------------------
@@ -859,6 +862,33 @@ constexpr T GpBitOperations::MakeMaskLO (void)
 
     constexpr T lo = (T(1) << ((sizeof(T) * 8 / 2))) - T(1);
     return lo;
+}
+
+template<Concepts::IsIntegral T>
+constexpr T GpBitOperations::MakeMask1 (const size_t aBitsCount)
+{
+    if (aBitsCount < (sizeof(T) * 8))
+    {
+        return T((T(0x1) << aBitsCount) - T(1));
+    } else // aBitsCount == (sizeof(T) * 8)
+    {
+        if constexpr(sizeof(T) == sizeof(u_int_8))
+        {
+            return T(0xFF);
+        } else if constexpr(sizeof(T) == sizeof(u_int_16))
+        {
+            return T(0xFFFF);
+        } else if constexpr(sizeof(T) == sizeof(u_int_32))
+        {
+            return T(0xFFFFFFFF);
+        } else if constexpr(sizeof(T) == sizeof(u_int_64))
+        {
+            return T(0xFFFFFFFFFFFFFFFF);
+        } else if constexpr(sizeof(T) == sizeof(u_int_128))
+        {
+            return (T(0xFFFFFFFFFFFFFFFF) << 64) | T(0xFFFFFFFFFFFFFFFF);
+        }
+    }
 }
 
 using BitOps = GpBitOperations;

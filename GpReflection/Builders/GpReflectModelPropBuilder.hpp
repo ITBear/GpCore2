@@ -598,7 +598,7 @@ GpReflectModelPropBuilder&  GpReflectModelPropBuilder::_AddPropMap
         case GpReflectType::NOT_SET:    [[fallthrough]];
         default:
         {
-            THROW_GP("Unsupported key type"_sv);
+            THROW("Unsupported key type"_sv);
         }
     }
 

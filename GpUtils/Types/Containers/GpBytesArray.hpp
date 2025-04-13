@@ -5,6 +5,7 @@
 #if defined(GP_USE_CONTAINERS)
 
 #include <GpCore2/GpUtils/Types/Pointers/GpSpan.hpp>
+#include <functional>
 
 namespace GPlatform {
 
@@ -15,18 +16,22 @@ using GpSpanByteR   = GpSpan<const std::byte>;
 
 using GpBytesArray  = std::vector<std_byte_no_init>;
 
-class GpBytesArrayUtils
+class GpArrayUtils
 {
-    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpBytesArrayUtils)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpArrayUtils)
 
 public:
+    // --------------------------------- SMake ---------------------------------
+
     template<typename TO,
              typename FROM>
     requires
-           Concepts::HasContiguousIter<TO>
-        && Concepts::SizeOfValueType<TO, 1>
-        && (Concepts::HasContiguousIter<FROM> || GpHasTag_GpSpan<FROM>())
-        && Concepts::SizeOfValueType<FROM, 1>
+           (Concepts::HasContiguousIter<FROM> || GpHasTag_GpSpan<FROM>())
+        &&  Concepts::HasContiguousIter<TO>
+        && (sizeof(typename FROM::value_type) == sizeof(typename TO::value_type))
+        && (alignof(typename FROM::value_type) == alignof(typename TO::value_type))
+        && (std::is_trivially_copyable_v<typename FROM::value_type>)
+        && (std::is_trivially_copyable_v<typename TO::value_type>)
     static TO SMake (const FROM& aContainer)
     {
         TO res;
@@ -36,24 +41,28 @@ public:
 
         MemOps::SCopy
         (
-            reinterpret_cast<std_byte_no_init*>(std::data(res)),
-            reinterpret_cast<const std_byte_no_init*>(std::data(aContainer)),
+            std::data(res),
+            reinterpret_cast<const typename TO::value_type*>(std::data(aContainer)),
             size
-        );      
+        );
 
         return res;
     }
 
-    template<typename T1, typename T2>
+    // --------------------------------- SAppend ---------------------------------
+
+    template<typename TO, typename FROM>
     requires
-       Concepts::HasContiguousIter<T1>
-    && Concepts::SizeOfValueType<T1, 1>
-    && (Concepts::HasContiguousIter<T2> || GpHasTag_GpSpan<T2>())
-    && Concepts::SizeOfValueType<T2, 1>
-    static T1&  SAppend
+           (Concepts::HasContiguousIter<FROM> || GpHasTag_GpSpan<FROM>())
+        &&  Concepts::HasContiguousIter<TO>
+        && (sizeof(typename FROM::value_type) == sizeof(typename TO::value_type))
+        && (alignof(typename FROM::value_type) == alignof(typename TO::value_type))
+        && (std::is_trivially_copyable_v<typename FROM::value_type>)
+        && (std::is_trivially_copyable_v<typename TO::value_type>)
+    static TO&  SAppend
     (
-        T1&         aDst,
-        const T2&   aSrc
+        TO&         aDst,
+        const FROM& aSrc
     )
     {
         const size_t oldSize = std::size(aDst);
@@ -72,29 +81,103 @@ public:
         return aDst;
     }
 
-    //static GpBytesArray&  SAppend
-    //(
-    //  GpBytesArray&   aDst,
-    //  GpSpanByteR     aSrc
-    //)
-    //{
-    //  const size_t oldSize = std::size(aDst);
-    //  const size_t srcSize = aSrc.SizeInBytes();
-    //  const size_t newSize = NumOps::SAdd(oldSize, srcSize);
+    // --------------------------------- SMakeStdArrayFromC ---------------------------------
 
-    //  aDst.resize(newSize);
+    template <typename T,
+              std::size_t N>
+    requires std::is_trivially_copyable_v<T>
+    static std::array<T, N> SMakeStdArrayFromC (const T (&cArray)[N])
+    {
+        std::array<T, N> stdArray;
 
-    //  MemOps::SCopy
-    //  (
-    //      std::data(aDst) + oldSize,
-    //      reinterpret_cast<const std_byte_no_init*>(std::data(aSrc)),
-    //      srcSize
-    //  );
+        MemOps::SCopy
+        (
+            std::data(stdArray),
+            cArray,
+            N
+        );
 
-    //  return aDst;
-    //}
+        return stdArray;
+    }
 
-    static GpSpanByteRW     SFillZero (GpSpanByteRW aData)
+    // --------------------------------- SMakeStdArrayFromC ---------------------------------
+
+    template <typename TO_T,
+              typename FROM_T,
+              std::size_t N>
+    requires
+           Concepts::IsArithmetic<FROM_T>
+        && Concepts::IsArithmetic<TO_T>
+        && (!std::is_same_v<FROM_T, TO_T>)
+    static std::array<TO_T, N> SMakeStdArrayFromC (const FROM_T (&cArray)[N])
+    {
+        std::array<TO_T, N> stdArray;
+
+        const FROM_T*   fromPtr = cArray;
+        TO_T*           toPtr   = std::data(stdArray);
+
+        for (size_t id = 0; id < N; id++)
+        {
+            *toPtr++ = NumOps::SConvert<TO_T>(*fromPtr++);
+        }
+
+        return stdArray;
+    }
+
+    // --------------------------------- SEraseFirstFast ---------------------------------
+
+    template<typename                       V,
+             Concepts::HasContiguousIter    C>
+    static bool SEraseFirstFast
+    (
+        C&  aContainer,
+        V&& aValue
+    )
+    {
+        auto it = std::find(aContainer.begin(), aContainer.end(), aValue);
+
+        if (it == aContainer.end())
+        {
+            return false;
+        }
+
+        *it = std::move(aContainer.back());
+        aContainer.pop_back();
+
+        return true;
+    }
+
+    // --------------------------------- SEraseFirstIfFast ---------------------------------
+
+    template<Concepts::HasContiguousIter C>
+    static bool SEraseFirstIfFast
+    (
+        C&                                                          aContainer,
+        const std::function<bool(const typename C::value_type&)>&   aPredicate
+    )
+    {
+        auto it = std::find_if(aContainer.begin(), aContainer.end(), aPredicate);
+
+        if (it == aContainer.end())
+        {
+            return false;
+        }
+
+        if (std::size(aContainer) > 1) [[likely]]
+        {
+            *it = std::move(aContainer.back());
+            aContainer.pop_back();
+        } else// std::size(aContainer) == 1
+        {
+            aContainer.clear();
+        }
+
+        return true;
+    }
+
+    // --------------------------------- SFillZero ---------------------------------
+
+    static GpSpanByteRW SFillZero (GpSpanByteRW aData)
     {
         if (!aData.Empty())
         {

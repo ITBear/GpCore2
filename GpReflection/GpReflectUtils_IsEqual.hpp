@@ -163,7 +163,7 @@ bool GpReflectUtils_IsEqual::SDo
         return aValueA.ID() == aValueB.ID();
     } else if constexpr (type == GpReflectType::ENUM_FLAGS)
     {
-        return aValueA.Value() == aValueB.Value();
+        return aValueA.RawValue() == aValueB.RawValue();
     } else
     {
         GpThrowCe<GpException>("Unsupported container");

@@ -156,15 +156,15 @@ equals(var_architecture, "x86_64") {
 	OUT_PATH_ARCHITECTURE = "x86_64"
 
     equals(var_compiler, "clang") {
-	    QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
+		QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
 	}
 
     equals(var_compiler, "gcc") {
-	    QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
+		QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
 	}
 
     equals(var_compiler, "msvc") {
-	    QMAKE_CXXFLAGS	+= -mtune=generic -march=x86-64-v3
+		QMAKE_CXXFLAGS	+= /arch:AVX2
 	}
 
     equals(var_compiler, "emscripten") {
@@ -184,7 +184,7 @@ equals(var_architecture, "x86") {
 	}
 
     equals(var_compiler, "msvc") {
-	    QMAKE_CXXFLAGS	+= -mtune=generic -march=i686
+		# NOP
 	}
 
     equals(var_compiler, "emscripten") {
@@ -277,6 +277,7 @@ equals(var_compiler, "clang") {
 
 equals(var_compiler, "msvc") {
 	OUT_PATH_COMPILER = "msvc"
+	COMPILER_VERSION	 = "-143"
 }
 
 equals(var_compiler, "emscripten") {
@@ -306,8 +307,7 @@ equals(var_build, "release") {
 		QMAKE_LFLAGS    += -flto
 	}
 	equals(var_compiler, "msvc") {
-	    QMAKE_CXXFLAGS	+= -flto
-		QMAKE_LFLAGS    += -flto
+
 	}
 }
 
@@ -403,6 +403,9 @@ LIBS += -L$$DESTDIR
 INCLUDEPATH += \
     $$DIR_LEVEL/../../../../../Extras/Boost/boost_$$BOOST_VERSION$$BOOST_POSTFIX \
 	$$DIR_LEVEL/../../../../../Extras/fmt/include \
-	$$DIR_LEVEL/../../../../../Extras \
+	$$DIR_LEVEL/../../../../../Extras/vulkan/1.3.296.0/x86_64/include \
+	$$DIR_LEVEL/../../../../../Extras \	
 	$$DIR_LEVEL/../GPlatform \
 	$$DIR_LEVEL/../
+
+HEADERS +=

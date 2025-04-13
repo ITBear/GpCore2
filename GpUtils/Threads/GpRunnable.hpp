@@ -24,7 +24,7 @@ public:
     virtual void                Run             (std::atomic_flag& aStopRequest) noexcept = 0;
 
     inline void                 Notify          (void) noexcept;
-    inline bool                 WaitForAndReset (const milliseconds_t aTimeout) noexcept;
+    inline bool                 WaitForAndReset (milliseconds_t aTimeout) noexcept;
 
 protected:
     virtual void                OnNotify        (void) noexcept = 0;

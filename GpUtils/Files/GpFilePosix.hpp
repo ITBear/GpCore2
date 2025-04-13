@@ -55,6 +55,9 @@ public:
     static inline void              SRead                   (GpFile::HandlerT   aHandler,
                                                              GpSpanByteRW       aData,
                                                              std::string_view   aFileName);
+
+    static inline bool              SIsPathReadable         (std::string_view aPath);
+    static inline bool              SIsPathWritable         (std::string_view aPath);
 };
 
 GpFile::HandlerT    GpFileImpl::SOpen
@@ -118,7 +121,7 @@ GpFile::HandlerT    GpFileImpl::SOpen
         );
     }
 
-    THROW_COND_GP
+    VERIFY
     (
         fd >= 0,
         [&fileName]()
@@ -148,7 +151,7 @@ void    GpFileImpl::SFlush
 {
     const int res = fsync(aHandler);
 
-    THROW_COND_GP
+    VERIFY
     (
         res == 0,
         [aFileName]()
@@ -172,7 +175,7 @@ size_byte_t GpFileImpl::SSize
     struct stat st;
     const auto res = fstat(aHandler, &st);
 
-    THROW_COND_GP
+    VERIFY
     (
         res == 0,
         [aFileName]()
@@ -203,7 +206,7 @@ void    GpFileImpl::SGoToPos
         SEEK_SET
     );
 
-    THROW_COND_GP
+    VERIFY
     (
         res != -1,
         [aPos, aFileName]()
@@ -241,7 +244,7 @@ size_byte_t GpFileImpl::SGoToEndPos
         SEEK_END
     );
 
-    THROW_COND_GP
+    VERIFY
     (
         res != -1,
         [aFileName]()
@@ -271,7 +274,7 @@ size_byte_t GpFileImpl::SCurrentPos
         SEEK_CUR
     );
 
-    THROW_COND_GP
+    VERIFY
     (
         res != -1,
         [aFileName]()
@@ -296,7 +299,7 @@ void    GpFileImpl::STruncateToCurrentPos
 {
     const size_byte_t currentPos = SCurrentPos(aHandler, aFileName);
 
-    THROW_COND_GP
+    VERIFY
     (
         ftruncate(aHandler, NumOps::SConvert<__off_t>(currentPos.Value())) != -1,
         [aFileName]()
@@ -327,7 +330,7 @@ size_byte_t GpFileImpl::STryWrite
         sizeToWrite
     );
 
-    THROW_COND_GP
+    VERIFY
     (
         res != -1,
         [aFileName]()
@@ -353,7 +356,7 @@ void    GpFileImpl::SWrite
 {
     const size_byte_t sizeWritten = STryWrite(aHandler, aData, aFileName);
 
-    THROW_COND_GP
+    VERIFY
     (
         sizeWritten == size_byte_t::SMake(aData.SizeInBytes()),
         [sizeWritten, aFileName, &aData]()
@@ -385,7 +388,7 @@ size_byte_t GpFileImpl::STryRead
         sizeToRead
     );
 
-    THROW_COND_GP
+    VERIFY
     (
         res != -1,
         [aFileName]()
@@ -411,7 +414,7 @@ void    GpFileImpl::SRead
 {
     const size_byte_t sizeRead = STryRead(aHandler, aData, aFileName);
 
-    THROW_COND_GP
+    VERIFY
     (
         sizeRead == size_byte_t::SMake(aData.SizeInBytes()),
         [sizeRead, aFileName, &aData]()
@@ -425,6 +428,18 @@ void    GpFileImpl::SRead
             );
         }
     );
+}
+
+bool    GpFileImpl::SIsPathReadable (std::string_view aPath)
+{
+    std::string s{aPath};
+    return access(s.c_str(), R_OK) == 0;
+}
+
+bool    GpFileImpl::SIsPathWritable (std::string_view aPath)
+{
+    std::string s{aPath};
+    return access(s.c_str(), W_OK) == 0;
 }
 
 }// namespace GPlatform

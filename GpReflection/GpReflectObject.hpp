@@ -178,8 +178,8 @@ private: \
 \
     ::GPlatform::GpReflectModel::CSP    T::_SReflectCreateModel (const ::GPlatform::GpReflectModel& aBaseReflectionModel) \
     { \
-        ::GPlatform::GpReflectProp::SmallVecVal props   = aBaseReflectionModel.Props(); \
-        ::GPlatform::GpReflectObjectFactory::SP factory = ::GPlatform::GpSP<Factory>::SNew(); \
+        ::GPlatform::GpReflectProp::SmallVecVal     props   = aBaseReflectionModel.Props(); \
+        ::GPlatform::GpReflectObjectFactory::CSP    factory = ::GPlatform::GpCSP<Factory>::SNew(); \
         _SReflectCollectProps(props); \
         \
         constexpr const ::GPlatform::GpUUID modelUid    = T::SReflectModelUid(); \

@@ -30,7 +30,7 @@ public:
     PositionalArgumentsVecT&            PositionalArguments     (void) noexcept {return iPositionalArguments;}
     std::string_view                    ExecutablePathAndName   (void) const noexcept {return iExecutablePathAndName;}
 
-    GpArgParserArgument::C::Opt::CRef   FindArgument            (std::string_view aName) const noexcept;
+    GpArgParserArgument::C::Opts::CRef  FindArgument            (std::string_view aName) const noexcept;
 
     std::string                         ToString                (bool aUseKnownArguments,
                                                                  bool aUseUnknownArguments,

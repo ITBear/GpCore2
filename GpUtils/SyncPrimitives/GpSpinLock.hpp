@@ -17,12 +17,11 @@ class GpSpinLockImpl
     CLASS_REMOVE_CTRS_MOVE_COPY(GpSpinLockImpl)
 
 public:
-                        GpSpinLockImpl  (void) noexcept = default;
-                        ~GpSpinLockImpl (void) noexcept = default;
+                    GpSpinLockImpl  (void) noexcept = default;
 
-    inline void         lock            (void) noexcept;
-    inline void         unlock          (void) noexcept;
-    inline bool         try_lock        (void) noexcept;
+    inline void     lock            (void) noexcept;
+    inline void     unlock          (void) noexcept;
+    inline bool     try_lock        (void) noexcept;
 
 private:
     std::atomic<bool>   iState = {0};

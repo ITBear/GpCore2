@@ -21,14 +21,14 @@ protected:
 public:
     virtual                             ~GpTaskFiberCtxFactory  (void) noexcept = default;
 
-    static void                         SInit                   (GpTaskFiberCtxFactory::SP aFactory);
+    static void                         SInit                   (GpTaskFiberCtxFactory::CSP aFactory);
     static void                         SClear                  (void);
-    static GpTaskFiberCtxFactory&       S                       (void) noexcept {return sInstance.Vn();}
+    static const GpTaskFiberCtxFactory& S                       (void) noexcept {return sInstance.Vn();}
 
     virtual GpTaskFiberCtx::SP          NewInstance             (void) const = 0;
 
 private:
-    static GpTaskFiberCtxFactory::SP    sInstance;
+    static GpTaskFiberCtxFactory::CSP   sInstance;
 };
 
 }// namespace GPlatform

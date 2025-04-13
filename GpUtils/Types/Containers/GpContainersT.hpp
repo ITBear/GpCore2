@@ -23,6 +23,7 @@
 #include <optional>
 #include <string_view>
 #include <functional>
+#include <memory>
 
 namespace GPlatform {
 
@@ -40,8 +41,7 @@ public:
     using CRef  = C<std::reference_wrapper<const typename S::value_type>, Ts...>;
     using SP    = C<typename S::SP, Ts...>;
     using CSP   = C<typename S::CSP, Ts...>;
-    using WP    = C<typename S::WP, Ts...>;
-    using CWP   = C<typename S::CWP, Ts...>;
+    using UP    = C<typename S::UP, Ts...>;
 };
 
 template <template<typename...> class C, typename K, typename S, typename... Ts>
@@ -53,8 +53,7 @@ public:
     using CPtr  = C<K, const typename S::value_type*, Ts...>;
     using SP    = C<K, typename S::SP, Ts...>;
     using CSP   = C<K, typename S::CSP, Ts...>;
-    using WP    = C<K, typename S::WP, Ts...>;
-    using CWP   = C<K, typename S::CWP, Ts...>;
+    using UP    = C<K, typename S::UP, Ts...>;
 };
 
 template <typename S, std::size_t N>
@@ -69,8 +68,7 @@ public:
     using CRef  = boost::container::small_vector<std::reference_wrapper<const typename S::value_type>, N>;
     using SP    = boost::container::small_vector<typename S::SP, N>;
     using CSP   = boost::container::small_vector<typename S::CSP, N>;
-    using WP    = boost::container::small_vector<typename S::WP, N>;
-    using CWP   = boost::container::small_vector<typename S::CWP, N>;
+    using UP    = boost::container::small_vector<typename S::UP, N>;
 };
 
 template <typename K, typename S, std::size_t N>
@@ -82,8 +80,7 @@ public:
     using CPtr  = boost::container::small_flat_map<K, const typename S::value_type*, N, std::less<>>;
     using SP    = boost::container::small_flat_map<K, typename S::SP, N, std::less<>>;
     using CSP   = boost::container::small_flat_map<K, typename S::CSP, N, std::less<>>;
-    using WP    = boost::container::small_flat_map<K, typename S::WP, N, std::less<>>;
-    using CWP   = boost::container::small_flat_map<K, typename S::CWP, N, std::less<>>;
+    using UP    = boost::container::small_flat_map<K, typename S::UP, N, std::less<>>;
 };
 
 template <typename T>
@@ -96,8 +93,7 @@ public:
     // Shared pointers
     using SP            = GpSP<T>;
     using CSP           = GpCSP<T>;
-    using WP            = GpWP<T>;
-    using CWP           = GpCWP<T>;
+    using UP            = std::unique_ptr<T>;
 
     // Containers
     using Vec           = GpDeclContainerT<std::vector, this_type>;
@@ -110,6 +106,8 @@ public:
     using FList         = GpDeclContainerT<std::forward_list, this_type>;
     template<std::size_t N>
     using SmallVec      = GpDeclSmallVecT<this_type, N>;
+    using Opt           = std::optional<T>;
+    using Ref           = std::reference_wrapper<T>;
 
     using MapStr        = GpDeclContainerMapT<std::map, std::string, this_type, std::less<>>;
     using MapSv         = GpDeclContainerMapT<std::map, std::string_view, this_type, std::less<>>;
@@ -153,8 +151,8 @@ public:
     using UMapCVoidPtr  = GpDeclContainerMapT<std::map, const void*, this_type>;
     using UMapCPtr      = GpDeclContainerMapT<std::map, const this_type*, this_type>;
 
-    using Opt           = GpDeclContainerT<std::optional, this_type>;
-    using Ref           = GpDeclContainerT<std::reference_wrapper, this_type>;
+    using Opts          = GpDeclContainerT<std::optional, this_type>;
+    using Refs          = GpDeclContainerT<std::reference_wrapper, this_type>;
 };
 
 }// namespace GPlatform

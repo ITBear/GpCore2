@@ -19,19 +19,19 @@ public:
 
 public:
                                     GpReflectModel          (void) noexcept = default;
-                                    GpReflectModel          (const GpUUID&              aUid,
-                                                             const GpUUID&              aBaseUid,
-                                                             std::string&&              aName,
-                                                             PropsT&&                   aProps,
-                                                             const GpUUID&              aGroupId,
-                                                             GpReflectObjectFactory::SP aFactory,
-                                                             size_t                     aAlign,
-                                                             size_t                     aSize) noexcept;
-                                    GpReflectModel          (const GpUUID&              aUid,
-                                                             const GpUUID&              aBaseUid,
-                                                             std::string&&              aName,
-                                                             const GpUUID&              aGroupId,
-                                                             GpReflectObjectFactory::SP aFactory) noexcept;
+                                    GpReflectModel          (const GpUUID&                  aUid,
+                                                             const GpUUID&                  aBaseUid,
+                                                             std::string&&                  aName,
+                                                             PropsT&&                       aProps,
+                                                             const GpUUID&                  aGroupId,
+                                                             GpReflectObjectFactory::CSP    aFactory,
+                                                             size_t                         aAlign,
+                                                             size_t                         aSize) noexcept;
+                                    GpReflectModel          (const GpUUID&                  aUid,
+                                                             const GpUUID&                  aBaseUid,
+                                                             std::string&&                  aName,
+                                                             const GpUUID&                  aGroupId,
+                                                             GpReflectObjectFactory::CSP    aFactory) noexcept;
                                     GpReflectModel          (const GpReflectModel& aModel);
                                     GpReflectModel          (GpReflectModel&& aModel) noexcept;
                                     ~GpReflectModel         (void) noexcept;
@@ -46,7 +46,7 @@ public:
     const PropsNameToIdxT&          PropsNameToIdx          (void) const noexcept {return iPropsNameToIdx;}
     const GpReflectProp&            Prop                    (const size_t aId) const {return iProps.at(aId);}
     const GpReflectProp&            Prop                    (std::string_view aName) const;
-    GpReflectProp::C::Opt::CRef     PropOpt                 (std::string_view aName) const noexcept;
+    GpReflectProp::C::Opts::CRef    PropOpt                 (std::string_view aName) const noexcept;
     const GpReflectProp&            Prop                    (std::string_view                       aName,
                                                              const GpReflectType::EnumT             aType,
                                                              const GpReflectContainerType::EnumT    aContainerType) const;
@@ -71,7 +71,7 @@ private:
     PropsT                          iProps;
     PropsNameToIdxT                 iPropsNameToIdx;
     GpUUID                          iGroupId;
-    GpReflectObjectFactory::SP      iFactory;
+    GpReflectObjectFactory::CSP     iFactory;
     size_t                          iAlign      = 0;
     size_t                          iSize       = 0;
 };

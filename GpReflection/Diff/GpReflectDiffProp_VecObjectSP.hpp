@@ -101,7 +101,7 @@ public:
     inline                  GpReflectDiffProp_VecObjectSP   (ArrayT::ReplaceVariantT&& aReplaceData) noexcept;
                             ~GpReflectDiffProp_VecObjectSP  (void) noexcept;
 
-    static C::Opt::Val      SCheckAndMake                   (const ContainerT&              aValueFrom,
+    static C::Opts::Val     SCheckAndMake                   (const ContainerT&              aValueFrom,
                                                              const ContainerT&              aValueTo,
                                                              IsEqualCacheRefOptT&           aIsEqualCache,
                                                              TotalMemoryUseCacheRefOptT&    aTotalMemoryUseCache);

@@ -55,7 +55,7 @@ void    GpDebugging_SArchBreakpoint (void)
 bool    GpDebugging::SIsUnderDebugger (void)
 {
     // TODO: implement
-    THROW_GP_NOT_IMPLEMENTED();
+    THROW_NOT_IMPLEMENTED();
 }
 
 void    GpDebugging::SBreakpointIfDebugging (const SourceLocationT& aSourceLocation)

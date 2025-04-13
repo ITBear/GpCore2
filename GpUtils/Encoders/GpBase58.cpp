@@ -30,7 +30,7 @@ void    GpBase58::SEncode
     const AlphabetTE    aAlphabet
 )
 {
-    THROW_COND_GP
+    VERIFY
     (
         aData.Count() > 0,
         "Data is empty"_sv
@@ -164,7 +164,7 @@ size_t  GpBase58::SEncodedSize (GpSpanByteR aData)
 {
     const size_t dataSize = aData.Count();
 
-    THROW_COND_GP(dataSize > 0, "Data is empty"_sv);
+    VERIFY(dataSize > 0, "Data is empty"_sv);
 
     mpz_class data;
     mpz_class remainder;
@@ -201,7 +201,7 @@ void    GpBase58::SDecodePrecalc
     size_t&             aDataSizeOut
 )
 {
-    THROW_COND_GP
+    VERIFY
     (
         !aBase58Str.empty(),
         "Data is empty"_sv
@@ -261,7 +261,7 @@ size_t  GpBase58::SFindChId
         id++;
     }
 
-    THROW_GP("Wrong Base58 character '"_sv + aCh + "'"_sv);
+    THROW("Wrong Base58 character '"_sv + aCh + "'"_sv);
 }
 
 }// namespace GPlatform

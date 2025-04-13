@@ -36,7 +36,7 @@ GpArgParserRes::~GpArgParserRes (void) noexcept
 {
 }
 
-GpArgParserArgument::C::Opt::CRef   GpArgParserRes::FindArgument (std::string_view aName) const noexcept
+GpArgParserArgument::C::Opts::CRef  GpArgParserRes::FindArgument (std::string_view aName) const noexcept
 {
     for (const GpArgParserArgument::SP& argSP: iArguments)
     {

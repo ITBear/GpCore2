@@ -22,6 +22,20 @@ GP_WARNING_PUSH()
 #   pragma warning(disable : 4297)
 #endif// #if defined(GP_OS_WINDOWS)
 
+GpException::GpException (const GpException& aException):
+iWhat          {aException.iWhat},
+iMsg           {aException.iMsg},
+iSourceLocation{aException.iSourceLocation}
+{
+}
+
+GpException::GpException (GpException&& aException) noexcept:
+iWhat          {std::move(aException.iWhat)},
+iMsg           {std::move(aException.iMsg)},
+iSourceLocation{aException.iSourceLocation}//do not std::move
+{
+}
+
 GpException::GpException
 (
     std::string_view        aMsg,
@@ -59,6 +73,24 @@ GP_WARNING_POP()
 
 GpException::~GpException (void) noexcept
 {
+}
+
+GpException&    GpException::operator= (const GpException&  aException)
+{
+    iWhat           = aException.iWhat;
+    iMsg            = aException.iMsg;
+    iSourceLocation = aException.iSourceLocation;
+
+    return *this;
+}
+
+GpException&    GpException::operator= (GpException&& aException) noexcept
+{
+    iWhat           = std::move(aException.iWhat);
+    iMsg            = std::move(aException.iMsg);
+    iSourceLocation = aException.iSourceLocation;
+
+    return *this;
 }
 
 }// namespace GPlatform

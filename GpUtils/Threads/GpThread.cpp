@@ -34,7 +34,7 @@ std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
     GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
     // Check if started
-    THROW_COND_GP
+    VERIFY
     (
         iRunnable.IsNULL(),
         "Already run"_sv
@@ -134,7 +134,13 @@ void    GpThread::SSetSysNameForCurrent (std::string_view aName)
     }
 
 #if defined(GP_OS_WINDOWS)
-    const std::wstring name(aName.begin(), aName.end());
+
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE_MSVC(4365)
+
+    const std::wstring name{aName.begin(), aName.end()};
+
+GP_WARNING_POP()
 
     SetThreadDescription
     (

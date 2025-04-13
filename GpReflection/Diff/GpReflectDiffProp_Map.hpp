@@ -79,7 +79,7 @@ public:
 
     template<typename KeyT,
              typename ValT>
-    static C::Opt::Val      SCheckAndMake               (const std::map<KeyT, ValT, std::less<>>&   aMapFrom,
+    static C::Opts::Val     SCheckAndMake               (const std::map<KeyT, ValT, std::less<>>&   aMapFrom,
                                                          const std::map<KeyT, ValT, std::less<>>&   aMapTo,
                                                          IsEqualCacheRefOptT&                       aIsEqualCache,
                                                          TotalMemoryUseCacheRefOptT&                aTotalMemoryUseCache);
@@ -145,7 +145,7 @@ auto    GpReflectDiffProp_Map::SCheckAndMake
     const std::map<KeyT, ValT, std::less<>>&    aMapTo,
     IsEqualCacheRefOptT&                        aIsEqualCache,
     TotalMemoryUseCacheRefOptT&                 aTotalMemoryUseCache
-) -> C::Opt::Val
+) -> C::Opts::Val
 {
     GpReflectDiffProp_Map res;
 

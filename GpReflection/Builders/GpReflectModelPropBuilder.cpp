@@ -11,7 +11,7 @@ GpReflectModelBuilder&  GpReflectModelPropBuilder::DoneBuildProps (void)
 {
     Check();
 
-    THROW_COND_GP
+    VERIFY
     (
         iModelBuilder != nullptr,
         "iModelBuilder is null"_sv
@@ -327,7 +327,7 @@ void    GpReflectModelPropBuilder::Check (void) const
 
     for (const GpReflectProp& prop: iProps)
     {
-        THROW_COND_GP
+        VERIFY
         (
             names.emplace(prop.Name()).second == true,
             [&](){return "Property name '"_sv + prop.Name() + "' is not unique"_sv;}

@@ -81,7 +81,7 @@ void    GpReflectVisitor<VisitorT>::VisitProp
         }
     } catch (const std::exception& e)
     {
-        THROW_GP
+        THROW
         (
             fmt::format
             (
@@ -132,7 +132,7 @@ void    GpReflectVisitor<VisitorT>::VisitValue
         case GpReflectType::NOT_SET: [[fallthrough]];
         default:
         {
-            THROW_GP
+            THROW
             (
                 fmt::format
                 (
@@ -185,7 +185,7 @@ void    GpReflectVisitor<VisitorT>::VisitVec
         case GpReflectType::NOT_SET:    [[fallthrough]];
         default:
         {
-            THROW_GP
+            THROW
             (
                 fmt::format
                 (
@@ -238,7 +238,7 @@ void    GpReflectVisitor<VisitorT>::VisitMap
         case GpReflectType::NOT_SET:    [[fallthrough]];
         default:
         {
-            THROW_GP
+            THROW
             (
                 fmt::format
                 (
@@ -287,7 +287,7 @@ void    GpReflectVisitor<VisitorT>::ProcessMapK
         case GpReflectType::NOT_SET:    [[fallthrough]];
         default:
         {
-            THROW_GP
+            THROW
             (
                 fmt::format
                 (

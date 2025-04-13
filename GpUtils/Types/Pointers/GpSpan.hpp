@@ -258,7 +258,7 @@ public:
     {
         const auto cnt = Count();
 
-        THROW_COND_GP
+        VERIFY
         (
             NumOps::SAdd(aOffset, aCount) <= cnt,
             "Out of range"_sv
@@ -558,7 +558,7 @@ constexpr typename GpSpan<T>::pointer   GpSpan<T>::Ptr (void) const
 template<typename T>
 constexpr typename GpSpan<T>::pointer   GpSpan<T>::Ptr (const size_t aOffset) const
 {
-    THROW_COND_GP
+    VERIFY
     (
         aOffset <= Count(),
         "Out of range"_sv
@@ -576,7 +576,7 @@ constexpr typename GpSpan<T>::value_type&   GpSpan<T>::At (const size_t aOffset)
 template<typename T>
 constexpr typename GpSpan<T>::this_type&    GpSpan<T>::OffsetAdd (const size_t aOffset)
 {
-    THROW_COND_GP
+    VERIFY
     (
         aOffset <= Count(),
         "Out of range"_sv
@@ -607,7 +607,7 @@ constexpr typename GpSpan<T>::this_type GpSpan<T>::SubspanFromOffsetToEnd (const
 template<typename T>
 constexpr typename GpSpan<T>::this_type GpSpan<T>::SubspanThenOffsetAdd (size_t aCount)
 {
-    THROW_COND_GP
+    VERIFY
     (
         aCount <= Count(),
         "Out of range"_sv
@@ -684,7 +684,7 @@ template<typename T>
 template<typename SpanT>
 typename GpSpan<T>::this_type&  GpSpan<T>::CopyFrom (const SpanT& aSpan)
 {
-    THROW_COND_GP
+    VERIFY
     (
         Count() >= aSpan.Count(),
         "Out of range"_sv
@@ -749,7 +749,7 @@ void    GpSpan<T>::_CheckPointers
     const size_t    aCount
 ) const
 {
-    THROW_COND_GP
+    VERIFY
     (
            (aPtr != nullptr)
         || (

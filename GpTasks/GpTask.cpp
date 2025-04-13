@@ -1,14 +1,13 @@
 #include <GpCore2/GpTasks/GpTask.hpp>
-#include <GpCore2/GpTasks/GpTaskGroupsManager.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 #include <GpCore2/GpTasks/Scheduler/GpTaskScheduler.hpp>
-#include <GpCore2/GpTasks/ITC/GpItcSharedFutureUtils.hpp>
+#include <GpCore2/GpTasks/ITC/GpItcFutureUtils.hpp>
 
 #if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
 
-thread_local GpTask::C::Opt::Ref    __GpTask__thread_current_task;
+thread_local GpTask::C::Opts::Ref   __GpTask__thread_current_task;
 std::atomic<GpTaskId::value_type>   GpTask::sIdCounter = {1};
 GpTask::AllTasksDictionaryT         GpTask::sAllTasksDictionary;
 
@@ -21,14 +20,14 @@ iName{std::move(aName)},
 iId  {SNextId()},
 iMode{aTaskMode}
 {
-    GpTask::sAllTasksDictionary.SetOrUpdate(iId, this);
+    GpTask::sAllTasksDictionary.Set(iId.Value(), this);
 }
 
 GpTask::GpTask (const GpTaskMode::EnumT aTaskMode) noexcept:
 iId  {SNextId()},
 iMode{aTaskMode}
 {
-    GpTask::sAllTasksDictionary.SetOrUpdate(iId, this);
+    GpTask::sAllTasksDictionary.Set(iId.Value(), this);
 }
 
 GpTask::GpTask
@@ -41,7 +40,7 @@ iName{std::move(aName)},
 iId  {aId},
 iMode{aTaskMode}
 {
-    GpTask::sAllTasksDictionary.SetOrUpdate(iId, this);
+    GpTask::sAllTasksDictionary.Set(iId.Value(), this);
 }
 
 GpTask::GpTask
@@ -52,7 +51,7 @@ GpTask::GpTask
 iId  {aId},
 iMode{aTaskMode}
 {
-    GpTask::sAllTasksDictionary.SetOrUpdate(iId, this);
+    GpTask::sAllTasksDictionary.Set(iId.Value(), this);
 }
 
 GpTask::~GpTask (void) noexcept
@@ -65,15 +64,14 @@ GpTask::~GpTask (void) noexcept
         GpTaskVarStorage::S().RemoveTask(taskId);
 
         // Remove task from GpTaskGroupsManager
-        GpTaskGroupsManager::S().RemoveTaskFromAllGroups(taskId);
-
+        //GpTaskGroupsManager::S().RemoveTaskFromAllGroups(taskId);
 
         // Fulfill promises
-        StartPromise().Fulfill(StartPromiseRes{});
-        DonePromise().Fulfill(DonePromiseRes{});
+        StartPromise(GpMethodAccess{this}).Fulfill(StartPromiseRes{});
+        DonePromise(GpMethodAccess{this}).Fulfill(DonePromiseRes{});
 
-        //
-        GpTask::sAllTasksDictionary.Erase(iId);
+        // Remove from sAllTasksDictionary
+        GpTask::sAllTasksDictionary.Erase(iId.Value());
     } catch (const std::exception& e)
     {
         GpStringUtils::SCerr
@@ -102,24 +100,29 @@ GpUUID  GpTask::TaskIdAsUUID (void) const noexcept
     return GpUUID(uuid);
 }
 
-GpTask::DoneFutureT::SP GpTask::RequestTaskStop (void)
+GpTask::DoneFutureT::C::Opts::SP    GpTask::RequestStop (void)
 {
     return GpTaskScheduler::S().RequestStop(*this);
 }
 
-void    GpTask::RequestAndWaitForStop (void)
+bool    GpTask::RequestStopAndWait (void)
 {
     // Request stop
-    GpTask::DoneFutureT::SP doneFutureSP    = RequestTaskStop();
-    GpTask::DoneFutureT&    doneFuture      = doneFutureSP.V();
+    GpTask::DoneFutureT::C::Opts::SP doneFutureOptSP    = RequestStop();
+    if (!doneFutureOptSP.has_value())
+    {
+        return false;
+    }
+
+    GpTask::DoneFutureT& doneFuture = doneFutureOptSP.value().V();
 
     // Wait for stop
     if (IsStartRequested() == false) [[unlikely]]
     {
-        return;
+        return false;
     }
 
-    GpItcSharedFutureUtils::SWaitForInf
+    GpItcFutureUtils::SWait
     (
         doneFuture,
         [&](typename DoneFutureT::value_type&)// OnSuccessFnT
@@ -129,27 +132,32 @@ void    GpTask::RequestAndWaitForStop (void)
         [&](const GpException& aEx)// OnExceptionFnT
         {
             throw aEx;
-        },
-        100.0_si_ms
+        }
     );
+
+    return true;
 }
 
-GpTask::C::Opt::Ref GpTask::SCurrentTask (void) noexcept
+GpTask::C::Opts::Ref    GpTask::SCurrentTask (void) noexcept
 {
     return __GpTask__thread_current_task;
 }
 
 std::optional<GpTask*>  GpTask::STaskById (GpTaskId aTaskId) noexcept
 {
-    return GpTask::sAllTasksDictionary.GetOpt(aTaskId);
+    return GpTask::sAllTasksDictionary.FindOpt(aTaskId.Value());
 }
 
-void    GpTask::PushMessage (GpAny aMessage)
+void    GpTask::PushMessage
+(
+    GpAny aMessage,
+    GpMethodAccessGuard<GpTaskScheduler>
+)
 {
     std::ignore = iMessagesQueue.Push(std::move(aMessage));
 }
 
-GpAny::C::Opt::Val  GpTask::PopMessage (void)
+GpAny::C::Opt::Val  GpTask::PopMessage (GpMethodAccessGuard<GpTask>)
 {
     return iMessagesQueue.Pop();
 }

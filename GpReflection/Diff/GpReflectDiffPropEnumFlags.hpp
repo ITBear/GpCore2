@@ -18,7 +18,7 @@ public:
     inline                                          GpReflectDiffPropEnumFlags  (GpEnumFlags::value_type aValue) noexcept;
                                                     ~GpReflectDiffPropEnumFlags (void) noexcept;
 
-    static GpReflectDiffPropEnumFlags::C::Opt::Val  SCheckAndMake               (const GpEnumFlags& aValueFrom,
+    static GpReflectDiffPropEnumFlags::C::Opts::Val SCheckAndMake               (const GpEnumFlags& aValueFrom,
                                                                                  const GpEnumFlags& aValueTo);
 
     GpEnumFlags::value_type                         Value                       (void) const noexcept {return iValue;}

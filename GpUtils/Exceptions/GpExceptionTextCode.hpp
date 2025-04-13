@@ -53,7 +53,7 @@ iCode      {std::move(aCode)}
 {
 }
 
-[[noreturn]] inline void    THROW_TEXT_CODE_GP
+[[noreturn]] inline void    THROW
 (
     std::string_view        aMsg,
     std::string             aCode,
@@ -63,7 +63,7 @@ iCode      {std::move(aCode)}
     throw GpExceptionTextCode(aMsg, std::move(aCode), aSourceLocation);
 }
 
-inline void THROW_COND_TEXT_CODE_GP
+inline void VERIFY
 (
     const bool              aCondition,
     std::string_view        aMsg,
@@ -77,7 +77,7 @@ inline void THROW_COND_TEXT_CODE_GP
     }
 }
 
-inline void THROW_COND_TEXT_CODE_GP
+inline void VERIFY
 (
     const bool                      aCondition,
     std::function<std::string()>&&  aMsgGenFn,

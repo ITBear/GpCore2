@@ -23,7 +23,7 @@ GpReflectDiffPropObjectSP::~GpReflectDiffPropObjectSP (void) noexcept
 {
 }
 
-GpReflectDiffPropObjectSP::C::Opt::Val  GpReflectDiffPropObjectSP::SCheckAndMake
+GpReflectDiffPropObjectSP::C::Opts::Val GpReflectDiffPropObjectSP::SCheckAndMake
 (
     const GpReflectObject::SP&  aValueFrom,
     const GpReflectObject::SP&  aValueTo,

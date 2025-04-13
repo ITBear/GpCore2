@@ -1,41 +1,32 @@
 #pragma once
 
-#include <type_traits>
-#include <utility>
+#include <GpCore2/GpUtils/TypeTraits/GpTypeTraits.hpp>
 
 namespace GPlatform {
+
+template<typename T>
+struct GpMethodAccessTypeShell
+{
+};
 
 template<typename T>
 class GpMethodAccess
 {
 public:
+                GpMethodAccess  (void) = delete;
     explicit    GpMethodAccess  (const T*) {}
-                GpMethodAccess  (GpMethodAccess&&) {}
-
-private:
-                GpMethodAccess  (void) {}
+    explicit    GpMethodAccess  (GpMethodAccessTypeShell<T>) {}
 };
 
 template<typename... Ts>
-class GpMethodAccessGuard;
-
-template<>
-class GpMethodAccessGuard<>
-{
-};
-
-template<typename First, typename... Rest>
-class GpMethodAccessGuard<First, Rest...>: public GpMethodAccessGuard<Rest...>
+class GpMethodAccessGuard
 {
 public:
-    using GpMethodAccessGuard<Rest...>::GpMethodAccessGuard;
+    GpMethodAccessGuard (void) = delete;
 
-    GpMethodAccessGuard (const GpMethodAccessGuard<First, Rest...>&) {}
-    GpMethodAccessGuard (GpMethodAccessGuard<First, Rest...>&&) {}
-    GpMethodAccessGuard (GpMethodAccess<First>) {}
-
-protected:
-    GpMethodAccessGuard (void) = default;
+    template<typename T>
+    requires is_base_of_any_v<std::remove_cvref_t<T>, Ts...>
+    GpMethodAccessGuard (GpMethodAccess<T>) {}
 };
 
 }// namespace GPlatform

@@ -340,7 +340,7 @@ void    GpReflectPropUtils_VisitValueCtx::EnumFlags
     auto&       valDst  = aProp.Value_EnumFlags(aCtx.iDataPtrDst);
     const auto& valSrc  = aProp.Value_EnumFlags(aCtx.iDataPtrSrc);
 
-    valDst.SetAllFromRaw(valSrc.Value());
+    valDst.SetAllFromRaw(valSrc.RawValue());
 }
 
 // ------------------------------------- GpReflectPropUtils_VisitVecCtx ------------------------------------------
@@ -1014,7 +1014,7 @@ void    GpReflectUtils_AssignValue::SDo
 )
 {
     // Check if props are equal
-    THROW_COND_GP
+    VERIFY
     (
         aPropDst.IsEqual(aPropSrc),
         [&]()
@@ -1046,10 +1046,10 @@ void    GpReflectUtils_AssignValue::SDo
     // Get base reflect model for both objects
     GpReflectModel::CSP             reflectModelDstCSP  = aObjDst.ReflectModel();
     GpReflectModel::CSP             reflectModelSrcCSP  = aObjSrc.ReflectModel();
-    GpReflectModel::C::Opt::CRef    reflectModelBaseOpt = GpReflectManager::S().SelectBaseModel(reflectModelDstCSP.Vn(), reflectModelSrcCSP.Vn());
+    GpReflectModel::C::Opts::CRef   reflectModelBaseOpt = GpReflectManager::S().SelectBaseModel(reflectModelDstCSP.Vn(), reflectModelSrcCSP.Vn());
 
     // Check if there are base reflect model for both objects
-    THROW_COND_GP
+    VERIFY
     (
         reflectModelBaseOpt.has_value(),
         [&]()

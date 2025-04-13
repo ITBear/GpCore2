@@ -1,9 +1,12 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-#include <GpCore2/GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp>
+
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 #include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
-#include <GpCore2/GpUtils/SyncPrimitives/GpConditionVar.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSpinLockRW.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSharedMutex.hpp>
 
 #include <queue>
 #include <optional>
@@ -34,21 +37,17 @@ public:
 
     [[nodiscard]] bool          Push                (const value_type& aValue);
     [[nodiscard]] bool          Push                (value_type&& aValue);
-    [[nodiscard]] bool          PushAndNotifyOne    (const value_type& aValue);
-    [[nodiscard]] bool          PushAndNotifyOne    (value_type&& aValue);
-    [[nodiscard]] bool          PushAndNotifyAll    (const value_type& aValue);
-    [[nodiscard]] bool          PushAndNotifyAll    (value_type&& aValue);
 
+    std::optional<value_type>   Front               (void);
     std::optional<value_type>   Pop                 (void);
-    std::optional<value_type>   WaitAndPop          (const milliseconds_t aTimeout);
 
-    underlying_container&       UnderlyingContainer (void) noexcept REQUIRES(iCV);
-    const underlying_container& UnderlyingContainer (void) const noexcept REQUIRES(iCV);
+    underlying_container&       UnderlyingContainer (void) noexcept REQUIRES(iSpinLockRW);
+    const underlying_container& UnderlyingContainer (void) const noexcept REQUIRES(iSpinLockRW);
 
 private:
-    mutable GpConditionVar      iCV;
-    underlying_container        iContainer  GUARDED_BY(iCV.Mutex());
-    size_t                      iMaxSize    GUARDED_BY(iCV.Mutex()) = std::numeric_limits<size_t>::max();
+    mutable GpSpinLockRW        iSpinLockRW;
+    underlying_container        iContainer  GUARDED_BY(iSpinLockRW);
+    size_t                      iMaxSize    GUARDED_BY(iSpinLockRW) = ::std::numeric_limits<size_t>::max();
 };
 
 template <typename T>
@@ -65,7 +64,7 @@ iMaxSize{aMaxSize}
 template <typename T>
 size_t  GpSharedQueue<T>::MaxSize (void) const noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
+    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
 
     return iMaxSize;
 }
@@ -73,7 +72,7 @@ size_t  GpSharedQueue<T>::MaxSize (void) const noexcept
 template <typename T>
 void    GpSharedQueue<T>::SetMaxSize (size_t aMaxSize) noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
     iMaxSize = aMaxSize;
 }
@@ -81,7 +80,7 @@ void    GpSharedQueue<T>::SetMaxSize (size_t aMaxSize) noexcept
 template <typename T>
 size_t  GpSharedQueue<T>::Size (void) const noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
+    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
 
     return std::size(iContainer);
 }
@@ -89,7 +88,7 @@ size_t  GpSharedQueue<T>::Size (void) const noexcept
 template <typename T>
 bool    GpSharedQueue<T>::Empty (void) const noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
+    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
 
     return iContainer.empty();
 }
@@ -97,20 +96,18 @@ bool    GpSharedQueue<T>::Empty (void) const noexcept
 template <typename T>
 void    GpSharedQueue<T>::Clear (void)
 {
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
     while (!iContainer.empty())
     {
         iContainer.pop();
     }
-
-    iCV.NotifyAll();
 }
 
 template <typename T>
 bool    GpSharedQueue<T>::Push (const value_type& aValue)
 {
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
     if (std::size(iContainer) < iMaxSize) [[likely]]
     {
@@ -125,7 +122,7 @@ bool    GpSharedQueue<T>::Push (const value_type& aValue)
 template <typename T>
 bool    GpSharedQueue<T>::Push (value_type&& aValue)
 {
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
     if (std::size(iContainer) < iMaxSize) [[likely]]
     {
@@ -138,77 +135,22 @@ bool    GpSharedQueue<T>::Push (value_type&& aValue)
 }
 
 template <typename T>
-bool    GpSharedQueue<T>::PushAndNotifyOne (const value_type& aValue)
+auto    GpSharedQueue<T>::Front (void) -> std::optional<value_type>
 {
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
-    if (std::size(iContainer) < iMaxSize) [[likely]]
+    if (iContainer.empty()) [[unlikely]]
     {
-        iContainer.push(aValue);
-        iCV.NotifyOne();
-
-        return true;
-    } else
-    {
-        return false;
+        return std::nullopt;
     }
+
+    return iContainer.front();
 }
 
 template <typename T>
-bool    GpSharedQueue<T>::PushAndNotifyOne (value_type&& aValue)
+auto    GpSharedQueue<T>::Pop (void) ->  std::optional<value_type>
 {
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
-
-    if (std::size(iContainer) < iMaxSize) [[likely]]
-    {
-        iContainer.emplace(std::move(aValue));
-        iCV.NotifyOne();
-
-        return true;
-    } else
-    {
-        return false;
-    }
-}
-
-template <typename T>
-bool    GpSharedQueue<T>::PushAndNotifyAll (const value_type& aValue)
-{
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
-
-    if (std::size(iContainer) < iMaxSize) [[likely]]
-    {
-        iContainer.push(aValue);
-        iCV.NotifyAll();
-
-        return true;
-    } else
-    {
-        return false;
-    }
-}
-
-template <typename T>
-bool    GpSharedQueue<T>::PushAndNotifyAll (value_type&& aValue)
-{
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
-
-    if (std::size(iContainer) < iMaxSize) [[likely]]
-    {
-        iContainer.emplace(std::move(aValue));
-        iCV.NotifyAll();
-
-        return true;
-    } else
-    {
-        return false;
-    }
-}
-
-template <typename T>
-std::optional<typename GpSharedQueue<T>::value_type>    GpSharedQueue<T>::Pop (void)
-{
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
     if (iContainer.empty()) [[unlikely]]
     {
@@ -217,36 +159,18 @@ std::optional<typename GpSharedQueue<T>::value_type>    GpSharedQueue<T>::Pop (v
 
     value_type e = std::move(iContainer.front());
     iContainer.pop();
+
     return e;
 }
 
 template <typename T>
-std::optional<typename GpSharedQueue<T>::value_type>    GpSharedQueue<T>::WaitAndPop (const milliseconds_t aTimeout)
-{
-    return iCV.WaitFor<value_type>
-    (
-        [&]() NO_THREAD_SAFETY_ANALYSIS // Check condition
-        {
-            return !iContainer.empty();
-        },
-        [&]() NO_THREAD_SAFETY_ANALYSIS // condition met
-        {
-            value_type e = std::move(iContainer.front());
-            iContainer.pop();
-            return e;
-        },
-        aTimeout
-    );
-}
-
-template <typename T>
-typename GpSharedQueue<T>::underlying_container&    GpSharedQueue<T>::UnderlyingContainer (void) noexcept
+auto    GpSharedQueue<T>::UnderlyingContainer (void) noexcept -> underlying_container&
 {
     return iContainer;
 }
 
 template <typename T>
-const typename GpSharedQueue<T>::underlying_container&  GpSharedQueue<T>::UnderlyingContainer (void) const noexcept
+auto    GpSharedQueue<T>::UnderlyingContainer (void) const noexcept -> const underlying_container&
 {
     return iContainer;
 }

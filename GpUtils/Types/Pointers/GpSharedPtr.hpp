@@ -58,18 +58,16 @@ concept Castable = requires()
 
 }// namespace Concepts::SharedPtr
 
-template <typename  T,
-          bool      _IsWeak>
+template <typename T>
 class GpSharedPtrBase
 {
 public:
-    using this_type         = GpSharedPtrBase<T, _IsWeak>;
+    using this_type         = GpSharedPtrBase<T>;
     using value_type        = T;
     using const_value_type  = const std::remove_const_t<T>;
 
     TAG_SET(GpSharedPtrBase)
 
-    static constexpr bool SIsWeak   (void) noexcept {return _IsWeak;}
     static constexpr bool SIsConst  (void) noexcept {return std::is_const_v<value_type>;}
 
 public:
@@ -100,20 +98,15 @@ public:
     {
         if (iRefCounter)
         {
-            iRefCounter->Acquire<_IsWeak>();
+            iRefCounter->Acquire();
         }
     }
 
     template<Concepts::SharedPtr::IsSharedPtr TSP>
     requires Concepts::SharedPtr::CastableDown<TSP, this_type>
-                                    //GpSharedPtrBase (std::remove_cv_t<TSP>&& aSharedPtr) noexcept:
                                     GpSharedPtrBase (TSP&& aSharedPtr) noexcept:
     iRefCounter{aSharedPtr._MoveRefCounter()}
     {
-        //if (iRefCounter)
-        //{
-        //  iRefCounter->Acquire<_IsWeak>();
-        //}
     }
 
                                     GpSharedPtrBase (void) noexcept;
@@ -137,7 +130,7 @@ public:
 
             if (iRefCounter)
             {
-                iRefCounter->Acquire<_IsWeak>();
+                iRefCounter->Acquire();
             }
         }
     }
@@ -153,7 +146,7 @@ public:
 
             //if (iRefCounter)
             //{
-            //  iRefCounter->Acquire<_IsWeak>();
+            //  iRefCounter->Acquire();
             //}
         }
     }
@@ -167,7 +160,7 @@ public:
     [[nodiscard]] const_value_type& Vn              (void) const noexcept {return *Pn();}
     [[nodiscard]] value_type*       P               (void)
     {
-        THROW_COND_GP
+        VERIFY
         (
             iRefCounter != nullptr,
             "Shared pointer is empty"_sv
@@ -175,7 +168,7 @@ public:
 
         T* ptr = Pn();
 
-        THROW_COND_GP
+        VERIFY
         (
             ptr != nullptr,
             "Shared pointer value is null"_sv
@@ -250,7 +243,7 @@ public:
 
     template<Concepts::SharedPtr::IsSharedPtr TSP>
     requires Concepts::SharedPtr::Castable<this_type, TSP>
-    TSP                             CastAs      (void) noexcept
+    TSP                             CastAs          (void) noexcept
     {
         return TSP::_SConstructFromRefCounter(iRefCounter);
     }
@@ -267,7 +260,7 @@ public:
     {
         if (aRefCounter)
         {
-            aRefCounter->template Acquire<_IsWeak>();
+            aRefCounter->Acquire();
         }
 
         return this_type(aRefCounter);
@@ -277,62 +270,59 @@ private:
     GpReferenceCounter* iRefCounter = nullptr;
 };
 
-template <typename T, bool _IsWeak>
-GpSharedPtrBase<T, _IsWeak>::GpSharedPtrBase (GpReferenceCounter* aRefCounter) noexcept:
+template <typename T>
+GpSharedPtrBase<T>::GpSharedPtrBase (GpReferenceCounter* aRefCounter) noexcept:
 iRefCounter{aRefCounter}
 {
 }
 
-template <typename T, bool _IsWeak>
-GpSharedPtrBase<T, _IsWeak>::GpSharedPtrBase (void) noexcept
+template <typename T>
+GpSharedPtrBase<T>::GpSharedPtrBase (void) noexcept
 {
 }
 
-template <typename T, bool _IsWeak>
-GpSharedPtrBase<T, _IsWeak>::GpSharedPtrBase (const this_type& aSharedPtr) noexcept:
+template <typename T>
+GpSharedPtrBase<T>::GpSharedPtrBase (const this_type& aSharedPtr) noexcept:
 iRefCounter{aSharedPtr._RefCounter()}
 {
     if (iRefCounter)
     {
-        iRefCounter->template Acquire<_IsWeak>();
+        iRefCounter->Acquire();
     }
 }
 
-template <typename T, bool _IsWeak>
-GpSharedPtrBase<T, _IsWeak>::GpSharedPtrBase (this_type&& aSharedPtr) noexcept:
+template <typename T>
+GpSharedPtrBase<T>::GpSharedPtrBase (this_type&& aSharedPtr) noexcept:
 iRefCounter{aSharedPtr._MoveRefCounter()}
 {
 }
 
-template <typename T, bool _IsWeak>
-GpSharedPtrBase<T, _IsWeak>::~GpSharedPtrBase (void) noexcept
+template <typename T>
+GpSharedPtrBase<T>::~GpSharedPtrBase (void) noexcept
 {
     Clear();
 }
 
-template <typename T, bool _IsWeak>
-void    GpSharedPtrBase<T, _IsWeak>::Clear (void) noexcept
+template <typename T>
+void    GpSharedPtrBase<T>::Clear (void) noexcept
 {
     if (!iRefCounter) [[unlikely]]
     {
         return;
     }
 
-    const size_t refCount = iRefCounter->template Release<_IsWeak>();
+    const size_t refCount = iRefCounter->Release();
 
     if (refCount == 0)
     {
-        if constexpr(!_IsWeak)
-        {
-            MemOps::SDelete(iRefCounter);
-        }
+        MemOps::SDelete(iRefCounter);
     }
 
     iRefCounter = nullptr;
 }
 
-template <typename T, bool _IsWeak>
-void    GpSharedPtrBase<T, _IsWeak>::Set (const this_type& aSharedPtr) noexcept
+template <typename T>
+void    GpSharedPtrBase<T>::Set (const this_type& aSharedPtr) noexcept
 {
     if (iRefCounter == aSharedPtr.iRefCounter) [[unlikely]]
     {
@@ -345,12 +335,12 @@ void    GpSharedPtrBase<T, _IsWeak>::Set (const this_type& aSharedPtr) noexcept
 
     if (iRefCounter) [[likely]]
     {
-        iRefCounter->template Acquire<_IsWeak>();
+        iRefCounter->Acquire();
     }
 }
 
-template <typename T, bool _IsWeak>
-void    GpSharedPtrBase<T, _IsWeak>::Set (this_type&& aSharedPtr) noexcept
+template <typename T>
+void    GpSharedPtrBase<T>::Set (this_type&& aSharedPtr) noexcept
 {
     if (iRefCounter != aSharedPtr.iRefCounter)
     {
@@ -363,67 +353,61 @@ void    GpSharedPtrBase<T, _IsWeak>::Set (this_type&& aSharedPtr) noexcept
     }
 }
 
-template <typename T, bool _IsWeak>
-bool    GpSharedPtrBase<T, _IsWeak>::IsNULL (void) const noexcept
+template <typename T>
+bool    GpSharedPtrBase<T>::IsNULL (void) const noexcept
 {
     return iRefCounter == nullptr;
 }
 
-template <typename T, bool _IsWeak>
-bool    GpSharedPtrBase<T, _IsWeak>::IsNotNULL (void) const noexcept
+template <typename T>
+bool    GpSharedPtrBase<T>::IsNotNULL (void) const noexcept
 {
     return iRefCounter != nullptr;
 }
 
-template <typename T, bool _IsWeak>
-bool    GpSharedPtrBase<T, _IsWeak>::operator!= (const this_type& aSharedPtr) const noexcept
+template <typename T>
+bool    GpSharedPtrBase<T>::operator!= (const this_type& aSharedPtr) const noexcept
 {
     return iRefCounter != aSharedPtr.iRefCounter;
 }
 
-template <typename T, bool _IsWeak>
-bool    GpSharedPtrBase<T, _IsWeak>::operator== (const this_type& aSharedPtr) const noexcept
+template <typename T>
+bool    GpSharedPtrBase<T>::operator== (const this_type& aSharedPtr) const noexcept
 {
     return iRefCounter == aSharedPtr.iRefCounter;
 }
 
-template <typename T, bool _IsWeak>
-bool    GpSharedPtrBase<T, _IsWeak>::operator> (const this_type& aSharedPtr) const noexcept
+template <typename T>
+bool    GpSharedPtrBase<T>::operator> (const this_type& aSharedPtr) const noexcept
 {
     return iRefCounter > aSharedPtr.iRefCounter;
 }
 
-template <typename T, bool _IsWeak>
-bool    GpSharedPtrBase<T, _IsWeak>::operator< (const this_type& aSharedPtr) const noexcept
+template <typename T>
+bool    GpSharedPtrBase<T>::operator< (const this_type& aSharedPtr) const noexcept
 {
     return iRefCounter < aSharedPtr.iRefCounter;
 }
 
-template <typename T, bool _IsWeak>
-typename GpSharedPtrBase<T, _IsWeak>::this_type&    GpSharedPtrBase<T, _IsWeak>::operator= (const this_type& aSharedPtr) noexcept
+template <typename T>
+typename GpSharedPtrBase<T>::this_type& GpSharedPtrBase<T>::operator= (const this_type& aSharedPtr) noexcept
 {
     Set(aSharedPtr);
     return *this;
 }
 
-template <typename T, bool _IsWeak>
-typename GpSharedPtrBase<T, _IsWeak>::this_type&    GpSharedPtrBase<T, _IsWeak>::operator= (this_type&& aSharedPtr) noexcept
+template <typename T>
+typename GpSharedPtrBase<T>::this_type& GpSharedPtrBase<T>::operator= (this_type&& aSharedPtr) noexcept
 {
     Set(std::move(aSharedPtr));
     return *this;
 }
 
 template<typename T>
-using GpSP  = GpSharedPtrBase<T, false>;
+using GpSP  = GpSharedPtrBase<T>;
 
 template<typename T>
-using GpCSP = GpSharedPtrBase<const T, false>;
-
-template<typename T>
-using GpWP  = GpSharedPtrBase<T, true>;
-
-template<typename T>
-using GpCWP = GpSharedPtrBase<const T, true>;
+using GpCSP = GpSharedPtrBase<const T>;
 
 template<typename T, typename... Ts>
 [[nodiscard]] GpSP<T>   MakeSP (Ts&&... aArgs)
@@ -442,10 +426,10 @@ template<typename T, typename... Ts>
 //********************** Hash *********************
 namespace std {
 
-template <typename T, bool _IsWeak>
-struct hash<GPlatform::GpSharedPtrBase<T, _IsWeak>>
+template <typename T>
+struct hash<GPlatform::GpSharedPtrBase<T>>
 {
-    size_t operator()(const GPlatform::GpSharedPtrBase<T, _IsWeak>& aSP) const noexcept
+    size_t operator()(const GPlatform::GpSharedPtrBase<T>& aSP) const noexcept
     {
         return std::hash<const GPlatform::GpReferenceCounter*>()(aSP._RefCounter());
     }

@@ -112,6 +112,6 @@ struct formatter<unix_ts_s_t>
     }
 };
 
-}// namespace std
+}// namespace FMT_NAMESPASE
 
 #endif// #if defined(GP_USE_DATE_TIME)

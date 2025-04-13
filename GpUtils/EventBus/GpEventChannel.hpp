@@ -30,12 +30,14 @@ public:
     using value_type    = ValueT;
 
     using CallbackFnT   = std::function<void(const UidT& aUid, const ValueT& aEvent)>;
-    using SubscribersT  = boost::container::small_flat_map<UidT, CallbackFnT, 8>;
+    using SubscribersT  = boost::container::small_flat_map<UidT, CallbackFnT, 4>;
 
 public:
                         GpEventChannel  (void) noexcept = default;
                         GpEventChannel  (GpEventChannel&& aEventChannel) noexcept;
                         ~GpEventChannel (void) noexcept = default;
+
+    GpEventChannel&     operator=       (GpEventChannel&& aEventChannel) noexcept;
 
     void                PushEvent       (const ValueT& aEvent) const;
     bool                Subscribe       (const UidT&    aSubscriberUid,
@@ -54,6 +56,23 @@ GpEventChannel<UidT, ValueT>::GpEventChannel (GpEventChannel&& aEventChannel) no
     GpUniqueLock<GpSpinLock> uniqueLock{aEventChannel.iSpinLock};
 
     iSubscribers = std::move(aEventChannel.iSubscribers);
+}
+
+template<typename UidT,
+         typename ValueT>
+GpEventChannel<UidT, ValueT>&   GpEventChannel<UidT, ValueT>::operator= (GpEventChannel&& aEventChannel) noexcept
+{
+    if (this == &aEventChannel) [[unlikely]]
+    {
+        return *this;
+    }
+
+    GpUniqueLock<GpSpinLock> uniqueLock1{aEventChannel.iSpinLock};
+    GpUniqueLock<GpSpinLock> uniqueLock2{iSpinLock};
+
+    iSubscribers = std::move(aEventChannel.iSubscribers);
+
+    return *this;
 }
 
 template<typename UidT,

@@ -6,15 +6,15 @@ GpReflectDiffPropEnumFlags::~GpReflectDiffPropEnumFlags (void) noexcept
 {
 }
 
-GpReflectDiffPropEnumFlags::C::Opt::Val GpReflectDiffPropEnumFlags::SCheckAndMake
+GpReflectDiffPropEnumFlags::C::Opts::Val    GpReflectDiffPropEnumFlags::SCheckAndMake
 (
     const GpEnumFlags& aValueFrom,
     const GpEnumFlags& aValueTo
 )
 {
-    if (aValueFrom.Value() != aValueTo.Value())
+    if (aValueFrom.RawValue() != aValueTo.RawValue())
     {
-        return GpReflectDiffPropEnumFlags{aValueTo.Value()};
+        return GpReflectDiffPropEnumFlags{aValueTo.RawValue()};
     }
 
     return std::nullopt;

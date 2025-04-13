@@ -2,7 +2,7 @@
 #include <GpCore2/GpReflection/GpReflectObject.hpp>
 #include <GpCore2/GpReflection/GpReflectProp.hpp>
 #include <GpCore2/GpReflection/GpReflectPropUtils.hpp>
-#include <GpCore2/GpReflection/GpReflectUtils_AssignValue.cpp>
+#include <GpCore2/GpReflection/GpReflectUtils_AssignValue.hpp>
 
 namespace GPlatform {
 

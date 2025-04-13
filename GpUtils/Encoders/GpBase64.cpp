@@ -36,7 +36,7 @@ void    GpBase64::SEncode
     GpSpanByteRW        base64StrOut    = aWriterBase64Str.SubspanThenOffsetAdd(encodedSize);
     u_int_8*            encodedStr      = base64StrOut.PtrAs<u_int_8*>();
 
-    THROW_COND_GP
+    VERIFY
     (
         encodedStr != nullptr,
         "encodedStr is null"_sv
@@ -108,7 +108,7 @@ void    GpBase64::SDecode
     GpSpanByteRW        dataOut         = aWriterData.SubspanThenOffsetAdd(decodedSize);
     u_int_8* _R_        decodedData     = dataOut.PtrAs<u_int_8*>();
 
-    THROW_COND_GP
+    VERIFY
     (
         decodedData != nullptr,
         "decodedData is nullptr"_sv
@@ -229,11 +229,11 @@ size_t  GpBase64::SDecodedSize (GpSpanByteR aBase64Str)
             //skip
         } else
         {
-            THROW_GP("Wrong character '"_sv + std::bit_cast<char>(ch) + "'"_sv);
+            THROW("Wrong character '"_sv + std::bit_cast<char>(ch) + "'"_sv);
         }
     }
 
-    THROW_COND_GP
+    VERIFY
     (
         ((decodedSize + paddingSize) % 4) == 0,
         "Base64 string size must be multiple of 4"_sv
@@ -250,7 +250,7 @@ size_t  GpBase64::SDecodedSize (GpSpanByteR aBase64Str)
         return (decodedSize / 4) * 3 + 2;
     } else
     {
-        THROW_GP("Wrong Base64 padding '=' count"_sv);
+        THROW("Wrong Base64 padding '=' count"_sv);
     }
 
     return decodedSize;

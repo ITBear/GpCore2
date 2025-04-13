@@ -31,17 +31,18 @@ void    GpReflectManager::Register (GpReflectModel::CSP aModelCSP)
 {
     const GpUUID& modelUid = aModelCSP.V().Uid();
 
-    auto [model, isInserted] = iElements.TrySet(modelUid, std::move(aModelCSP));
+    auto [model, status] = iElements.FindOrSet(modelUid, std::move(aModelCSP));
 
-    THROW_COND_GP
+    VERIFY
     (
-        isInserted == true,
-        [modelUid]()
+        status == GpContainerUpdateStatus::INSERT_NEW,
+        [modelUid, &model]()
         {
             return fmt::format
             (
-                "Failed to register model with uid: {}",
-                modelUid
+                "Failed to register the model with UID: {}. Another model with this UID is already registered, model name '{}'",
+                modelUid,
+                model.V().Name()
             );
         }
     );
@@ -51,14 +52,14 @@ bool    GpReflectManager::TryRegister (GpReflectModel::CSP aModelCSP)
 {
     const GpUUID& modelUid = aModelCSP.V().Uid();
 
-    auto [model, isInserted] = iElements.TrySet(modelUid, std::move(aModelCSP));
+    auto [model, status] = iElements.FindOrSet(modelUid, std::move(aModelCSP));
 
-    return isInserted;
+    return status == GpContainerUpdateStatus::INSERT_NEW;
 }
 
 GpReflectModel::CSP GpReflectManager::Find (const GpUUID& aModelUid)
 {
-    std::optional<GpReflectModel::CSP> modelOpt = iElements.GetOpt(aModelUid);
+    std::optional<GpReflectModel::CSP> modelOpt = iElements.FindOpt(aModelUid);
 
     if (modelOpt.has_value())
     {
@@ -69,9 +70,9 @@ GpReflectModel::CSP GpReflectManager::Find (const GpUUID& aModelUid)
     }
 }
 
-GpReflectModel::C::Opt::CSP GpReflectManager::FindOpt (const GpUUID& aModelUid) noexcept
+GpReflectModel::C::Opts::CSP    GpReflectManager::FindOpt (const GpUUID& aModelUid) noexcept
 {
-    std::optional<GpReflectModel::CSP> modelOpt = iElements.GetOpt(aModelUid);
+    std::optional<GpReflectModel::CSP> modelOpt = iElements.FindOpt(aModelUid);
 
     if (modelOpt.has_value())
     {
@@ -127,7 +128,7 @@ bool    GpReflectManager::IsBaseOfNoEx
 
     while (derivedModelUid != lastModelUid)
     {
-        GpReflectModel::C::Opt::CSP modelOpt = FindOpt(derivedModelUid);
+        GpReflectModel::C::Opts::CSP modelOpt = FindOpt(derivedModelUid);
 
         if (!modelOpt.has_value()) [[unlikely]]
         {
@@ -145,7 +146,7 @@ bool    GpReflectManager::IsBaseOfNoEx
     return false;
 }
 
-GpReflectModel::C::Opt::CRef    GpReflectManager::SelectBaseModel
+GpReflectModel::C::Opts::CRef   GpReflectManager::SelectBaseModel
 (
     const GpReflectModel& aModelA,
     const GpReflectModel& aModelB
@@ -163,7 +164,7 @@ GpReflectModel::C::Opt::CRef    GpReflectManager::SelectBaseModel
     }
 }
 
-GpUUID::C::Opt::Val GpReflectManager::SelectBaseModel
+GpUUID::C::Opts::Val    GpReflectManager::SelectBaseModel
 (
     const GpUUID& aModelUidA,
     const GpUUID& aModelUidB
@@ -187,7 +188,7 @@ GpReflectModel::CSP GpReflectManager::FromSources (const GpUUID& aModelUid)
 
     for (GpReflectModelSource::SP& source: iModelSources)
     {
-        GpReflectModel::C::Opt::CSP modelOpt = source.V().Get(aModelUid);
+        GpReflectModel::C::Opts::CSP modelOpt = source.V().Get(aModelUid);
 
         if (modelOpt.has_value())
         {
@@ -197,23 +198,23 @@ GpReflectModel::CSP GpReflectManager::FromSources (const GpUUID& aModelUid)
         }
     }
 
-    THROW_GP
+    THROW
     (
         fmt::format
         (
-            "Reflection model was not found by UID '{}'",
+            "Reflection model with UID '{}' was not found",
             aModelUid
         )
     );
 }
 
-GpReflectModel::C::Opt::CSP GpReflectManager::FromSourcesOpt (const GpUUID& aModelUid)
+GpReflectModel::C::Opts::CSP    GpReflectManager::FromSourcesOpt (const GpUUID& aModelUid)
 {
     GpUniqueLock<GpSpinLock> uniqueLock{iModelSourcesSpinLock};
 
     for (GpReflectModelSource::SP& source: iModelSources)
     {
-        GpReflectModel::C::Opt::CSP modelOpt = source.V().Get(aModelUid);
+        GpReflectModel::C::Opts::CSP modelOpt = source.V().Get(aModelUid);
 
         if (modelOpt.has_value())
         {

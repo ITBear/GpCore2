@@ -4,6 +4,8 @@
 
 namespace GPlatform::Algo {
 
+// ---------------------------------------- SplitExt ----------------------------------------
+
 enum class SplitMode
 {
     SKIP_ZERO_LENGTH_PARTS,
@@ -15,7 +17,7 @@ template<typename Element,
          typename SpanPtrT
          >
 [[nodiscard]]
-ContainerRes    Split
+ContainerRes    SplitExt
 (
     SpanPtrT        aElements,
     SpanPtrT        aDelim,
@@ -84,6 +86,99 @@ ContainerRes    Split
     }
 
     return res;
+}
+
+// ---------------------------------------- Split ----------------------------------------
+
+template<typename ContainerT,
+         typename ContainerResT,
+         typename V>
+ContainerResT   Split
+(
+    const ContainerT&   aElements,
+    const V             aSplittVal,
+    const V             aEscapeVal,
+    const V             aSequenceVal
+)
+{
+    ContainerResT                       result;
+    typename ContainerResT::value_type  currentPart;
+    currentPart.reserve(4);
+
+    bool inSequence = false;
+    bool isEscaped  = false;
+
+    const auto* beginPart   = aElements.data();
+    const auto* currentVal  = beginPart;
+    const auto* stopVal = beginPart + std::size(aElements);
+
+    while (currentVal < stopVal)
+    {
+        const auto val = *currentVal;
+
+        if (isEscaped) [[unlikely]]
+        {
+            currentPart.push_back(val);
+            currentVal++;
+            isEscaped = false;
+        } else if (inSequence) [[unlikely]]
+        {
+            if (val == aEscapeVal) [[unlikely]]
+            {
+                currentVal++;
+                isEscaped = true;
+            } else if (val == aSequenceVal) [[unlikely]]
+            {
+                if (!currentPart.empty())
+                {
+                    result.emplace_back(std::move(currentPart));
+                    currentPart.reserve(4);
+                }
+
+                currentVal++;
+                inSequence = false;
+            } else
+            {
+                currentPart.push_back(val);
+                currentVal++;
+            }
+        } else if (val == aEscapeVal) [[unlikely]]
+        {
+            currentVal++;
+            isEscaped = true;
+        } else if (val == aSequenceVal) [[unlikely]]
+        {
+            if (!currentPart.empty())
+            {
+                result.emplace_back(std::move(currentPart));
+                currentPart.reserve(4);
+            }
+
+            currentVal++;
+            inSequence = true;
+        } else if (val == aSplittVal) [[unlikely]]
+        {
+            if (!currentPart.empty())
+            {
+                result.emplace_back(std::move(currentPart));
+                currentPart.reserve(4);
+            }
+
+            currentVal++;
+        } else
+        {
+            currentPart.push_back(val);
+            currentVal++;
+        }
+    }
+
+    // Add the last part
+    if (!currentPart.empty())
+    {
+        result.emplace_back(std::move(currentPart));
+    }
+
+    return result;
 }
 
 }// namespace GPlatform::Algo

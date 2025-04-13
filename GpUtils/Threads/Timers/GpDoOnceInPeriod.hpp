@@ -39,7 +39,7 @@ GpDoOnceInPeriod::GpDoOnceInPeriod
     const milliseconds_t    aPeriod,
     const Mode              aMode
 ) noexcept:
-iPeriod(aPeriod)
+iPeriod{aPeriod}
 {
     if (aMode == Mode::AT_TIMEOUT)
     {

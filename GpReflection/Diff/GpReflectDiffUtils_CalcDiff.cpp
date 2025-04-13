@@ -979,11 +979,11 @@ GpReflectDiffDelta::SP  GpReflectDiffUtils_CalcDiff::SDo
     GpReflectModel::CSP                 modelFromCSP    = aObjFrom.ReflectModel();
     GpReflectModel::CSP                 modelToCSP      = aObjTo.ReflectModel();
     const GpReflectModel&               modelTo         = modelToCSP.Vn();
-    const GpReflectModel::C::Opt::CRef  modelBaseOpt    = GpReflectManager::S().SelectBaseModel(modelFromCSP.Vn(), modelTo);
+    const GpReflectModel::C::Opts::CRef modelBaseOpt    = GpReflectManager::S().SelectBaseModel(modelFromCSP.Vn(), modelTo);
     const GpUUID                        modelToUid      = modelToCSP.Vn().Uid();
 
     // Check if there are base reflect model for both objects
-    THROW_COND_GP
+    VERIFY
     (
         modelBaseOpt.has_value(),
         [&]()

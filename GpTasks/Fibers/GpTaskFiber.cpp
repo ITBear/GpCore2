@@ -2,15 +2,13 @@
 
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
-#include <GpCore2/GpUtils/Debugging/GpDebugging.hpp>
-
 GP_WARNING_PUSH()
 
 #if defined(GP_COMPILER_CLANG) || defined(GP_COMPILER_GCC)
     GP_WARNING_DISABLE(shadow)
 #endif// #if defined(GP_COMPILER_CLANG) || defined(GP_COMPILER_GCC)
 
-#   include <boost/context/fiber.hpp>
+#include <boost/context/fiber.hpp>
 
 GP_WARNING_POP()
 
@@ -25,10 +23,6 @@ GpTaskFiber::~GpTaskFiber (void) noexcept
     {
         return;
     }
-
-#if defined(DEBUG_BUILD)
-    GpDebugging::SBreakpoint();
-#endif// #if defined(DEBUG_BUILD)
 
     GpStringUtils::SCerr
     (
@@ -45,18 +39,18 @@ GpTaskFiber::~GpTaskFiber (void) noexcept
 
 GpTaskFiber&    GpTaskFiber::SCurrentFiber (void)
 {
-    GpTask::C::Opt::Ref currentTaskOpt = GpTask::SCurrentTask();
+    GpTask::C::Opts::Ref currentTaskOpt = GpTask::SCurrentTask();
 
     if (!currentTaskOpt.has_value()) [[unlikely]]
     {
-        THROW_GP("Call Yeld from outside fiber"_sv);
+        THROW("Call Yield from outside fiber"_sv);
     }
 
     GpTask& currentTask = currentTaskOpt.value();
 
     if (currentTask.TaskMode() != GpTaskMode::FIBER) [[unlikely]]
     {
-        THROW_GP("Call Yeld from not fiber task"_sv);
+        THROW("Call Yield from not fiber task"_sv);
     }
 
     return static_cast<GpTaskFiber&>(currentTask);
@@ -103,12 +97,12 @@ GpTaskRunRes::EnumT GpTaskFiber::Run (void) noexcept
 
         if (clearExOpt.has_value())
         {
-            StartPromise().Fulfill(clearExOpt.value());
-            DonePromise().Fulfill(clearExOpt.value());
+            StartPromise(GpMethodAccess{this}).Fulfill(clearExOpt.value());
+            DonePromise(GpMethodAccess{this}).Fulfill(clearExOpt.value());
         } else
         {
-            StartPromise().Fulfill(ex.value());
-            DonePromise().Fulfill(ex.value());
+            StartPromise(GpMethodAccess{this}).Fulfill(ex.value());
+            DonePromise(GpMethodAccess{this}).Fulfill(ex.value());
         }
     } else if (res == GpTaskRunRes::DONE) // Check if result is DONE
     {
@@ -116,12 +110,12 @@ GpTaskRunRes::EnumT GpTaskFiber::Run (void) noexcept
 
         if (clearExOpt.has_value())
         {
-            StartPromise().Fulfill(clearExOpt.value());
-            DonePromise().Fulfill(clearExOpt.value());
+            StartPromise(GpMethodAccess{this}).Fulfill(clearExOpt.value());
+            DonePromise(GpMethodAccess{this}).Fulfill(clearExOpt.value());
         } else
         {
-            StartPromise().Fulfill(StartPromiseRes{});
-            DonePromise().Fulfill(DonePromiseRes{});
+            StartPromise(GpMethodAccess{this}).Fulfill(StartPromiseRes{});
+            DonePromise(GpMethodAccess{this}).Fulfill(DonePromiseRes{});
         }
     }
 
@@ -141,7 +135,7 @@ GpTaskRunRes::EnumT GpTaskFiber::FiberRun (GpMethodAccessGuard<GpTaskFiberCtx>)
             OnStart();
 
             iIsStartCalled = true;
-            StartPromise().Fulfill(StartPromiseRes{});
+            StartPromise(GpMethodAccess{this}).Fulfill(StartPromiseRes{});
         }
 
         // Do Step
@@ -163,7 +157,7 @@ GpTaskRunRes::EnumT GpTaskFiber::FiberRun (GpMethodAccessGuard<GpTaskFiberCtx>)
     }
 
     // --------------- Call stop ------------------
-    CallOnStop(GpMethodAccess<GpTaskFiber>{this});
+    CallOnStop(GpMethodAccess{this});
 
     if (ex.has_value())
     {
@@ -182,7 +176,7 @@ void    GpTaskFiber::CallOnStop (GpMethodAccessGuard<GpTaskFiber, GpTaskFiberCtx
     }
 
     iIsStopCalled = true;
-    GpTaskFiber::StopExceptionsT stopExceptions;
+    GpTaskFiber::ExceptionsT stopExceptions;
     OnStop(stopExceptions);
 
     for (const GpException& ex: stopExceptions)

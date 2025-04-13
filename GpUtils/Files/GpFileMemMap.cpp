@@ -88,7 +88,7 @@ void*   GpFileMemMap::MemMap (void)
 
     const std::string_view fileName = iFile.Name();
 
-    THROW_COND_GP
+    VERIFY
     (
         iMappedHandle != nullptr,
         [fileName]()
@@ -112,7 +112,7 @@ void*   GpFileMemMap::MemMap (void)
         nullptr
     );
 
-    THROW_COND_GP
+    VERIFY
     (
         iMappedData != nullptr,
         [fileName]()
@@ -138,7 +138,7 @@ void*   GpFileMemMap::MemMap (void)
 
     const std::string_view fileName = iFile.Name();
 
-    THROW_COND_GP
+    VERIFY
     (
         iMappedData != MAP_FAILED,
         [fileName]()

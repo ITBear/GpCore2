@@ -22,7 +22,7 @@ public:
     inline                                      GpReflectDiffPropBLOB   (ArrayT::ReplaceVariantT&& aReplaceData) noexcept;
                                                 ~GpReflectDiffPropBLOB  (void) noexcept;
 
-    static GpReflectDiffPropBLOB::C::Opt::Val   SCheckAndMake           (const GpBytesArray& aValueFrom,
+    static GpReflectDiffPropBLOB::C::Opts::Val  SCheckAndMake           (const GpBytesArray& aValueFrom,
                                                                          const GpBytesArray& aValueTo);
 private:
     ArrayT::ReplaceVariantT                     iReplaceData;

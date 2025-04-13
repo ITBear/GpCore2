@@ -26,8 +26,8 @@ public:
 
 public:
                             GpException     (void) noexcept = default;
-    inline                  GpException     (const GpException& aException);
-    inline                  GpException     (GpException&& aException);
+                            GpException     (const GpException& aException);
+                            GpException     (GpException&& aException) noexcept;
                             GpException     (std::string_view       aMsg,
                                              const SourceLocationT& aSourceLocation = SourceLocationT::current()) noexcept;
     virtual                 ~GpException    (void) noexcept override;
@@ -36,48 +36,16 @@ public:
     std::string_view        Message         (void) const noexcept {return iMsg;}
     const SourceLocationT&  SourceLocation  (void) const noexcept {return iSourceLocation;}
 
-    inline GpException&     operator=       (const GpException& aException);
-    inline GpException&     operator=       (GpException&&  aException);
+    GpException&            operator=       (const GpException& aException);
+    GpException&            operator=       (GpException&&      aException) noexcept;
 
 private:
     std::string             iWhat;
-    std::string_view        iMsg;
+    std::string             iMsg;
     SourceLocationT         iSourceLocation;
 };
 
-GpException::GpException (const GpException& aException):
-iWhat          {aException.iWhat},
-iMsg           {std::data(iWhat) + (std::data(aException.iMsg) - std::data(aException.iWhat)), std::size(aException.iMsg)},
-iSourceLocation{aException.iSourceLocation}
-{
-}
-
-GpException::GpException (GpException&& aException):
-iWhat          {aException.iWhat},//do not std::move
-iMsg           {std::data(iWhat) + (std::data(aException.iMsg) - std::data(aException.iWhat)), std::size(aException.iMsg)},
-iSourceLocation{aException.iSourceLocation}//do not std::move
-{
-}
-
-GpException&    GpException::operator= (const GpException&  aException)
-{
-    iWhat           = aException.iWhat;
-    iMsg            = std::string_view(std::data(iWhat) + (std::data(aException.iMsg) - std::data(aException.iWhat)), std::size(aException.iMsg));
-    iSourceLocation = aException.iSourceLocation;
-
-    return *this;
-}
-
-GpException&    GpException::operator= (GpException&& aException)
-{
-    iWhat           = aException.iWhat;
-    iMsg            = std::string_view(std::data(iWhat) + (std::data(aException.iMsg) - std::data(aException.iWhat)), std::size(aException.iMsg));
-    iSourceLocation = aException.iSourceLocation;
-
-    return *this;
-}
-
-[[noreturn]] inline void    THROW_GP
+[[noreturn]] inline void    THROW
 (
     std::string_view        aMsg,
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
@@ -86,7 +54,7 @@ GpException&    GpException::operator= (GpException&& aException)
     throw GpException{aMsg, aSourceLocation};
 }
 
-[[noreturn]] inline void    THROW_GP_NOT_IMPLEMENTED
+[[noreturn]] inline void    THROW_NOT_IMPLEMENTED
 (
     const SourceLocationT&  aSourceLocation = SourceLocationT::current()
 )
@@ -94,7 +62,7 @@ GpException&    GpException::operator= (GpException&& aException)
     throw GpException{"Not implemented yet..."_sv, aSourceLocation};
 }
 
-inline void THROW_COND_GP
+inline void VERIFY
 (
     const bool              aCondition,
     std::string_view        aMsg,
@@ -107,7 +75,7 @@ inline void THROW_COND_GP
     }
 }
 
-inline void THROW_COND_GP
+inline void VERIFY
 (
     const bool                      aCondition,
     std::function<std::string()>&&  aMsgGenFn,

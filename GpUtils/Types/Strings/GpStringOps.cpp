@@ -6,7 +6,7 @@
 
 namespace GPlatform {
 
-std::vector<std::string_view>   GpStringOps::SSplit
+std::vector<std::string_view>   GpStringOps::SSplitExt
 (
     std::string_view        aSourceStr,
     const char              aDelim,
@@ -15,7 +15,7 @@ std::vector<std::string_view>   GpStringOps::SSplit
     const Algo::SplitMode   aSplitMode
 )
 {
-    return Algo::Split<char, std::vector<std::string_view>>
+    return Algo::SplitExt<char, std::vector<std::string_view>>
     (
         GpSpanCharR{aSourceStr},
         GpSpanCharR{&aDelim, 1},
@@ -25,7 +25,7 @@ std::vector<std::string_view>   GpStringOps::SSplit
     );
 }
 
-std::vector<std::string_view>   GpStringOps::SSplit
+std::vector<std::string_view>   GpStringOps::SSplitExt
 (
     std::string_view        aSourceStr,
     std::string_view        aDelim,
@@ -34,13 +34,30 @@ std::vector<std::string_view>   GpStringOps::SSplit
     const Algo::SplitMode   aSplitMode
 )
 {
-    return Algo::Split<char, std::vector<std::string_view>>
+    return Algo::SplitExt<char, std::vector<std::string_view>>
     (
         GpSpanCharR{aSourceStr},
         GpSpanCharR{aDelim},
         aReturnPartsCountLimit,
         aDelimCountLimit,
         aSplitMode
+    );
+}
+
+std::vector<std::string>    GpStringOps::SSplit
+(
+    std::string_view    aSourceStr,
+    char                aSplittChar,
+    char                aEscapeChar,
+    char                aSequenceChar
+)
+{
+    return Algo::Split<std::string_view, std::vector<std::string>, char>
+    (
+        aSourceStr,
+        aSplittChar,
+        aEscapeChar,
+        aSequenceChar
     );
 }
 
@@ -65,7 +82,12 @@ bool    GpStringOps::SIsEqualCaseInsensitive8bit
 
 std::regex  GpStringOps::SPrepareRegexFilter (std::string_view aFilter)
 {
-    THROW_COND_GP
+    if (aFilter.empty())
+    {
+        [[maybe_unused]] int d = 0;
+    }
+
+    VERIFY
     (
         aFilter.empty() == false,
         "The filter string is empty"
@@ -119,7 +141,7 @@ size_t  GpStringOps::SFromUI64
 {
     const size_t length = GpNumericOps::SDecDigsCountUI64(aValue);
 
-    THROW_COND_GP
+    VERIFY
     (
         aStrOut.Count() >= length,
         "aStrOut size are too small"_sv
@@ -154,7 +176,7 @@ size_t  GpStringOps::SFromSI64
         const u_int_64 v = std::bit_cast<u_int_64>(aValue);
         length = GpNumericOps::SDecDigsCountUI64(v);
 
-        THROW_COND_GP
+        VERIFY
         (
             aStrOut.Count() >= length,
             "aStrOut size are too small"_sv
@@ -166,7 +188,7 @@ size_t  GpStringOps::SFromSI64
         const u_int_64 v =std::bit_cast<u_int_64>(-aValue);
         length = GpNumericOps::SDecDigsCountUI64(v);
 
-        THROW_COND_GP
+        VERIFY
         (
             aStrOut.Count() >= (length + 1),
             "StrOut size are too small"_sv
@@ -205,6 +227,102 @@ std::string GpStringOps::SFromSI64 (const s_int_64 aValue)
     return s;
 }
 
+// -------------------------------------------------------------------------
+size_t  GpStringOps::SFromUI128
+(
+    const u_int_128 aValue,
+    GpSpanCharRW    aStrOut
+)
+{
+    const size_t length = GpNumericOps::SDecDigsCountUI128(aValue);
+
+    VERIFY
+    (
+        aStrOut.Count() >= length,
+        "aStrOut size are too small"_sv
+    );
+
+    _SFromUI128(aValue, GpSpanCharRW(aStrOut.Ptr(), length));
+
+    return length;
+}
+
+std::string GpStringOps::SFromUI128 (const u_int_128 aValue)
+{
+    const size_t    length = GpNumericOps::SDecDigsCountUI128(aValue);
+    std::string     s;
+    s.resize(length);
+
+    _SFromUI128(aValue, s);
+
+    return s;
+}
+
+size_t  GpStringOps::SFromSI128
+(
+    const s_int_128 aValue,
+    GpSpanCharRW    aStrOut
+)
+{
+    size_t length = 0;
+
+    if (aValue >= 0)
+    {
+        const u_int_128 v = std::bit_cast<u_int_128>(aValue);
+        length = GpNumericOps::SDecDigsCountUI128(v);
+
+        VERIFY
+        (
+            aStrOut.Count() >= length,
+            "aStrOut size are too small"_sv
+        );
+
+        _SFromUI128(v, GpSpanCharRW(aStrOut.Ptr(), length));
+    } else
+    {
+        const u_int_128 v =std::bit_cast<u_int_128>(-aValue);
+        length = GpNumericOps::SDecDigsCountUI128(v);
+
+        VERIFY
+        (
+            aStrOut.Count() >= (length + 1),
+            "StrOut size are too small"_sv
+        );
+
+        *aStrOut++ = '-';
+        _SFromUI128(v, GpSpanCharRW(aStrOut.Ptr(), length));
+        length++;
+    }
+
+    return length;
+}
+
+std::string GpStringOps::SFromSI128 (const s_int_128 aValue)
+{
+    std::string s;
+    size_t      length = 0;
+
+    if (aValue >= 0)
+    {
+        const u_int_128 v = std::bit_cast<u_int_128>(aValue);
+        length = GpNumericOps::SDecDigsCountUI128(v);
+        s.resize(length);
+
+        _SFromUI128(v, GpSpanCharRW(s));
+    } else
+    {
+        const u_int_128 v = std::bit_cast<u_int_128>(-aValue);
+        length = GpNumericOps::SDecDigsCountUI128(v);
+        s.resize(length + 1);
+
+        *std::data(s) = '-';
+        _SFromUI128(v, GpSpanCharRW(std::data(s) + 1, length));
+    }
+
+    return s;
+}
+// -------------------------------------------------------------------------
+
 size_t  GpStringOps::SFromDouble
 (
     const double    aValue,
@@ -216,7 +334,7 @@ size_t  GpStringOps::SFromDouble
     std::string         s       = std::string(reinterpret_cast<const char*>(std::data(tmpS)), std::size(tmpS));
     const size_t        length  = std::size(s);
 
-    THROW_COND_GP
+    VERIFY
     (
         aStrOut.Count() >= length,
         "aMaxOutLength value are too small"_sv
@@ -266,13 +384,13 @@ u_int_64    GpStringOps::SToUI64
         return result;
     } else if (r.ec == std::errc::invalid_argument)
     {
-        THROW_GP("Wrong source string value '"_sv + aStr + "'"_sv);
+        THROW("Wrong source string value '"_sv + aStr + "'"_sv);
     } else if (r.ec == std::errc::result_out_of_range)
     {
-        THROW_GP("Out of u_int_64 range: '"_sv + aStr + "'"_sv);
+        THROW("Out of u_int_64 range: '"_sv + aStr + "'"_sv);
     } else
     {
-        THROW_GP("std::errc() = "_sv + int(std::errc()) + ". Source string '"_sv + aStr + "'"_sv);
+        THROW("std::errc() = "_sv + int(std::errc()) + ". Source string '"_sv + aStr + "'"_sv);
     }
 
     return result;
@@ -288,7 +406,9 @@ s_int_64    GpStringOps::SToSI64
     const char* strPtrBegin = reinterpret_cast<const char*>(std::data(aStr));
     size_t      strSize     = std::size(aStr);
 
-    if ((strSize > 0) && (strPtrBegin != nullptr) && (*strPtrBegin == '+'))
+    if (   (strSize > 0)
+        && (strPtrBegin != nullptr)
+        && (*strPtrBegin == '+'))
     {
         strPtrBegin++;
         strSize--;
@@ -312,13 +432,13 @@ s_int_64    GpStringOps::SToSI64
         return result;
     } else if (r.ec == std::errc::invalid_argument)
     {
-        THROW_GP("Wrong source string value '"_sv + aStr + "'"_sv);
+        THROW("Wrong source string value '"_sv + aStr + "'"_sv);
     } else if (r.ec == std::errc::result_out_of_range)
     {
-        THROW_GP("Out of s_int_64 range: '"_sv + aStr + "'"_sv);
+        THROW("Out of s_int_64 range: '"_sv + aStr + "'"_sv);
     } else
     {
-        THROW_GP("std::errc() = "_sv + int(std::errc()) + ". Source string '"_sv + aStr + "'"_sv);
+        THROW("std::errc() = "_sv + int(std::errc()) + ". Source string '"_sv + aStr + "'"_sv);
     }
 
     return result;
@@ -341,7 +461,7 @@ double      GpStringOps::SToDouble
 
     if (readCount != std::size(s))
     {
-        THROW_GP("Wrong source string value '"_sv + aStr + "'"_sv);
+        THROW("Wrong source string value '"_sv + aStr + "'"_sv);
     }
 
     if (aReadCountOut.has_value())
@@ -370,13 +490,13 @@ double      GpStringOps::SToDouble
         return result;
     } else if (r.ec == std::errc::invalid_argument)
     {
-        THROW_GP("Wrong source string value '"_sv + aStr + "'"_sv);
+        THROW("Wrong source string value '"_sv + aStr + "'"_sv);
     } else if (r.ec == std::errc::result_out_of_range)
     {
-        THROW_GP("Out of double range: '"_sv + aStr + "'"_sv);
+        THROW("Out of double range: '"_sv + aStr + "'"_sv);
     } else
     {
-        THROW_GP("std::errc() = "_sv + int(std::errc()) + ". Source string '"_sv + aStr + "'"_sv);
+        THROW("std::errc() = "_sv + int(std::errc()) + ". Source string '"_sv + aStr + "'"_sv);
     }
 #endif//
 
@@ -423,7 +543,7 @@ size_t  GpStringOps::SFromBytesHex
 
     const size_t resSize = NumOps::SMul(dataLength, size_t{2});
 
-    THROW_COND_GP
+    VERIFY
     (
         strOutLength >= resSize,
         "Out string size is too small"_sv
@@ -433,7 +553,7 @@ size_t  GpStringOps::SFromBytesHex
     const u_int_8* _R_  dataPtr     = aData.PtrAs<const u_int_8*>();
     char* _R_           strPtr      = aStrOut.Ptr();
 
-    THROW_COND_GP
+    VERIFY
     (
         strPtr != nullptr,
         "aStrOut is null"_sv
@@ -461,7 +581,7 @@ std::string GpStringOps::SFromBytesHex (GpSpanByteR aData)
 
     if (SFromBytesHex(aData, res) != charsCount)
     {
-        THROW_GP("Failed to convert bytes to hex string"_sv);
+        THROW("Failed to convert bytes to hex string"_sv);
     }
 
     return res;
@@ -481,7 +601,7 @@ size_t  GpStringOps::SToBytesHex
         return 0;
     }
 
-    THROW_COND_GP
+    VERIFY
     (
         (strLength % 2) == 0,
         "String length must be even"_sv
@@ -503,7 +623,7 @@ size_t  GpStringOps::SToBytesHex
 
     //
     const size_t outSize = std::size(strHex) / 2;
-    THROW_COND_GP
+    VERIFY
     (
         aDataOut.Count() >= outSize,
         "Out data size is too small"_sv
@@ -740,6 +860,49 @@ void    GpStringOps::_SFromUI64
     } else
     {
         const size_t i = static_cast<size_t>(value * u_int_64{2});
+        MemOps::SCopy(strPtr, digits + i, 2);
+    }
+}
+
+void    GpStringOps::_SFromUI128
+(
+    const u_int_128 aValue,
+    GpSpanCharRW    aStrOut
+)
+{
+    u_int_128       value   = aValue;
+    const char* _R_ digits  = std::data(SDigits());
+    char* _R_       strPtr  = aStrOut.Ptr();
+
+    if (value < u_int_128{10})
+    {
+        *strPtr = char(u_int_128{'0'} + value);
+        return;
+    }
+
+    {
+        const size_t    countLeft   = aStrOut.Count();
+        const size_t    offset      = NumOps::SSub(countLeft, size_t{2});
+        strPtr += offset;
+    }
+
+    while (value >= u_int_128{100})
+    {
+        const size_t i = static_cast<size_t>((value % u_int_128{100}) * u_int_128{2});
+        value /= u_int_128{100};
+
+        MemOps::SCopy(strPtr, digits + i, 2);
+        strPtr -= 2;
+    }
+
+    // Handle last 1-2 digits
+    if (value < 10)
+    {
+        strPtr++;
+        *strPtr = char(u_int_128{'0'} + u_int_128{value});
+    } else
+    {
+        const size_t i = static_cast<size_t>(value * u_int_128{2});
         MemOps::SCopy(strPtr, digits + i, 2);
     }
 }

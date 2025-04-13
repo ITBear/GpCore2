@@ -29,7 +29,7 @@ void    GpReflectDiffUtils::SApplyDiffTo
 )
 {
     // TODO: implement
-    THROW_GP_NOT_IMPLEMENTED();
+    THROW_NOT_IMPLEMENTED();
 }
 
 GpReflectObject::SP GpReflectDiffUtils::SCreateNewAndApplyDiff
@@ -39,7 +39,7 @@ GpReflectObject::SP GpReflectDiffUtils::SCreateNewAndApplyDiff
 )
 {
     // TODO: implement
-    THROW_GP_NOT_IMPLEMENTED();
+    THROW_NOT_IMPLEMENTED();
 }
 
 }// namespace GPlatform

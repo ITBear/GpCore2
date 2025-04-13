@@ -16,19 +16,19 @@ public:
     using ArrayT        = GpReflectDiffArray<ContainerT, typename ContainerT::value_type, void>;
 
 public:
-                                                GpReflectDiffPropString     (void) noexcept = default;
-    inline                                      GpReflectDiffPropString     (const GpReflectDiffPropString& aDiffProp) noexcept;
-    inline                                      GpReflectDiffPropString     (GpReflectDiffPropString&& aDiffProp) noexcept;
-    inline                                      GpReflectDiffPropString     (ArrayT::ReplaceVariantT&& aReplaceData) noexcept;
-                                                ~GpReflectDiffPropString    (void) noexcept;
+                                                    GpReflectDiffPropString     (void) noexcept = default;
+    inline                                          GpReflectDiffPropString     (const GpReflectDiffPropString& aDiffProp) noexcept;
+    inline                                          GpReflectDiffPropString     (GpReflectDiffPropString&& aDiffProp) noexcept;
+    inline                                          GpReflectDiffPropString     (ArrayT::ReplaceVariantT&& aReplaceData) noexcept;
+                                                    ~GpReflectDiffPropString    (void) noexcept;
 
-    const ArrayT::ReplaceVariantT&              Value                       (void) const noexcept {return iReplaceData;}
-    ArrayT::ReplaceVariantT&                    Value                       (void) noexcept {return iReplaceData;}
+    const ArrayT::ReplaceVariantT&                  Value                       (void) const noexcept {return iReplaceData;}
+    ArrayT::ReplaceVariantT&                        Value                       (void) noexcept {return iReplaceData;}
 
-    static GpReflectDiffPropString::C::Opt::Val SCheckAndMake               (const std::string& aValueFrom,
-                                                                             const std::string& aValueTo);
+    static GpReflectDiffPropString::C::Opts::Val    SCheckAndMake               (const std::string& aValueFrom,
+                                                                                 const std::string& aValueTo);
 private:
-    ArrayT::ReplaceVariantT                     iReplaceData;
+    ArrayT::ReplaceVariantT                         iReplaceData;
 };
 
 GpReflectDiffPropString::GpReflectDiffPropString (const GpReflectDiffPropString& aDiffProp) noexcept:

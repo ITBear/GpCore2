@@ -158,6 +158,10 @@ public:
     static constexpr ssize_t    SCompare        (const T*       aElementsA,
                                                  const T*       aElementsB,
                                                  const size_t   aCount) noexcept;
+
+    // -------------------- memzero ------------------
+    template<typename T>
+    static void                 SMemZero        (T& aValue) noexcept;
 };
 
 template<typename T, typename... Ts>
@@ -464,6 +468,12 @@ constexpr ssize_t   GpMemOps::SCompare
     {
         ::GPlatform::Compare<T>(*a++, *b++);
     }
+}
+
+template<typename T>
+void    GpMemOps::SMemZero (T& aValue) noexcept
+{
+    std::memset(&aValue, 0, sizeof(T));
 }
 
 using MemOps = GpMemOps;

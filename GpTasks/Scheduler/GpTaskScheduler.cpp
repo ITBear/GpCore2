@@ -43,19 +43,19 @@ void    GpTaskScheduler::StopService (void)
     iStopServiceFn();
 }
 
-GpTask::DoneFutureT::SP GpTaskScheduler::NewToReadyDepend (GpSP<GpTask> aTaskSP)
+GpTask::DoneFutureT::C::Opts::SP GpTaskScheduler::NewToReadyDepend (GpSP<GpTask> aTaskSP)
 {
-    GpTask::DoneFutureT::SP doneFuture = aTaskSP->GetDoneFuture();
-    NewToReady(std::move(aTaskSP));
-    return doneFuture;
+    GpTask::DoneFutureT::SP doneFutureSP = aTaskSP->DoneFuture();
+
+    return NewToReady(std::move(aTaskSP)) ? GpTask::DoneFutureT::C::Opts::SP{doneFutureSP} : std::nullopt;
 }
 
-GpTask::DoneFutureT::SP GpTaskScheduler::RequestStop (GpTask& aTask)
+GpTask::DoneFutureT::C::Opts::SP    GpTaskScheduler::RequestStop (GpTask& aTask)
 {
-    GpTask::DoneFutureT::SP doneFuture = aTask.GetDoneFuture();
-    aTask.UpStopRequestFlag(GpMethodAccess<GpTaskScheduler>{this});
-    MakeTaskReady(aTask.TaskId());
-    return doneFuture;
+    GpTask::DoneFutureT::SP doneFutureSP = aTask.DoneFuture();
+    aTask.UpStopRequestFlag(GpMethodAccess{this});
+
+    return MakeTaskReady(aTask.TaskId()) ? GpTask::DoneFutureT::C::Opts::SP{doneFutureSP} : std::nullopt;
 }
 
 void    GpTaskScheduler::Start

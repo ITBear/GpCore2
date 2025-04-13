@@ -153,7 +153,7 @@ std::optional<std::string_view> GpReflectProp::FlagArg (const GpReflectPropFlag:
 //const GpReflectProp&  GpReflectProp::UnwrapContainerKeyProp (void) const
 //{
 //  //
-//  THROW_COND_GP
+//  VERIFY
 //  (
 //         (Container() != ContainerT::NO)
 //      || (FlagTest(GpReflectPropFlag::UNWRAP_CONTAINER))
@@ -176,7 +176,7 @@ std::optional<std::string_view> GpReflectProp::FlagArg (const GpReflectPropFlag:
 //      }
 //  }
 //
-//  THROW_GP
+//  THROW
 //  (
 //      fmt::format("No property with UNWRAP_CONTAINER_KEY flag was found for model UID '{}'", ModelUid())
 //  );
@@ -230,7 +230,7 @@ void    GpReflectProp::ConstructCustom (void* aDataPtr) const
         iConstructCustomFn.value()(PropPtr(aDataPtr));
     } else
     {
-        THROW_GP("There are no custom construct function");
+        THROW("There are no custom construct function");
     }
 }
 
@@ -241,7 +241,7 @@ void    GpReflectProp::DestructCustom (void* aDataPtr) const
         iDestructCustomFn.value()(PropPtr(aDataPtr));
     } else
     {
-        THROW_GP("There are no custom destruct function");
+        THROW("There are no custom destruct function");
     }
 }
 

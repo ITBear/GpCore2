@@ -1,9 +1,9 @@
 #include <GpCore2/GpTasks/Scheduler/V1/GpTaskSchedulerV1.hpp>
 #include <GpCore2/GpTasks/Scheduler/V1/GpTaskExecutorV1.hpp>
-#include <GpCore2/GpTasks/GpTaskGroupsManager.hpp>
+#include <GpCore2/GpTasks/GpTaskGroupsManager_.hpp>
 #include <GpCore2/GpUtils/Exceptions/GpExceptionUtils.hpp>
 #include <GpCore2/GpUtils/Debugging/GpDebugging.hpp>
-#include <GpCore2/GpTasks/ITC/GpItcSharedFutureUtils.hpp>
+#include <GpCore2/GpTasks/ITC/GpItcFutureUtils.hpp>
 
 #include <tuple>
 #include <utility>
@@ -36,19 +36,19 @@ void    GpTaskSchedulerV1::Start
     );
 
     //------------------ Check -------------------
-    THROW_COND_GP
+    VERIFY
     (
         aExecutorsCount > 0,
         "Executors count must be > 0"_sv
     );
 
-    THROW_COND_GP
+    VERIFY
     (
         aTasksMaxCount > 0,
         "Tasks max count must be > 0"_sv
     );
 
-    THROW_COND_GP
+    VERIFY
     (
         iExecutorThreads.empty(),
         "Executor tasks already created"_sv
@@ -125,7 +125,7 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
             {
                 for (auto iter = std::begin(iExecutorDoneFutures); iter != std::end(iExecutorDoneFutures); )
                 {
-                    const bool isReady = GpItcSharedFutureUtils::STryCheck
+                    const bool isReady = GpItcFutureUtils::STryCheck
                     (
                         iter->V(),
                         [](ssize_t& /*aExecutorId*/)
@@ -134,7 +134,7 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
                         },
                         [](const GpException& aException)
                         {
-                            THROW_GP
+                            THROW
                             (
                                 fmt::format
                                 (
@@ -161,14 +161,14 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
         {
             while (!iReadyTasks.Empty())
             {
-                GpTask::C::Opt::SP taskOpt = iReadyTasks.WaitAndPop(0.0_si_s).value();
+                GpTask::C::Opts::SP taskOpt = iReadyTasks.WaitAndPop(0.0_si_s).value();
 
                 if (taskOpt.has_value())
                 {
                     GpTask& task = taskOpt.value().V();
 
-                    task.UpStopRequestFlag(GpMethodAccess<GpTaskScheduler>{this});
-                    task.Execute(GpMethodAccess<GpTaskScheduler>{this});
+                    task.UpStopRequestFlag(GpMethodAccess{this});
+                    task.Execute(GpMethodAccess{this});
                 }
             }
 
@@ -187,8 +187,9 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
 
             for (auto&[taskGuid, taskSP]: waitingTasks)
             {
-                taskSP->UpStopRequestFlag(GpMethodAccess<GpTaskScheduler>{this});
-                taskSP->Execute(GpMethodAccess<GpTaskScheduler>{this});
+                taskSP->UpStopRequestFlag(GpMethodAccess{this});
+                taskSP->Execute(GpMethodAccess{this});
+                taskSP.Clear();
             }
         }
     } catch (const GpException& e)
@@ -203,40 +204,47 @@ void    GpTaskSchedulerV1::RequestStopAndJoin (void) noexcept
     }
 }
 
-void    GpTaskSchedulerV1::NewToReady (GpTask::SP aTask)
+bool    GpTaskSchedulerV1::NewToReady (GpTask::SP aTask)
 {
     GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
-    THROW_COND_GP
-    (
-        iIsRequestStopAndJoin == false,
-        "Task scheduler stopped"_sv
-    );
+    if (iIsRequestStopAndJoin)
+    {
+        return false;
+    }
 
     _MoveToReady(std::move(aTask), {});
+
+    return true;
 }
 
-void    GpTaskSchedulerV1::NewToWaiting (GpTask::SP aTask)
+bool    GpTaskSchedulerV1::NewToWaiting (GpTask::SP aTask)
 {
     GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
-    THROW_COND_GP
-    (
-        iIsRequestStopAndJoin == false,
-        "Task scheduler stopped"_sv
-    );
+    if (iIsRequestStopAndJoin)
+    {
+        return false;
+    }
 
     _MoveToWaiting(std::move(aTask));
+    return true;
 }
 
-void    GpTaskSchedulerV1::MakeTaskReady (const GpTaskId aTaskId)
+bool    GpTaskSchedulerV1::MakeTaskReady (const GpTaskId aTaskId)
 {
     GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
+    if (iIsRequestStopAndJoin)
+    {
+        return false;
+    }
+
     _MakeTaskReady(aTaskId, {});
+    return true;
 }
 
-void    GpTaskSchedulerV1::MakeTaskReady
+bool    GpTaskSchedulerV1::MakeTaskReady
 (
     const GpTaskId  aTaskId,
     GpAny           aMessage
@@ -244,42 +252,13 @@ void    GpTaskSchedulerV1::MakeTaskReady
 {
     GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
-    _MakeTaskReady(aTaskId, std::move(aMessage));
-}
-
-void    GpTaskSchedulerV1::MakeTasksReadyByGroupId
-(
-    const GpTaskGroupId aGpTaskGroupId,
-    GpAny               aMessage
-)
-{
-    GpTaskGroupsManager::TaskIdVecT tasks;
-    GpTaskGroupsManager::S().FindTasksByGroupId(aGpTaskGroupId, tasks);
-
-    GpUniqueLock<GpMutex> uniqueLock{iMutex};
-
-    for (const GpTaskId& taskId: tasks)
+    if (iIsRequestStopAndJoin)
     {
-        _MakeTaskReady(taskId, aMessage);
+        return false;
     }
-}
 
-bool    GpTaskSchedulerV1::AddTaskToGroup
-(
-    const GpTaskId      aTaskGuid,
-    const GpTaskGroupId aGpTaskGroupId
-)
-{
-    return GpTaskGroupsManager::S().AddTaskToGroup(aTaskGuid, aGpTaskGroupId);
-}
-
-bool    GpTaskSchedulerV1::RemoveTaskFromGroup
-(
-    const GpTaskId      aTaskGuid,
-    const GpTaskGroupId aGpTaskGroupId
-)
-{
-    return GpTaskGroupsManager::S().RemoveTaskFromGroup(aTaskGuid, aGpTaskGroupId);
+    _MakeTaskReady(aTaskId, std::move(aMessage));
+    return true;
 }
 
 bool    GpTaskSchedulerV1::Reschedule
@@ -288,10 +267,15 @@ bool    GpTaskSchedulerV1::Reschedule
     GpTask::SP&&                aTask
 ) noexcept
 {
+    GpUniqueLock<GpMutex> uniqueLock{iMutex};
+
+    if (iIsRequestStopAndJoin)
+    {
+        return false;
+    }
+
     try
     {
-        GpUniqueLock<GpMutex> uniqueLock{iMutex};
-
         switch (aRunRes)
         {
             case GpTaskRunRes::READY_TO_RUN:
@@ -301,7 +285,7 @@ bool    GpTaskSchedulerV1::Reschedule
             } break;
             case GpTaskRunRes::WAIT:
             {
-                if (iMarkedAsReadyIds.contains(aTask.Vn().TaskId()))
+                if (iMarkedAsReadyIds.contains(aTask.Vn().TaskId().Value()))
                 {
                     // TODO: reimplement iTasksProducer with...
                     _MoveToReady(std::move(aTask), {});
@@ -337,21 +321,13 @@ void    GpTaskSchedulerV1::_MakeTaskReady
     GpAny           aMessage
 )
 {
-#if defined(DEBUG_BUILD)
-    //if (iIsRequestStopAndJoin)
-    //{
-    //  GpDebugging::SBreakpoint();
-    //}
-#endif //#if defined(DEBUG_BUILD)
-
-    THROW_COND_GP
-    (
-        iIsRequestStopAndJoin == false,
-        "Task scheduler stopped"_sv
-    );
+    if (iIsRequestStopAndJoin == true)
+    {
+        return;
+    }
 
     // Try to find task in iWaitingTasks
-    auto waitingTaskIter = iWaitingTasks.find(aTaskId);
+    auto waitingTaskIter = iWaitingTasks.find(aTaskId.Value());
 
     if (waitingTaskIter != std::end(iWaitingTasks)) [[likely]]
     {
@@ -359,16 +335,23 @@ void    GpTaskSchedulerV1::_MakeTaskReady
         GpTask::SP taskSP = std::move(waitingTaskIter->second);
         iWaitingTasks.erase(waitingTaskIter);
         _MoveToReady(std::move(taskSP), std::move(aMessage));
-    } else      
+    } else
     {
         // Keep the aTaskId to set iMarkedAsReadyIds (In case a task is currently running...)
-        std::optional<GpTask*> taskPtrOpt = GpTask::STaskById(aTaskId);
-        if (taskPtrOpt.has_value())
+        if (!aMessage.Empty())
         {
-            taskPtrOpt.value()->PushMessage(std::move(aMessage));
+            std::optional<GpTask*> taskPtrOpt = GpTask::STaskById(aTaskId);
+            if (taskPtrOpt.has_value())
+            {
+                taskPtrOpt.value()->PushMessage
+                (
+                    std::move(aMessage),
+                    GpMethodAccess(this)
+                );
+            }
         }
 
-        iMarkedAsReadyIds.emplace(aTaskId);
+        iMarkedAsReadyIds.emplace(aTaskId.Value());
     }
 }
 
@@ -378,32 +361,46 @@ void    GpTaskSchedulerV1::_MoveToReady
     GpAny       aMessage
 )
 {
+    if (iIsRequestStopAndJoin == true)
+    {
+        return;
+    }
+
     GpTask&         task    = aTask.Vn();
     const GpTaskId  taskId  = task.TaskId();
 
-    task.UpStartRequestFlag(GpMethodAccess<GpTaskScheduler>{this});
+    task.UpStartRequestFlag(GpMethodAccess{this});
 
     if (!aMessage.Empty())
     {
-        task.PushMessage(std::move(aMessage));
+        task.PushMessage
+        (
+            std::move(aMessage),
+            GpMethodAccess(this)
+        );
     }
 
     if (iReadyTasks.PushAndNotifyOne(std::move(aTask)) == false) [[unlikely]]
     {
-        THROW_GP("Ready tasks queue is full"_sv);
+        THROW("Ready tasks queue is full"_sv);
     }
 
-    iMarkedAsReadyIds.erase(taskId);
+    iMarkedAsReadyIds.erase(taskId.Value());
 }
 
 void    GpTaskSchedulerV1::_MoveToWaiting (GpTask::SP aTask)
 {
+    if (iIsRequestStopAndJoin == true)
+    {
+        return;
+    }
+
     GpTask&         task    = aTask.Vn();
     const GpTaskId  taskId  = task.TaskId();
 
-    task.UpStartRequestFlag(GpMethodAccess<GpTaskScheduler>{this});
+    task.UpStartRequestFlag(GpMethodAccess{this});
 
-    iWaitingTasks.emplace(taskId, std::move(aTask));
+    iWaitingTasks.emplace(taskId.Value(), std::move(aTask));
 }
 
 }// namespace GPlatform

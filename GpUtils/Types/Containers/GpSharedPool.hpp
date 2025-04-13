@@ -20,26 +20,26 @@ namespace GPlatform {
 // TODO: Reimplement like GpCachePoolMap
 
 template<typename T>
-class GpElementsPool
+class GpSharedPool
 {
-    CLASS_REMOVE_CTRS_MOVE_COPY(GpElementsPool)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpSharedPool)
 
 public:
-    using this_type     = GpElementsPool<T>;
+    using this_type     = GpSharedPool<T>;
     using value_type    = T;
     using QueueT        = std::queue<value_type>;
 
     TAG_SET(THREAD_SAFE)
 
-    enum class ReleaseAct
+    enum class ReleaseAction
     {
         PUSH_TO_ELEMENTS,
         ACQUIRED
     };
 
 public:
-                                        GpElementsPool          (void) noexcept;
-    virtual                             ~GpElementsPool         (void) noexcept;
+                                        GpSharedPool            (void) noexcept;
+    virtual                             ~GpSharedPool           (void) noexcept;
 
     void                                Init                    (size_t aInitCount,
                                                                  size_t aMaxCount);
@@ -54,17 +54,12 @@ public:
     bool                                IsInit                  (void) const noexcept;
 
 protected:
-    virtual void                        PreInit                 (size_t aCount);
     virtual value_type                  NewElement              (void);
-    virtual void                        OnClear                 (void) noexcept;
     virtual bool                        Validate                (value_type& aElement) noexcept;
 
     virtual void                        OnAcquire               (value_type& aValue);
-    virtual ReleaseAct                  OnRelease               (value_type& aValue);
+    virtual ReleaseAction               OnRelease               (value_type& aValue);
     virtual std::optional<value_type>   OnAcquireNoElementsLeft (void);
-
-private:
-    void                                _Clear                  (bool aIsDestructorCall) noexcept;
 
 protected:
     mutable GpSpinLockRW                iSpinLockRW;
@@ -78,24 +73,24 @@ private:
 };
 
 template<typename T>
-GpElementsPool<T>::GpElementsPool (void) noexcept
+GpSharedPool<T>::GpSharedPool (void) noexcept
 {
 }
 
 template<typename T>
-GpElementsPool<T>::~GpElementsPool (void) noexcept
+GpSharedPool<T>::~GpSharedPool (void) noexcept
 {
-    _Clear(true);
+    Clear();
 }
 
 template<typename T>
-void    GpElementsPool<T>::Init
+void    GpSharedPool<T>::Init
 (
     const size_t aInitCount,
     const size_t aMaxCount
 )
 {
-    THROW_COND_GP
+    VERIFY
     (
         aMaxCount >= aInitCount,
         "aMaxCount >= aInitCount"_sv
@@ -105,13 +100,11 @@ void    GpElementsPool<T>::Init
 
     GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
-    THROW_COND_GP
+    VERIFY
     (
         iIsInit == false,
         "Already initialized"_sv
     );
-
-    PreInit(aInitCount);
 
     for (size_t i = 0; i < aInitCount; i++)
     {
@@ -125,13 +118,23 @@ void    GpElementsPool<T>::Init
 }
 
 template<typename T>
-void    GpElementsPool<T>::Clear (void) noexcept
+void    GpSharedPool<T>::Clear (void) noexcept
 {
-    _Clear(false);
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+
+    while (iElements.empty() == false)
+    {
+        iElements.pop();
+    }
+
+    iInitCount      = {0};
+    iMaxCount       = {0};
+    iAcquiredCount  = {0};
+    iIsInit         = false;
 }
 
 template<typename T>
-typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T>::Acquire (void)
+auto    GpSharedPool<T>::Acquire (void) -> std::optional<value_type>
 {
     GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
@@ -167,11 +170,11 @@ typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T
 }
 
 template<typename T>
-void    GpElementsPool<T>::Release (value_type&& aElement)
+void    GpSharedPool<T>::Release (value_type&& aElement)
 {
     GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
-    THROW_COND_GP
+    VERIFY
     (
         iAcquiredCount > 0,
         "Release without acquire"_sv
@@ -181,7 +184,7 @@ void    GpElementsPool<T>::Release (value_type&& aElement)
 
     if (Validate(aElement))
     {
-        if (OnRelease(aElement) == ReleaseAct::PUSH_TO_ELEMENTS)
+        if (OnRelease(aElement) == ReleaseAction::PUSH_TO_ELEMENTS)
         {
             iElements.push(std::move(aElement));
         }
@@ -189,7 +192,7 @@ void    GpElementsPool<T>::Release (value_type&& aElement)
 }
 
 template<typename T>
-size_t  GpElementsPool<T>::InitCount (void) const noexcept
+size_t  GpSharedPool<T>::InitCount (void) const noexcept
 {
     GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
 
@@ -197,7 +200,7 @@ size_t  GpElementsPool<T>::InitCount (void) const noexcept
 }
 
 template<typename T>
-size_t  GpElementsPool<T>::MaxCount (void) const noexcept
+size_t  GpSharedPool<T>::MaxCount (void) const noexcept
 {
     GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
 
@@ -205,7 +208,7 @@ size_t  GpElementsPool<T>::MaxCount (void) const noexcept
 }
 
 template<typename T>
-size_t  GpElementsPool<T>::AcquiredCount (void) const noexcept
+size_t  GpSharedPool<T>::AcquiredCount (void) const noexcept
 {
     GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
 
@@ -213,7 +216,7 @@ size_t  GpElementsPool<T>::AcquiredCount (void) const noexcept
 }
 
 template<typename T>
-bool    GpElementsPool<T>::IsInit (void) const noexcept
+bool    GpSharedPool<T>::IsInit (void) const noexcept
 {
     GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
 
@@ -221,31 +224,19 @@ bool    GpElementsPool<T>::IsInit (void) const noexcept
 }
 
 template<typename T>
-void    GpElementsPool<T>::PreInit (const size_t /*aCount*/)
-{
-    //NOP
-}
-
-template<typename T>
-typename GpElementsPool<T>::value_type  GpElementsPool<T>::NewElement (void)
+auto    GpSharedPool<T>::NewElement (void) -> value_type
 {
     return T{};
 }
 
 template<typename T>
-void    GpElementsPool<T>::OnClear (void) noexcept
-{
-    //NOP
-}
-
-template<typename T>
-bool    GpElementsPool<T>::Validate (value_type& /*aElement*/) noexcept
+bool    GpSharedPool<T>::Validate (value_type& /*aElement*/) noexcept
 {
     return true;
 }
 
 template<typename T>
-void    GpElementsPool<T>::OnAcquire
+void    GpSharedPool<T>::OnAcquire
 (
     value_type& /*aValue*/
 )
@@ -254,39 +245,15 @@ void    GpElementsPool<T>::OnAcquire
 }
 
 template<typename T>
-typename GpElementsPool<T>::ReleaseAct  GpElementsPool<T>::OnRelease
-(
-    value_type& /*aValue*/
-)
+auto    GpSharedPool<T>::OnRelease (value_type&) -> ReleaseAction
 {
-    return ReleaseAct::PUSH_TO_ELEMENTS;
+    return ReleaseAction::PUSH_TO_ELEMENTS;
 }
 
 template<typename T>
-typename std::optional<typename GpElementsPool<T>::value_type>  GpElementsPool<T>::OnAcquireNoElementsLeft (void)
+auto    GpSharedPool<T>::OnAcquireNoElementsLeft (void) -> std::optional<value_type>
 {
     return std::nullopt;
-}
-
-template<typename T>
-void    GpElementsPool<T>::_Clear (bool aIsDestructorCall) noexcept
-{
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
-
-    if (aIsDestructorCall == false)
-    {
-        OnClear();
-    }
-
-    while (iElements.empty() == false)
-    {
-        iElements.pop();
-    }
-
-    iInitCount      = {0};
-    iMaxCount       = {0};
-    iAcquiredCount  = {0};
-    iIsInit         = false;
 }
 
 }// namespace GPlatform

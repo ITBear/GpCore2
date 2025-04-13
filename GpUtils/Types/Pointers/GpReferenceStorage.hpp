@@ -20,8 +20,8 @@ public:
 public:
     template<typename... Ts>
     explicit        GpReferenceStorage  (Ts&&... aArgs):
-                    GpReferenceCounter(&iValue),
-                    iValue(std::forward<Ts>(aArgs)...)
+                        GpReferenceCounter{&iValue},
+                        iValue{std::forward<Ts>(aArgs)...}
                     {
                     }
 

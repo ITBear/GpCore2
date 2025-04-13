@@ -2,10 +2,15 @@
 
 namespace GPlatform {
 
+GP_WARNING_PUSH()
+GP_WARNING_DISABLE_MSVC(4355)
+
 GpArgParser::GpArgParser (void) noexcept:
 iArgumentBuilder{*this}
 {
 }
+
+GP_WARNING_POP()
 
 GpArgParser::~GpArgParser (void) noexcept
 {
@@ -13,7 +18,7 @@ GpArgParser::~GpArgParser (void) noexcept
 
 GpArgParserRes::SP  GpArgParser::Parse
 (
-    size_t              aArgc,
+    const size_t        aArgc,
     const char* const   aArgv[]
 ) const
 {
@@ -109,7 +114,7 @@ GpArgParserRes::SP  GpArgParser::Parse
                 currentArgument = newElement.P();
             } else
             {
-                THROW_COND_GP
+                VERIFY
                 (
                     iIsEnableUnknownArguments,
                     [argValName]()
@@ -155,7 +160,7 @@ GpArgParser&    GpArgParser::AddArgument (GpArgParserArgument::SP aArgument)
     GpArgParserArgument& argument = aArgument.V();
 
     // Check argument names
-    THROW_COND_GP
+    VERIFY
     (
         argument.Names().empty() == false,
         "No name was set for the argument"
@@ -165,7 +170,7 @@ GpArgParser&    GpArgParser::AddArgument (GpArgParserArgument::SP aArgument)
     for (std::string_view name: argument.Names())
     {
         // Check if name is not empty
-        THROW_COND_GP
+        VERIFY
         (
             name.empty() == false,
             "Argument name is empty"
@@ -181,7 +186,7 @@ GpArgParser&    GpArgParser::AddArgument (GpArgParserArgument::SP aArgument)
             {'-', '-'}
         };
 
-        THROW_COND_GP
+        VERIFY
         (
             StrOps::SContainsOnlyRanges(name, sAllowedCharRanges),
             [name]()
@@ -195,7 +200,7 @@ GpArgParser&    GpArgParser::AddArgument (GpArgParserArgument::SP aArgument)
         );
 
         // Check if name is unique
-        THROW_COND_GP
+        VERIFY
         (
             iArguments.count(name) == 0,
             [name]()

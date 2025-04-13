@@ -1,10 +1,10 @@
 #pragma once
 
+#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
+
 #include <utility>
 #include <functional>
-#include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
-
-#include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
 
 namespace GPlatform {
 

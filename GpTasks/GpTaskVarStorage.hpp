@@ -4,6 +4,7 @@
 
 #if defined(GP_USE_MULTITHREADING)
 
+#include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
 #include <GpCore2/GpTasks/GpTasks_global.hpp>
 #include <GpCore2/GpTasks/GpTaskEnums.hpp>
 #include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
@@ -15,17 +16,20 @@
 
 #include <mutex>
 #include <shared_mutex>
+#include <GpCore2/Config/IncludeExt/unordered_dense.hpp>
 
 namespace GPlatform {
 
-class GP_TASKS_API GpTaskVarStorage
+// Using only in GpTask (include in GpTask.cpp)
+class GpTaskVarStorage
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpTaskVarStorage)
     CLASS_DD(GpTaskVarStorage)
+    TAG_SET(THREAD_SAFE)
 
-    using TaskMapValuesT    = std::map<std::string, GpAny, std::less<>>;
-    using ContainerT        = std::map<GpTaskId, TaskMapValuesT>;
+    using TaskMapValuesT    = boost::container::small_flat_map<std::string, GpAny, 4, std::less<>>;
+    using ContainerT        = ankerl::unordered_dense::map<GpTaskId, TaskMapValuesT>;
     using AnyOptT           = std::optional<GpAny>;
     using AnyOptCRefT       = std::optional<std::reference_wrapper<const GpAny>>;
 

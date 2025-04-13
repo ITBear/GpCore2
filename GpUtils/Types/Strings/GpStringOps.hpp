@@ -24,17 +24,22 @@ class GP_UTILS_API GpStringOps
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpStringOps)
 
 public:
-    static std::vector<std::string_view>    SSplit              (std::string_view   aSourceStr,
+    static std::vector<std::string_view>    SSplitExt           (std::string_view   aSourceStr,
                                                                  char               aDelim,
                                                                  size_t             aReturnPartsCountLimit,
                                                                  size_t             aDelimCountLimit,
                                                                  Algo::SplitMode    aSplitMode);
 
-    static std::vector<std::string_view>    SSplit              (std::string_view   aSourceStr,
+    static std::vector<std::string_view>    SSplitExt           (std::string_view   aSourceStr,
                                                                  std::string_view   aDelim,
                                                                  size_t             aReturnPartsCountLimit,
                                                                  size_t             aDelimCountLimit,
                                                                  Algo::SplitMode    aSplitMode);
+
+    static std::vector<std::string>         SSplit              (std::string_view   aSourceStr,
+                                                                 char               aSplittChar,
+                                                                 char               aEscapeChar,
+                                                                 char               aSequenceChar);
 
     static inline std::string_view          SFromChar           (const char* aStrPtr);
 
@@ -57,6 +62,14 @@ public:
     static size_t                           SFromSI64           (s_int_64       aValue,
                                                                  GpSpanCharRW   aStrOut);
     static std::string                      SFromSI64           (s_int_64       aValue);
+
+    static size_t                           SFromUI128          (u_int_128      aValue,
+                                                                 GpSpanCharRW   aStrOut);
+    static std::string                      SFromUI128          (u_int_128      aValue);
+
+    static size_t                           SFromSI128          (s_int_128      aValue,
+                                                                 GpSpanCharRW   aStrOut);
+    static std::string                      SFromSI128          (s_int_128      aValue);
 
     static size_t                           SFromDouble         (double         aValue,
                                                                  GpSpanCharRW   aStrOut);
@@ -91,6 +104,10 @@ public:
     static std::string                      SPercentEncode      (std::string_view aSrc);
     static std::string                      SEscapeForSyscall   (std::string_view aSrc);
 
+    // ------------------------- From/To containers --------------------------
+    template<typename T>
+    static T                                SToContainer        (std::string_view aStr);
+
     // -----------------------------------------------------------
     template<typename E,
              typename T>
@@ -99,9 +116,9 @@ public:
 
     template<typename E,
              typename T>
-    static std::string                      SJoin               (const T&                                       aArray,
-                                                                 std::function<E(typename T::const_iterator&)>  aGetterFn,
-                                                                 std::string_view                               aSeparator);
+    static std::string                      SJoin               (const T&                                           aArray,
+                                                                 std::function<E(typename T::const_iterator&)>&&    aGetterFn,
+                                                                 std::string_view                                   aSeparator);
 
     static constexpr size_t                 SCharsCount         (std::string_view   aStr,
                                                                  char               aChar) noexcept;
@@ -115,6 +132,8 @@ public:
 
 private:
     static void                             _SFromUI64          (u_int_64       aValue,
+                                                                 GpSpanCharRW   aStrOut);
+    static void                             _SFromUI128         (u_int_128      aValue,
                                                                  GpSpanCharRW   aStrOut);
 
 private:
@@ -204,6 +223,39 @@ constexpr u_int_8   GpStringOps::SToByteHex (std::array<char, 2> aStr)
     return u_int_8(valHi << 4) | u_int_8(valLo);
 }
 
+template<typename T>
+T   GpStringOps::SToContainer (std::string_view aStr)
+{
+    using value_type = typename T::value_type;
+
+    std::vector<std::string_view> parts = GpStringOps::SSplitExt(aStr, ',', 0, 0, Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
+    T res;
+    res.resize(std::size(parts));
+    auto* ptr = res.data();
+
+    for (std::string_view element: parts)
+    {
+        if constexpr (std::is_integral_v<value_type>)
+        {
+            if constexpr (std::is_signed_v<value_type>)
+            {
+                *ptr++ = NumOps::SConvert<value_type>(GpStringOps::SToSI64(element));
+            } else
+            {
+                *ptr++ = NumOps::SConvert<value_type>(GpStringOps::SToUI64(element));
+            }
+        } else if constexpr (std::is_floating_point_v<value_type>)
+        {
+            *ptr++ = value_type(GpStringOps::SToDouble(element));
+        } else
+        {
+            GpThrowCe<GpException>("Unsupported type");
+        }
+    }
+
+    return res;
+}
+
 template<typename E,
          typename T>
 std::string GpStringOps::SJoin
@@ -225,13 +277,13 @@ template<typename E,
 std::string GpStringOps::SJoin
 (
     const T&                                        aArray,
-    std::function<E(typename T::const_iterator&)>   aGetterFn,
+    std::function<E(typename T::const_iterator&)>&& aGetterFn,
     std::string_view                                aSeparator
 )
 {
     const size_t elementsCount = std::size(aArray);
     std::string res;
-    res.reserve(elementsCount * 16);
+    res.reserve(elementsCount * 8);
 
     bool isFirst = true;
     for (typename T::const_iterator iter = std::begin(aArray); iter != std::end(aArray); ++iter)
@@ -296,15 +348,24 @@ inline ::std::string to_string(const void* aPtr)
     return ::GPlatform::StrOps::SFromBytesHex(ptrData);
 }
 
-template<::GPlatform::Concepts::IsIntergal T>
+template<::GPlatform::Concepts::IsIntegral T>
 ::std::string   to_string (const T aValue)
 {
-    if constexpr (std::is_signed_v<T>)
+    if constexpr ((std::is_integral_v<T>) && (sizeof(T) <= sizeof(u_int_64)))
     {
-        return ::GPlatform::GpStringOps::SFromSI64(::GPlatform::NumOps::SConvert<s_int_64>(aValue));
-    } else
+        if constexpr (std::is_signed_v<T>)
+        {
+            return ::GPlatform::GpStringOps::SFromSI64(::GPlatform::NumOps::SConvert<s_int_64>(aValue));
+        } else
+        {
+            return ::GPlatform::GpStringOps::SFromUI64(::GPlatform::NumOps::SConvert<u_int_64>(aValue));
+        }
+    } else if constexpr (std::is_same_v<T, s_int_128>)
     {
-        return ::GPlatform::GpStringOps::SFromUI64(::GPlatform::NumOps::SConvert<u_int_64>(aValue));
+        return ::GPlatform::GpStringOps::SFromSI128(aValue);
+    } else if constexpr (std::is_same_v<T, u_int_128>)
+    {
+        return ::GPlatform::GpStringOps::SFromUI128(aValue);
     }
 }
 
@@ -345,7 +406,7 @@ inline ::std::string    to_string (const ::GPlatform::GpBytesArray& aValue)
 
 // --------------------------------- operator+ ---------------------------------
 
-template<::GPlatform::Concepts::IsIntergal T>
+template<::GPlatform::Concepts::IsIntegral T>
 inline ::std::string operator+
 (
     ::std::string_view  aLeft,

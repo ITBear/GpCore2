@@ -33,7 +33,7 @@ void    GpTaskExecutorV1::Run (std::atomic_flag& aStopRequest) noexcept
         while (!aStopRequest.test())
         {
             // Consume next task
-            GpTask::C::Opt::SP taskOpt = iReadyTasksQueue.WaitAndPop(0.25_si_s);
+            GpTask::C::Opts::SP taskOpt = iReadyTasksQueue.WaitAndPop(0.25_si_s);
 
             if (!taskOpt.has_value())
             {
@@ -44,12 +44,12 @@ void    GpTaskExecutorV1::Run (std::atomic_flag& aStopRequest) noexcept
             GpTask&     task    = taskSP.V();
 
             // Run task
-            const GpTaskRunRes::EnumT taskRes = task.Execute(GpMethodAccess<GpTaskExecutor>{this});
+            const GpTaskRunRes::EnumT taskRes = task.Execute(GpMethodAccess{this});
 
             // Reschedule task
             if (iTasksScheduler.Reschedule(taskRes, std::move(taskSP)) == false)
             {
-                THROW_GP("Failed to Reschedule"_sv);
+                THROW("Failed to Reschedule"_sv);
             }
         }
 

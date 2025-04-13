@@ -28,7 +28,7 @@ GpRandomDeviceWin::result_type  GpRandomDeviceWin::operator() (void)
 
     if (iRandomVecUnused < sizeof(result_type))
     {
-        THROW_GP("iRandomVecUnused < sizeof(result_type)");
+        THROW("iRandomVecUnused < sizeof(result_type)");
     }
 
     result_type res;
@@ -48,7 +48,7 @@ void    GpRandomDeviceWin::CryptRefillRandom (size_t aBufferSize)
 
     if (!::CryptAcquireContextW(&hProvider, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
     {
-        THROW_GP("CryptAcquireContextW return error: "_sv + GpErrno::SWinGetAndClear());
+        THROW("CryptAcquireContextW return error: "_sv + GpErrno::SWinGetAndClear());
     }
 
     const DWORD dwLength = DWORD(aBufferSize);
@@ -58,13 +58,13 @@ void    GpRandomDeviceWin::CryptRefillRandom (size_t aBufferSize)
     {
         Clear();
         ::CryptReleaseContext(hProvider, 0);
-        THROW_GP("CryptGenRandom return error: "_sv + GpErrno::SWinGetAndClear());
+        THROW("CryptGenRandom return error: "_sv + GpErrno::SWinGetAndClear());
     }
 
     if (!::CryptReleaseContext(hProvider, 0))
     {
         Clear();
-        THROW_GP("CryptReleaseContext return error: "_sv + GpErrno::SWinGetAndClear());
+        THROW("CryptReleaseContext return error: "_sv + GpErrno::SWinGetAndClear());
     }
 
     iRandomVecUnused = aBufferSize;

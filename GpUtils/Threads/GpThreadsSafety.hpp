@@ -1,6 +1,8 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 
 #include <mutex>
 #include <shared_mutex>
@@ -96,17 +98,20 @@ template<class T>
 class CAPABILITY("mutex_wrap") MutexWrap
 {
 public:
+    CLASS_REMOVE_CTRS_MOVE_COPY(MutexWrap)
+    CLASS_DD(MutexWrap)
+
     using internal_type = T;
 
 public:
-                        MutexWrap               (void)                                                  {}
-                        ~MutexWrap              (void) noexcept                                         {}
+                        MutexWrap           (void)                                                  {}
+                        ~MutexWrap          (void) noexcept                                         {}
 
-    void                lock                    (void) ACQUIRE()                                        {       iMutexInternal.lock();}
-    void                unlock                  (void) RELEASE()                                        {       iMutexInternal.unlock();}
-    bool                try_lock                (void) TRY_ACQUIRE(true)                                {return iMutexInternal.try_lock();}
+    void                lock                (void) ACQUIRE()                                        {       iMutexInternal.lock();}
+    void                unlock              (void) RELEASE()                                        {       iMutexInternal.unlock();}
+    bool                try_lock            (void) TRY_ACQUIRE(true)                                {return iMutexInternal.try_lock();}
 
-    internal_type&      internal                (void) const noexcept RETURN_CAPABILITY(iMutexInternal) {return iMutexInternal;}
+    internal_type&      internal            (void) const noexcept RETURN_CAPABILITY(iMutexInternal) {return iMutexInternal;}
 
 private:
     mutable internal_type   iMutexInternal;
@@ -119,18 +124,18 @@ public:
     using internal_type = T;
 
 public:
-                        SharedMutexWrap         (void)                                                  {}
-                        ~SharedMutexWrap        (void) noexcept                                         {}
+                        SharedMutexWrap     (void)                                                  {}
+                        ~SharedMutexWrap    (void) noexcept                                         {}
 
-    void                lock                    (void) ACQUIRE()                                        {iMutexInternal.lock();}
-    void                unlock                  (void) RELEASE()                                        {iMutexInternal.unlock();}
-    bool                try_lock                (void) TRY_ACQUIRE(true)                                {return iMutexInternal.try_lock();}
+    void                lock                (void) ACQUIRE()                                        {iMutexInternal.lock();}
+    void                unlock              (void) RELEASE()                                        {iMutexInternal.unlock();}
+    bool                try_lock            (void) TRY_ACQUIRE(true)                                {return iMutexInternal.try_lock();}
 
-    void                lock_shared             (void) ACQUIRE_SHARED()                                 {iMutexInternal.lock_shared();}
-    void                unlock_shared           (void) RELEASE_SHARED()                                 {iMutexInternal.unlock_shared();}
-    bool                try_lock_shared         (void) TRY_ACQUIRE_SHARED(true)                         {return iMutexInternal.try_lock_shared();}
+    void                lock_shared         (void) ACQUIRE_SHARED()                                 {iMutexInternal.lock_shared();}
+    void                unlock_shared       (void) RELEASE_SHARED()                                 {iMutexInternal.unlock_shared();}
+    bool                try_lock_shared     (void) TRY_ACQUIRE_SHARED(true)                         {return iMutexInternal.try_lock_shared();}
 
-    internal_type&      internal                (void) const noexcept RETURN_CAPABILITY(iMutexInternal) {return iMutexInternal;}
+    internal_type&      internal            (void) const noexcept RETURN_CAPABILITY(iMutexInternal) {return iMutexInternal;}
 
 private:
     mutable internal_type   iMutexInternal;
@@ -144,24 +149,24 @@ public:
     using LockerInternalT   = LockerT<MutexInternalT>;
 
 public:
-                        MutexLockerWrap         (MutexWrapT& aMutexWrap)    ACQUIRE(aMutexWrap)
-                                                : iLockerInternal(aMutexWrap.internal())                        {}
-                        MutexLockerWrap         (MutexWrapT& aMutexWrap,
-                                                 std::adopt_lock_t)         REQUIRES(aMutexWrap)
-                                                : iLockerInternal(aMutexWrap.internal(), std::adopt_lock)       {}
-                        MutexLockerWrap         (MutexWrapT& aMutexWrap,
-                                                 std::defer_lock_t)         EXCLUDES(aMutexWrap)
-                                                : iLockerInternal(aMutexWrap.internal(), std::defer_lock)       {}
-                        MutexLockerWrap         (MutexWrapT& aMutexWrap,
-                                                 std::try_to_lock_t)        TRY_ACQUIRE(true, aMutexWrap)
-                                                : iLockerInternal(aMutexWrap.internal(), std::try_to_lock)      {}
-                        ~MutexLockerWrap        (void)                      RELEASE()                           {}
+                        MutexLockerWrap     (MutexWrapT& aMutexWrap)    ACQUIRE(aMutexWrap)
+                                            : iLockerInternal(aMutexWrap.internal())                        {}
+                        MutexLockerWrap     (MutexWrapT& aMutexWrap,
+                                             std::adopt_lock_t)         REQUIRES(aMutexWrap)
+                                            : iLockerInternal(aMutexWrap.internal(), std::adopt_lock)       {}
+                        MutexLockerWrap     (MutexWrapT& aMutexWrap,
+                                             std::defer_lock_t)         EXCLUDES(aMutexWrap)
+                                            : iLockerInternal(aMutexWrap.internal(), std::defer_lock)       {}
+                        MutexLockerWrap     (MutexWrapT& aMutexWrap,
+                                             std::try_to_lock_t)        TRY_ACQUIRE(true, aMutexWrap)
+                                            : iLockerInternal(aMutexWrap.internal(), std::try_to_lock)      {}
+                        ~MutexLockerWrap    (void)                      RELEASE()                           {}
 
-    void                lock                    (void)                      ACQUIRE()                           {       iLockerInternal.lock();}
-    bool                try_lock                (void)                      TRY_ACQUIRE(true)                   {return iLockerInternal.try_lock();}
-    void                unlock                  (void)                      RELEASE()                           {       iLockerInternal.unlock();}
-    bool                owns_lock               (void) const noexcept                                           {return iLockerInternal.owns_lock();}
-    LockerInternalT&    internal_lock           (void) noexcept             RETURN_CAPABILITY(iLockerInternal)  {return iLockerInternal;}
+    void                lock                (void)                      ACQUIRE()                           {       iLockerInternal.lock();}
+    bool                try_lock            (void)                      TRY_ACQUIRE(true)                   {return iLockerInternal.try_lock();}
+    void                unlock              (void)                      RELEASE()                           {       iLockerInternal.unlock();}
+    bool                owns_lock           (void) const noexcept                                           {return iLockerInternal.owns_lock();}
+    LockerInternalT&    internal_lock       (void) noexcept             RETURN_CAPABILITY(iLockerInternal)  {return iLockerInternal;}
 
 private:
     LockerInternalT     iLockerInternal;

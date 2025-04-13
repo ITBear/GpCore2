@@ -8,7 +8,7 @@ void    GpByteWriterStorageFixedSize::AllocateAdd
     GpSpanByteRW&   /*aStoragePtr*/
 )
 {
-    THROW_GP("Out of range"_sv);
+    THROW("Out of range"_sv);
 }
 
 void    GpByteWriterStorageFixedSize::_OnEnd (void)

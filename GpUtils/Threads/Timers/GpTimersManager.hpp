@@ -7,8 +7,8 @@
 #include <GpCore2/Config/IncludeExt/boost_small_vector.hpp>
 #include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
-#include <GpCore2/GpUtils/Types/Containers/GpDictionary.hpp>
-#include <GpCore2/GpUtils/Types/Containers/GpElementsPool.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpSharedMap.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpSharedPool.hpp>
 #include <GpCore2/GpUtils/Threads/GpThread.hpp>
 #include <GpCore2/GpUtils/Threads/Timers/GpTimer.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpSpinLock.hpp>
@@ -25,7 +25,7 @@ public:
     using ActiveTimersT = boost::container::small_flat_map<const void*, GpTimer::SP, 64>;
     using TimersToAddT  = boost::container::small_vector<GpTimer::SP, 64>;
 
-    class TimersPoolT final: public GpElementsPool<GpTimer::SP>
+    class TimersPoolT final: public GpSharedPool<GpTimer::SP>
     {
     public:
                                 TimersPoolT         (void) noexcept = default;

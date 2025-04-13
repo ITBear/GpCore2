@@ -6,7 +6,7 @@ GpReflectDiffPropEnum::~GpReflectDiffPropEnum (void) noexcept
 {
 }
 
-GpReflectDiffPropEnum::C::Opt::Val  GpReflectDiffPropEnum::SCheckAndMake
+GpReflectDiffPropEnum::C::Opts::Val GpReflectDiffPropEnum::SCheckAndMake
 (
     const GpEnum& aValueFrom,
     const GpEnum& aValueTo

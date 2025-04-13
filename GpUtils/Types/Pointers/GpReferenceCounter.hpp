@@ -5,6 +5,7 @@
 #if defined(GP_USE_SHARED_POINTERS)
 
 #include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
+#include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
 #include <atomic>
 
 namespace GPlatform {
@@ -12,7 +13,7 @@ namespace GPlatform {
 class GpReferenceCounter
 {
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpReferenceCounter)
-    //TAG_SET(THREAD_SAFE)
+    TAG_SET(THREAD_SAFE)
 
 protected:
     inline explicit         GpReferenceCounter  (const void* aValuePtr) noexcept;
@@ -23,12 +24,8 @@ public:
 
 public:
     inline size_t           Counter             (void) const noexcept;
-
-    template<bool IsWeak>
-    size_t                  Acquire             (void) noexcept;
-
-    template<bool IsWeak>
-    size_t                  Release             (void) noexcept;
+    inline size_t           Acquire             (void) noexcept;
+    inline size_t           Release             (void) noexcept;
 
     template<typename T>
     T*                      ValuePtr            (void) noexcept;
@@ -39,14 +36,14 @@ private:
 };
 
 GpReferenceCounter::GpReferenceCounter (const void* aValuePtr) noexcept:
-iCounter(1),
-iValuePtr(const_cast<void*>(aValuePtr))
+iCounter {1},
+iValuePtr{const_cast<void*>(aValuePtr)}
 {
 }
 
 GpReferenceCounter::GpReferenceCounter (void* aValuePtr) noexcept:
-iCounter(1),
-iValuePtr(aValuePtr)
+iCounter {1},
+iValuePtr{aValuePtr}
 {
 }
 
@@ -55,35 +52,21 @@ size_t  GpReferenceCounter::Counter (void) const noexcept
     return iCounter.load(std::memory_order_acquire);
 }
 
-template<bool IsWeak>
 size_t  GpReferenceCounter::Acquire (void) noexcept
 {
-    if constexpr(!IsWeak)
-    {
-        return iCounter.fetch_add(1, std::memory_order_release) + 1;
-    } else
-    {
-        return iCounter.load(std::memory_order_acquire);
-    }
+    return iCounter.fetch_add(1, std::memory_order_release) + 1;
 }
 
-template<bool IsWeak>
 size_t  GpReferenceCounter::Release (void) noexcept
 {
-    if constexpr(!IsWeak)
-    {
-        const size_t prevCount = iCounter.fetch_sub(1, std::memory_order_release);
+    const size_t prevCount = iCounter.fetch_sub(1, std::memory_order_release);
 
-        if (prevCount == 1)
-        {
-            iValuePtr = nullptr;
-        }
-
-        return prevCount - 1;
-    } else
+    if (prevCount == 1)
     {
-        return iCounter.load(std::memory_order_acquire);
+        iValuePtr = nullptr;
     }
+
+    return prevCount - 1;
 }
 
 template<typename T>

@@ -3,7 +3,7 @@
 #if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
-
+/*
 GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
 {
     GpTaskRunRes::EnumT res = GpTaskRunRes::DONE;
@@ -18,7 +18,7 @@ GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
             OnStart();
 
             iIsStartCalled = true;
-            StartPromise().Fulfill(StartPromiseRes{});
+            StartPromise(GpMethodAccess{this}).Fulfill(StartPromiseRes{});
         }
 
         //
@@ -78,12 +78,12 @@ GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
         //GpStringUtils::SCerr(ex->what());
         res = GpTaskRunRes::DONE;
 
-        StartPromise().Fulfill(ex.value());
-        DonePromise().Fulfill(ex.value());
+        StartPromise(GpMethodAccess{this}).Fulfill(ex.value());
+        DonePromise(GpMethodAccess{this}).Fulfill(ex.value());
     } else if (res == GpTaskRunRes::DONE) // Check if result is DONE
     {
-        StartPromise().Fulfill(StartPromiseRes{});
-        DonePromise().Fulfill(DonePromiseRes{});
+        StartPromise(GpMethodAccess{this}).Fulfill(StartPromiseRes{});
+        DonePromise(GpMethodAccess{this}).Fulfill(DonePromiseRes{});
     }
 
     return res;
@@ -94,7 +94,7 @@ GpException::C::Opt GpTaskThread::CallOnStop (void) noexcept
     iIsStopCalled = true;
     return OnStop();
 }
-
+*/
 }// namespace GPlatform
 
 #endif// #if defined(GP_USE_MULTITHREADING)

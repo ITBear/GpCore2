@@ -6,7 +6,7 @@ GpReflectDiffProp_VecDouble::~GpReflectDiffProp_VecDouble (void) noexcept
 {
 }
 
-GpReflectDiffProp_VecDouble::C::Opt::Val    GpReflectDiffProp_VecDouble::SCheckAndMake
+GpReflectDiffProp_VecDouble::C::Opts::Val   GpReflectDiffProp_VecDouble::SCheckAndMake
 (
     const ContainerT& aValueFrom,
     const ContainerT& aValueTo

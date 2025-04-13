@@ -6,7 +6,7 @@ GpReflectDiffProp_VecSI64::~GpReflectDiffProp_VecSI64 (void) noexcept
 {
 }
 
-GpReflectDiffProp_VecSI64::C::Opt::Val  GpReflectDiffProp_VecSI64::SCheckAndMake
+GpReflectDiffProp_VecSI64::C::Opts::Val GpReflectDiffProp_VecSI64::SCheckAndMake
 (
     const ContainerT& aValueFrom,
     const ContainerT& aValueTo

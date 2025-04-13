@@ -7,12 +7,12 @@
 
 #include <GpCore2/GpTasks/GpTasks_global.hpp>
 #include <GpCore2/GpTasks/Fibers/Boost/GpStackBoost.hpp>
-#include <GpCore2/GpUtils/Types/Containers/GpElementsPool.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpSharedPool.hpp>
 #include <GpCore2/GpUtils/Types/Units/Other/size_byte_t.hpp>
 
 namespace GPlatform {
 
-class GP_TASKS_API GpStackImplPoolBoost final: protected GpElementsPool<GpStackBoost::StackImplT>
+class GP_TASKS_API GpStackImplPoolBoost final: protected GpSharedPool<GpStackBoost::StackImplT>
 {
 public:
                                     GpStackImplPoolBoost    (void) noexcept = default;
@@ -20,17 +20,15 @@ public:
 
     static GpStackImplPoolBoost&    S                       (void) noexcept {return sInstance;}
 
-    inline void                     Configure               (const size_t       aMaxElementsCount,
-                                                             const size_byte_t  aStackSize);
+    inline void                     Configure               (size_t         aMaxElementsCount,
+                                                             size_byte_t    aStackSize);
 
-    using                           GpElementsPool::Acquire;
-    using                           GpElementsPool::Release;
-    using                           GpElementsPool::Clear;
+    using                           GpSharedPool::Acquire;
+    using                           GpSharedPool::Release;
+    using                           GpSharedPool::Clear;
 
 protected:
-    inline virtual void             PreInit                 (const size_t aCount) override final;
     inline virtual value_type       NewElement              (void) override final;
-    inline virtual void             OnClear                 (void) noexcept override final;
 
 private:
     size_byte_t                     iStackSize = 0_byte;
@@ -48,19 +46,9 @@ void    GpStackImplPoolBoost::Configure
     Init(0, aMaxElementsCount);
 }
 
-void    GpStackImplPoolBoost::PreInit (const size_t /*aCount*/)
-{
-    //NOP
-}
-
 GpStackImplPoolBoost::value_type    GpStackImplPoolBoost::NewElement (void)
 {
     return GpStackBoost::StackImplT(iStackSize.As<size_t>());
-}
-
-void    GpStackImplPoolBoost::OnClear (void) noexcept
-{
-    //NOP
 }
 
 }// namespace GPlatform

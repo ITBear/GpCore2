@@ -24,7 +24,7 @@ try
 {
     std::optional<GpStackBoost::StackImplT> stackImpl = GpStackImplPoolBoost::S().Acquire();
 
-    THROW_COND_GP
+    VERIFY
     (
         stackImpl.has_value(),
         "Failed to get fiber stack implementation from pool"_sv
@@ -138,7 +138,7 @@ void    GpTaskFiberCtxBoost::CallYield (const GpTaskRunRes::EnumT aRunRes)
             if (iTaskFiber->IsStopRequested()) [[unlikely]]
             {
                 iIsCallStopInProgress = true;
-                iTaskFiber->CallOnStop(GpMethodAccess<GpTaskFiberCtx>{this});
+                iTaskFiber->CallOnStop(GpMethodAccess{this});
                 throw GpTaskFiberCtxForceUnwind(iTaskFiber->TaskName());
             }
         }
@@ -151,9 +151,9 @@ GpTaskFiberCtx::TimeoutRes  GpTaskFiberCtxBoost::CallYield (const milliseconds_t
 
     GpTimer::SP waitingTimerSP = GpTimersManager::SSingleShot
     (
-        [taskId]([[maybe_unused]] const GpTimer& aTimer)
+        [taskId](const GpTimer&)
         {
-            GpTaskScheduler::S().MakeTaskReady(taskId);
+            std::ignore = GpTaskScheduler::S().MakeTaskReady(taskId);
         },
         aTimeout,
         false
@@ -183,7 +183,7 @@ boost::context::fiber   GpTaskFiberCtxBoost::SFiberFn
         try
         {
             // First call
-            GpTaskRunRes::EnumT res = task->FiberRun(GpMethodAccess<GpTaskFiberCtx>{&aFiberCtxBoost});
+            GpTaskRunRes::EnumT res = task->FiberRun(GpMethodAccess{&aFiberCtxBoost});
 
             // Call until res != GpTaskRunRes::DONE
             while (res != GpTaskRunRes::DONE)
@@ -192,7 +192,7 @@ boost::context::fiber   GpTaskFiberCtxBoost::SFiberFn
                 aFiberCtxBoost.CallYield(res);
 
                 // Call
-                res = task->FiberRun(GpMethodAccess<GpTaskFiberCtx>{&aFiberCtxBoost});
+                res = task->FiberRun(GpMethodAccess{&aFiberCtxBoost});
             }
 
             aFiberCtxBoost.iYieldRes = GpTaskRunRes::DONE;

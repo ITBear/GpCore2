@@ -25,16 +25,16 @@ public:
     using DataT = std::array<u_int_8, 16>;
 
 public:
-    constexpr                       GpUUID          (void) noexcept:iData(CE_Zero()) {}
-    explicit constexpr              GpUUID          (const u_int_128 aRaw) noexcept:iData(std::bit_cast<DataT>(aRaw)) {}
-    constexpr                       GpUUID          (const DataT& aData) noexcept:iData(aData) {}
-    constexpr                       GpUUID          (const GpUUID& aUUID) noexcept:iData(aUUID.iData) {}
-    constexpr                       GpUUID          (GpUUID&& aUUID) noexcept:iData(std::move(aUUID.iData)) {}
+    constexpr                       GpUUID          (void) noexcept:iData{CE_Zero()} {}
+    explicit constexpr              GpUUID          (const u_int_128 aRaw) noexcept:iData{std::bit_cast<DataT>(aRaw)} {}
+    constexpr                       GpUUID          (const DataT& aData) noexcept:iData{aData} {}
+    constexpr                       GpUUID          (const GpUUID& aUUID) noexcept:iData{aUUID.iData} {}
+    constexpr                       GpUUID          (GpUUID&& aUUID) noexcept:iData{std::move(aUUID.iData)} {}
                                     ~GpUUID         (void) noexcept = default;
 
     constexpr const DataT&          Data            (void) const noexcept {return iData;}
     constexpr DataT&                Data            (void) noexcept {return iData;}
-    std::string_view                AsStringView    (void) const noexcept {return std::string_view(reinterpret_cast<const char*>(std::data(Data())), std::size(Data()));}
+    std::string_view                AsStringView    (void) const noexcept {return std::string_view{reinterpret_cast<const char*>(std::data(Data())), std::size(Data())};}
     constexpr u_int_128             AsUInt128       (void) const noexcept {return std::bit_cast<u_int_128>(iData);}
 
     std::string                     ToString        (void) const;
@@ -74,6 +74,7 @@ public:
                                                      GpRandomIf&        aRand) noexcept;
 
     static GpUUID                   SFromString     (std::string_view aStr);
+    static std::vector<GpUUID>      SToContainer    (std::string_view aStr);
 
     inline static consteval DataT   CE_FromString   (std::string_view aStr);
     inline static consteval u_int_8 SToByte         (std::array<char, 2> aStr);
@@ -274,7 +275,7 @@ constexpr GpUUID::DataT GpUUID::CE_Zero (void) noexcept
 
 }// namespace GPlatform
 
-//*******************************************
+// ------------------------------------ std ------------------------------------
 namespace std {
 
 inline ::std::string to_string(const ::GPlatform::GpUUID& aUUID)
@@ -298,12 +299,16 @@ struct hash<GPlatform::GpUUID>
             u_int_64 p1;
             u_int_64 p2;
 
-            std::memcpy(&p1, std::data(aUuid.Data()) + 0, sizeof(u_int_64));
-            std::memcpy(&p2, std::data(aUuid.Data()) + 8, sizeof(u_int_64));
+            const auto* dataPtr = std::data(aUuid.Data());
 
-            const std::size_t h1 = std::hash<u_int_64>{}(p1);
-            const std::size_t h2 = std::hash<u_int_64>{}(p2);
-            return h1 ^ (h2 << 1);
+            std::memcpy(&p1, dataPtr + 0, sizeof(u_int_64));
+            std::memcpy(&p2, dataPtr + 8, sizeof(u_int_64));
+
+            size_t hashValue;
+            hashValue  = std::hash<u_int_64>()(p1);
+            hashValue ^= std::hash<u_int_64>()(p2) + 0x9e3779b97f4a7c15 + (hashValue << 6) + (hashValue >> 2);
+
+            return hashValue;
         } else if constexpr(sizeof(std::size_t) == sizeof(u_int_32))
         {
             u_int_32 p1;
@@ -311,22 +316,25 @@ struct hash<GPlatform::GpUUID>
             u_int_32 p3;
             u_int_32 p4;
 
-            std::memcpy(&p1, std::data(aUuid.Data()) +  0, sizeof(u_int_32));
-            std::memcpy(&p2, std::data(aUuid.Data()) +  4, sizeof(u_int_32));
-            std::memcpy(&p3, std::data(aUuid.Data()) +  8, sizeof(u_int_32));
-            std::memcpy(&p4, std::data(aUuid.Data()) + 12, sizeof(u_int_32));
+            const auto* dataPtr = std::data(aUuid.Data());
 
-            const std::size_t h1 = std::hash<u_int_32>{}(p1);
-            const std::size_t h2 = std::hash<u_int_32>{}(p2);
-            const std::size_t h3 = std::hash<u_int_32>{}(p3);
-            const std::size_t h4 = std::hash<u_int_32>{}(p4);
+            std::memcpy(&p1, dataPtr +  0, sizeof(u_int_32));
+            std::memcpy(&p2, dataPtr +  4, sizeof(u_int_32));
+            std::memcpy(&p3, dataPtr +  8, sizeof(u_int_32));
+            std::memcpy(&p4, dataPtr + 12, sizeof(u_int_32));
 
-            return ((h1 ^ (h2 << 1)) ^ (h3 << 2)) ^ (h4 << 3);
+            size_t hashValue;
+            hashValue  = std::hash<u_int_32>()(p1);
+            hashValue ^= std::hash<u_int_32>()(p2) + 0x9e3779b9 + (hashValue << 6) + (hashValue >> 2);
+            hashValue ^= std::hash<u_int_32>()(p3) + 0x9e3779b9 + (hashValue << 6) + (hashValue >> 2);
+            hashValue ^= std::hash<u_int_32>()(p4) + 0x9e3779b9 + (hashValue << 6) + (hashValue >> 2);
+
+            return hashValue;
         }
     }
 };
 
-}// std
+}// namespace std
 
 using namespace std::literals::string_literals;
 
@@ -364,6 +372,6 @@ struct formatter<GpUUID>
     }
 };
 
-}// namespace std
+}// namespace FMT_NAMESPASE
 
 #endif// #if defined(GP_USE_UUID)

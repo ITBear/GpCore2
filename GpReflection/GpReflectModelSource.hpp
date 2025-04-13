@@ -12,10 +12,10 @@ public:
     CLASS_DD(GpReflectModelSource)
 
 public:
-                                        GpReflectModelSource    (void) noexcept = default;
-    virtual                             ~GpReflectModelSource   (void) noexcept = default;
+                                            GpReflectModelSource    (void) noexcept = default;
+    virtual                                 ~GpReflectModelSource   (void) noexcept = default;
 
-    virtual GpReflectModel::C::Opt::CSP Get                     (const GpUUID& aModelUid) = 0;
+    virtual GpReflectModel::C::Opts::CSP    Get                     (const GpUUID& aModelUid) = 0;
 };
 
 }// namespace GPlatform

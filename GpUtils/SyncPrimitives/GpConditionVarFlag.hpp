@@ -18,16 +18,16 @@ public:
     using FnT = std::function<void()>;
 
 public:
-                            GpConditionVarFlag  (void) noexcept = default;
-                            ~GpConditionVarFlag (void) noexcept = default;
+                    GpConditionVarFlag  (void) noexcept = default;
+                    ~GpConditionVarFlag (void) noexcept = default;
 
-    inline void             NotifyOne           (void) noexcept;
-    inline void             NotifyOne           (FnT aFn) noexcept;
-    inline void             NotifyAll           (void) noexcept;
-    inline void             NotifyAll           (FnT aFn) noexcept;
+    inline void     NotifyOne           (void) noexcept;
+    inline void     NotifyOne           (const FnT& aFn) noexcept;
+    inline void     NotifyAll           (void) noexcept;
+    inline void     NotifyAll           (const FnT& aFn) noexcept;
 
-    inline void             WaitAndReset        (void) noexcept;
-    inline bool             WaitForAndReset     (const milliseconds_t aTimeout) noexcept;
+    inline void     WaitAndReset        (void) noexcept;
+    inline bool     WaitForAndReset     (const milliseconds_t aTimeout) noexcept;
 
 private:
     mutable GpConditionVar  iCV;
@@ -43,7 +43,7 @@ void    GpConditionVarFlag::NotifyOne (void) noexcept
     iCV.NotifyOne();
 }
 
-void    GpConditionVarFlag::NotifyOne (FnT aFn) noexcept
+void    GpConditionVarFlag::NotifyOne (const FnT& aFn) noexcept
 {
     GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
 
@@ -62,7 +62,7 @@ void    GpConditionVarFlag::NotifyAll (void) noexcept
     iCV.NotifyOne();
 }
 
-void    GpConditionVarFlag::NotifyAll (FnT aFn) noexcept
+void    GpConditionVarFlag::NotifyAll (const FnT& aFn) noexcept
 {
     GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
 
@@ -74,26 +74,19 @@ void    GpConditionVarFlag::NotifyAll (FnT aFn) noexcept
 
 void    GpConditionVarFlag::WaitAndReset (void) noexcept
 {
-    iCV.Wait<bool>
+    iCV.Wait
     (
-        []() {}, // at begin
-        [&]() NO_THREAD_SAFETY_ANALYSIS {iFlag = false;}, // at end
-        [&]() NO_THREAD_SAFETY_ANALYSIS {return iFlag;}, // check
-        []() {return true;} // condition met
+        [&]() NO_THREAD_SAFETY_ANALYSIS {return iFlag;}
     );
 }
 
 bool    GpConditionVarFlag::WaitForAndReset (const milliseconds_t aTimeout) noexcept
 {
-    return iCV.WaitFor<bool>
+    return iCV.WaitFor
     (
-        []() {}, // at begin
-        [&]() NO_THREAD_SAFETY_ANALYSIS {iFlag = false;}, // at end
-        [&]() NO_THREAD_SAFETY_ANALYSIS {return iFlag;}, // check
-        []() {return true;}, // condition met
-        []() {return false;}, // condition not met
+        [&]() NO_THREAD_SAFETY_ANALYSIS {return iFlag;},
         aTimeout
-    ).value();
+    );
 }
 
 }// namespace GPlatform

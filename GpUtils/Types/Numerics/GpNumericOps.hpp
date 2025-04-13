@@ -30,17 +30,23 @@ class GpNumericOps
 {
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpNumericOps)
 
-    static_assert(sizeof(int) == sizeof(s_int_32), "sizeof(int) != sizeof (s_int_32)");
+    static_assert(sizeof(int)           == sizeof(s_int_32), "sizeof(int) != sizeof (s_int_32)");
     static_assert(sizeof(long long int) == sizeof(s_int_64), "sizeof(long long int) == sizeof (s_int_64)");
 
 public:
     [[nodiscard]] inline static
-    size_t                          SDecDigsCountUI64 (const u_int_64 aValue) noexcept;
+    size_t                          SDecDigsCountUI64 (u_int_64 aValue) noexcept;
 
     [[nodiscard]] inline static
-    size_t                          SDecDigsCountSI64 (const s_int_64 aValue) noexcept;
+    size_t                          SDecDigsCountSI64 (s_int_64 aValue) noexcept;
 
-    template<Concepts::IsIntergal T>
+    [[nodiscard]] inline static
+    size_t                          SDecDigsCountUI128 (u_int_128 aValue) noexcept;
+
+    [[nodiscard]] inline static
+    size_t                          SDecDigsCountSI128 (s_int_128 aValue) noexcept;
+
+    template<Concepts::IsIntegral T>
     [[nodiscard]] static size_t     SDecDigsCount (const T aValue) noexcept
     {
         size_t  res     = 1;
@@ -82,7 +88,7 @@ public:
     }
 
     template<typename T>
-    requires    Concepts::IsIntergal<T>
+    requires    Concepts::IsIntegral<T>
              || Concepts::IsFloatingPoint<T>
     [[nodiscard]] static constexpr auto SSign ([[maybe_unused]] const T aValue) noexcept
     {       
@@ -104,37 +110,37 @@ public:
         return T(0);
     }
 
-    template<Concepts::IsIntergal T>
+    template<Concepts::IsIntegral T>
     [[nodiscard]] static constexpr T SIsNegative (const T aValue) noexcept
     {
         return std::signbit(aValue);
     }
 
-    template<Concepts::IsIntergal T>
+    template<Concepts::IsIntegral T>
     [[nodiscard]] static constexpr T SIsPositiveOrZero (const T aValue) noexcept
     {
         return !SIsNegative(aValue);
     }
 
-    template<Concepts::IsIntergal T>
+    template<Concepts::IsIntegral T>
     [[nodiscard]] static constexpr T SMin (void) noexcept
     {
         return std::numeric_limits<T>::min();
     }
 
-    template<Concepts::IsIntergal T>
+    template<Concepts::IsIntegral T>
     [[nodiscard]] static constexpr T SMax (void) noexcept
     {
         return std::numeric_limits<T>::max();
     }
 
-    template<Concepts::IsIntergal T>
+    template<Concepts::IsIntegral T>
     [[nodiscard]] static constexpr T SMin (const T aValue) noexcept
     {
         return std::numeric_limits<decltype(aValue)>::min();
     }
 
-    template<Concepts::IsIntergal T>
+    template<Concepts::IsIntegral T>
     [[nodiscard]] static constexpr T SMax (const T aValue) noexcept
     {
         return std::numeric_limits<decltype(aValue)>::max();
@@ -460,7 +466,7 @@ public:
         return 0;
     }
 
-    template<Concepts::IsIntergal T>
+    template<Concepts::IsIntegral T>
     [[nodiscard]] static constexpr T SMod (const T a, const T b)
     {
         if (SIsNotEqual(b,T(0))) //b != 0
@@ -616,6 +622,16 @@ size_t  GpNumericOps::SDecDigsCountSI64 (const s_int_64 aValue) noexcept
     return SDecDigsCount<s_int_64>(aValue);
 }
 
+size_t  GpNumericOps::SDecDigsCountUI128 (const u_int_128 aValue) noexcept
+{
+    return SDecDigsCount<u_int_128>(aValue);
+}
+
+size_t  GpNumericOps::SDecDigsCountSI128 (const s_int_128 aValue) noexcept
+{
+    return SDecDigsCount<s_int_128>(aValue);
+}
+
 template<Concepts::IsArithmetic T> struct NumOps_IsEqual
 {
     constexpr bool operator()(const T a, const T b) const noexcept
@@ -696,7 +712,7 @@ template<Concepts::IsArithmetic T> struct NumOps_Div
     }
 };
 
-template<Concepts::IsIntergal T> struct NumOps_Mod
+template<Concepts::IsIntegral T> struct NumOps_Mod
 {
     constexpr T operator()(const T a, const T b) const noexcept
     {

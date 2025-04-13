@@ -116,7 +116,7 @@ GpFile::HandlerT    GpFileImpl::SOpen
         hTemplateFile
     );
 
-    THROW_COND_GP
+    VERIFY
     (
         fd != INVALID_HANDLE_VALUE,
         [&fileName]()
@@ -156,7 +156,7 @@ void    GpFileImpl::SFlush
 
     const auto res = FlushFileBuffers(aHandler);
 
-    THROW_COND_GP
+    VERIFY
     (
         res,
         [aFileName]()
@@ -184,7 +184,7 @@ size_byte_t GpFileImpl::SSize
 
     const DWORD fileSize = GetFileSize(aHandler, nullptr);
 
-    THROW_COND_GP
+    VERIFY
     (
         fileSize != INVALID_FILE_SIZE,
         [aFileName]()
@@ -218,7 +218,7 @@ void    GpFileImpl::SGoToPos
         FILE_BEGIN
     );
 
-    THROW_COND_GP
+    VERIFY
     (
         res,
         [aPos, aFileName]()
@@ -258,7 +258,7 @@ size_byte_t GpFileImpl::SGoToEndPos
         FILE_END
     );
 
-    THROW_COND_GP
+    VERIFY
     (
         res,
         [aFileName]()
@@ -290,7 +290,7 @@ size_byte_t GpFileImpl::SCurrentPos
         FILE_CURRENT
     );
 
-    THROW_COND_GP
+    VERIFY
     (
         res,
         [aFileName]()
@@ -313,7 +313,7 @@ void    GpFileImpl::STruncateToCurrentPos
     std::string_view    aFileName
 )
 {
-    THROW_COND_GP
+    VERIFY
     (
         SetEndOfFile(aHandler) != 0,
         [aFileName]()
@@ -347,7 +347,7 @@ size_byte_t GpFileImpl::STryWrite
         nullptr
     );
 
-    THROW_COND_GP
+    VERIFY
     (
         res,
         [aFileName]()
@@ -373,7 +373,7 @@ void    GpFileImpl::SWrite
 {
     const size_byte_t bytesWritten = STryWrite(aHandler, aData, aFileName);
 
-    THROW_COND_GP
+    VERIFY
     (
         bytesWritten.Value() == std::size(aData),
         [&aData, bytesWritten, aFileName]()
@@ -408,7 +408,7 @@ size_byte_t GpFileImpl::STryRead
         nullptr
     );
 
-    THROW_COND_GP
+    VERIFY
     (
         res,
         [aFileName]()
@@ -434,7 +434,7 @@ void    GpFileImpl::SRead
 {
     const size_byte_t bytesRead = STryRead(aHandler, aData, aFileName);
 
-    THROW_COND_GP
+    VERIFY
     (
         bytesRead.Value() == std::size(aData),
         [&aData, bytesRead, aFileName]()

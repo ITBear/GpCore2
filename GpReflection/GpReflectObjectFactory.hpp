@@ -12,7 +12,8 @@ class GpReflectObjectFactory
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpReflectObjectFactory)
-    using SP = GpSP<GpReflectObjectFactory>;
+    using SP    = GpSP<GpReflectObjectFactory>;
+    using CSP   = GpCSP<GpReflectObjectFactory>;
 
     struct VecWrapInfoT
     {

@@ -71,15 +71,15 @@ GpException::C::Opt GpStartStopManager::StartAll (void) noexcept
     return std::nullopt;
 }
 
-GpStartStopManager::StopExceptionsT GpStartStopManager::StopAll (void) noexcept
+GpStartStopManager::ExceptionsT GpStartStopManager::StopAll (void) noexcept
 {
-    StopExceptionsT stopExceptions;
+    ExceptionsT stopExceptions;
     StopAll(stopExceptions);
 
     return stopExceptions;
 }
 
-void    GpStartStopManager::StopAll (StopExceptionsT& aStopExceptions) noexcept
+void    GpStartStopManager::StopAll (ExceptionsT& aStopExceptions) noexcept
 {
     for (ssize_t id = NumOps::SConvert<ssize_t>(iCurrentLevel); id >= 0; id--)
     {
@@ -90,7 +90,7 @@ void    GpStartStopManager::StopAll (StopExceptionsT& aStopExceptions) noexcept
         {
             if (stopFn)
             {
-                stopFn();
+                stopFn(aStopExceptions);
             }
         } catch (const GpException& ex)
         {

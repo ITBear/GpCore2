@@ -41,7 +41,7 @@ std::string GpUUID::ToString (void) const
 
 void    GpUUID::FromString (std::string_view aStr)
 {
-    THROW_COND_GP
+    VERIFY
     (
         std::size(aStr) == 36,
         "Length of UUID string must be 36"_sv
@@ -118,7 +118,7 @@ GpUUID  GpUUID::SGenRandomV7
 
         const s_int_64 ts = aUnixTS.Value();
 
-        THROW_COND_GP
+        VERIFY
         (
             ts >= 0,
             "Unix timestamp < 0"_sv
@@ -147,6 +147,21 @@ GpUUID  GpUUID::SFromString (std::string_view aStr)
     GpUUID uuid;
     uuid.FromString(aStr);
     return uuid;
+}
+
+std::vector<GpUUID> GpUUID::SToContainer (std::string_view aStr)
+{
+    std::vector<std::string_view>   parts = GpStringOps::SSplitExt(aStr, ',', 0, 0, Algo::SplitMode::SKIP_ZERO_LENGTH_PARTS);
+    std::vector<GpUUID>             res;
+    res.resize(std::size(parts));
+    auto* ptr = res.data();
+
+    for (std::string_view element: parts)
+    {
+        *ptr++ = GpUUID::SFromString(element);
+    }
+
+    return res;
 }
 
 }// namespace GPlatform

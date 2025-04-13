@@ -5,6 +5,7 @@
 #include <GpCore2/GpTasks/Scheduler/GpTaskScheduler.hpp>
 #include <GpCore2/GpTasks/GpTask.hpp>
 #include <GpCore2/GpTasks/Scheduler/V1/GpTaskExecutorV1.hpp>
+#include <GpCore2/Config/IncludeExt/unordered_dense.hpp>
 
 #include <bitset>
 #include <array>
@@ -22,10 +23,10 @@ public:
     CLASS_DD(GpTaskSchedulerV1)
     TAG_SET(THREAD_SAFE)
 
-    using ExecutorDoneFutureT   = GpItcSharedFuture<ssize_t>;
-    using ReadyTasksQueueT      = GpItcSharedQueue<GpTask::SP>;
-    using WaitingTasksT         = std::unordered_map<GpTaskId, GpTask::SP>; // TODO: check perfomance and grow of id (test)
-    using MarkedAsReadyIdsT     = std::unordered_set<GpTaskId>; // TODO: check perfomance and grow of id (test)
+    using ExecutorDoneFutureT   = GpItcFuture<ssize_t>;
+    using ReadyTasksQueueT      = GpItcQueue<GpTask::SP>;
+    using WaitingTasksT         = ankerl::unordered_dense::map<GpTaskId::value_type, GpTask::SP>;
+    using MarkedAsReadyIdsT     = ankerl::unordered_dense::set<GpTaskId::value_type>;
 
 public:
                                     GpTaskSchedulerV1       (StopServiceFnT aStopServiceFn) noexcept;
@@ -35,19 +36,13 @@ public:
                                                              size_t aTasksMaxCount) override final;
     virtual void                    RequestStopAndJoin      (void) noexcept override final;
 
-    virtual void                    NewToReady              (GpTask::SP aTask) override final;
-    virtual void                    NewToWaiting            (GpTask::SP aTask) override final;
-    virtual void                    MakeTaskReady           (GpTaskId aTaskId) override final;
-    virtual void                    MakeTaskReady           (GpTaskId       aTaskId,
+    [[nodiscard]] virtual bool      NewToReady              (GpTask::SP aTask) override final;
+    [[nodiscard]] virtual bool      NewToWaiting            (GpTask::SP aTask) override final;
+    [[nodiscard]] virtual bool      MakeTaskReady           (GpTaskId aTaskId) override final;
+    [[nodiscard]] virtual bool      MakeTaskReady           (GpTaskId       aTaskId,
                                                              GpAny          aMessage) override final;
-    virtual void                    MakeTasksReadyByGroupId (GpTaskGroupId  aGpTaskGroupId,
-                                                             GpAny          aMessage) override final;
-    virtual bool                    AddTaskToGroup          (GpTaskId       aTaskGuid,
-                                                             GpTaskGroupId  aGpTaskGroupId) override final;
-    virtual bool                    RemoveTaskFromGroup     (GpTaskId       aTaskGuid,
-                                                             GpTaskGroupId  aGpTaskGroupId) override final;
 
-    virtual bool                    Reschedule              (GpTaskRunRes::EnumT    aRunRes,
+    [[nodiscard]] virtual bool      Reschedule              (GpTaskRunRes::EnumT    aRunRes,
                                                              GpTask::SP&&           aTask) noexcept override final;
 
 private:

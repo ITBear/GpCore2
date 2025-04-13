@@ -1,19 +1,23 @@
-#include <GpCore2/GpTasks/ITC/GpItcSharedCondition.hpp>
+#include <GpCore2/GpTasks/ITC/GpItcCondition.hpp>
 
 #if defined(GP_USE_MULTITHREADING)
 
 #include <GpCore2/GpTasks/Scheduler/GpTaskScheduler.hpp>
 #include <GpCore2/GpTasks/Fibers/GpTaskFiber.hpp>
-#include <GpCore2/GpTasks/GpTask.hpp>
 
 namespace GPlatform {
 
-void    GpItcSharedCondition::NotifyOne (void)
+bool    GpItcCondition::NotifyOne (void)
 {
+    bool res = true;
+
     // Notify fiber task
     if (!iFiberTaskIDs.empty())
     {
-        GpTaskScheduler::S().MakeTaskReady(*std::begin(iFiberTaskIDs));
+        res &= GpTaskScheduler::S().MakeTaskReady
+        (
+            *std::begin(iFiberTaskIDs)
+        );
     }
 
     // Notify thread
@@ -21,14 +25,18 @@ void    GpItcSharedCondition::NotifyOne (void)
     {
         iThreadsCV.NotifyOne();
     }
+
+    return res;
 }
 
-void    GpItcSharedCondition::NotifyAll (void)
+bool    GpItcCondition::NotifyAll (void)
 {
+    bool res = true;
+
     // Notify fiber tasks
     for (const GpTaskId& taskId: iFiberTaskIDs)
     {
-        GpTaskScheduler::S().MakeTaskReady(taskId);
+        res &= GpTaskScheduler::S().MakeTaskReady(taskId);
     }
 
     // Notify threads
@@ -36,9 +44,11 @@ void    GpItcSharedCondition::NotifyAll (void)
     {
         iThreadsCV.NotifyAll();
     }
+
+    return res;
 }
 
-GpItcSharedCondition::TaskInfo  GpItcSharedCondition::SCurrentTaskInfo (void)
+GpItcCondition::TaskInfo    GpItcCondition::SCurrentTaskInfo (void)
 {
     // Collect current task info
     std::optional<std::reference_wrapper<GpTask>>   taskOptRef  = GpTask::SCurrentTask();
@@ -56,9 +66,14 @@ GpItcSharedCondition::TaskInfo  GpItcSharedCondition::SCurrentTaskInfo (void)
     return {taskMode, taskId};
 }
 
-GpTaskFiberCtx::TimeoutRes  GpItcSharedCondition::SYeld (const milliseconds_t aTimeout)
+void    GpItcCondition::SYield (const milliseconds_t aTimeout)
 {
-    return YELD_WAIT(aTimeout);
+    std::ignore = YIELD_WAIT(aTimeout);
+}
+
+void    GpItcCondition::SYield (void)
+{
+    YIELD_WAIT();
 }
 
 }// namespace GPlatform

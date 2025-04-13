@@ -126,7 +126,7 @@ const T&    GpItcResult<T>::PayloadOrThrow (const SourceLocationT& aSourceLocati
 
     if (index == 0) [[unlikely]] //GpException
     {
-        THROW_GP
+        THROW
         (
             "Result is exception: "_sv + std::get<GpException>(iVariants).what(),
             aSourceLocation
@@ -143,7 +143,7 @@ T&  GpItcResult<T>::PayloadOrThrow (const SourceLocationT& aSourceLocation)
 
     if (index == 0) [[unlikely]] //GpException
     {
-        THROW_GP
+        THROW
         (
             "Result is exception: "_sv + std::get<GpException>(iVariants).what(),
             aSourceLocation

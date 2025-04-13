@@ -25,7 +25,7 @@ std::string GpSystemInfo::SOsInfo (void)
 #if defined(GP_OS_LINUX) || defined(GP_OS_BROWSER)
     struct utsname buffer;
 
-    THROW_COND_GP
+    VERIFY
     (
         uname(&buffer) == 0,
         "Failed to call uname()"_sv

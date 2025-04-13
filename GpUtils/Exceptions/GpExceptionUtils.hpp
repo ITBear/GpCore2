@@ -20,8 +20,8 @@ public:
     class ToStrResT
     {
     public:
-        std::string     fullMessage;
-        std::string     message;
+        std::string fullMessage;
+        std::string message;
     };
 
 public:

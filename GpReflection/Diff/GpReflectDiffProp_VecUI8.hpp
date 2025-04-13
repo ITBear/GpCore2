@@ -21,7 +21,7 @@ public:
     inline                  GpReflectDiffProp_VecUI8    (ArrayT::ReplaceVariantT&& aReplaceData) noexcept;
                             ~GpReflectDiffProp_VecUI8   (void) noexcept;
 
-    static C::Opt::Val      SCheckAndMake               (const ContainerT& aValueFrom,
+    static C::Opts::Val     SCheckAndMake               (const ContainerT& aValueFrom,
                                                          const ContainerT& aValueTo);
 private:
     ArrayT::ReplaceVariantT iReplaceData;

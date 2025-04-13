@@ -7,7 +7,7 @@
 #include <GpCore2/Config/IncludeExt/boost_small_vector.hpp>
 #include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
-#include <GpCore2/GpUtils/Types/Containers/GpDictionary.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpSharedMap.hpp>
 #include <GpCore2/GpUtils/Types/Containers/GpAny.hpp>
 
 namespace GPlatform {
@@ -26,7 +26,7 @@ public:
     /**
      * @brief Type alias for the catalog dictionary.
      */
-    using CatalogT = GpDictionary<boost::container::small_flat_map<std::string, GpAny, 32, std::less<>>>;
+    using CatalogT = GpSharedMap<boost::container::small_flat_map<std::string, GpAny, 32, std::less<>>>;
 
 private:
     /**
@@ -105,8 +105,8 @@ private:
 template<typename T>
 T   GpGlobalStructCatalogC::FindAs (std::string_view aKey) const
 {
-    const GpAny& val = Find(aKey);
-    return val.Value<T>();
+    GpAny val = Find(aKey);
+    return std::move(val.Value<T>());
 }
 
 template<typename T>
@@ -119,7 +119,7 @@ std::optional<T>    GpGlobalStructCatalogC::FindAsOpt (std::string_view aKey) co
         return std::nullopt;
     }
 
-    return valOpt.value().Value<T>();
+    return std::move(valOpt.value().Value<T>());
 }
 
 }// namespace GPlatform

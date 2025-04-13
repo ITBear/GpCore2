@@ -20,51 +20,29 @@ public:
     CLASS_DD(GpConditionVar)
     TAG_SET(THREAD_SAFE)
 
-    using AtBeginFnT            = std::function<void()>;
-    using AtEndFnT              = std::function<void()>;// must be noexcept
-    using CheckFnT              = std::function<bool()>;
-
-    template<typename T>
-    using ConditionMetFnT       = std::function<std::optional<T>()>;
-
-    template<typename T>
-    using ConditionNotMetFnT    = std::function<std::optional<T>()>;
-
-
+    using AtBeginFnT    = std::function<void()>;
+    using AtEndFnT      = std::function<void(bool)>;// must be noexcept
+    using CheckFnT      = std::function<bool()>;
 
 public:
-                            GpConditionVar  (void) noexcept = default;
-                            ~GpConditionVar (void) noexcept = default;
+                        GpConditionVar  (void) noexcept = default;
+                        ~GpConditionVar (void) noexcept = default;
 
-    inline void             NotifyOne       (void) noexcept REQUIRES(Mutex());
-    inline void             NotifyAll       (void) noexcept REQUIRES(Mutex());
-    inline GpMutex&         Mutex           (void) noexcept RETURN_CAPABILITY(iMutex);
+    inline void         NotifyOne       (void) noexcept REQUIRES(Mutex());
+    inline void         NotifyAll       (void) noexcept REQUIRES(Mutex());
+    inline GpMutex&     Mutex           (void) noexcept RETURN_CAPABILITY(iMutex);
 
-    inline void             Wait            (CheckFnT               aCheckFn);
-    template<typename T>
-    std::optional<T>        Wait            (CheckFnT               aCheckFn,
-                                             ConditionMetFnT<T>     aConditionMetFn);
-    template<typename T>
-    std::optional<T>        Wait            (AtBeginFnT             aAtBeginFn,
-                                             AtEndFnT               aAtEndFn,
-                                             CheckFnT               aCheckFn,
-                                             ConditionMetFnT<T>     aConditionMetFn);
+    inline void         Wait            (const CheckFnT&    aCheckFn);
+    inline void         Wait            (const CheckFnT&    aCheckFn,
+                                         const AtBeginFnT&  aAtBeginFn,
+                                         const AtEndFnT&    aAtEndFn);
 
-
-    inline bool             WaitFor         (CheckFnT               aCheckFn,
-                                             const milliseconds_t   aTimeout);
-
-    template<typename T>
-    std::optional<T>        WaitFor         (CheckFnT               aCheckFn,
-                                             ConditionMetFnT<T>     aConditionMetFn,
-                                             const milliseconds_t   aTimeout);
-    template<typename T>
-    std::optional<T>        WaitFor         (AtBeginFnT             aAtBeginFn,
-                                             AtEndFnT               aAtEndFn,
-                                             CheckFnT               aCheckFn,
-                                             ConditionMetFnT<T>     aConditionMetFn,
-                                             ConditionNotMetFnT<T>  aConditionNotMetFn,
-                                             const milliseconds_t   aTimeout);
+    inline bool         WaitFor         (const CheckFnT&    aCheckFn,
+                                         milliseconds_t     aTimeout);
+    inline bool         WaitFor         (const CheckFnT&    aCheckFn,
+                                         milliseconds_t     aTimeout,
+                                         const AtBeginFnT&  aAtBeginFn,
+                                         const AtEndFnT&    aAtEndFn);
 
 private:
     mutable GpMutex         iMutex;
@@ -86,147 +64,97 @@ GpMutex&    GpConditionVar::Mutex (void) noexcept
     return iMutex;
 }
 
+void    GpConditionVar::Wait (const CheckFnT& aCheckFn)
+{
+    GpUniqueLock<GpMutex> uniqueLock{iMutex};
+
+    iCV.wait
+    (
+        uniqueLock.internal_lock(),
+        aCheckFn
+    );
+}
+
 void    GpConditionVar::Wait
 (
-    CheckFnT aCheckFn
+    const CheckFnT&     aCheckFn,
+    const AtBeginFnT&   aAtBeginFn,
+    const AtEndFnT&     aAtEndFn
 )
 {
     GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
-    iCV.wait
-    (
-        uniqueLock.internal_lock(),
-        std::move(aCheckFn)
-    );
-}
-
-template<typename T>
-std::optional<T>    GpConditionVar::Wait
-(
-    CheckFnT            aCheckFn,
-    ConditionMetFnT<T>  aConditionMetFn
-)
-{   
-    GpUniqueLock<GpMutex> uniqueLock{iMutex};
-
-    iCV.wait
-    (
-        uniqueLock.internal_lock(),
-        std::move(aCheckFn)
-    );
-
-    return aConditionMetFn();
-}
-
-template<typename T>
-std::optional<T>    GpConditionVar::Wait
-(
-    AtBeginFnT          aAtBeginFn,
-    AtEndFnT            aAtEndFn,
-    CheckFnT            aCheckFn,
-    ConditionMetFnT<T>  aConditionMetFn
-)
-{
-    GpUniqueLock<GpMutex> uniqueLock{iMutex};
-
-    GpRAIIonDestruct callOnDestruct
-    (
-        [&aAtEndFn]()
-        {
-            aAtEndFn();
-        }
-    );
+    GpRAIIonDestruct callOnDestruct = [&aAtEndFn]()
+    {
+        aAtEndFn(true);
+    };
 
     aAtBeginFn();
 
     iCV.wait
     (
         uniqueLock.internal_lock(),
-        std::move(aCheckFn)
+        aCheckFn
     );
-
-    return aConditionMetFn();
 }
 
 bool    GpConditionVar::WaitFor
 (
-    CheckFnT                aCheckFn,
+    const CheckFnT&         aCheckFn,
     const milliseconds_t    aTimeout
 )
 {
+    if (aTimeout <= 0.0_si_ms)
+    {
+        Wait(aCheckFn);
+        return true;
+    }
+
     GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
     const bool checkFnRes = iCV.wait_for
     (
         uniqueLock.internal_lock(),
         std::chrono::milliseconds(aTimeout.As<ssize_t>()),
-        std::move(aCheckFn)
+        aCheckFn
     );
 
     return checkFnRes;
 }
 
-template<typename T>
-std::optional<T>    GpConditionVar::WaitFor
+bool    GpConditionVar::WaitFor
 (
-    CheckFnT                aCheckFn,
-    ConditionMetFnT<T>      aConditionMetFn,
-    const milliseconds_t    aTimeout
+    const CheckFnT&         aCheckFn,
+    const milliseconds_t    aTimeout,
+    const AtBeginFnT&       aAtBeginFn,
+    const AtEndFnT&         aAtEndFn
 )
 {
-    GpUniqueLock<GpMutex> uniqueLock{iMutex};
-
-    const bool checkFnRes = iCV.wait_for
-    (
-        uniqueLock.internal_lock(),
-        std::chrono::milliseconds(aTimeout.As<ssize_t>()),
-        std::move(aCheckFn)
-    );
-
-    if (checkFnRes) [[likely]]
+    if (aTimeout <= 0.0_si_ms)
     {
-        return aConditionMetFn();
+        Wait(aCheckFn, aAtBeginFn, aAtEndFn);
+        return true;
     }
 
-    return std::nullopt;
-}
-
-template<typename T>
-std::optional<T>    GpConditionVar::WaitFor
-(
-    AtBeginFnT              aAtBeginFn,
-    AtEndFnT                aAtEndFn,
-    CheckFnT                aCheckFn,
-    ConditionMetFnT<T>      aConditionMetFn,
-    ConditionNotMetFnT<T>   aConditionNotMetFn,
-    const milliseconds_t    aTimeout
-)
-{
     GpUniqueLock<GpMutex> uniqueLock{iMutex};
 
-    GpRAIIonDestruct callOnDestruct
-    (
-        [&aAtEndFn]()
-        {
-            aAtEndFn();
-        }
-    );
+    bool result = false;
+
+    GpRAIIonDestruct callOnDestruct = [&aAtEndFn, &result]()
+    {
+        aAtEndFn(result);
+    };
 
     aAtBeginFn();
 
-    const bool checkFnRes = iCV.wait_for
+    result = iCV.wait_for
     (
         uniqueLock.internal_lock(),
         std::chrono::milliseconds(aTimeout.As<ssize_t>()),
-        std::move(aCheckFn)
+        aCheckFn
     );
 
-    if (checkFnRes) [[likely]]
-    {
-        return aConditionMetFn();
-    }
-
-    return aConditionNotMetFn();
+    return result;
 }
 
 }// namespace GPlatform

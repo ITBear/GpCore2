@@ -20,11 +20,13 @@
 #   endif// if __has_include(<format>)
 #elif defined(GP_COMPILER_MSVC)
 #   include <format>
+#   include <GpCore2/GpUtils/Concepts/GpConcepts.hpp>
 #   define FMT_NAMESPASE std
     namespace fmt = std;
 
     namespace FMT_NAMESPASE {
-        template <typename T>
+        // -------------------- container elements join --------------------
+        template <::GPlatform::Concepts::HasContiguousIter T>
         std::string join(const T& aContainer, std::string_view aDelimiter)
         {
             std::string result;

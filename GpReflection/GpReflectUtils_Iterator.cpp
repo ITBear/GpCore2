@@ -73,7 +73,7 @@ void    GpReflectUtils_Iterator::SProcessObject
 
         const size_t    size    = vecWrap.size();
         const size_t    stride  = vecWrap.stride();
-        u_int8_t*       vecData = reinterpret_cast<u_int8_t*>(vecWrap.data());
+        u_int_8*        vecData = reinterpret_cast<u_int_8*>(vecWrap.data());
 
         for (size_t id = 0; id < size; id++)
         {
@@ -88,7 +88,7 @@ void    GpReflectUtils_Iterator::SProcessObject
         }
     } else
     {
-        THROW_GP("Unsupported container type");
+        THROW("Unsupported container type");
     }
 }
 
@@ -193,7 +193,7 @@ void    GpReflectUtils_Iterator::SProcessObjectSP
             collectFn(map, aIteratorStack);
         } else if (keyType == GpReflectType::BOOLEAN)
         {
-            THROW_GP("Booleans are not supported as map key");
+            THROW("Booleans are not supported as map key");
         } else if (keyType == GpReflectType::UUID)
         {
             auto& map = aProp.Map_ObjectSP<GpReflectUtils::Decltype<GpReflectType::UUID>>(aReflectDataPtr);
@@ -208,23 +208,23 @@ void    GpReflectUtils_Iterator::SProcessObjectSP
             collectFn(map, aIteratorStack);
         } else if (keyType == GpReflectType::OBJECT)
         {
-            THROW_GP("Objects are not supported as a map key");
+            THROW("Objects are not supported as a map key");
         } else if (keyType == GpReflectType::OBJECT_SP)
         {
-            THROW_GP("Objects SP are not supported as a map key");
+            THROW("Objects SP are not supported as a map key");
         } else if (keyType == GpReflectType::ENUM)
         {
-            THROW_GP("Enums are not supported as a map key");
+            THROW("Enums are not supported as a map key");
         } else if (keyType == GpReflectType::ENUM_FLAGS)
         {
-            THROW_GP("Enum flags are not supported as a map key");
+            THROW("Enum flags are not supported as a map key");
         } else
         {
-            THROW_GP(fmt::format("Unknown keyType '{}'", GpReflectType{keyType}));
+            THROW(fmt::format("Unknown keyType '{}'", GpReflectType{keyType}));
         }
     } else
     {
-        THROW_GP("Unsupported container keyType");
+        THROW("Unsupported container keyType");
     }
 }
 

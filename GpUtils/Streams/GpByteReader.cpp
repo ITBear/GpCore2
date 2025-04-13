@@ -84,7 +84,7 @@ std::string_view    GpByteReader::NullTerminatedString (void)
     const char* _R_ dataPtr     = iStorage.StoragePtr().PtrAs<const char*>();
     const size_t    sizeLeft    = SizeLeft();
 
-    THROW_COND_GP
+    VERIFY
     (
         sizeLeft > 0,
         "Out of range"_sv
@@ -99,7 +99,7 @@ std::string_view    GpByteReader::NullTerminatedString (void)
         return str.substr(0, nullTerminatorPos);
     }
 
-    THROW_GP("Null terminated string not found");
+    THROW("Null terminated string not found");
 }
 
 }// namespace GPlatform

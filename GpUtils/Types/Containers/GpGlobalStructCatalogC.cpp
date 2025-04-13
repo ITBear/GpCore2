@@ -28,7 +28,7 @@ void    GpGlobalStructCatalogC::Register
     GpAny       aValue
 )
 {
-    sInstance.SetOrUpdate
+    sInstance.Set
     (
         std::move(aKey),
         std::move(aValue)
@@ -42,12 +42,12 @@ GpAny   GpGlobalStructCatalogC::Unregister (std::string_view aKey)
 
 const GpAny GpGlobalStructCatalogC::Find (std::string_view aKey) const
 {
-    return sInstance.Get(aKey);
+    return sInstance.Find(aKey);
 }
 
 std::optional<const GpAny>  GpGlobalStructCatalogC::FindOpt (std::string_view aKey) const
 {
-    return sInstance.GetOpt(aKey);
+    return sInstance.FindOpt(aKey);
 }
 
 }// namespace GPlatform

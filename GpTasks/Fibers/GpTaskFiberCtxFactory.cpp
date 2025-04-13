@@ -4,9 +4,9 @@
 
 namespace GPlatform {
 
-GpTaskFiberCtxFactory::SP   GpTaskFiberCtxFactory::sInstance;
+GpTaskFiberCtxFactory::CSP  GpTaskFiberCtxFactory::sInstance;
 
-void    GpTaskFiberCtxFactory::SInit (GpTaskFiberCtxFactory::SP aFactory)
+void    GpTaskFiberCtxFactory::SInit (GpTaskFiberCtxFactory::CSP aFactory)
 {
     sInstance = std::move(aFactory);
 }

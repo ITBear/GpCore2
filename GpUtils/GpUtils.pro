@@ -17,7 +17,7 @@ equals(var_link, "static") {
 
 # ----------- Libraries -----------
 equals(var_os, "windows") {
-	#LIBS += -lAdvapi32
+	LIBS += -lAdvapi32
 }
 
 equals(var_os, "linux") {
@@ -48,6 +48,7 @@ SOURCES += \
     Other/GpErrno.cpp \
     Other/GpLinkedLibsInfo.cpp \
     Other/GpStartStopManager.cpp \
+    Other/GpSyscallManager.cpp \
     Other/GpSystemInfo.cpp \
     Random/GpRandom.cpp \
     Random/GpRandomDeviceWin.cpp \
@@ -94,6 +95,7 @@ HEADERS += \
     ../Config/IncludeExt/boost_small_vector.hpp \
     ../Config/IncludeExt/fmt.hpp \
     ../Config/IncludeExt/windows.hpp \
+	../Config/IncludeExt/unordered_dense.hpp \
     Algorithms/GpAverage.hpp \
     Algorithms/GpDistributeProportional.hpp \
     Algorithms/GpFind.hpp \
@@ -141,6 +143,7 @@ HEADERS += \
     Other/GpMethodAccessGuard.hpp \
     Other/GpRAIIonDestruct.hpp \
     Other/GpStartStopManager.hpp \
+    Other/GpSyscallManager.hpp \
     Other/GpSystemInfo.hpp \
     Other/GpSystemInfoWin.hpp \
     Random/GpRandom.hpp \
@@ -161,6 +164,7 @@ HEADERS += \
     SyncPrimitives/GpConditionVar.hpp \
     SyncPrimitives/GpConditionVarFlag.hpp \
     SyncPrimitives/GpMutex.hpp \
+    SyncPrimitives/GpScopeLockGuard.hpp \
     SyncPrimitives/GpSharedMutex.hpp \
     SyncPrimitives/GpSpinLock.hpp \
     SyncPrimitives/GpSpinLockRW.hpp \
@@ -173,23 +177,20 @@ HEADERS += \
     Threads/Timers/GpTimer.hpp \
     Threads/Timers/GpTimersManager.hpp \
     TypeTraits/GpTypeInfoUtils.hpp \
-    TypeTraits/GpTypeTraitsArray.hpp \
-    TypeTraits/GpTypeTraitsInvocable.hpp \
-    TypeTraits/GpTypeTraitsResultOf.hpp \
-    TypeTraits/GpTypeTraitsTuple.hpp \
+    TypeTraits/GpTypeTraits.hpp \
     Types/Bits/GpBitOps.hpp \
     Types/Bool/GpBool.hpp \
     Types/Containers/GpAny.hpp \
     Types/Containers/GpBytesArray.hpp \
-    Types/Containers/GpCacheMap.hpp \
+    Types/Containers/GpContainerUpdateStatus.hpp \
     Types/Containers/GpContainersT.hpp \
-    Types/Containers/GpDictionary.hpp \
-    Types/Containers/GpElementsPool.hpp \
     Types/Containers/GpGlobalStructCatalogC.hpp \
+	Types/Containers/GpIdPool.hpp \
     Types/Containers/GpMultiKeyManager.hpp \
-    Types/Containers/GpSet.hpp \
+	Types/Containers/GpPackedStruct.hpp \
+    Types/Containers/GpSharedMap.hpp \
+    Types/Containers/GpSharedPool.hpp \
     Types/Containers/GpSharedQueue.hpp \
-    Types/Containers/GpSharedQueueSimple.hpp \
     Types/Containers/GpSpanNumerics.hpp \
     Types/Containers/GpTypeShell.hpp \
     Types/Containers/GpVectorWrapper.hpp \
@@ -198,7 +199,7 @@ HEADERS += \
     Types/Numerics/GpMath.hpp \
     Types/Numerics/GpNumericOps.hpp \
     Types/Numerics/GpNumericTypes.hpp \
-    Types/Pointers/GpReferenceCounter.hpp \
+	Types/Pointers/GpReferenceCounter.hpp \
     Types/Pointers/GpReferenceStorage.hpp \
     Types/Pointers/GpSharedPtr.hpp \
     Types/Pointers/GpSpan.hpp \

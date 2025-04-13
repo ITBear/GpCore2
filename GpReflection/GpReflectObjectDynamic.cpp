@@ -12,18 +12,18 @@ GpReflectObject::SP GpReflectObjectDynamic::Factory::NewInstanceSP (const GpUUID
 
 void    GpReflectObjectDynamic::Factory::ConstructInplace (void* /*aDataPtr*/) const
 {
-    THROW_GP("Use GpReflectObjectDynamic::SP");
+    THROW("Use GpReflectObjectDynamic::SP");
 }
 
 void    GpReflectObjectDynamic::Factory::DestructInplace (void* /*aDataPtr*/) const
 {
-    THROW_GP("Use GpReflectObjectDynamic::SP");
+    THROW("Use GpReflectObjectDynamic::SP");
 }
 
 const GpReflectObjectFactory::VecWrapInfoT& GpReflectObjectDynamic::Factory::VecWrapInfo (void) const noexcept
 {
     // TODO: implement
-    THROW_GP_NOT_IMPLEMENTED();
+    THROW_NOT_IMPLEMENTED();
 }
 
 GpReflectObjectDynamic::~GpReflectObjectDynamic (void) noexcept

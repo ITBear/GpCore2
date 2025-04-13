@@ -1,5 +1,6 @@
 #include <GpCore2/GpUtils/Types/Enums/GpEnumFlags.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
+#include <GpCore2/GpUtils/Types/Bits/GpBitOps.hpp>
 
 #if defined(GP_USE_ENUMS)
 
@@ -21,10 +22,17 @@ std::vector<std::string>    GpEnumFlags::ToStringArray (void) const
 
 std::vector<std::string_view>   GpEnumFlags::ToStringViewArray (void) const
 {
-    std::vector<std::string_view> res;
+    value_type      value   = iRawValue;
+    value_type      id      = 0;
+    const size_t    count   = BitOps::MostSignificantBit<value_type>(iRawValue);
 
-    value_type value    = iValue;
-    value_type id       = 0;
+    if (count == 0)
+    {
+        return {};
+    }
+
+    std::vector<std::string_view> res;
+    res.reserve(count);
 
     while (value > 0)
     {

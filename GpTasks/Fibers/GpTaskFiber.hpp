@@ -18,7 +18,7 @@ public:
     CLASS_DD(GpTaskFiber)
     TAG_SET(THREAD_SAFE)
 
-    using StopExceptionsT = GpStartStopManager::StopExceptionsT;
+    using ExceptionsT = GpStartStopManager::ExceptionsT;
 
 protected:
     inline                      GpTaskFiber     (void) noexcept;
@@ -31,9 +31,9 @@ public:
     virtual                     ~GpTaskFiber    (void) noexcept override;
 
     static GpTaskFiber&         SCurrentFiber   (void);
-    inline static void          SYeld           (GpTaskRunRes::EnumT aValue);
+    inline static void          SYield          (GpTaskRunRes::EnumT aValue);
     [[nodiscard]] inline static GpTaskFiberCtx::TimeoutRes
-                                SYeld           (milliseconds_t aTimeout);
+                                SYield          (milliseconds_t aTimeout);
 
     GpTaskRunRes::EnumT         FiberRun        (GpMethodAccessGuard<GpTaskFiberCtx>);
     void                        CallOnStop      (GpMethodAccessGuard<GpTaskFiber, GpTaskFiberCtx>) noexcept;
@@ -46,7 +46,7 @@ protected:
 
     virtual void                OnStart         (void) = 0;             // Calls once, before first call OnStep
     virtual GpTaskRunRes::EnumT OnStep          (void) = 0;             // Calls until return DONE or exception or IsStopRequested() == true
-    virtual void                OnStop          (StopExceptionsT& aStopExceptionsOut) noexcept = 0; // It is called once before finishing in the following cases:
+    virtual void                OnStop          (ExceptionsT& aStopExceptionsOut) noexcept = 0; // It is called once before finishing in the following cases:
                                                                         // 1. In the event of an exception in OnStart, OnStep, or any other location.
                                                                         // 2. If OnStep returns DONE
     virtual void                OnStopException (const GpException& aException) noexcept = 0;
@@ -84,39 +84,39 @@ GpTask{std::move(aName), GpTaskMode::FIBER, aId}
 {
 }
 
-void    GpTaskFiber::SYeld (const GpTaskRunRes::EnumT aValue)
+void    GpTaskFiber::SYield (const GpTaskRunRes::EnumT aValue)
 {
     SCurrentFiber().iCtx.Vn().CallYield(aValue);
 }
 
-GpTaskFiberCtx::TimeoutRes  GpTaskFiber::SYeld (const milliseconds_t aTimeout)
+GpTaskFiberCtx::TimeoutRes  GpTaskFiber::SYield (const milliseconds_t aTimeout)
 {
     return SCurrentFiber().iCtx.Vn().CallYield(aTimeout);
 }
 
-inline void YELD (const GpTaskRunRes::EnumT aValue)
+inline void YIELD (const GpTaskRunRes::EnumT aValue)
 {
-    GpTaskFiber::SYeld(aValue);
+    GpTaskFiber::SYield(aValue);
 }
 
-inline void YELD_WAIT (void)
+inline void YIELD_WAIT (void)
 {
-    GpTaskFiber::SYeld(GpTaskRunRes::WAIT);
+    GpTaskFiber::SYield(GpTaskRunRes::WAIT);
 }
 
-[[nodiscard]] inline GpTaskFiberCtx::TimeoutRes YELD_WAIT (const milliseconds_t aTimeout)
+[[nodiscard]] inline GpTaskFiberCtx::TimeoutRes YIELD_WAIT (const milliseconds_t aTimeout)
 {
-    return GpTaskFiber::SYeld(aTimeout);
+    return GpTaskFiber::SYield(aTimeout);
 }
 
-inline void YELD_READY_TO_RUN (void)
+inline void YIELD_READY_TO_RUN (void)
 {
-    YELD(GpTaskRunRes::READY_TO_RUN);
+    YIELD(GpTaskRunRes::READY_TO_RUN);
 }
 
-inline void YELD_DONE (void)
+inline void YIELD_DONE (void)
 {
-    YELD(GpTaskRunRes::DONE);
+    YIELD(GpTaskRunRes::DONE);
 }
 
 }// namespace GPlatform

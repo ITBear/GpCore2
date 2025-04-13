@@ -42,7 +42,6 @@ namespace GPlatform {
     using C         = GpDeclContainersT<this_type>; \
     using SP        = typename C::SP; \
     using CSP       = typename C::CSP; \
-    using WP        = typename C::WP; \
-    using CWP       = typename C::CWP;
+    using UP        = typename C::UP;
 
 }// namespace GPlatform

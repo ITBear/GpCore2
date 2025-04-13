@@ -19,9 +19,13 @@
 #   endif
 
     GP_WARNING_DISABLE(pragmas)
+
+#   define GP_WARNING_DISABLE_MSVC(code)
+
 #elif defined(GP_COMPILER_MSVC)
-#   define GP_WARNING_PUSH()            _Pragma("warning(push)")
-#   define GP_WARNING_POP()             _Pragma("warning(pop)")
+#   define GP_WARNING_PUSH()             __pragma(warning(push))
+#   define GP_WARNING_POP()              __pragma(warning(pop))
+#   define GP_WARNING_DISABLE_MSVC(code) __pragma(warning(disable:code))
 #else
 #   error Unknown compiller
 #endif

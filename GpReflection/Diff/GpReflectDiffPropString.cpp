@@ -6,7 +6,7 @@ GpReflectDiffPropString::~GpReflectDiffPropString (void) noexcept
 {   
 }
 
-GpReflectDiffPropString::C::Opt::Val    GpReflectDiffPropString::SCheckAndMake
+GpReflectDiffPropString::C::Opts::Val   GpReflectDiffPropString::SCheckAndMake
 (
     const std::string& aValueFrom,
     const std::string& aValueTo

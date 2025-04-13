@@ -55,11 +55,11 @@ GpTimer::SP GpTimersManager::SSingleShot
     const bool              aUseTimersPool
 )
 {
-    GpTimersManager::SP managerSP       = GpTimersManager::SManager();
-    GpTimersManager&    manager         = managerSP.V();
-    GpTimer::C::Opt::SP timerOpt        = aUseTimersPool ? manager.iTimersPool.Acquire() : std::nullopt;
-    const bool          isReturnToPool  = timerOpt.has_value();
-    GpTimer::SP         timerSP;
+    GpTimersManager::SP     managerSP       = GpTimersManager::SManager();
+    GpTimersManager&        manager         = managerSP.V();
+    GpTimer::C::Opts::SP    timerOpt        = aUseTimersPool ? manager.iTimersPool.Acquire() : std::nullopt;
+    const bool              isReturnToPool  = timerOpt.has_value();
+    GpTimer::SP             timerSP;
 
     if (isReturnToPool) [[likely]]
     {

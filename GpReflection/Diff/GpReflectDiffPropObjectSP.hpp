@@ -27,7 +27,7 @@ public:
     const GpSP<GpReflectDiffDelta>&                 Value                       (void) const noexcept {return iValue;}
     GpSP<GpReflectDiffDelta>&                       Value                       (void) noexcept {return iValue;}
 
-    static GpReflectDiffPropObjectSP::C::Opt::Val   SCheckAndMake               (const GpReflectObject::SP&     aValueFrom,
+    static GpReflectDiffPropObjectSP::C::Opts::Val  SCheckAndMake               (const GpReflectObject::SP&     aValueFrom,
                                                                                  const GpReflectObject::SP&     aValueTo,
                                                                                  IsEqualCacheRefOptT&           aIsEqualCache,
                                                                                  TotalMemoryUseCacheRefOptT&    aTotalMemoryUseCache);

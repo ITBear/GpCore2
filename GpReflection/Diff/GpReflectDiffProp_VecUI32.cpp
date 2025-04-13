@@ -6,7 +6,7 @@ GpReflectDiffProp_VecUI32::~GpReflectDiffProp_VecUI32 (void) noexcept
 {
 }
 
-GpReflectDiffProp_VecUI32::C::Opt::Val  GpReflectDiffProp_VecUI32::SCheckAndMake
+GpReflectDiffProp_VecUI32::C::Opts::Val GpReflectDiffProp_VecUI32::SCheckAndMake
 (
     const ContainerT& aValueFrom,
     const ContainerT& aValueTo

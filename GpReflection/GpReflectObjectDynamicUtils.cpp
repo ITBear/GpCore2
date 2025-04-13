@@ -584,7 +584,7 @@ void    Visitor_VisitVecCtx::Object
     [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
-    THROW_GP("Object arrays are not supported; use Object::SP instead.");
+    THROW("Object arrays are not supported; use Object::SP instead.");
 }
 
 template<typename ValGetterT>
@@ -1553,7 +1553,7 @@ void    Visitor_VisitVecCtx::Object
     [[maybe_unused]] Visitor_VisitCtx&      aCtx
 )
 {
-    THROW_GP("Object arrays are not supported; use Object::SP instead."_sv);
+    THROW("Object arrays are not supported; use Object::SP instead."_sv);
 }
 
 template<typename ValGetterT>
@@ -1952,24 +1952,21 @@ GpReflectObjectDynamic::SP  GpReflectObjectDynamicUtils::SConstruct (const GpRef
     //Data ptr
     void* dataPtr = nullptr;
 
-    GpRAIIonDestruct stopGuard
-    (
-        [&]()
+    GpRAIIonDestruct stopGuard = [&]()
+    {
+        if (dataPtr != nullptr)
         {
-            if (dataPtr != nullptr)
-            {
-                std::free(dataPtr);
+            std::free(dataPtr);
 
 //#if defined(GP_OS_WINDOWS)
-//              _aligned_free(dataPtr);
+//          _aligned_free(dataPtr);
 //#else
-//              std::free(dataPtr);
+//          std::free(dataPtr);
 //#endif
-            }
-
-            dataPtr = nullptr;
         }
-    );
+
+        dataPtr = nullptr;
+    };
 
     // Props
     const GpReflectProp::SmallVecVal& props = aModel.Props();
@@ -1987,7 +1984,7 @@ GpReflectObjectDynamic::SP  GpReflectObjectDynamicUtils::SConstruct (const GpRef
             dataPtr = std::malloc(objectSize);
         } else
         {
-            THROW_GP("Wrong align");
+            THROW("Wrong align");
 //          // must be a multiple of alignment
 //          const size_t allocateSize = (objectSize / objectAlign) + (objectSize % objectAlign ? 0 : objectAlign);
 //
@@ -1998,7 +1995,7 @@ GpReflectObjectDynamic::SP  GpReflectObjectDynamicUtils::SConstruct (const GpRef
 //#endif
         }
 
-        THROW_COND_GP
+        VERIFY
         (
             dataPtr != nullptr,
             "Memory allocation failed"_sv

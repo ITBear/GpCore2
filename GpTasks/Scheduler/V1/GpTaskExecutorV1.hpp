@@ -2,7 +2,7 @@
 
 #include <GpCore2/Config/GpConfig.hpp>
 #include <GpCore2/GpTasks/Scheduler/GpTaskExecutor.hpp>
-#include <GpCore2/GpTasks/ITC/GpItcSharedQueue.hpp>
+#include <GpCore2/GpTasks/ITC/GpItcQueue.hpp>
 #include <GpCore2/GpTasks/GpTask.hpp>
 
 #if defined(GP_USE_MULTITHREADING)
@@ -18,8 +18,8 @@ public:
     CLASS_DD(GpTaskExecutorV1)
     TAG_SET(THREAD_SAFE)
 
-    using ReadyTasksQueueT  = GpItcSharedQueue<GpTask::SP>;
-    using DonePromiseT      = GpItcSharedPromise<ssize_t>;
+    using ReadyTasksQueueT  = GpItcQueue<GpTask::SP>;
+    using DonePromiseT      = GpItcPromise<ssize_t>;
 
 public:
                         GpTaskExecutorV1    (const size_t       aId,

@@ -247,7 +247,7 @@ bool    GpAny::IsContatinType (void) const noexcept
 template<AnyConcepts::IsNotAny T>
 const T&    GpAny::Value (void) const
 {
-    THROW_COND_GP
+    VERIFY
     (
         iPtrHolder != nullptr,
         "Value is null"_sv
@@ -259,7 +259,7 @@ const T&    GpAny::Value (void) const
     const std::type_info&   fromTypeInfo        = std::get<0>(fromTypeInfoAndPtr);
     const void*             valuePtr            = std::get<1>(fromTypeInfoAndPtr);
 
-    THROW_COND_GP
+    VERIFY
     (
         GpTypeInfoUtils::SIsSame(fromTypeInfo, toTypeInfo),
         [&](){return "Bad cast: from '"_sv + fromTypeInfo.name() + "' to '"_sv + toTypeInfo.name() + "'"_sv;}
@@ -277,7 +277,7 @@ T&  GpAny::Value (void)
 template<AnyConcepts::IsNotAny T>
 const T&    GpAny::ValueNoCheck (void) const
 {
-    THROW_COND_GP
+    VERIFY
     (
         iPtrHolder != nullptr,
         "Value is null"_sv

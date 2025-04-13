@@ -3,6 +3,12 @@
 
 #if defined(GP_USE_FILE_UTILS)
 
+#if defined(GP_POSIX)
+    #include <GpCore2/GpUtils/Files/GpFilePosix.hpp>
+#elif defined(GP_OS_WINDOWS)
+    #include <GpCore2/GpUtils/Files/GpFileWindows.hpp>
+#endif
+
 #include <fstream>
 #include <filesystem>
 
@@ -29,7 +35,7 @@ GpBytesArray    GpFileUtils::SReadAll (std::string_view aFileName)
     //  || (ifs.fail())
     //  || (ifs.bad()))
     //{
-    //  THROW_GP("File '"_sv + fileName + "' not found"_sv);
+    //  THROW("File '"_sv + fileName + "' not found"_sv);
     //}
 
     //const std::ifstream::pos_type fileSize = ifs.tellg();
@@ -76,7 +82,7 @@ void    GpFileUtils::SAppend
     //  || (ofs.fail())
     //  || (ofs.bad()))
     //{
-    //  THROW_GP("File '"_sv + fileName + "' not found"_sv);
+    //  THROW("File '"_sv + fileName + "' not found"_sv);
     //}
 
     //ofs.write(aData.PtrAs<const char*>(), aData.Size().As<std::streamsize>());
@@ -101,6 +107,16 @@ bool    GpFileUtils::SIsExists (std::string_view aFileName)
 size_byte_t GpFileUtils::SSize (std::string_view aFileName)
 {
     return size_byte_t::SMake(NumOps::SConvert<u_int_64>(std::filesystem::file_size(aFileName)));
+}
+
+bool    GpFileUtils::SIsPathReadable (std::string_view aPath)
+{
+    return GpFileImpl::SIsPathReadable(aPath);
+}
+
+bool    GpFileUtils::SIsPathWritable (std::string_view aPath)
+{
+    return GpFileImpl::SIsPathWritable(aPath);
 }
 
 }// namespace GPlatform

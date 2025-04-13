@@ -25,7 +25,7 @@ std::u16string  GpUTF::S_UTF8_To_UTF16 (std::string_view aStr)
         const char      char8           = *utf8Str;
         const size_t    leading1bitCnt  = std::max<size_t>(BitOps::Leading1bitCnt(u_int_8(char8)), 1);
 
-        THROW_COND_GP
+        VERIFY
         (
                (bytesLeft >= leading1bitCnt)
             && (leading1bitCnt >= 1)
@@ -68,7 +68,7 @@ std::u16string  GpUTF::S_UTF8_To_UTF16 (std::string_view aStr)
                                     | u_int_32((u_int_32(utf8Str[2]) & u_int_32(0b00111111)) <<  6)
                                     | u_int_32((u_int_32(utf8Str[3]) & u_int_32(0b00111111)) <<  0);
 
-            THROW_COND_GP
+            VERIFY
             (
                 char32 >= 0x10000,
                 "Wrong UTF-8 sequence"_sv
@@ -93,7 +93,7 @@ std::u16string  GpUTF::S_UTF8_To_UTF16 (std::string_view aStr)
 std::u32string  GpUTF::S_UTF8_To_UTF32 (std::string_view /*aStr*/)
 {
     //TODO: implement
-    THROW_GP_NOT_IMPLEMENTED();
+    THROW_NOT_IMPLEMENTED();
 }
 
 std::string GpUTF::S_UTF16_To_UTF8 (std::u16string_view aStr)
@@ -113,7 +113,7 @@ std::string GpUTF::S_UTF16_To_UTF8 (std::u16string_view aStr)
 
         if (type == GpUtf16Type::REGULAR)
         {
-            THROW_COND_GP
+            VERIFY
             (
                 prevType != GpUtf16Type::HIGH_SURROGATE,
                 "Invalid UTF-16 character"_sv
@@ -123,7 +123,7 @@ std::string GpUTF::S_UTF16_To_UTF8 (std::u16string_view aStr)
             prevType    = type;
         } else if (type == GpUtf16Type::HIGH_SURROGATE)
         {
-            THROW_COND_GP
+            VERIFY
             (
                 prevType != GpUtf16Type::HIGH_SURROGATE,
                 "Invalid UTF-16 high surrogate character"_sv
@@ -135,7 +135,7 @@ std::string GpUTF::S_UTF16_To_UTF8 (std::u16string_view aStr)
             continue;
         } else //val0Type == GpUtf16Type::LOW_SURROGATE
         {
-            THROW_COND_GP
+            VERIFY
             (
                 prevType == GpUtf16Type::HIGH_SURROGATE,
                 "Invalid UTF-16 low surrogate character"_sv
@@ -198,7 +198,7 @@ std::string GpUTF::S_UTF32_To_UTF8 (std::u32string_view aStr)
             resStr.push_back(static_cast<char>(0x80 | (code & 0x3F)));
         } else
         {
-            THROW_GP("Invalid UTF-32 code point");
+            THROW("Invalid UTF-32 code point");
         }
     }
 
@@ -216,7 +216,7 @@ size_t  GpUTF::SCharsCount (std::string_view aStr)
         const char      char8           = *utf8Str;
         const size_t    leading1bitCnt  = std::max<size_t>(BitOps::Leading1bitCnt(u_int_8(char8)), 1);
 
-        THROW_COND_GP
+        VERIFY
         (
                (bytesLeft >= leading1bitCnt)
             && (leading1bitCnt >= 1)
@@ -249,7 +249,7 @@ size_t  GpUTF::SCharsCount (std::u16string_view aStr)
         {
             case GpUtf16Type::REGULAR:
             {
-                THROW_COND_GP
+                VERIFY
                 (
                     prevType != GpUtf16Type::HIGH_SURROGATE,
                     "Invalid UTF-16 high surrogate character"_sv
@@ -259,7 +259,7 @@ size_t  GpUTF::SCharsCount (std::u16string_view aStr)
             } break;
             case GpUtf16Type::HIGH_SURROGATE:
             {
-                THROW_COND_GP
+                VERIFY
                 (
                     prevType != GpUtf16Type::HIGH_SURROGATE,
                     "Invalid UTF-16 high surrogate character"_sv
@@ -267,7 +267,7 @@ size_t  GpUTF::SCharsCount (std::u16string_view aStr)
             } break;
             case GpUtf16Type::LOW_SURROGATE:
             {
-                THROW_COND_GP
+                VERIFY
                 (
                     prevType == GpUtf16Type::HIGH_SURROGATE,
                     "Invalid UTF-16 low surrogate character"_sv
@@ -284,7 +284,7 @@ size_t  GpUTF::SCharsCount (std::u16string_view aStr)
         prevType = charType;
     }
 
-    THROW_COND_GP
+    VERIFY
     (
            (prevType == GpUtf16Type::REGULAR)
         || (prevType == GpUtf16Type::LOW_SURROGATE),
@@ -309,7 +309,7 @@ std::string GpUTF::SToLower (std::string_view aStr)
         const char      char8           = *utf8Str;
         const size_t    leading1bitCnt  = std::max<size_t>(BitOps::Leading1bitCnt(u_int_8(char8)), 1);
 
-        THROW_COND_GP
+        VERIFY
         (
                (bytesLeft >= leading1bitCnt)
             && (leading1bitCnt >= 1)
@@ -352,7 +352,7 @@ std::string GpUTF::SToUpper (std::string_view aStr)
         const char      char8           = *utf8Str;
         const size_t    leading1bitCnt  = std::max<size_t>(BitOps::Leading1bitCnt(u_int_8(char8)), 1);
 
-        THROW_COND_GP
+        VERIFY
         (
                (bytesLeft >= leading1bitCnt)
             && (leading1bitCnt >= 1)
@@ -387,7 +387,7 @@ size_t  GpUTF::SCharsCount
 ) noexcept
 {
     //TODO: implement
-    THROW_GP_NOT_IMPLEMENTED();
+    THROW_NOT_IMPLEMENTED();
 
     //TODO: reimplement with SIMD
 
@@ -416,7 +416,7 @@ size_t  GpUTF::SCharsCountRange
 ) noexcept
 {
     //TODO: implement
-    THROW_GP_NOT_IMPLEMENTED();
+    THROW_NOT_IMPLEMENTED();
 
     /*
     size_t          count       = 0;
@@ -441,7 +441,7 @@ bool    GpUTF::SContainsOnlyChars
 ) noexcept
 {
     //TODO: implement
-    THROW_GP_NOT_IMPLEMENTED();
+    THROW_NOT_IMPLEMENTED();
 
     /*
     size_t size = std::size(aStr);
@@ -513,7 +513,7 @@ size_t  GpUTF::S_UTF16_To_UTF8
         return 4;
     } else
     {
-        THROW_GP("Wrong UTF32 value"_sv);
+        THROW("Wrong UTF32 value"_sv);
     }
 }
 
@@ -560,7 +560,7 @@ size_t  GpUTF::S_UTF32_To_UTF8
         return 4;
     } else
     {
-        THROW_GP("Wrong UTF32 value"_sv);
+        THROW("Wrong UTF32 value"_sv);
     }
 }
 */
