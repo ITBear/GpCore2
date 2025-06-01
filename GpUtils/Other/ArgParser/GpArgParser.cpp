@@ -162,7 +162,7 @@ GpArgParser&    GpArgParser::AddArgument (GpArgParserArgument::SP aArgument)
     // Check argument names
     VERIFY
     (
-        argument.Names().empty() == false,
+        !argument.Names().empty(),
         "No name was set for the argument"
     );
 
@@ -172,7 +172,7 @@ GpArgParser&    GpArgParser::AddArgument (GpArgParserArgument::SP aArgument)
         // Check if name is not empty
         VERIFY
         (
-            name.empty() == false,
+            !name.empty(),
             "Argument name is empty"
         );
 

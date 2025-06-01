@@ -74,6 +74,7 @@ public:
     constexpr void                  Unset               (const value_type aId) noexcept {iRawValue &= ~value_type(value_type(1) << aId);}
     constexpr size_t                UpCount             (void) const noexcept {return BitOps::PopCount(iRawValue);}
     constexpr bool                  Test                (const value_type aId) const noexcept {return iRawValue & value_type(value_type(1) << aId);}
+    constexpr bool                  TestAll             (const GpEnumFlags& aFlags) const noexcept {return (iRawValue & aFlags.iRawValue) == aFlags.iRawValue;}
     constexpr bool                  Empty               (void) const noexcept {return iRawValue == 0;}
     constexpr void                  ApplyMask           (const value_type aMask) noexcept {iRawValue &= aMask;}
 
@@ -92,7 +93,7 @@ public:
     std::string                     Echo                (void) const;
 
 protected:
-    value_type                      iRawValue   = 0;
+    value_type iRawValue    = 0;
 };
 
 template<typename E>

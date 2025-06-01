@@ -85,6 +85,7 @@ HEADERS += \
 	ITC/GpItcPromise.hpp \
 	ITC/GpItcQueue.hpp \
 	ITC/GpItcRecursiveLock.hpp \
+	ITC/GpItcRecursiveLockRW.hpp \
     ITC/GpItcResult.hpp \
 	ITC/_GpItcCacheMapTransactionGuard.hpp \
 	Scheduler/GpTaskExecutor.hpp \

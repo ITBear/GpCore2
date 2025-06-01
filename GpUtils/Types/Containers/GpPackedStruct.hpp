@@ -3,7 +3,6 @@
 #include <GpCore2/GpUtils/Types/Enums/GpEnum.hpp>
 #include <GpCore2/GpUtils/Exceptions/GpException.hpp>
 #include <GpCore2/GpUtils/Other/GpMethodAccessGuard.hpp>
-#include <numeric>
 #include <bitset>
 
 namespace GPlatform {

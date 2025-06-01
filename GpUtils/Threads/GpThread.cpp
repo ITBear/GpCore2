@@ -31,13 +31,13 @@ GpThread::~GpThread (void) noexcept
 
 std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
 {
-    GpUniqueLock<GpMutex> uniqueLock{iMutex};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
     // Check if started
     VERIFY
     (
         iRunnable.IsNULL(),
-        "Already run"_sv
+        "The thread has already started"_sv
     );
 
     iThreadRunnableDoneF.clear();
@@ -47,18 +47,18 @@ std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
     iThread = std::thread
     (
         [
-            iRunnable               = iRunnable,
-            iName                   = std::string{this->Name()},
-            iThreadStopRequestF     = &iThreadStopRequestF,
-            iThreadRunnableDoneF    = &iThreadRunnableDoneF
+            runnable            = iRunnable,
+            name                = std::string{this->Name()},
+            threadStopRequestF  = &iThreadStopRequestF,
+            threadRunnableDoneF = &iThreadRunnableDoneF
         ]() mutable noexcept
         {
-            iThreadRunnableDoneF->clear();
+            threadRunnableDoneF->clear();
 
-            SSetSysNameForCurrent(std::move(iName));
-            iRunnable->Run(*iThreadStopRequestF);
+            SSetSysNameForCurrent(std::move(name));
+            runnable->Run(*threadStopRequestF);
 
-            iThreadRunnableDoneF->test_and_set();
+            threadRunnableDoneF->test_and_set();
         }
     );
 
@@ -77,7 +77,7 @@ void    GpThread::RequestStop (void) noexcept
     iThreadStopRequestF.test_and_set();
 
     {
-        GpUniqueLock<GpMutex> uniqueLock{iMutex};
+        GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
         if (iRunnable.IsNotNULL())
         {
@@ -107,7 +107,7 @@ void    GpThread::Join (void) noexcept
         );
 
         {
-            GpUniqueLock<GpMutex> uniqueLock{iMutex};
+            GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
             if (iRunnable.IsNotNULL())
             {

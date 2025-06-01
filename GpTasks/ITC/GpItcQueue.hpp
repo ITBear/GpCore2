@@ -2,6 +2,7 @@
 
 #include <GpCore2/Config/GpConfig.hpp>
 #include <GpCore2/GpTasks/ITC/GpItcCondition.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSharedMutex.hpp>
 
 #include <queue>
 #include <optional>
@@ -45,9 +46,9 @@ public:
 
 private:
     mutable GpItcCondition  iItcCondition;
-    underlying_container    iContainer      GUARDED_BY(iItcCondition.Mutex());
-    size_t                  iMaxSize        GUARDED_BY(iItcCondition.Mutex()) = std::numeric_limits<size_t>::max();
-    bool                    iIsInterrupt    GUARDED_BY(iItcCondition.Mutex()) = false;
+    underlying_container    iContainer      GUARDED_BY(iItcCondition.SpinLock());
+    size_t                  iMaxSize        GUARDED_BY(iItcCondition.SpinLock()) = std::numeric_limits<size_t>::max();
+    bool                    iIsInterrupt    GUARDED_BY(iItcCondition.SpinLock()) = false;
 };
 
 template <typename T>
@@ -64,7 +65,7 @@ iMaxSize{aMaxSize}
 template <typename T>
 size_t  GpItcQueue<T>::MaxSize (void) const noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+    GpSharedLock<GpSpinLockRW> sharedLock{iItcCondition.SpinLock()};
 
     return iMaxSize;
 }
@@ -72,7 +73,7 @@ size_t  GpItcQueue<T>::MaxSize (void) const noexcept
 template <typename T>
 void    GpItcQueue<T>::SetMaxSize (const size_t aMaxSize) noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
 
     iMaxSize = aMaxSize;
 }
@@ -80,7 +81,7 @@ void    GpItcQueue<T>::SetMaxSize (const size_t aMaxSize) noexcept
 template <typename T>
 size_t  GpItcQueue<T>::Size (void) const noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+    GpSharedLock<GpSpinLockRW> sharedLock{iItcCondition.SpinLock()};
 
     return std::size(iContainer);
 }
@@ -88,7 +89,7 @@ size_t  GpItcQueue<T>::Size (void) const noexcept
 template <typename T>
 bool    GpItcQueue<T>::Empty (void) const noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+    GpSharedLock<GpSpinLockRW> sharedLock{iItcCondition.SpinLock()};
 
     return iContainer.empty();
 }
@@ -96,7 +97,7 @@ bool    GpItcQueue<T>::Empty (void) const noexcept
 template <typename T>
 void    GpItcQueue<T>::Clear (void)
 {
-    GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
 
     while (!iContainer.empty())
     {
@@ -109,7 +110,7 @@ void    GpItcQueue<T>::Clear (void)
 template <typename T>
 void    GpItcQueue<T>::Interrupt (void)
 {
-    GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
     iIsInterrupt = true;
     iItcCondition.NotifyAll();
 }
@@ -117,7 +118,7 @@ void    GpItcQueue<T>::Interrupt (void)
 template <typename T>
 bool    GpItcQueue<T>::PushAndNotifyOne (const value_type& aValue)
 {
-    GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
 
     if (std::size(iContainer) < iMaxSize) [[likely]]
     {
@@ -134,7 +135,7 @@ bool    GpItcQueue<T>::PushAndNotifyOne (const value_type& aValue)
 template <typename T>
 bool    GpItcQueue<T>::PushAndNotifyOne (value_type&& aValue)
 {
-    GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
 
     if (std::size(iContainer) < iMaxSize) [[likely]]
     {
@@ -151,7 +152,7 @@ bool    GpItcQueue<T>::PushAndNotifyOne (value_type&& aValue)
 template <typename T>
 bool    GpItcQueue<T>::PushAndNotifyAll (const value_type& aValue)
 {
-    GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
 
     if (std::size(iContainer) < iMaxSize) [[likely]]
     {
@@ -168,7 +169,7 @@ bool    GpItcQueue<T>::PushAndNotifyAll (const value_type& aValue)
 template <typename T>
 bool    GpItcQueue<T>::PushAndNotifyAll (value_type&& aValue)
 {
-    GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
 
     if (std::size(iContainer) < iMaxSize) [[likely]]
     {
@@ -198,7 +199,7 @@ auto    GpItcQueue<T>::WaitAndPop (const milliseconds_t aTimeout) -> std::option
     std::optional<value_type> result;
 
     const GpItcCondition::AtEndFnT atEndFn = [&](bool aResult) NO_THREAD_SAFETY_ANALYSIS
-    {
+    {       
         if (aResult && !iIsInterrupt) [[likely]]
         {
             result = std::move(iContainer.front());

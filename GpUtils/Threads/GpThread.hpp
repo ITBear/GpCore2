@@ -2,7 +2,8 @@
 
 #include <GpCore2/GpUtils/GpUtils_global.hpp>
 #include <GpCore2/GpUtils/Threads/GpRunnable.hpp>
-#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSpinLockRW.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSharedMutex.hpp>
 
 #include <thread>
 
@@ -40,15 +41,16 @@ private:
     std::atomic_flag        iThreadStopRequestF;    // false
     std::atomic_flag        iThreadRunnableDoneF;   // true
 
-    mutable GpMutex         iMutex;
-    GpRunnable::SP          iRunnable   GUARDED_BY(iMutex);
-    ImplT                   iThread     GUARDED_BY(iMutex);
-    std::thread::id         iThreadId   GUARDED_BY(iMutex);
+    mutable GpSpinLockRW    iSpinLockRW;
+    GpRunnable::SP          iRunnable   GUARDED_BY(iSpinLockRW);
+    ImplT                   iThread     GUARDED_BY(iSpinLockRW);
+    std::thread::id         iThreadId   GUARDED_BY(iSpinLockRW);
 };
 
 std::thread::id GpThread::ThreadId (void) const noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock{iMutex};
+    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+
     return iThreadId;
 }
 

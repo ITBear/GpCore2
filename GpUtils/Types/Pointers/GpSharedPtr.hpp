@@ -304,6 +304,9 @@ GpSharedPtrBase<T>::~GpSharedPtrBase (void) noexcept
 }
 
 template <typename T>
+#if defined(TSAN_ENABLED)
+__attribute__((no_sanitize("thread"))) // NOTE: TSAN reported a false positive data race
+#endif// #if defined(TSAN_ENABLED)
 void    GpSharedPtrBase<T>::Clear (void) noexcept
 {
     if (!iRefCounter) [[unlikely]]
@@ -314,7 +317,7 @@ void    GpSharedPtrBase<T>::Clear (void) noexcept
     const size_t refCount = iRefCounter->Release();
 
     if (refCount == 0)
-    {
+    {       
         MemOps::SDelete(iRefCounter);
     }
 

@@ -249,7 +249,7 @@ equals(var_compiler, "gcc") {
 	QMAKE_CXXFLAGS	+= -Wextra -Wno-comment -Wdouble-promotion -Wswitch-enum -Wuninitialized -Wfloat-equal -Wshadow -Wcast-align -Wconversion -Wnull-dereference -Wno-switch-default
 	QMAKE_CXXFLAGS	+= -fstrict-aliasing -Wstrict-aliasing -ffunction-sections -fdata-sections -fexceptions
 
-    QMAKE_LFLAGS	+= -Wl,--no-undefined
+	QMAKE_LFLAGS	+= -Wl,--no-undefined
 }
 
 equals(var_compiler, "clang") {
@@ -266,7 +266,7 @@ equals(var_compiler, "clang") {
 	QMAKE_CXXFLAGS	+= -Werror -Wextra -Wdouble-promotion -Wswitch-enum -Wuninitialized -Wfloat-equal -Wshadow -Wcast-align -Wconversion -Wnull-dereference -Wno-switch-default -Wno-comment -Wthread-safety-analysis -Wthread-safety
 	QMAKE_CXXFLAGS	+= -fstrict-aliasing -Wstrict-aliasing -ffunction-sections -fdata-sections -fexceptions
 
-    QMAKE_LFLAGS	+= -Wl,--no-undefined
+	QMAKE_LFLAGS	+= -Wl,--no-undefined
 
     # ------------ STD library implementation ------------
 	#QMAKE_CXXFLAGS += -stdlib=libc++
@@ -350,6 +350,7 @@ equals(var_sanitizers, "asan_ubsan") {
 	OUT_PATH_SANITIZERS = "asan_ubsan"
 	BOOST_POSTFIX		= _ucontext_asan
 
+	DEFINES            += ASAN_UBSAN_ENABLED
     DEFINES            += BOOST_USE_ASAN
 	DEFINES            += BOOST_USE_UCONTEXT
 	QMAKE_CXXFLAGS	   += -fsanitize=address -fno-sanitize=vptr -fsanitize-recover=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
@@ -360,6 +361,7 @@ equals(var_sanitizers, "tsan") {
 	OUT_PATH_SANITIZERS = "tsan"
 	BOOST_POSTFIX		= _ucontext_tsan
 
+	DEFINES            += TSAN_ENABLED
     DEFINES			   += BOOST_USE_TSAN
 	DEFINES		       += BOOST_USE_UCONTEXT
 	QMAKE_CXXFLAGS	   += -fsanitize=thread #-fno-omit-frame-pointer -fno-optimize-sibling-calls

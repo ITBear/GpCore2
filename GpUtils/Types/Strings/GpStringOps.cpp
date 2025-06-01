@@ -47,7 +47,7 @@ std::vector<std::string_view>   GpStringOps::SSplitExt
 std::vector<std::string>    GpStringOps::SSplit
 (
     std::string_view    aSourceStr,
-    char                aSplittChar,
+    char                aSplitChar,
     char                aEscapeChar,
     char                aSequenceChar
 )
@@ -55,7 +55,7 @@ std::vector<std::string>    GpStringOps::SSplit
     return Algo::Split<std::string_view, std::vector<std::string>, char>
     (
         aSourceStr,
-        aSplittChar,
+        aSplitChar,
         aEscapeChar,
         aSequenceChar
     );
@@ -89,7 +89,7 @@ std::regex  GpStringOps::SPrepareRegexFilter (std::string_view aFilter)
 
     VERIFY
     (
-        aFilter.empty() == false,
+        !aFilter.empty(),
         "The filter string is empty"
     );
 

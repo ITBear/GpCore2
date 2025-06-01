@@ -37,8 +37,8 @@ public:
                                                              StopFnT    aStopFn);
 
 private:
-    LevelsT                             iLevels;
-    size_t                              iCurrentLevel = 0;
+    LevelsT iLevels;
+    size_t  iCurrentLevel = 0;
 };
 
 }// namespace GPlatform

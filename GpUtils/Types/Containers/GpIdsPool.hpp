@@ -6,29 +6,29 @@
 namespace GPlatform {
 
 template<Concepts::IsIntegral T>
-class GpIdPool
+class GpIdsPool
 {
 public:
-    using this_type     = GpIdPool<T>;
+    using this_type     = GpIdsPool<T>;
     using value_type    = T;
     using AcquiredSetT  = ankerl::unordered_dense::set<value_type>;
     using ReleasePoolT  = std::vector<value_type>;
 
 public:
-                        GpIdPool        (void) noexcept = default;
-                        ~GpIdPool       (void) noexcept = default;
+                    GpIdsPool   (void) noexcept = default;
+                    ~GpIdsPool  (void) noexcept = default;
 
-    value_type          Acquire         (void) noexcept;
-    void                Release         (value_type aValue) noexcept;
+    value_type      Acquire     (void) noexcept;
+    void            Release     (value_type aValue) noexcept;
 
 public:
-    AcquiredSetT        iAcquired;
-    ReleasePoolT        iReleasePool;
-    value_type          iCurrentMax = {};
+    AcquiredSetT    iAcquired;
+    ReleasePoolT    iReleasePool;
+    value_type      iCurrentMax = {};
 };
 
 template<Concepts::IsIntegral T>
-auto    GpIdPool<T>::Acquire (void) noexcept -> value_type
+auto    GpIdsPool<T>::Acquire (void) noexcept -> value_type
 {
     value_type value;
 
@@ -46,7 +46,7 @@ auto    GpIdPool<T>::Acquire (void) noexcept -> value_type
 }
 
 template<Concepts::IsIntegral T>
-void    GpIdPool<T>::Release (value_type aValue) noexcept
+void    GpIdsPool<T>::Release (value_type aValue) noexcept
 {
     iReleasePool.push_back(aValue);
 }

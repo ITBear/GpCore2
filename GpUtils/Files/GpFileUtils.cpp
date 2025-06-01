@@ -9,7 +9,6 @@
     #include <GpCore2/GpUtils/Files/GpFileWindows.hpp>
 #endif
 
-#include <fstream>
 #include <filesystem>
 
 namespace GPlatform {
@@ -25,28 +24,6 @@ GpBytesArray    GpFileUtils::SReadAll (std::string_view aFileName)
     file.Close();
 
     return data;
-
-    //std::string   fileName(aFileName);
-    //std::ifstream ifs;
-
-    //ifs.open(std::filesystem::path(fileName.c_str()), std::ios::in | std::ios::binary | std::ios::ate);
-
-    //if (   (!ifs.is_open())
-    //  || (ifs.fail())
-    //  || (ifs.bad()))
-    //{
-    //  THROW("File '"_sv + fileName + "' not found"_sv);
-    //}
-
-    //const std::ifstream::pos_type fileSize = ifs.tellg();
-
-    //ifs.seekg(0, std::ios::beg);
-
-    //GpBytesArray data;
-    //data.resize(NumOps::SConvert<size_t>(fileSize));
-    //ifs.read(reinterpret_cast<char*>(std::data(data)), fileSize);
-
-    //return data;
 }
 
 void    GpFileUtils::SWriteAll
@@ -72,22 +49,6 @@ void    GpFileUtils::SAppend
     file.GoToEndPos();
     file.Write(aData);
     file.Close();
-
-    //std::string       fileName(aFileName);
-    //std::ofstream ofs;
-
-    //ofs.open(std::filesystem::path(fileName.c_str()), std::ios::out | std::ios::app | std::ios::binary);
-
-    //if (   (!ofs.is_open())
-    //  || (ofs.fail())
-    //  || (ofs.bad()))
-    //{
-    //  THROW("File '"_sv + fileName + "' not found"_sv);
-    //}
-
-    //ofs.write(aData.PtrAs<const char*>(), aData.Size().As<std::streamsize>());
-    //ofs.flush();
-    //ofs.close();
 }
 
 void    GpFileUtils::SCopy

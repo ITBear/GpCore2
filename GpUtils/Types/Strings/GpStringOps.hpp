@@ -37,9 +37,12 @@ public:
                                                                  Algo::SplitMode    aSplitMode);
 
     static std::vector<std::string>         SSplit              (std::string_view   aSourceStr,
-                                                                 char               aSplittChar,
+                                                                 char               aSplitChar,
                                                                  char               aEscapeChar,
                                                                  char               aSequenceChar);
+    static inline void                      SSplitAndProcess    (std::string_view                                   aSourceStr,
+                                                                 char                                               aSplitChar,
+                                                                 const std::function<bool(std::string_view aPart)>& aFn);
 
     static inline std::string_view          SFromChar           (const char* aStrPtr);
 
@@ -139,6 +142,44 @@ private:
 private:
     static const std::array<char, 201>&     SDigits             (void) noexcept;
 };
+
+void    GpStringOps::SSplitAndProcess
+(
+    std::string_view                                    aSourceStr,
+    char                                                aSplitChar,
+    const std::function<bool(std::string_view aPart)>&  aFn
+)
+{
+    size_t splitPos = aSourceStr.find(aSplitChar);
+
+    while (splitPos != std::string::npos)
+    {
+        if (splitPos != 0) [[likely]]
+        {
+            std::string_view part = aSourceStr.substr(0, splitPos);
+            if (aFn(part) == false) [[unlikely]]
+            {
+                aSourceStr = ""_sv;
+                break;
+            }
+        }
+
+        if (std::size(aSourceStr) > 0)
+        {
+            aSourceStr = aSourceStr.substr(splitPos + 1);
+            splitPos = aSourceStr.find(aSplitChar);
+        } else
+        {
+            break;
+        }
+    }
+
+    if (!aSourceStr.empty()
+        && (aSourceStr[0] != aSplitChar))
+    {
+        aFn(aSourceStr);
+    }
+}
 
 std::string_view    GpStringOps::SFromChar (const char* aStrPtr)
 {

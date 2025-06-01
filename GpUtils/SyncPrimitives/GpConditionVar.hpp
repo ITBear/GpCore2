@@ -25,24 +25,24 @@ public:
     using CheckFnT      = std::function<bool()>;
 
 public:
-                        GpConditionVar  (void) noexcept = default;
-                        ~GpConditionVar (void) noexcept = default;
+                    GpConditionVar  (void) noexcept = default;
+                    ~GpConditionVar (void) noexcept = default;
 
-    inline void         NotifyOne       (void) noexcept REQUIRES(Mutex());
-    inline void         NotifyAll       (void) noexcept REQUIRES(Mutex());
-    inline GpMutex&     Mutex           (void) noexcept RETURN_CAPABILITY(iMutex);
+    inline void     NotifyOne       (void) noexcept REQUIRES(Mutex());
+    inline void     NotifyAll       (void) noexcept REQUIRES(Mutex());
+    inline GpMutex& Mutex           (void) noexcept RETURN_CAPABILITY(iMutex);
 
-    inline void         Wait            (const CheckFnT&    aCheckFn);
-    inline void         Wait            (const CheckFnT&    aCheckFn,
-                                         const AtBeginFnT&  aAtBeginFn,
-                                         const AtEndFnT&    aAtEndFn);
+    inline void     Wait            (const CheckFnT&    aCheckFn);
+    inline void     Wait            (const CheckFnT&    aCheckFn,
+                                     const AtBeginFnT&  aAtBeginFn,
+                                     const AtEndFnT&    aAtEndFn);
 
-    inline bool         WaitFor         (const CheckFnT&    aCheckFn,
-                                         milliseconds_t     aTimeout);
-    inline bool         WaitFor         (const CheckFnT&    aCheckFn,
-                                         milliseconds_t     aTimeout,
-                                         const AtBeginFnT&  aAtBeginFn,
-                                         const AtEndFnT&    aAtEndFn);
+    inline bool     WaitFor         (const CheckFnT&    aCheckFn,
+                                     milliseconds_t     aTimeout);
+    inline bool     WaitFor         (const CheckFnT&    aCheckFn,
+                                     milliseconds_t     aTimeout,
+                                     const AtBeginFnT&  aAtBeginFn,
+                                     const AtEndFnT&    aAtEndFn);
 
 private:
     mutable GpMutex         iMutex;

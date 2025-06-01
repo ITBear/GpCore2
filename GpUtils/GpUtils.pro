@@ -164,7 +164,6 @@ HEADERS += \
     SyncPrimitives/GpConditionVar.hpp \
     SyncPrimitives/GpConditionVarFlag.hpp \
     SyncPrimitives/GpMutex.hpp \
-    SyncPrimitives/GpScopeLockGuard.hpp \
     SyncPrimitives/GpSharedMutex.hpp \
     SyncPrimitives/GpSpinLock.hpp \
     SyncPrimitives/GpSpinLockRW.hpp \
@@ -185,7 +184,7 @@ HEADERS += \
     Types/Containers/GpContainerUpdateStatus.hpp \
     Types/Containers/GpContainersT.hpp \
     Types/Containers/GpGlobalStructCatalogC.hpp \
-	Types/Containers/GpIdPool.hpp \
+	Types/Containers/GpIdsPool.hpp \
     Types/Containers/GpMultiKeyManager.hpp \
 	Types/Containers/GpPackedStruct.hpp \
     Types/Containers/GpSharedMap.hpp \

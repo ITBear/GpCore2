@@ -5,7 +5,6 @@
 #include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 
 #include <mutex>
-#include <shared_mutex>
 
 #if defined(GP_COMPILER_CLANG) && !defined(GP_OS_BROWSER)
 #   define THREAD_ANNOTATION_ATTRIBUTE__(x) __attribute__((x))

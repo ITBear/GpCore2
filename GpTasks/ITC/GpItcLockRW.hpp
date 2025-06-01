@@ -23,8 +23,8 @@ public:
     inline void     unlock          (void) noexcept;
 
 private:
-    std::atomic_int32_t     iLocksCounter = 0;  // 0 = unlocked, positive values = read count, -1 = write lock
     mutable GpItcCondition  iItcCondition;
+    std::atomic_int32_t     iLocksCounter = 0;  // 0 = unlocked, positive values = read count, -1 = write lock
 };
 
 void    GpItcLockRwImpl::lock_shared (void) noexcept
@@ -53,7 +53,7 @@ void    GpItcLockRwImpl::unlock_shared (void) noexcept
 
     if (counter == 0)
     {
-        GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+        GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
         iItcCondition.NotifyAll();
     }
 }
@@ -80,7 +80,7 @@ void    GpItcLockRwImpl::unlock (void) noexcept
      iLocksCounter.store(0, std::memory_order_release);
 
      {
-         GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+         GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
          iItcCondition.NotifyAll();
      }
 }

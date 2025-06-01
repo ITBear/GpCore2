@@ -59,7 +59,7 @@ bool    GpItcFutureUtils::STryCheck
         return false;
     }
 
-    auto resOpt = aFuture.TryGetResultCopy();
+    auto resOpt = aFuture.TryGetResult();
 
     VERIFY
     (
@@ -101,7 +101,7 @@ bool    GpItcFutureUtils::SWaitFor
         return false;
     }
 
-    auto resOpt = aFuture.TryGetResultCopy();
+    auto resOpt = aFuture.TryGetResult();
 
     VERIFY
     (
@@ -134,7 +134,7 @@ void    GpItcFutureUtils::SWait
     // Wait until get result
     aFuture.Wait();
 
-    auto resOpt = aFuture.TryGetResultCopy();
+    auto resOpt = aFuture.TryGetResult();
 
     VERIFY
     (

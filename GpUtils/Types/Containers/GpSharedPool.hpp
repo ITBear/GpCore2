@@ -122,7 +122,7 @@ void    GpSharedPool<T>::Clear (void) noexcept
 {
     GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
 
-    while (iElements.empty() == false)
+    while (!iElements.empty())
     {
         iElements.pop();
     }

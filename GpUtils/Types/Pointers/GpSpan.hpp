@@ -84,6 +84,7 @@ public:
     TAG_SET(GpSpan)
 
     using pointer       = T*;
+    using const_pointer = const T*;
     using value_type    = T;
     using this_type     = GpSpan<T>;
 
@@ -139,7 +140,6 @@ public:
                                             ){}
 
     constexpr                   ~GpSpan     (void) noexcept = default;
-
 
     constexpr void              Clear       (void) noexcept;
     constexpr bool              Empty       (void) const noexcept;
@@ -249,7 +249,6 @@ public:
                                                          size_t aCount) const;
     constexpr this_type         SubspanFromOffsetToEnd  (size_t aOffset) const;
     constexpr this_type         SubspanThenOffsetAdd    (size_t aCount);
-    //constexpr this_type       Subspan                 (size_t aOffset) const;
 
     template<typename SpanT>
     requires SpanConcepts::IsConvertableFromSpan<this_type, SpanT>
@@ -297,7 +296,44 @@ public:
     std::vector<u_int_8>        ToUI8Array          (void) const;
 
     template<typename SpanT>
-    this_type&                  CopyFrom            (const SpanT& aSpan);
+    requires SpanConcepts::IsConvertableFromSpan<this_type, SpanT>
+    this_type&                  CopyFrom            (const SpanT& aSpan)
+    {
+        VERIFY
+        (
+            Count() >= aSpan.Count(),
+            "Out of range"_sv
+        );
+
+        MemOps::SCopy
+        (
+            Ptr(),
+            aSpan.template PtrAs<const value_type*>(),
+            _SCountAs<const value_type*, typename SpanT::pointer>(aSpan.Count())
+        );
+
+        return *this;
+    }
+
+    template<typename ContainerT>
+    requires SpanConcepts::IsConvertableFromContainer<ContainerT, pointer>
+    this_type&                  CopyFrom            (const ContainerT& aContainer)
+    {
+        VERIFY
+        (
+            SizeInBytes() >= std::size(aContainer)*sizeof(typename ContainerT::value_type),
+            "Out of range"_sv
+        );
+
+        MemOps::SCopy
+        (
+            Ptr(),
+            _SPtrAs<const_pointer>(std::data(aContainer)),
+            _SCountAs<pointer, decltype(std::declval<ContainerT>().data())>(std::size(aContainer))
+        );
+
+        return *this;
+    }
 
     //for static_cast<std::vector<std::byte>>
     operator                    std::vector<std::byte>() const  {return ToByteArray();}
@@ -678,26 +714,6 @@ std::vector<u_int_8>        GpSpan<T>::ToUI8Array (void) const
     }
 
     return res;
-}
-
-template<typename T>
-template<typename SpanT>
-typename GpSpan<T>::this_type&  GpSpan<T>::CopyFrom (const SpanT& aSpan)
-{
-    VERIFY
-    (
-        Count() >= aSpan.Count(),
-        "Out of range"_sv
-    );
-
-    MemOps::SCopy
-    (
-        Ptr(),
-        aSpan.template PtrAs<const value_type*>(),
-        _SCountAs<const value_type*, typename SpanT::pointer>(aSpan.Count())
-    );
-
-    return *this;
 }
 
 template<typename T>

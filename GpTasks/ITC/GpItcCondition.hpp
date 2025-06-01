@@ -8,6 +8,7 @@
 #include <GpCore2/GpUtils/SyncPrimitives/GpConditionVar.hpp>
 #include <GpCore2/GpUtils/DateTime/GpDateTimeOps.hpp>
 #include <GpCore2/GpTasks/Fibers/GpTaskFiberCtx.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSpinLockRW.hpp>
 
 #if defined(GP_USE_MULTITHREADING)
 
@@ -20,72 +21,63 @@ public:
     CLASS_DD(GpItcCondition)
     TAG_SET(THREAD_SAFE)
 
-    using FiberTaskIDsT = boost::container::small_flat_set<GpTaskId, 8>;
+    using FiberTaskIDsT = boost::container::small_flat_set<GpTaskId, 2>;
     using TaskInfo      = std::tuple<GpTaskMode::EnumT, GpTaskId>;
     using AtBeginFnT    = std::function<void()>;
     using AtEndFnT      = std::function<void(bool)>;// must be noexcept
     using CheckFnT      = std::function<bool()>;
 
+    struct ThreadWatingData
+    {
+        using UP = std::unique_ptr<ThreadWatingData>;
+
+        mutable GpConditionVar  iCV;
+        std::atomic_uint32_t    iWaiting;
+    };
+
 public:
-                            GpItcCondition      (void) noexcept = default;
-                            ~GpItcCondition     (void) noexcept = default;
+                        GpItcCondition      (void) noexcept = default;
+                        ~GpItcCondition     (void) noexcept = default;
 
-    GpMutex&                Mutex               (void) noexcept RETURN_CAPABILITY(iThreadsCV.Mutex()) {return iThreadsCV.Mutex();}
-    bool                    NotifyOne           (void) REQUIRES(iThreadsCV.Mutex());
-    bool                    NotifyAll           (void) REQUIRES(iThreadsCV.Mutex());
+    GpSpinLockRW&       SpinLock            (void) const noexcept RETURN_CAPABILITY(iFiberSpinLockRW) {return iFiberSpinLockRW;}
+    bool                NotifyOne           (void) REQUIRES(iFiberSpinLockRW);
+    bool                NotifyAll           (void) REQUIRES(iFiberSpinLockRW);
 
-    inline void             SubscribeAsFiber    (GpTaskId aGpTaskId);
-    inline bool             UnsubscribeAsFiber  (GpTaskId aGpTaskId);
+    void                SubscribeAsFiber    (GpTaskId aGpTaskId);
+    bool                UnsubscribeAsFiber  (GpTaskId aGpTaskId);
 
-    inline void             Wait                (const CheckFnT&    aCheckFn);  
-    inline void             Wait                (const CheckFnT&    aCheckFn,
-                                                 const AtBeginFnT&  aAtBeginFn,
-                                                 const AtEndFnT&    aAtEndFn);
+    inline void         Wait                (const CheckFnT&    aCheckFn);
+    inline void         Wait                (const CheckFnT&    aCheckFn,
+                                             const AtBeginFnT&  aAtBeginFn,
+                                             const AtEndFnT&    aAtEndFn);
 
-    inline bool             WaitFor             (const CheckFnT&    aCheckFn,
-                                                 milliseconds_t     aTimeout);
-    inline bool             WaitFor             (const CheckFnT&    aCheckFn,
-                                                 milliseconds_t     aTimeout,
-                                                 const AtBeginFnT&  aAtBeginFn,
-                                                 const AtEndFnT&    aAtEndFn);
-
-private:
-    inline bool             WaitForFiber        (const CheckFnT&    aCheckFn,
-                                                 milliseconds_t     aTimeout,
-                                                 const AtBeginFnT&  aAtBeginFn,
-                                                 const AtEndFnT&    aAtEndFn,
-                                                 GpTaskId           aFiberTaskId);
-    inline bool             WaitForThread       (const CheckFnT&    aCheckFn,
-                                                 milliseconds_t     aTimeout,
-                                                 const AtBeginFnT&  aAtBeginFn,
-                                                 const AtEndFnT&    aAtEndFn);
-
-    static TaskInfo         SCurrentTaskInfo    (void);
-    static void             SYield              (milliseconds_t aTimeout);
-    static void             SYield              (void);
+    inline bool         WaitFor             (const CheckFnT&    aCheckFn,
+                                             milliseconds_t     aTimeout);
+    inline bool         WaitFor             (const CheckFnT&    aCheckFn,
+                                             milliseconds_t     aTimeout,
+                                             const AtBeginFnT&  aAtBeginFn,
+                                             const AtEndFnT&    aAtEndFn);
 
 private:
-    // For waiting threads
-    mutable GpConditionVar  iThreadsCV;
-    size_t                  iThreadsWaiting GUARDED_BY(iThreadsCV.Mutex());
+    bool                WaitForFiber        (const CheckFnT&    aCheckFn,
+                                             milliseconds_t     aTimeout,
+                                             const AtBeginFnT&  aAtBeginFn,
+                                             const AtEndFnT&    aAtEndFn,
+                                             GpTaskId           aFiberTaskId);
+    bool                WaitForThread       (const CheckFnT&    aCheckFn,
+                                             milliseconds_t     aTimeout,
+                                             const AtBeginFnT&  aAtBeginFn,
+                                             const AtEndFnT&    aAtEndFn);
 
-    // For waiting fiber tasks
-    FiberTaskIDsT           iFiberTaskIDs GUARDED_BY(iThreadsCV.Mutex());
+    static TaskInfo     SCurrentTaskInfo    (void);
+    static void         SYield              (milliseconds_t aTimeout);
+    static void         SYield              (void);
+
+private:
+    FiberTaskIDsT           iFiberTaskIDs       GUARDED_BY(iFiberSpinLockRW);   // For waiting fiber tasks
+    ThreadWatingData::UP    iThreadWatingDataUP;                                // For waiting threads
+    mutable GpSpinLockRW    iFiberSpinLockRW;
 };
-
-void    GpItcCondition::SubscribeAsFiber (GpTaskId aGpTaskId)
-{
-    GpUniqueLock<GpMutex> uniqueLock{iThreadsCV.Mutex()};
-
-    iFiberTaskIDs.insert(aGpTaskId);
-}
-
-bool    GpItcCondition::UnsubscribeAsFiber (GpTaskId aGpTaskId)
-{
-    GpUniqueLock<GpMutex> uniqueLock{iThreadsCV.Mutex()};
-
-    return iFiberTaskIDs.erase(aGpTaskId) > 0;
-}
 
 void    GpItcCondition::Wait (const CheckFnT& aCheckFn)
 {
@@ -157,117 +149,6 @@ bool    GpItcCondition::WaitFor
             aAtEndFn
         );
     }
-}
-
-bool    GpItcCondition::WaitForFiber
-(
-    const CheckFnT&         aCheckFn,
-    const milliseconds_t    aTimeout,
-    const AtBeginFnT&       aAtBeginFn,
-    const AtEndFnT&         aAtEndFn,
-    const GpTaskId          aFiberTaskId
-)
-{
-    const milliseconds_t    startTs                 = GpDateTimeOps::SSteadyTS_ms();
-    bool                    isTaskIdRegistered      = false;
-    bool                    isAtBeginFnCalled       = false;
-    const bool              isNeedToCheckTimeout    = aTimeout > 0.0_si_ms;
-    bool                    result                  = false;
-
-    GpRAIIonDestruct callOnDestruct = [&]()
-    {
-        GpUniqueLock<GpMutex> uniqueLock{iThreadsCV.Mutex()};
-
-        if (isTaskIdRegistered) [[likely]]
-        {
-            iFiberTaskIDs.erase(aFiberTaskId);
-        }
-
-        aAtEndFn(result);
-    };
-
-    while (true)
-    {
-        milliseconds_t passedTime = 0.0_si_ms;
-
-        {
-            GpUniqueLock<GpMutex> uniqueLock{iThreadsCV.Mutex()};
-
-            // At begin check
-            if (!isAtBeginFnCalled) [[unlikely]]
-            {
-                aAtBeginFn();
-                isAtBeginFnCalled = true;
-            }
-
-            // Check condition
-            if (aCheckFn()) [[unlikely]]
-            {
-                result = true;
-                return result;
-            }
-
-            // Check if fiber task id is registered into iFiberTaskIDs
-            if (!isTaskIdRegistered) [[unlikely]]
-            {
-                iFiberTaskIDs.emplace(aFiberTaskId);
-                isTaskIdRegistered = true;
-            }
-
-            // Check timeout
-            if (isNeedToCheckTimeout)
-            {
-                passedTime = GpDateTimeOps::SSteadyTS_ms() - startTs;
-                if (passedTime >= aTimeout) [[unlikely]]
-                {
-                    result = false;
-                    return result;
-                }
-            }
-        }
-
-        // Wait for
-        if (isNeedToCheckTimeout)
-        {
-            SYield(aTimeout - passedTime);
-        } else
-        {
-            SYield();
-        }
-    }
-
-    // Never reaches here
-    result = false;
-    return result;
-}
-
-bool    GpItcCondition::WaitForThread
-(
-    const CheckFnT&         aCheckFn,
-    const milliseconds_t    aTimeout,
-    const AtBeginFnT&       aAtBeginFn,
-    const AtEndFnT&         aAtEndFn
-)
-{
-    const AtBeginFnT atBeginFn = [&](void) NO_THREAD_SAFETY_ANALYSIS
-    {
-        iThreadsWaiting++;
-        aAtBeginFn();
-    };
-
-    const AtEndFnT atEndFn = [&](bool aResult) NO_THREAD_SAFETY_ANALYSIS
-    {
-        iThreadsWaiting--;
-        aAtEndFn(aResult);
-    };
-
-    return iThreadsCV.WaitFor
-    (
-        aCheckFn,
-        aTimeout,
-        atBeginFn,
-        atEndFn
-    );
 }
 
 }// namespace GPlatform

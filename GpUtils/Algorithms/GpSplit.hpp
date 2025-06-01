@@ -96,7 +96,7 @@ template<typename ContainerT,
 ContainerResT   Split
 (
     const ContainerT&   aElements,
-    const V             aSplittVal,
+    const V             aSplitVal,
     const V             aEscapeVal,
     const V             aSequenceVal
 )
@@ -156,7 +156,7 @@ ContainerResT   Split
 
             currentVal++;
             inSequence = true;
-        } else if (val == aSplittVal) [[unlikely]]
+        } else if (val == aSplitVal) [[unlikely]]
         {
             if (!currentPart.empty())
             {

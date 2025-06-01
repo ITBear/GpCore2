@@ -7,8 +7,8 @@
 #include <GpCore2/Config/IncludeExt/boost_small_vector.hpp>
 #include <GpCore2/GpUtils/Types/Numerics/GpNumericTypes.hpp>
 #include <GpCore2/GpUtils/Types/Pointers/GpSharedPtr.hpp>
+#include <GpCore2/GpUtils/Types/Pointers/GpSpan.hpp>
 
-#include <array>
 #include <vector>
 #include <deque>
 #include <list>
@@ -19,7 +19,6 @@
 #include <unordered_map>
 #include <set>
 #include <unordered_set>
-#include <tuple>
 #include <optional>
 #include <string_view>
 #include <functional>
@@ -97,6 +96,7 @@ public:
 
     // Containers
     using Vec           = GpDeclContainerT<std::vector, this_type>;
+    using Span          = GpDeclContainerT<GpSpan, this_type>;
     using Set           = GpDeclContainerT<std::set, this_type>;
     using USet          = GpDeclContainerT<std::unordered_set, this_type>;
     using Queue         = GpDeclContainerT<std::queue, this_type>;

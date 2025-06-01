@@ -20,9 +20,9 @@ public:
     inline void     unlock          (void);
     inline bool     try_lock        (void);
 
-private:
-    std::atomic<bool>       iState = {false};
+private:    
     mutable GpItcCondition  iItcCondition;
+    std::atomic<bool>       iState = {false};
 };
 
 void    GpItcLockImpl::lock (void)
@@ -50,7 +50,7 @@ void    GpItcLockImpl::unlock (void)
     iState.store(false, std::memory_order_release);
 
     {
-        GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+        GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
         iItcCondition.NotifyAll();
     }
 }

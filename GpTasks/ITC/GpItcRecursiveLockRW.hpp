@@ -10,24 +10,24 @@
 
 namespace GPlatform {
 
-class GpItcRecursiveLockImpl
+class GpItcRecursiveLockRwImpl
 {
-    CLASS_REMOVE_CTRS_MOVE_COPY(GpItcRecursiveLockImpl)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpItcRecursiveLockRwImpl)
 
 public:
-                    GpItcRecursiveLockImpl  (void) noexcept = default;
+                                        GpItcRecursiveLockRwImpl    (void) noexcept = default;
 
-    inline void     lock                    (void);
-    inline void     unlock                  (void);
-    inline bool     try_lock                (void);
+    inline void                         lock                        (void);
+    inline void                         unlock                      (void);
+    inline bool                         try_lock                    (void);
 
 private:
     mutable GpItcCondition              iItcCondition;
-    size_t                              iRecursiveDepth = {0};
     std::atomic<GpTaskId::value_type>   iLockTaskId     = {0};
+    size_t                              iRecursiveDepth = {0};
 };
 
-void    GpItcRecursiveLockImpl::lock (void)
+void    GpItcRecursiveLockRwImpl::lock (void)
 {
     const GpTaskId::value_type currentTaskIdToLock = GpTask::SCurrentTask().value().get().TaskId().Value();
 
@@ -62,7 +62,7 @@ void    GpItcRecursiveLockImpl::lock (void)
     }
 }
 
-void    GpItcRecursiveLockImpl::unlock (void)
+void    GpItcRecursiveLockRwImpl::unlock (void)
 {
     iRecursiveDepth--;
 
@@ -79,7 +79,7 @@ void    GpItcRecursiveLockImpl::unlock (void)
     }
 }
 
-bool    GpItcRecursiveLockImpl::try_lock (void)
+bool    GpItcRecursiveLockRwImpl::try_lock (void)
 {
     const GpTaskId::value_type  currentTaskIdToLock = GpTask::SCurrentTask().value().get().TaskId().Value();
     GpTaskId::value_type        currentLockTaskId   = iLockTaskId.load(std::memory_order_relaxed);
@@ -103,7 +103,7 @@ bool    GpItcRecursiveLockImpl::try_lock (void)
     return false;
 }
 
-using GpItcRecursiveLock = ThreadSafety::MutexWrap<GpItcRecursiveLockImpl>;
+using GpItcRecursiveLockRW = ThreadSafety::SharedMutexWrap<GpItcRecursiveLockRwImpl>;
 
 }// namespace GPlatform
 

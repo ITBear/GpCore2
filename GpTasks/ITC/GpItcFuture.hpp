@@ -4,6 +4,7 @@
 #include <GpCore2/GpTasks/ITC/GpItcCondition.hpp>
 #include <GpCore2/GpTasks/ITC/GpItcResult.hpp>
 #include <GpCore2/GpUtils/Other/GpMethodAccessGuard.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSharedMutex.hpp>
 
 #if defined(GP_USE_MULTITHREADING)
 
@@ -38,8 +39,7 @@ public:
 
     void                                    Wait                (void);
     bool                                    WaitFor             (milliseconds_t aTimeout);
-    [[nodiscard]] std::optional<ItcResultT> TryGetResultCopy    (void);
-    [[nodiscard]] std::optional<ItcResultT> TryGetResultMove    (void);
+    [[nodiscard]] std::optional<ItcResultT> TryGetResult        (void);
     bool                                    IsReady             (void) const noexcept;
 
     inline void                             SubscribeAsFiber    (GpTaskId aGpTaskId);
@@ -51,8 +51,7 @@ public:
 
 private:
     mutable GpItcCondition      iItcCondition;
-    std::optional<ItcResultT>   iResultOpt  GUARDED_BY(iItcCondition.Mutex());
-    bool                        iIsReady    GUARDED_BY(iItcCondition.Mutex())  = false;
+    std::optional<ItcResultT>   iResultOpt GUARDED_BY(iItcCondition.SpinLock());
 };
 
 template<typename T>
@@ -62,46 +61,38 @@ void    GpItcFuture<T>::Wait (void)
     (
         [&]() NO_THREAD_SAFETY_ANALYSIS
         {
-            return iIsReady;
+            return iResultOpt.has_value();
         }
     );
 }
 
 template<typename T>
-bool    GpItcFuture<T>::WaitFor (const milliseconds_t   aTimeout)
+bool    GpItcFuture<T>::WaitFor (const milliseconds_t aTimeout)
 {
     return iItcCondition.WaitFor
     (
         [&]() NO_THREAD_SAFETY_ANALYSIS
         {
-            return iIsReady;
+            return iResultOpt.has_value();
         },
         aTimeout
     );
 }
 
 template<typename T>
-auto    GpItcFuture<T>::TryGetResultCopy (void) -> std::optional<ItcResultT>
+auto    GpItcFuture<T>::TryGetResult (void) -> std::optional<ItcResultT>
 {
-    GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
 
     return iResultOpt;
 }
 
 template<typename T>
-auto    GpItcFuture<T>::TryGetResultMove (void) -> std::optional<ItcResultT>
-{
-    GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
-
-    return std::move(iResultOpt);
-}
-
-template<typename T>
 bool    GpItcFuture<T>::IsReady (void) const noexcept
-{
-    GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+{   
+    GpSharedLock<GpSpinLockRW> sharedLock{iItcCondition.SpinLock()};
 
-    return iIsReady;
+    return iResultOpt.has_value();
 }
 
 template<typename T>
@@ -124,15 +115,14 @@ bool    GpItcFuture<T>::SetResult
     GpMethodAccessGuard<GpItcPromise<T>>
 )
 {
-    GpUniqueLock<GpMutex> uniqueLock{iItcCondition.Mutex()};
+    GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
 
-    if (iIsReady)
+    if (iResultOpt.has_value())
     {
         return false;
     }
 
-    iResultOpt  = std::forward<R>(aResult);
-    iIsReady    = true;
+    iResultOpt = std::forward<R>(aResult);
 
     iItcCondition.NotifyAll();
 

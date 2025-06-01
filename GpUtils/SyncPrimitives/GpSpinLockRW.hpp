@@ -11,6 +11,10 @@
 
 #include <atomic>
 
+#if defined(TSAN_ENABLED)
+#   include <sanitizer/tsan_interface.h>
+#endif// #if defined(TSAN_ENABLED)
+
 namespace GPlatform {
 
 class GpSpinLockRwImpl
@@ -18,7 +22,8 @@ class GpSpinLockRwImpl
     CLASS_REMOVE_CTRS_MOVE_COPY(GpSpinLockRwImpl)
 
 public:
-                    GpSpinLockRwImpl    (void) noexcept = default;
+    inline          GpSpinLockRwImpl    (void) noexcept;
+    inline          ~GpSpinLockRwImpl   (void) noexcept;
 
     inline void     lock_shared         (void) noexcept;
     inline void     unlock_shared       (void) noexcept;
@@ -30,8 +35,26 @@ private:
     std::atomic_int32_t iLocksCounter = 0;  // 0 = unlocked, positive values = read count, -1 = write lock
 };
 
+GpSpinLockRwImpl::GpSpinLockRwImpl (void) noexcept
+{
+#if defined(TSAN_ENABLED)
+    __tsan_mutex_create(this, __tsan_mutex_not_static);
+#endif//#if defined(TSAN_ENABLED)
+}
+
+GpSpinLockRwImpl::~GpSpinLockRwImpl (void) noexcept
+{
+#if defined(TSAN_ENABLED)
+    __tsan_mutex_destroy(this, __tsan_mutex_not_static);
+#endif//#if defined(TSAN_ENABLED)
+}
+
 void    GpSpinLockRwImpl::lock_shared (void) noexcept
 {
+#if defined(TSAN_ENABLED)
+    __tsan_mutex_pre_lock(this, __tsan_mutex_read_lock);
+#endif//#if defined(TSAN_ENABLED)
+
     s_int_32 expected;
 
     do
@@ -42,26 +65,54 @@ void    GpSpinLockRwImpl::lock_shared (void) noexcept
             GP_ASM_SPIN_PAUSE();
         }
     } while (!iLocksCounter.compare_exchange_weak(expected, expected + 1, std::memory_order_acquire));
+
+#if defined(TSAN_ENABLED)
+    __tsan_mutex_post_lock(this, __tsan_mutex_read_lock, 0);
+#endif//#if defined(TSAN_ENABLED)
 }
 
 void    GpSpinLockRwImpl::unlock_shared (void) noexcept
 {
+#if defined(TSAN_ENABLED)
+    __tsan_mutex_pre_unlock(this, __tsan_mutex_read_lock);
+#endif//#if defined(TSAN_ENABLED)
+
     iLocksCounter.fetch_sub(1, std::memory_order_release);
+
+#if defined(TSAN_ENABLED)
+    __tsan_mutex_post_unlock(this, __tsan_mutex_read_lock);
+#endif//#if defined(TSAN_ENABLED)
 }
 
 void    GpSpinLockRwImpl::lock (void) noexcept
 {
+#if defined(TSAN_ENABLED)
+    __tsan_mutex_pre_lock(this, __tsan_mutex_try_lock);
+#endif//#if defined(TSAN_ENABLED)
+
     s_int_32 expected = 0;
 
     while (!iLocksCounter.compare_exchange_weak(expected, -1, std::memory_order_acquire))
     {
         expected = 0;
     }
+
+#if defined(TSAN_ENABLED)
+    __tsan_mutex_post_lock(this, __tsan_mutex_try_lock, 0);
+#endif//#if defined(TSAN_ENABLED)
 }
 
 void    GpSpinLockRwImpl::unlock (void) noexcept
 {
+#if defined(TSAN_ENABLED)
+     __tsan_mutex_pre_unlock(this, __tsan_mutex_try_lock);
+#endif//#if defined(TSAN_ENABLED)
+
      iLocksCounter.store(0, std::memory_order_release);
+
+#if defined(TSAN_ENABLED)
+     __tsan_mutex_post_unlock(this, __tsan_mutex_try_lock);
+#endif//#if defined(TSAN_ENABLED)
 }
 
 using GpSpinLockRW = ThreadSafety::SharedMutexWrap<GpSpinLockRwImpl>;

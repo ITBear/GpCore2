@@ -29,10 +29,10 @@ GP_ENUM(GP_TASKS_API, GpTaskState,
 );
 
 class GpTaskId_type;
-using GpTaskId      = GpTypeShell<u_int_64, GpTaskId_type>;
+using GpTaskId      = GpTypeShell<u_int_32, GpTaskId_type>;
 
 class GpTaskGroupId_type;
-using GpTaskGroupId = GpTypeShell<u_int_64, GpTaskGroupId_type>;
+using GpTaskGroupId = GpTypeShell<u_int_32, GpTaskGroupId_type>;
 
 }// namespace GPlatform
 

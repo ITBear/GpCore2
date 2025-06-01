@@ -54,12 +54,12 @@ size_t  GpReferenceCounter::Counter (void) const noexcept
 
 size_t  GpReferenceCounter::Acquire (void) noexcept
 {
-    return iCounter.fetch_add(1, std::memory_order_release) + 1;
+    return iCounter.fetch_add(1, std::memory_order_acq_rel) + 1;
 }
 
 size_t  GpReferenceCounter::Release (void) noexcept
 {
-    const size_t prevCount = iCounter.fetch_sub(1, std::memory_order_release);
+    const size_t prevCount = iCounter.fetch_sub(1, std::memory_order_acq_rel);
 
     if (prevCount == 1)
     {
