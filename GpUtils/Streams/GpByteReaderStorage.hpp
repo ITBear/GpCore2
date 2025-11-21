@@ -1,26 +1,29 @@
 #pragma once
 
 #include <GpCore2/GpUtils/GpUtils_global.hpp>
-#include <GpCore2/GpUtils/Types/Containers/GpBytesArray.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpByteArray.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 
 namespace GPlatform {
 
 class GP_UTILS_API GpByteReaderStorage
 {
+public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpByteReaderStorage)
+    CLASS_DD(GpByteReaderStorage)
 
 public:
-    inline                  GpByteReaderStorage     (GpSpanByteR aStoragePtr) noexcept;
-                            ~GpByteReaderStorage    (void) noexcept = default;
+    inline              GpByteReaderStorage     (GpSpanByteR aStoragePtr) noexcept;
+                        ~GpByteReaderStorage    (void) noexcept = default;
 
-    inline GpSpanByteR      StoragePtr              (void) const noexcept;
-    inline size_t           SizeLeft                (void) const noexcept;
-    inline size_t           TotalRead               (void) const noexcept;
-    inline GpSpanByteR      Read                    (const size_t aSize);
+    inline GpSpanByteR  StoragePtr              (void) const noexcept;
+    inline size_t       SizeLeft                (void) const noexcept;
+    inline size_t       TotalRead               (void) const noexcept;
+    inline GpSpanByteR  Read                    (const size_t aSize);
 
 protected:
-    GpSpanByteR             iStoragePtr;
-    size_t                  iTotalRead = 0;
+    GpSpanByteR iStoragePtr;
+    size_t      iTotalRead = 0;
 };
 
 GpByteReaderStorage::GpByteReaderStorage (GpSpanByteR aStoragePtr) noexcept:

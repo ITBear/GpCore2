@@ -47,6 +47,8 @@ void    GpDebugging_SArchBreakpoint (void)
 #   else
 #       error Unsupported compiler
 #   endif
+#elif defined(GP_ARCH_ARM_64)
+    __asm__(".inst 0xd4200000");
 #else
 #   error Unsupported CPU architecture
 #endif

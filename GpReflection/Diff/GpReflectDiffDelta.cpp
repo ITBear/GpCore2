@@ -239,8 +239,8 @@ bool    GpReflectDiffDelta::AddDiff_String
 bool    GpReflectDiffDelta::AddDiff_BLOB
 (
     const size_t        aPropIdx,
-    const GpBytesArray& aValueFrom,
-    const GpBytesArray& aValueTo
+    const GpByteArray&  aValueFrom,
+    const GpByteArray&  aValueTo
 )
 {
     auto diffPropOpt = GpReflectDiffPropBLOB::SCheckAndMake(aValueFrom, aValueTo);
@@ -545,9 +545,9 @@ bool    GpReflectDiffDelta::AddDiff_VecString
 
 bool    GpReflectDiffDelta::AddDiff_VecBLOB
 (
-    const size_t                        aPropIdx,
-    const std::vector<GpBytesArray>&    aValueFrom,
-    const std::vector<GpBytesArray>&    aValueTo
+    const size_t                    aPropIdx,
+    const std::vector<GpByteArray>& aValueFrom,
+    const std::vector<GpByteArray>& aValueTo
 )
 {
     auto diffPropOpt = GpReflectDiffProp_VecBLOB::SCheckAndMake(aValueFrom, aValueTo);

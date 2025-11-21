@@ -3,15 +3,15 @@
 #include <GpCore2/Config/GpConfig.hpp>
 
 #include <GpCore2/GpTasks/GpTaskEnums.hpp>
-#include <GpCore2/GpTasks/GpTaskVarStorage.hpp>
 #include <GpCore2/GpTasks/ITC/GpItcPromise.hpp>
 
 #include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
 #include <GpCore2/GpUtils/Other/GpLinkedLibsInfo.hpp>
-#include <GpCore2/GpUtils/Types/Containers/GpSharedQueue.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpSharedQueueMPMC.hpp>
 #include <GpCore2/GpUtils/Types/Containers/GpSharedMap.hpp>
 #include <GpCore2/GpUtils/Types/UIDs/GpUUID.hpp>
 #include <GpCore2/GpUtils/Other/GpMethodAccessGuard.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpAny.hpp>
 
 #include <GpCore2/Config/IncludeExt/unordered_dense.hpp>
 
@@ -39,53 +39,38 @@ public:
     using DonePromiseT          = GpItcPromise<DonePromiseRes>;
     using DoneFutureT           = typename DonePromiseT::FutureT;
 
-    using MessageQueueT         = GpSharedQueue<GpAny>;
-    using AllTasksDictionaryT   = GpSharedMap<ankerl::unordered_dense::map<GpTaskId::value_type, GpTask*>>;
+    using IdCounterT            = std::atomic<GpTaskId::value_type>;
 
 protected:
                                             GpTask              (std::string        aName,
                                                                  GpTaskMode::EnumT  aTaskMode) noexcept;
                                             GpTask              (GpTaskMode::EnumT  aTaskMode) noexcept;
-                                            GpTask              (std::string        aName,
-                                                                 GpTaskMode::EnumT  aTaskMode,
-                                                                 GpTaskId           aId) noexcept;
-                                            GpTask              (GpTaskMode::EnumT  aTaskMode,
-                                                                 GpTaskId           aId) noexcept;
 
 public:
     virtual                                 ~GpTask             (void) noexcept;
 
-    static GpTask::C::Opts::Ref             SCurrentTask        (void) noexcept;
-    static std::optional<GpTask*>           STaskById           (GpTaskId aTaskId) noexcept;
+    void                                    SetSelfWP           (GpTask::WP aSelfWP,
+                                                                 GpMethodAccessGuard<GpTaskScheduler>) noexcept {iSelfWP = std::move(aSelfWP);}
+
+    static GpTask::WP                       SCurrentTask        (void) noexcept;
 
     inline std::string_view                 TaskName            (void) const noexcept;
     inline GpTaskId                         TaskId              (void) const noexcept;
     GpUUID                                  TaskIdAsUUID        (void) const noexcept;
     inline GpTaskMode::EnumT                TaskMode            (void) const noexcept;
-    inline GpTaskState::EnumT               TaskState           (void) const noexcept;
 
-    [[nodiscard]] GpTask::DoneFutureT::C::Opts::SP
-                                            RequestStop         (void);
-    [[nodiscard]] bool                      RequestStopAndWait  (void);
+    [[nodiscard]] DoneFutureT::SP           RequestStop         (void);
+    void                                    RequestStopAndWait  (void);
 
-    // Messages
-    void                                    PushMessage         (GpAny aMessage,
-                                                                 GpMethodAccessGuard<GpTaskScheduler>);
-    GpAny::C::Opt::Val                      PopMessage          (GpMethodAccessGuard<GpTask>);
+    static GpTaskRunRes::EnumT              SExecute            (GpTask::SP aTaskSP,
+                                                                 GpMethodAccessGuard<GpTaskScheduler, GpTaskExecutor>) noexcept;
 
-    // Vars
-    void                                    SetVar              (std::string    aKey,
-                                                                 GpAny          aValue);
-    GpTaskVarStorage::AnyOptT               GetVarCopy          (std::string_view   aKey) const;
-    GpTaskVarStorage::AnyOptCRefT           GetVarRef           (std::string_view   aKey) const;
-
-    // Use only from Task Executor or Task Scheduler
-    GpTaskRunRes::EnumT                     Execute             (GpMethodAccessGuard<GpTaskScheduler, GpTaskExecutor>) noexcept;
-    inline void                             UpStartRequestFlag  (GpMethodAccessGuard<GpTaskScheduler>) noexcept;
-    inline bool                             IsStartRequested    (void) const noexcept;
-    inline void                             UpStopRequestFlag   (GpMethodAccessGuard<GpTaskScheduler>) noexcept;
     inline bool                             IsStopRequested     (void) const noexcept;
     inline std::atomic_flag&                IsStopRequestedRef  (void) noexcept;
+    inline void                             UpStopRequestFlag   (GpMethodAccessGuard<GpTaskScheduler>) noexcept;
+
+    inline void                             UpDefferedWakeupFlag(GpMethodAccessGuard<GpTaskScheduler>) noexcept;
+    inline bool                             IsDefferedWakeup    (GpMethodAccessGuard<GpTaskScheduler>) const noexcept;
 
     // Task Start/Done future/promise
     [[nodiscard]] inline StartFutureT::SP   StartFuture         (void);
@@ -93,25 +78,28 @@ public:
     [[nodiscard]] inline StartPromiseT&     StartPromise        (GpMethodAccessGuard<GpTask>) noexcept;
     [[nodiscard]] inline DonePromiseT&      DonePromise         (GpMethodAccessGuard<GpTask>) noexcept;
 
+    virtual u_int_64                        TypeUID             (void) const noexcept;
+
 protected:
     virtual GpTaskRunRes::EnumT             Run                 (void) noexcept = 0;
+
+    const GpTask::WP&                       SelfWP              (void) const noexcept {return iSelfWP;}
+    GpTask::WP&                             SelfWP              (void) noexcept {return iSelfWP;}
 
 private:
     inline static GpTaskId                  SNextId             (void) noexcept;
 
 private:
-    const std::string                       iName;
-    const GpTaskId                          iId;
-    const GpTaskMode::EnumT                 iMode;
-    std::atomic<GpTaskState::EnumT>         iState;
-    std::atomic_flag                        iIsStartRequested   = ATOMIC_FLAG_INIT;
-    std::atomic_flag                        iIsStopRequested    = ATOMIC_FLAG_INIT;
-    StartPromiseT                           iStartPromise;
-    DonePromiseT                            iDonePromise;
-    MessageQueueT                           iMessagesQueue;
+    const std::string       iName;
+    const GpTaskId          iId;
+    const GpTaskMode::EnumT iMode;
+    std::atomic_flag        iStopRequestFlag    = ATOMIC_FLAG_INIT;
+    std::atomic_flag        iDefferedWakeupFlag = ATOMIC_FLAG_INIT;
+    StartPromiseT           iStartPromise;
+    DonePromiseT            iDonePromise;
+    GpTask::WP              iSelfWP;
 
-    static std::atomic<GpTaskId::value_type>    sIdCounter;
-    static AllTasksDictionaryT                  sAllTasksDictionary;
+    static IdCounterT       sIdCounter;
 };
 
 std::string_view    GpTask::TaskName (void) const noexcept
@@ -129,34 +117,29 @@ GpTaskMode::EnumT   GpTask::TaskMode (void) const noexcept
     return iMode;
 }
 
-GpTaskState::EnumT  GpTask::TaskState (void) const noexcept
-{
-    return iState.load(std::memory_order_acquire);
-}
-
-bool    GpTask::IsStartRequested (void) const noexcept
-{
-    return iIsStartRequested.test(std::memory_order_acquire);
-}
-
-void    GpTask::UpStartRequestFlag (GpMethodAccessGuard<GpTaskScheduler>) noexcept
-{
-    iIsStartRequested.test_and_set(std::memory_order_release);
-}
-
 bool    GpTask::IsStopRequested (void) const noexcept
 {
-    return iIsStopRequested.test(std::memory_order_acquire);
+    return iStopRequestFlag.test(std::memory_order_acquire);
 }
 
 std::atomic_flag&   GpTask::IsStopRequestedRef (void) noexcept
 {
-    return iIsStopRequested;
+    return iStopRequestFlag;
 }
 
 void    GpTask::UpStopRequestFlag (GpMethodAccessGuard<GpTaskScheduler>) noexcept
 {
-    iIsStopRequested.test_and_set(std::memory_order_release);
+    iStopRequestFlag.test_and_set(std::memory_order_release);
+}
+
+void    GpTask::UpDefferedWakeupFlag (GpMethodAccessGuard<GpTaskScheduler>) noexcept
+{
+    iDefferedWakeupFlag.test_and_set(std::memory_order_release);
+}
+
+bool    GpTask::IsDefferedWakeup (GpMethodAccessGuard<GpTaskScheduler>) const noexcept
+{
+    return iDefferedWakeupFlag.test(std::memory_order_acquire);
 }
 
 GpTask::StartFutureT::SP    GpTask::StartFuture (void)

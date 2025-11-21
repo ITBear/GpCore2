@@ -18,27 +18,27 @@ GpByteWriter&   GpByteWriter::BytesWithLen (GpSpanByteR aData)
 
 GpByteWriter&   GpByteWriter::CompactUI64 (const u_int_64 aValue)
 {
-    std::array<u_int_8, sizeof(u_int_64) + 2> buf;
+    std::array<u_int_8, sizeof(u_int_64) + 2> buffer;
 
-    size_t      i       = std::size(buf);
-    u_int_64    value   = aValue;
+    const size_t    bufferSize  = std::size(buffer);
+    size_t          i           = bufferSize;
+    u_int_64        value       = aValue;
 
     do
     {
-        std::data(buf)[--i] = u_int_8(value & u_int_64(0b01111111));
+        std::data(buffer)[--i] = u_int_8(value & u_int_64(0b01111111));
         value = value >> 7;
     } while (value > 0);
 
-    while (i < std::size(buf))
+    size_t k = 0;
+    while (i != (bufferSize - 1))
     {
-        if (i != (std::size(buf) - 1))
-        {
-            UI8(u_int_8(buf[i++]) | u_int_8(0b10000000));
-        } else
-        {
-            UI8(u_int_8(buf[i++]));
-        }
+        buffer[k++] = buffer[i++] | u_int_8(0b10000000);
     }
+
+    buffer[k++] = buffer[i++];
+
+    Bytes(buffer.data(), k);
 
     return *this;
 }

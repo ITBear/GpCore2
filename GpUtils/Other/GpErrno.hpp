@@ -7,6 +7,10 @@
 #include <errno.h>
 #include <cstring>
 
+#if defined(GP_OS_MACOS)
+#   include <MacTypes.h>
+#endif// #if defined(GP_OS_MACOS)
+
 namespace GPlatform {
 
 class GP_UTILS_API GpErrno
@@ -24,6 +28,10 @@ public:
 #if defined(GP_OS_WINDOWS)
     static std::string  SWinGetAndClear (void);
 #endif// #if defined(GP_OS_WINDOWS)
+
+#if defined(GP_OS_MACOS)
+    static std::string  SStatusToStr (OSStatus aStatus);
+#endif// #if defined(GP_OS_MACOS)
 };
 
 }// namespace GPlatform

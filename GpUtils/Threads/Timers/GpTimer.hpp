@@ -7,8 +7,7 @@
 #include <GpCore2/GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp>
 #include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpSpinLockRW.hpp>
-#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
-#include <GpCore2/GpUtils/SyncPrimitives/GpSharedMutex.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSyncPrimitives.hpp>
 
 namespace GPlatform {
 
@@ -32,7 +31,7 @@ public:
                             GpTimer                 (void) noexcept;
                             GpTimer                 (CallbackFnT&&  aCallbackFn,
                                                      milliseconds_t aPeriod,
-                                                     milliseconds_t aDelayBeforeFirstShot   = 0.0_si_s,
+                                                     milliseconds_t aDelayBeforeFirstShot   = 0.0_si_ms,
                                                      u_int_64       aShotsMaxCount          = 0,
                                                      bool           aIsReturnToPool         = false) noexcept;
                             ~GpTimer                (void) noexcept;
@@ -41,7 +40,7 @@ public:
     bool                    Stop                    (void);
     void                    Reload                  (CallbackFnT&&  aCallbackFn,
                                                      milliseconds_t aPeriod,
-                                                     milliseconds_t aDelayBeforeFirstShot   = 0.0_si_s,
+                                                     milliseconds_t aDelayBeforeFirstShot   = 0.0_si_ms,
                                                      u_int_64       aShotsMaxCount          = 0,
                                                      bool           aIsReturnToPool         = false);
 
@@ -71,7 +70,7 @@ private:
     inline bool             _IsReturnToPool         (void) const noexcept REQUIRES_SHARED(iSpinLockRW);
 
 private:
-    mutable GpSpinLockRW    iSpinLockRW;
+    mutable GpSpinLockRW<>  iSpinLockRW;
 
     CallbackFnT             iCallbackFn             GUARDED_BY(iSpinLockRW);
     milliseconds_t          iPeriod                 GUARDED_BY(iSpinLockRW);
@@ -86,63 +85,63 @@ private:
 
 bool    GpTimer::IsShotsLimited (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return _IsShotsLimited();
 }
 
 u_int_64    GpTimer::ShotsMaxCount (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return _ShotsMaxCount();
 }
 
 u_int_64    GpTimer::ShotsCount (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return _ShotsCount();
 }
 
 milliseconds_t  GpTimer::Period (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return _Period();
 }
 
 milliseconds_t  GpTimer::DelayBeforeFirstShot (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return _DelayBeforeFirstShot();
 }
 
 milliseconds_t  GpTimer::LastShotTS (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return _LastShotTS();
 }
 
 milliseconds_t  GpTimer::NextShotTS (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return _NextShotTS();
 }
 
 bool    GpTimer::IsStarted (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return _IsStarted();
 }
 
 bool    GpTimer::IsReturnToPool (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return _IsReturnToPool();
 }

@@ -2,18 +2,20 @@
 
 namespace GPlatform {
 
-GP_WARNING_PUSH()
-GP_WARNING_DISABLE_MSVC(4355)
-
-GpArgParser::GpArgParser (void) noexcept:
-iArgumentBuilder{*this}
+GpArgParser::GpArgParser (void) noexcept
 {
 }
 
-GP_WARNING_POP()
-
 GpArgParser::~GpArgParser (void) noexcept
 {
+    GpArgParserArgumentBuilder::SP b = MakeSP<GpArgParserArgumentBuilder>();
+    b.Clear();
+
+    GpArgParserArgument::SP r = MakeSP<GpArgParserArgument>("123", false);
+    r.Clear();
+
+    iArgumentBuilder.Reset();
+    iArguments.clear();
 }
 
 GpArgParserRes::SP  GpArgParser::Parse
@@ -40,7 +42,7 @@ GpArgParserRes::SP  GpArgParser::Parse
             continue;
         }
 
-        if ((argValSize >= 2) && (argVal.substr(0, 2) == "--"_sv))// new argument with prefix: --
+        if ((argValSize >= 2) && (argVal.substr(0, 2) == "--"_sv)) // new argument with prefix: --
         {
             currentArgument     = nullptr;
             argVal              = argVal.substr(2);
@@ -93,21 +95,21 @@ GpArgParserRes::SP  GpArgParser::Parse
         // Try to find argument by name in resArguments
         auto iter = std::find_if
         (
-            resArguments.begin(),
-            resArguments.end(),
+            std::begin(resArguments),
+            std::end(resArguments),
             [argValName](const auto& aArgument)
             {
                 return aArgument.V().Names().count(argValName) > 0;
             }
         );
 
-        if (iter != resArguments.end())
+        if (iter != std::end(resArguments))
         {
             currentArgument = iter->P();
         } else
         {
             // Try to find argument by name in iArguments
-            if (auto argIter = iArguments.find(argValName); argIter != iArguments.end())
+            if (auto argIter = iArguments.find(argValName); argIter != std::end(iArguments))
             {
                 // Add argument to resArguments (known)
                 auto newElement = resArguments.emplace_back(MakeSP<GpArgParserArgument>(argIter->second.V()));
@@ -150,14 +152,15 @@ GpArgParserRes::SP  GpArgParser::Parse
 
 GpArgParserArgumentBuilder& GpArgParser::NextArgument (void)
 {
+    iArgumentBuilder.SetArgParser(*this);
     iArgumentBuilder.Reset();
 
     return iArgumentBuilder;
 }
 
-GpArgParser&    GpArgParser::AddArgument (GpArgParserArgument::SP aArgument)
+GpArgParser&    GpArgParser::AddArgument (GpArgParserArgument::SP aArgumentSP)
 {
-    GpArgParserArgument& argument = aArgument.V();
+    const GpArgParserArgument& argument = aArgumentSP.V();
 
     // Check argument names
     VERIFY
@@ -213,7 +216,7 @@ GpArgParser&    GpArgParser::AddArgument (GpArgParserArgument::SP aArgument)
             }
         );
 
-        iArguments.emplace(std::string{name}, aArgument);
+        iArguments.emplace(std::string{name}, std::move(aArgumentSP));
     }
 
     return *this;

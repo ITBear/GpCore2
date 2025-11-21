@@ -8,8 +8,8 @@ GpReflectDiffPropBLOB::~GpReflectDiffPropBLOB (void) noexcept
 
 GpReflectDiffPropBLOB::C::Opts::Val GpReflectDiffPropBLOB::SCheckAndMake
 (
-    const GpBytesArray& aValueFrom,
-    const GpBytesArray& aValueTo
+    const GpByteArray& aValueFrom,
+    const GpByteArray& aValueTo
 )
 {
     std::optional<ArrayT::ReplaceVariantT> replaceData = ArrayT::SCheckAndMake(aValueFrom, aValueTo);

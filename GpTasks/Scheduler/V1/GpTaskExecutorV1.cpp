@@ -8,14 +8,14 @@ namespace GPlatform {
 GpTaskExecutorV1::GpTaskExecutorV1
 (
     const size_t        aId,
-    GpTaskSchedulerV1&  aTasksScheduler,
-    ReadyTasksQueueT&   aReadyTasksQueue,
+    GpTaskSchedulerV1&  aScheduler,
+    TaskQueueT::SP      aTaskQueueSP,
     DonePromiseT&&      aDonePromise
 ) noexcept:
-iId             {aId},
-iTasksScheduler {aTasksScheduler},
-iReadyTasksQueue{aReadyTasksQueue},
-iDonePromise    {std::move(aDonePromise)}
+iId         {aId},
+iScheduler  {aScheduler},
+iTaskQueueSP{std::move(aTaskQueueSP)},
+iDonePromise{std::move(aDonePromise)}
 {
 }
 
@@ -23,33 +23,46 @@ GpTaskExecutorV1::~GpTaskExecutorV1 (void) noexcept
 {
 }
 
-void    GpTaskExecutorV1::Run (std::atomic_flag& aStopRequest) noexcept
+void    GpTaskExecutorV1::Run (GpConditionVarFlag& aStopFlag) noexcept
 {
     std::string exMsg;
 
     try
     {
+        TaskQueueT& taskQueue = iTaskQueueSP.V();
+
         // Repeat until stop requested
-        while (!aStopRequest.test())
+        bool stopFlagValue = aStopFlag.Test();
+        while (!stopFlagValue)
         {
             // Consume next task
-            GpTask::C::Opts::SP taskOpt = iReadyTasksQueue.WaitAndPop(0.25_si_s);
+            auto                popRes  = taskQueue.PopWaitFor(100.0_si_ms);
+            GpTask::C::Opts::SP taskOpt = std::move(popRes.iValue);
 
-            if (!taskOpt.has_value())
+            if (taskOpt.has_value() == false)
             {
+                if (popRes.iFlags & (TaskQueueT::FlagsT(TaskQueueT::FlagE::INTERRUPT) | TaskQueueT::FlagsT(TaskQueueT::FlagE::STOP_PRODUCE)))
+                {
+                    break;
+                }
+
                 continue;
             }
 
-            GpTask::SP& taskSP  = taskOpt.value();
-            GpTask&     task    = taskSP.V();
-
             // Run task
-            const GpTaskRunRes::EnumT taskRes = task.Execute(GpMethodAccess{this});
+            GpTask::SP&                 taskSP  = taskOpt.value();
+            const GpTaskRunRes::EnumT   taskRes = GpTask::SExecute(taskSP, GpMethodAccess{this});
 
             // Reschedule task
-            if (iTasksScheduler.Reschedule(taskRes, std::move(taskSP)) == false)
+            if (iScheduler.Reschedule(taskRes, taskSP, GpMethodAccess{this}) == false)
             {
-                THROW("Failed to Reschedule"_sv);
+                // Scheduler stopped
+                if (taskRes != GpTaskRunRes::DONE)
+                {
+                    std::ignore = taskQueue.Push(taskSP);
+                }
+
+                break;
             }
         }
 
@@ -82,16 +95,7 @@ void    GpTaskExecutorV1::Run (std::atomic_flag& aStopRequest) noexcept
         );
     }
 
-    // GpStringUtils::SCerr(exMsg);
     iDonePromise.Fulfill(GpException{std::move(exMsg)});
-
-    // Stop service
-    GpTaskScheduler::S().StopService();
-}
-
-void    GpTaskExecutorV1::OnNotify (void) noexcept
-{
-    iReadyTasksQueue.Interrupt();
 }
 
 }// namespace GPlatform

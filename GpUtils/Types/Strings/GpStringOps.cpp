@@ -1,4 +1,5 @@
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
+#include <GpCore2/GpUtils/Types/Bits/GpBitOps.hpp>
 
 #if defined(GP_USE_STRINGS)
 
@@ -61,10 +62,64 @@ std::vector<std::string>    GpStringOps::SSplit
     );
 }
 
+std::tuple<std::string_view/*line*/, std::string_view/*remaining str*/> GpStringOps::SReadLine (std::string_view aStr)
+{
+    size_t strSize = std::size(aStr);
+
+    if (strSize == 0)
+    {
+        return
+        {
+            std::string_view{nullptr, 0},
+            std::string_view{nullptr, 0},
+        };
+    }
+
+    const size_t    strSizeOld  = strSize;
+    const char*     strPtr      = std::data(aStr);
+    const char*     linePtr     = strPtr;
+
+    // Fast skip parts where no `\n` or `\r`
+    while (strSize >= sizeof(u_int_64))
+    {
+        u_int_64 strPart;
+        std::memcpy(&strPart, strPtr, sizeof(u_int_64));
+
+        if (   BitOps::HasSpecificByteIn64(strPart, '\n')
+            || BitOps::HasSpecificByteIn64(strPart, '\r'))
+        {
+            break;
+        }
+
+        strSize -= sizeof(u_int_64);
+        strPtr  += sizeof(u_int_64);
+    }
+
+    // Find end of the line
+    size_t nextLine = 0;
+    while (strSize > 0)
+    {
+        const char ch = *strPtr++;
+        strSize--;
+
+        if ((ch == '\n') || (ch == '\r'))
+        {
+            nextLine = 1;
+            break;
+        }
+    }
+
+    return
+    {
+        std::string_view{linePtr, strSizeOld - strSize - nextLine},
+        std::string_view{(strSize == 0) ?  nullptr : strPtr, strSize},
+    };
+}
+
 bool    GpStringOps::SIsEqualCaseInsensitive8bit
 (
-    std::string_view    aStr1,
-    std::string_view    aStr2
+    std::string_view aStr1,
+    std::string_view aStr2
 ) noexcept
 {
     return std::equal
@@ -82,11 +137,6 @@ bool    GpStringOps::SIsEqualCaseInsensitive8bit
 
 std::regex  GpStringOps::SPrepareRegexFilter (std::string_view aFilter)
 {
-    if (aFilter.empty())
-    {
-        [[maybe_unused]] int d = 0;
-    }
-
     VERIFY
     (
         !aFilter.empty(),
@@ -527,6 +577,90 @@ std::variant<s_int_64, double>  GpStringOps::SToNumeric
     return res;
 }
 
+std::string GpStringOps::SReplaceFirst
+(
+    std::string_view aSrc,
+    std::string_view aFrom,
+    std::string_view aTo
+)
+{
+    if (aSrc.empty() || aFrom.empty())
+    {
+        return std::string{aSrc};
+    }
+
+    const size_t pos = aSrc.find(aFrom);
+
+    if (pos == std::string_view::npos)
+    {
+        return std::string{aSrc};
+    }
+
+    std::string result;
+    result.reserve((std::size(aSrc) + std::size(aTo)) - std::size(aFrom));
+
+    // Single allocation approach
+    result.assign(std::begin(aSrc), std::begin(aSrc) + pos);
+    result += aTo;
+    result.append(std::begin(aSrc) + pos + std::size(aFrom), std::end(aSrc));
+
+    return result;
+}
+
+void    GpStringOps::SReplaceFirstInPlace
+(
+    std::string&        aSrcOut,
+    std::string_view    aFrom,
+    std::string_view    aTo
+)
+{
+    if (aSrcOut.empty() || aFrom.empty())
+    {
+        return;
+    }
+
+    const size_t pos = aSrcOut.find(aFrom);
+
+    if (pos != std::string::npos)
+    {
+        aSrcOut.replace(pos, std::size(aFrom), aTo);
+    }
+}
+
+std::string GpStringOps::SReplaceAll
+(
+    std::string_view aSrc,
+    std::string_view aFrom,
+    std::string_view aTo
+)
+{
+    if (aSrc.empty() || aFrom.empty())
+    {
+        return std::string{aSrc};
+    }
+
+    std::string result;
+    result.reserve(std::size(aSrc));
+
+    size_t pos      = 0;
+    size_t foundPos = 0;
+
+    while ((foundPos = aSrc.find(aFrom, pos)) != std::string_view::npos)
+    {
+        // Append text before the match
+        result.append(aSrc.begin() + pos, aSrc.begin() + foundPos);
+        // Append replacement
+        result.append(aTo);
+        // Move past the match in original string
+        pos = foundPos + aFrom.size();
+    }
+
+    // Append remaining text from original string
+    result.append(aSrc.begin() + pos, aSrc.end());
+
+    return result;
+}
+
 size_t  GpStringOps::SFromBytesHex
 (
     GpSpanByteR     aData,
@@ -642,11 +776,11 @@ size_t  GpStringOps::SToBytesHex
     return outSize;
 }
 
-GpBytesArray    GpStringOps::SToBytesHex (std::string_view aStr)
+GpByteArray GpStringOps::SToBytesHex (std::string_view aStr)
 {
     const size_t size = std::size(aStr);
 
-    GpBytesArray res;
+    GpByteArray res;
     res.resize(size/2);
     res.resize(SToBytesHex(aStr, GpSpanByteRW(std::data(res), std::size(res))));
     return res;
@@ -820,6 +954,21 @@ bool    GpStringOps::SContainsOnlySet
 
     return true;
 }
+
+#if defined(GP_OS_MACOS)
+std::string GpStringOps::SToStdString (CFStringRef& aCFStringRef)
+{
+    CFIndex length  = CFStringGetLength(aCFStringRef);
+    CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
+    boost::container::small_vector<char, 64> buffer;
+    buffer.resize(size_t(maxSize));
+
+    CFStringGetCString(aCFStringRef, buffer.data(), maxSize, kCFStringEncodingUTF8);
+    CFRelease(aCFStringRef);
+
+    return std::string{buffer.data(), std::strlen(buffer.data())};
+}
+#endif//#if defined(GP_OS_MACOS)
 
 void    GpStringOps::_SFromUI64
 (

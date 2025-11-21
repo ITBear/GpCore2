@@ -81,7 +81,7 @@ public:
     virtual void            emplace_back        (BaseT&& aValue) override final {iVector.emplace_back(std::move(static_cast<T&&>(aValue)));}
 
 private:
-    vector_type             iVector;
+    vector_type iVector;
 };
 
 }// namespace GPlatform

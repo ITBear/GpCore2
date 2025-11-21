@@ -75,7 +75,7 @@ GpTaskRunRes::EnumT GpTaskThread::Run (void) noexcept
     // Check if there are was exception
     if (ex.has_value())
     {
-        //GpStringUtils::SCerr(ex->what());
+        //GpOutUtils::S().Err(ex->what());
         res = GpTaskRunRes::DONE;
 
         StartPromise(GpMethodAccess{this}).Fulfill(ex.value());

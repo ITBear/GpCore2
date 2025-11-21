@@ -3,8 +3,7 @@
 
 namespace GPlatform {
 
-GpArgParserArgumentBuilder::GpArgParserArgumentBuilder (GpArgParser& aArgParser) noexcept:
-iArgParser{aArgParser}
+GpArgParserArgumentBuilder::GpArgParserArgumentBuilder (void) noexcept
 {
 }
 
@@ -12,16 +11,21 @@ GpArgParserArgumentBuilder::~GpArgParserArgumentBuilder (void) noexcept
 {
 }
 
-void    GpArgParserArgumentBuilder::Reset    (void)
+void    GpArgParserArgumentBuilder::SetArgParser (GpArgParser& aArgParser)
+{
+    iArgParser = &aArgParser;
+}
+
+void    GpArgParserArgumentBuilder::Reset (void)
 {
     iNames.clear();
     iDescription.clear();
     iDefaultValue.clear();
 }
 
-GpArgParser&    GpArgParserArgumentBuilder::Done (void)
+void    GpArgParserArgumentBuilder::Done (void)
 {
-    iArgParser.AddArgument
+    iArgParser->AddArgument
     (
         MakeSP<GpArgParserArgument>
         (
@@ -32,8 +36,6 @@ GpArgParser&    GpArgParserArgumentBuilder::Done (void)
     );
 
     Reset();
-
-    return iArgParser;
 }
 
 GpArgParserArgumentBuilder& GpArgParserArgumentBuilder::AddName (std::string_view aName)

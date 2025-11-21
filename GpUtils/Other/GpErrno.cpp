@@ -1,4 +1,5 @@
 #include <GpCore2/GpUtils/Other/GpErrno.hpp>
+#include <GpCore2/GpUtils/Types/Bits/GpBitOps.hpp>
 
 #if defined(GP_OS_WINDOWS)
 #   include <GpCore2/Config/IncludeExt/windows.hpp>
@@ -36,5 +37,31 @@ std::string GpErrno::SWinGetAndClear (void)
 }
 
 #endif// #if defined(GP_OS_WINDOWS)
+
+#if defined(GP_OS_MACOS)
+std::string GpErrno::SStatusToStr (OSStatus aStatus)
+{
+    std::string s;
+
+    // Convert to a 4-character code if it fits
+    const s_int_32 status = BitOps::H2N(static_cast<s_int_32>(aStatus));
+    std::array<char, sizeof(s_int_32)> codeBuff;
+    std::memcpy(codeBuff.data(), &status, sizeof(s_int_32));
+
+    if (isprint(codeBuff[0]) && isprint(codeBuff[1]) && isprint(codeBuff[2]) && isprint(codeBuff[3]))
+    {
+        s.resize(4);
+
+        s[0] = codeBuff[0];
+        s[1] = codeBuff[1];
+        s[2] = codeBuff[2];
+        s[3] = codeBuff[3];
+    } else {
+        s = StrOps::SFromSI64(aStatus);
+    }
+
+    return s;
+}
+#endif// #if defined(GP_OS_MACOS)
 
 }// namespace GPlatform

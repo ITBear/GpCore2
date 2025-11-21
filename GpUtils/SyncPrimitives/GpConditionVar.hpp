@@ -6,14 +6,14 @@
 
 #include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 #include <GpCore2/GpUtils/Types/Units/SI/GpUnitsSI_Time.hpp>
-#include <GpCore2/GpUtils/Other/GpRAIIonDestruct.hpp>
-#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
+#include <GpCore2/GpUtils/Other/GpDefer.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSyncPrimitives.hpp>
 
 #include <condition_variable>
 
 namespace GPlatform {
 
-class CAPABILITY("GpConditionVar") GpConditionVar
+class GpConditionVar
 {
 public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpConditionVar)
@@ -23,6 +23,7 @@ public:
     using AtBeginFnT    = std::function<void()>;
     using AtEndFnT      = std::function<void(bool)>;// must be noexcept
     using CheckFnT      = std::function<bool()>;
+    using MutexT        = GpMutex<ThreadSafety::LockTraceModeE::TRACE_DISABLED>;
 
 public:
                     GpConditionVar  (void) noexcept = default;
@@ -30,7 +31,7 @@ public:
 
     inline void     NotifyOne       (void) noexcept REQUIRES(Mutex());
     inline void     NotifyAll       (void) noexcept REQUIRES(Mutex());
-    inline GpMutex& Mutex           (void) noexcept RETURN_CAPABILITY(iMutex);
+    inline MutexT&  Mutex           (void) noexcept RETURN_CAPABILITY(iMutex);
 
     inline void     Wait            (const CheckFnT&    aCheckFn);
     inline void     Wait            (const CheckFnT&    aCheckFn,
@@ -45,7 +46,7 @@ public:
                                      const AtEndFnT&    aAtEndFn);
 
 private:
-    mutable GpMutex         iMutex;
+    mutable MutexT          iMutex;
     std::condition_variable iCV GUARDED_BY(iMutex);
 };
 
@@ -59,14 +60,14 @@ void    GpConditionVar::NotifyAll (void) noexcept
     iCV.notify_all();
 }
 
-GpMutex&    GpConditionVar::Mutex (void) noexcept
+GpConditionVar::MutexT& GpConditionVar::Mutex (void) noexcept
 {
     return iMutex;
 }
 
 void    GpConditionVar::Wait (const CheckFnT& aCheckFn)
 {
-    GpUniqueLock<GpMutex> uniqueLock{iMutex};
+    GpUniqueLock uniqueLock{iMutex};
 
     iCV.wait
     (
@@ -82,9 +83,9 @@ void    GpConditionVar::Wait
     const AtEndFnT&     aAtEndFn
 )
 {
-    GpUniqueLock<GpMutex> uniqueLock{iMutex};
+    GpUniqueLock uniqueLock{iMutex};
 
-    GpRAIIonDestruct callOnDestruct = [&aAtEndFn]()
+    GpDefer callOnDestruct = [&aAtEndFn]()
     {
         aAtEndFn(true);
     };
@@ -110,7 +111,7 @@ bool    GpConditionVar::WaitFor
         return true;
     }
 
-    GpUniqueLock<GpMutex> uniqueLock{iMutex};
+    GpUniqueLock uniqueLock{iMutex};
 
     const bool checkFnRes = iCV.wait_for
     (
@@ -136,11 +137,11 @@ bool    GpConditionVar::WaitFor
         return true;
     }
 
-    GpUniqueLock<GpMutex> uniqueLock{iMutex};
+    GpUniqueLock uniqueLock{iMutex};
 
     bool result = false;
 
-    GpRAIIonDestruct callOnDestruct = [&aAtEndFn, &result]()
+    GpDefer callOnDestruct = [&aAtEndFn, &result]()
     {
         aAtEndFn(result);
     };

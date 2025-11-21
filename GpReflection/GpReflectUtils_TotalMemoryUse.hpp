@@ -2,7 +2,7 @@
 
 #include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
 #include <GpCore2/Config/GpConfig.hpp>
-#include <GpCore2/GpUtils/Types/Containers/GpMultiKeyManager.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpUnorderedPairIndexer.hpp>
 #include <GpCore2/GpReflection/GpReflectObject.hpp>
 
 namespace GPlatform {

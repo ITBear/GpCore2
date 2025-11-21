@@ -1,14 +1,21 @@
 #include <GpCore2/GpTasks/Scheduler/GpTaskScheduler.hpp>
 #include <GpCore2/GpTasks/Scheduler/GpTaskSchedulerFactory.hpp>
+#include <GpCore2/GpTasks/GpTask.hpp>
 
 #if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
 
-GpTaskScheduler::SP GpTaskScheduler::sInstance;
+GpTaskScheduler::UP GpTaskScheduler::sInstance;
+std::atomic_flag    GpTaskScheduler::sRequestStopAndJoinCall = ATOMIC_FLAG_INIT;
 
-GpTaskScheduler::GpTaskScheduler (StopServiceFnT aStopServiceFn) noexcept:
-iStopServiceFn{aStopServiceFn}
+GpTaskScheduler::GpTaskScheduler
+(
+    const size_t aExecutorsCount,
+    const size_t aTasksMaxCount
+) noexcept:
+iExecutorsCount{aExecutorsCount},
+iTasksMaxCount {aTasksMaxCount}
 {
 }
 
@@ -16,56 +23,66 @@ void    GpTaskScheduler::SStart
 (
     const GpTaskSchedulerFactory&   aFactory,
     const size_t                    aExecutorsCount,
-    const size_t                    aTasksMaxCount,
-    StopServiceFnT                  aStopServiceFn
+    const size_t                    aTasksMaxCount
 )
 {
-    sInstance = aFactory.NewInstance(aStopServiceFn);
-
-    S().Start
+    VERIFY
     (
-        aExecutorsCount,
-        aTasksMaxCount
+        aExecutorsCount > 0,
+        "Executors count must be > 0"_sv
     );
+
+    VERIFY
+    (
+        aTasksMaxCount > 0,
+        "Tasks max count must be > 0"_sv
+    );
+
+    sRequestStopAndJoinCall.clear(std::memory_order_release);
+
+    // Create instance
+    sInstance = aFactory.NewInstance(aExecutorsCount, aTasksMaxCount);
+
+    // Start
+    sInstance->Start();
 }
 
-void    GpTaskScheduler::SStopAndClear (void)
+void    GpTaskScheduler::SStop (void)
 {
-    if (GpTaskScheduler::sInstance.IsNotNULL())
+    if (sRequestStopAndJoinCall.test_and_set(std::memory_order_acq_rel))
     {
-        S().RequestStopAndJoin();
-        sInstance.Clear();
+        // Only single call allowed
+        return;
+    }
+
+    if (sInstance != nullptr)
+    {
+        try
+        {
+            S().RequestStopAndJoin();
+        } catch (const GpException& e)
+        {
+            GpOutUtils::S().Err("[GpTaskScheduler::SStop]: exception: "_sv + e.what());
+        } catch (const std::exception& e)
+        {
+            GpOutUtils::S().Err("[GpTaskScheduler::SStop]: exception: "_sv + e.what());
+        } catch (...)
+        {
+            GpOutUtils::S().Err("[GpTaskScheduler::SStop]: unknown exception"_sv);
+        }
+
+        sInstance.reset();
     }
 }
 
-void    GpTaskScheduler::StopService (void)
-{
-    iStopServiceFn();
-}
-
-GpTask::DoneFutureT::C::Opts::SP GpTaskScheduler::NewToReadyDepend (GpSP<GpTask> aTaskSP)
-{
-    GpTask::DoneFutureT::SP doneFutureSP = aTaskSP->DoneFuture();
-
-    return NewToReady(std::move(aTaskSP)) ? GpTask::DoneFutureT::C::Opts::SP{doneFutureSP} : std::nullopt;
-}
-
-GpTask::DoneFutureT::C::Opts::SP    GpTaskScheduler::RequestStop (GpTask& aTask)
+GpTask::DoneFutureT::SP GpTaskScheduler::RequestStop (GpTask& aTask)
 {
     GpTask::DoneFutureT::SP doneFutureSP = aTask.DoneFuture();
     aTask.UpStopRequestFlag(GpMethodAccess{this});
 
-    return MakeTaskReady(aTask.TaskId()) ? GpTask::DoneFutureT::C::Opts::SP{doneFutureSP} : std::nullopt;
-}
+    Wakeup(aTask);
 
-void    GpTaskScheduler::Start
-(
-    const size_t aExecutorsCount,
-    const size_t aTasksMaxCount
-)
-{
-    iExecutorsCount = aExecutorsCount;
-    iTasksMaxCount  = aTasksMaxCount;
+    return doneFutureSP;
 }
 
 }// namespace GPlatform

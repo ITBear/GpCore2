@@ -13,12 +13,11 @@ public:
     TAG_SET(THREAD_SAFE)
 
 public:
-                                    GpTaskSchedulerV1Factory    (void) noexcept = default;
+                                                GpTaskSchedulerV1Factory    (void) noexcept = default;
+    virtual                                     ~GpTaskSchedulerV1Factory   (void) noexcept override final;
 
-
-    virtual                         ~GpTaskSchedulerV1Factory   (void) noexcept override final;
-
-    virtual GpSP<GpTaskScheduler>   NewInstance                 (StopServiceFnT aStopServiceFn) const override final;
+    virtual std::unique_ptr<GpTaskScheduler>    NewInstance                 (size_t aExecutorsCount,
+                                                                             size_t aTasksMaxCount) const override final;
 };
 
 }// namespace GPlatform

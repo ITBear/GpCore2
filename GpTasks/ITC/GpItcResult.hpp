@@ -15,50 +15,59 @@ template<typename T>
 class GpItcResult
 {
 public:
+    CLASS_REMOVE_CTRS_COPY(GpItcResult)
     CLASS_DD(GpItcResult<T>)
+
+    struct NotSetT{};
+    struct ExtractedT{};
 
     using VariantsT = std::variant
     <
+        NotSetT,
+        ExtractedT,
         GpException,
         T
     >;
 
 public:
-                            GpItcResult     (void) noexcept = delete;
-                            GpItcResult     (const this_type& aRes);
-                            GpItcResult     (this_type&& aRes);
-                            GpItcResult     (const GpException& aException);
-                            GpItcResult     (GpException&& aException);
-                            GpItcResult     (const T& aPayload);
-                            GpItcResult     (T&& aPayload);
-                            ~GpItcResult    (void) noexcept = default;
+                    GpItcResult         (void) noexcept;
+                    GpItcResult         (this_type&& aItcResult);
+                    GpItcResult         (const GpException& aException);
+                    GpItcResult         (GpException&& aException);
+                    GpItcResult         (const T& aPayload);
+                    GpItcResult         (T&& aPayload);
+                    ~GpItcResult        (void) noexcept = default;
 
-    GpItcResult&            operator=       (const this_type& aRes);
-    GpItcResult&            operator=       (this_type&& aRes);
+    GpItcResult&    operator=           (this_type&& aItcResult);
 
-    bool                    IsException     (void) const noexcept;
-    bool                    IsPayload       (void) const noexcept;
+    template<typename R>
+    GpItcResult&    operator=           (R&& aResult);
 
-    const GpException&      Exception       (void) const;
-    T&                      PayloadOrThrow  (const SourceLocationT& aSourceLocation = SourceLocationT::current());
-    const T&                PayloadOrThrow  (const SourceLocationT& aSourceLocation = SourceLocationT::current()) const;
+    bool            IsNotSet            (void) const noexcept;
+    bool            IsExtracted         (void) const noexcept;
+    bool            IsException         (void) const noexcept;
+    bool            IsPayload           (void) const noexcept;
 
-    VariantsT&              Variants        (void) noexcept;
+    GpException     ExtractException    (void);
+    T               ExtractPayload      (void);
+
+    size_t          VariantIdx          (void) const noexcept;
 
 private:
-    VariantsT               iVariants;
+    VariantsT iVariants;
 };
 
 template<typename T>
-GpItcResult<T>::GpItcResult (const this_type& aRes):
-iVariants{aRes.iVariants}
+GpItcResult<T>::GpItcResult (void) noexcept:
+iVariants{NotSetT{}}
 {
 }
 
 template<typename T>
-GpItcResult<T>::GpItcResult (this_type&& aRes):
-iVariants{std::move(aRes.iVariants)}
+GpItcResult<T>::GpItcResult (this_type&& aItcResult):
+iVariants{std::move(aItcResult.iVariants)}
 {
+    aItcResult.iVariants = ExtractedT{};
 }
 
 template<typename T>
@@ -86,19 +95,33 @@ iVariants{std::move(aPayload)}
 }
 
 template<typename T>
-GpItcResult<T>& GpItcResult<T>::operator= (const this_type& aRes)
+GpItcResult<T>& GpItcResult<T>::operator= (this_type&& aItcResult)
 {
-    iVariants = aRes.iVariants;
+    iVariants               = std::move(aItcResult.iVariants);
+    aItcResult.iVariants    = ExtractedT{};
 
     return *this;
 }
 
 template<typename T>
-GpItcResult<T>& GpItcResult<T>::operator= (this_type&& aRes)
+template<typename R>
+GpItcResult<T>& GpItcResult<T>::operator= (R&& aResult)
 {
-    iVariants = std::move(aRes.iVariants);
+    iVariants = std::forward<R>(aResult);
 
     return *this;
+}
+
+template<typename T>
+bool    GpItcResult<T>::IsNotSet (void) const noexcept
+{
+    return std::holds_alternative<NotSetT>(iVariants);
+}
+
+template<typename T>
+bool    GpItcResult<T>::IsExtracted (void) const noexcept
+{
+    return std::holds_alternative<ExtractedT>(iVariants);
 }
 
 template<typename T>
@@ -114,49 +137,27 @@ bool    GpItcResult<T>::IsPayload (void) const noexcept
 }
 
 template<typename T>
-const GpException&  GpItcResult<T>::Exception (void) const
+GpException GpItcResult<T>::ExtractException (void)
 {
-    return std::get<GpException>(iVariants);
+    GpException ex = std::move(std::get<GpException>(iVariants));
+    iVariants = ExtractedT{};
+
+    return ex;
 }
 
 template<typename T>
-const T&    GpItcResult<T>::PayloadOrThrow (const SourceLocationT& aSourceLocation) const
+T   GpItcResult<T>::ExtractPayload (void)
 {
-    const auto index = iVariants.index();
+    T value = std::move(std::get<T>(iVariants));
+    iVariants = ExtractedT{};
 
-    if (index == 0) [[unlikely]] //GpException
-    {
-        THROW
-        (
-            "Result is exception: "_sv + std::get<GpException>(iVariants).what(),
-            aSourceLocation
-        );
-    }
-
-    return std::get<T>(iVariants);
+    return value;
 }
 
 template<typename T>
-T&  GpItcResult<T>::PayloadOrThrow (const SourceLocationT& aSourceLocation)
+size_t  GpItcResult<T>::VariantIdx (void) const noexcept
 {
-    const auto index = iVariants.index();
-
-    if (index == 0) [[unlikely]] //GpException
-    {
-        THROW
-        (
-            "Result is exception: "_sv + std::get<GpException>(iVariants).what(),
-            aSourceLocation
-        );
-    }
-
-    return std::get<T>(iVariants);
-}
-
-template<typename T>
-typename GpItcResult<T>::VariantsT& GpItcResult<T>::Variants (void) noexcept
-{
-    return iVariants;
+    return iVariants.index();
 }
 
 }// namespace GPlatform

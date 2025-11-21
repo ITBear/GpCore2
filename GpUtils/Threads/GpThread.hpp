@@ -3,7 +3,6 @@
 #include <GpCore2/GpUtils/GpUtils_global.hpp>
 #include <GpCore2/GpUtils/Threads/GpRunnable.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpSpinLockRW.hpp>
-#include <GpCore2/GpUtils/SyncPrimitives/GpSharedMutex.hpp>
 
 #include <thread>
 
@@ -14,6 +13,7 @@ namespace GPlatform {
 class GP_UTILS_API GpThread
 {
 public:
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpThread)
     CLASS_DD(GpThread)
 
 #if defined(GP_USE_MULTITHREADING_IMPL_STD_THREAD)
@@ -21,35 +21,37 @@ public:
 #endif// #if defined(GP_USE_MULTITHREADING_IMPL_STD_THREAD)
 
 public:
-                            GpThread                (void) noexcept = delete;
-                            GpThread                (std::string aName) noexcept;
-                            GpThread                (const GpThread& aThread) = delete;
-                            GpThread                (GpThread&& aThread) noexcept = delete;
+                            GpThread                (GpConditionVarFlag& aStopFlag) noexcept;
+                            GpThread                (GpConditionVarFlag&    aStopFlag,
+                                                     std::string            aName) noexcept;
                             ~GpThread               (void) noexcept;
 
     std::string_view        Name                    (void) const noexcept {return iName;}
-    std::thread::id         Run                     (GpRunnable::SP aRunnable);
+    std::thread::id         Run                     (GpRunnable::UP aRunnableUP);
+    std::thread::id         Run                     (std::function<void(GpConditionVarFlag&)> aRunFn);
     inline std::thread::id  ThreadId                (void) const noexcept;
 
     void                    RequestStop             (void) noexcept;
     void                    Join                    (void) noexcept;
 
+    GpConditionVarFlag&     StopFlag                (void) noexcept {return iStopFlag;}
+
     static void             SSetSysNameForCurrent   (std::string_view   aName);
 
 private:
+    GpConditionVarFlag&     iStopFlag;          // false
+    std::atomic_flag        iRunnableDoneFlag;  // true
     const std::string       iName;
-    std::atomic_flag        iThreadStopRequestF;    // false
-    std::atomic_flag        iThreadRunnableDoneF;   // true
 
-    mutable GpSpinLockRW    iSpinLockRW;
-    GpRunnable::SP          iRunnable   GUARDED_BY(iSpinLockRW);
+    mutable GpSpinLockRW<>  iSpinLockRW;
+    GpRunnable::UP          iRunnableUP GUARDED_BY(iSpinLockRW);
     ImplT                   iThread     GUARDED_BY(iSpinLockRW);
     std::thread::id         iThreadId   GUARDED_BY(iSpinLockRW);
 };
 
 std::thread::id GpThread::ThreadId (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return iThreadId;
 }

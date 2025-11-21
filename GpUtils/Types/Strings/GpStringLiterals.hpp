@@ -8,7 +8,7 @@
 
 using namespace std::literals::string_literals;
 
-inline constexpr std::string_view operator"" _sv (const char* aStr, const size_t aLen) noexcept
+inline constexpr std::string_view operator""_sv (const char* aStr, const size_t aLen) noexcept
 {
     return std::string_view(aStr, aLen);
 }

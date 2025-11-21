@@ -15,6 +15,18 @@
 #include <GpCore2/GpUtils/Files/GpFile.hpp>
 #include <GpCore2/GpUtils/Other/GpErrno.hpp>
 
+#if defined(GP_OS_LINUX)
+#   define file_open open64
+#   define file_lseek lseek64
+#   define file_truncate ftruncate64
+#elif defined(GP_OS_MACOS)
+#   define file_open open
+#   define file_lseek lseek
+#   define file_truncate ftruncate
+#else
+#   error Unsupported OS
+#endif//
+
 namespace GPlatform {
 
 class GpFileImpl
@@ -37,6 +49,9 @@ public:
                                                              std::string_view   aFileName);
     static inline size_byte_t       SCurrentPos             (GpFile::HandlerT   aHandler,
                                                              std::string_view   aFileName);
+    static inline void              STruncate               (GpFile::HandlerT   aHandler,
+                                                             std::string_view   aFileName,
+                                                             size_byte_t        aNewSize);
     static inline void              STruncateToCurrentPos   (GpFile::HandlerT   aHandler,
                                                              std::string_view   aFileName);
 
@@ -106,7 +121,7 @@ GpFile::HandlerT    GpFileImpl::SOpen
 
     if (aFlags.Test(GpFileFlag::CREATE))
     {
-        fd = open64
+        fd = file_open
         (
             std::data(fileName),
             flags,
@@ -114,7 +129,7 @@ GpFile::HandlerT    GpFileImpl::SOpen
         );
     } else
     {
-        fd = open64
+        fd = file_open
         (
             std::data(fileName),
             flags
@@ -128,7 +143,7 @@ GpFile::HandlerT    GpFileImpl::SOpen
         {
             return fmt::format
             (
-                "Failed to open file '{}'. open64 returned error: {}",
+                "Failed to open file '{}', error: {}",
                 fileName,
                 GpErrno::SGetAndClear()
             );
@@ -199,10 +214,10 @@ void    GpFileImpl::SGoToPos
     std::string_view    aFileName
 )
 {
-    const auto res = lseek64
+    const auto res = file_lseek
     (
         aHandler,
-        NumOps::SConvert<__off64_t>(aPos.Value()),
+        NumOps::SConvert<s_int_64>(aPos.Value()),
         SEEK_SET
     );
 
@@ -237,7 +252,7 @@ size_byte_t GpFileImpl::SGoToEndPos
     std::string_view    aFileName
 )
 {
-    const auto res = lseek64
+    const auto res = file_lseek
     (
         aHandler,
         0,
@@ -267,7 +282,7 @@ size_byte_t GpFileImpl::SCurrentPos
     std::string_view    aFileName
 )
 {
-    const auto res = lseek64
+    const auto res = file_lseek
     (
         aHandler,
         0,
@@ -291,6 +306,29 @@ size_byte_t GpFileImpl::SCurrentPos
     return size_byte_t::SMake(res);
 }
 
+void    GpFileImpl::STruncate
+(
+    GpFile::HandlerT    aHandler,
+    std::string_view    aFileName,
+    size_byte_t         aNewSize
+)
+{
+    VERIFY
+    (
+        file_truncate(aHandler, NumOps::SConvert<s_int_64>(aNewSize.Value())) != -1,
+        [aFileName, aNewSize]()
+        {
+            return fmt::format
+            (
+                "Failed to set file '{}' size to {}, error: {}",
+                aFileName,
+                aNewSize.Value(),
+                GpErrno::SGetAndClear()
+            );
+        }
+    );
+}
+
 void    GpFileImpl::STruncateToCurrentPos
 (
     GpFile::HandlerT    aHandler,
@@ -301,7 +339,7 @@ void    GpFileImpl::STruncateToCurrentPos
 
     VERIFY
     (
-        ftruncate(aHandler, NumOps::SConvert<__off_t>(currentPos.Value())) != -1,
+        ftruncate(aHandler, NumOps::SConvert<s_int_64>(currentPos.Value())) != -1,
         [aFileName]()
         {
             return fmt::format

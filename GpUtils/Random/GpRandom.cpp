@@ -149,28 +149,28 @@ std::string     GpRandom::String
     return res;
 }
 
-GpBytesArray    GpRandom::BytesArray (const size_t aSize)
+GpByteArray GpRandom::ByteArray (const size_t aSize)
 {
-    GpBytesArray res;
+    GpByteArray res;
     res.resize(aSize);
 
     GpByteWriterStorageFixedSize    writerStorage{res};
     GpByteWriter                    writer{writerStorage};
 
-    BytesArray(writer, aSize);
+    ByteArray(writer, aSize);
 
     return res;
 }
 
-void    GpRandom::BytesArray (GpSpanByteRW aSpanByteRW)
+void    GpRandom::ByteArray (GpSpanByteRW aSpanByteRW)
 {
     GpByteWriterStorageFixedSize    writerStorage{aSpanByteRW};
     GpByteWriter                    writer{writerStorage};
 
-    BytesArray(writer, aSpanByteRW.SizeInBytes());
+    ByteArray(writer, aSpanByteRW.SizeInBytes());
 }
 
-void    GpRandom::BytesArray
+void    GpRandom::ByteArray
 (
     GpByteWriter&   aDataWriter,
     const size_t    aSize

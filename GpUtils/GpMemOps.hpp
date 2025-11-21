@@ -10,6 +10,7 @@
 #include <cstring>
 #include <utility>
 #include <sys/types.h>
+#include <exception>
 
 namespace GPlatform {
 
@@ -76,7 +77,7 @@ public:
     static T*                   SNew            (Ts&&... aArgs);
 
     template<typename T, typename... Ts>
-    static T*                   SEmplace        (void*      aPtrToPlace,
+    static T*                   SEmplaceNew     (void*      aPtrToPlace,
                                                  Ts&&...    aArgs);
 
     template<typename T>
@@ -171,7 +172,7 @@ T*  GpMemOps::SNew (Ts&&... aArgs)
 }
 
 template<typename T, typename... Ts>
-T*  GpMemOps::SEmplace
+T*  GpMemOps::SEmplaceNew
 (
     void*   aPtrToPlace,
     Ts&&... aArgs

@@ -3,6 +3,8 @@
 
 namespace GPlatform {
 
+GpLinkedLibsInfo&   GpLinkedLibsInfo::sInstance = GpLinkedLibsInfo::_S_();
+
 GpLinkedLibsInfo::GpLinkedLibsInfo (void) noexcept
 {
 }
@@ -11,11 +13,11 @@ GpLinkedLibsInfo::~GpLinkedLibsInfo (void) noexcept
 {
 }
 
-GpLinkedLibsInfo&   GpLinkedLibsInfo::S (void) noexcept
+GpLinkedLibsInfo&   GpLinkedLibsInfo::_S_ (void) noexcept
 {
-    static GpLinkedLibsInfo sInstance;
+    static GpLinkedLibsInfo sLinkedLibsInfo;
 
-    return sInstance;
+    return sLinkedLibsInfo;
 }
 
 void    GpLinkedLibsInfo::Register
@@ -26,10 +28,11 @@ void    GpLinkedLibsInfo::Register
     const size_t    aVersionPat
 )
 {
-    GpUniqueLock<GpMutex> uniqueLock{iMutex};
+    GpUniqueLock uniqueLock{iMutex};
 
-    iLibs.emplace_back
+    iLibs.try_emplace
     (
+        aName,
         GpLinkedLibInfo
         {
             .iName          = aName,
@@ -42,12 +45,12 @@ void    GpLinkedLibsInfo::Register
 
 GpLinkedLibsInfo::InfoAsTextT   GpLinkedLibsInfo::InfoAsText (void) const
 {
-    GpUniqueLock<GpMutex> uniqueLock{iMutex};
+    GpUniqueLock uniqueLock{iMutex};
 
     InfoAsTextT infoAsText;
     infoAsText.reserve(std::size(iLibs));
 
-    for (const GpLinkedLibInfo& info: iLibs)
+    for (const auto&[name, info]: iLibs)
     {
         infoAsText.emplace_back
         (

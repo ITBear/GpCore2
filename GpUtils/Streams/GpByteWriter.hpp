@@ -8,7 +8,12 @@ namespace GPlatform {
 
 class GP_UTILS_API GpByteWriter
 {
+public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpByteWriter)
+    CLASS_DD(GpByteWriter)
+
+    template<Concepts::IsIntegralUpTo64 T>
+    using WriterRefT = GpByteWriterRef<T, GpByteWriter>;
 
 public:
     inline                  GpByteWriter            (GpByteWriterStorage& aStorage) noexcept;
@@ -27,17 +32,22 @@ public:
     inline void             ReserveNext             (size_t aSize);
 
     template<Concepts::IsIntegralUpTo64 T>
-    GpByteWriterRef<T, GpByteWriter>
-                            Ref                     (void);
+    WriterRefT<T>           Ref                     (void);
 
     inline GpByteWriter&    UI8                     (u_int_8    aValue);
     inline GpByteWriter&    SI8                     (s_int_8    aValue);
-    inline GpByteWriter&    UI16                    (u_int_16   aValue);
-    inline GpByteWriter&    SI16                    (s_int_16   aValue);
-    inline GpByteWriter&    UI32                    (u_int_32   aValue);
-    inline GpByteWriter&    SI32                    (s_int_32   aValue);
-    inline GpByteWriter&    UI64                    (u_int_64   aValue);
-    inline GpByteWriter&    SI64                    (s_int_64   aValue);
+    inline GpByteWriter&    UI16                    (u_int_16       aValue,
+                                                     std::endian    aEndian = std::endian::big);
+    inline GpByteWriter&    SI16                    (s_int_16       aValue,
+                                                     std::endian    aEndian = std::endian::big);
+    inline GpByteWriter&    UI32                    (u_int_32       aValue,
+                                                     std::endian    aEndian = std::endian::big);
+    inline GpByteWriter&    SI32                    (s_int_32       aValue,
+                                                     std::endian    aEndian = std::endian::big);
+    inline GpByteWriter&    UI64                    (u_int_64       aValue,
+                                                     std::endian    aEndian = std::endian::big);
+    inline GpByteWriter&    SI64                    (s_int_64       aValue,
+                                                     std::endian    aEndian = std::endian::big);
     GpByteWriter&           BytesWithLen            (GpSpanByteR aData);
     inline GpByteWriter&    Bytes                   (GpSpanByteR aData);
     inline GpByteWriter&    Bytes                   (std::string_view aData);
@@ -50,10 +60,18 @@ public:
 
 private:
     template<typename T>
-    void                    WritePOD                (const T aValue)
+    void                    WritePOD                (const T aValue, std::endian aEndian)
     {
         std::remove_const_t<T> val;
-        val = BitOps::H2N(aValue);
+
+        if (aEndian != std::endian::native)
+        {
+            val = BitOps::BSwap(aValue);
+        } else
+        {
+            val = aValue;
+        }
+
         Bytes({reinterpret_cast<const std::byte*>(&val), sizeof(T)});
     }
 
@@ -78,49 +96,73 @@ GpSpanByteRW    GpByteWriter::SubspanThenOffsetAdd (size_t aOffset)
 
 GpByteWriter&   GpByteWriter::UI8 (u_int_8 aValue)
 {
-    WritePOD<decltype(aValue)>(aValue);
+    WritePOD<decltype(aValue)>(aValue, std::endian::native);
     return *this;
 }
 
 GpByteWriter&   GpByteWriter::SI8 (s_int_8 aValue)
 {
-    WritePOD<decltype(aValue)>(aValue);
+    WritePOD<decltype(aValue)>(aValue, std::endian::native);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::UI16 (u_int_16 aValue)
+GpByteWriter&   GpByteWriter::UI16
+(
+    u_int_16    aValue,
+    std::endian aEndian
+)
 {
-    WritePOD<decltype(aValue)>(aValue);
+    WritePOD<decltype(aValue)>(aValue, aEndian);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::SI16 (s_int_16 aValue)
+GpByteWriter&   GpByteWriter::SI16
+(
+    s_int_16    aValue,
+    std::endian aEndian
+)
 {
-    WritePOD<decltype(aValue)>(aValue);
+    WritePOD<decltype(aValue)>(aValue, aEndian);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::UI32 (u_int_32 aValue)
+GpByteWriter&   GpByteWriter::UI32
+(
+    u_int_32    aValue,
+    std::endian aEndian
+)
 {
-    WritePOD<decltype(aValue)>(aValue);
+    WritePOD<decltype(aValue)>(aValue, aEndian);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::SI32 (s_int_32 aValue)
+GpByteWriter&   GpByteWriter::SI32
+(
+    s_int_32    aValue,
+    std::endian aEndian
+)
 {
-    WritePOD<decltype(aValue)>(aValue);
+    WritePOD<decltype(aValue)>(aValue, aEndian);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::UI64 (u_int_64 aValue)
+GpByteWriter&   GpByteWriter::UI64
+(
+    u_int_64    aValue,
+    std::endian aEndian
+)
 {
-    WritePOD<decltype(aValue)>(aValue);
+    WritePOD<decltype(aValue)>(aValue, aEndian);
     return *this;
 }
 
-GpByteWriter&   GpByteWriter::SI64 (s_int_64 aValue)
+GpByteWriter&   GpByteWriter::SI64
+(
+    s_int_64    aValue,
+    std::endian aEndian
+)
 {
-    WritePOD<decltype(aValue)>(aValue);
+    WritePOD<decltype(aValue)>(aValue, aEndian);
     return *this;
 }
 

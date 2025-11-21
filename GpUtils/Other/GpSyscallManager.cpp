@@ -1,11 +1,16 @@
 #include <GpCore2/GpUtils/Other/GpSyscallManager.hpp>
-#include <GpCore2/GpUtils/Other/GpRAIIonDestruct.hpp>
+#include <GpCore2/GpUtils/Other/GpDefer.hpp>
 #include <GpCore2/GpUtils/Other/GpErrno.hpp>
 
 #if defined (GP_POSIX)
 #   include <spawn.h>
 #   include <csignal>
 #   include <sys/wait.h>
+
+#   if defined(GP_OS_MACOS)
+        extern char** environ;
+#   endif// #if defined(GP_OS_MACOS)
+
 #endif// #if defined (GP_POSIX)
 
 namespace GPlatform {
@@ -22,7 +27,7 @@ GpSyscallManager::HandlerT Posix_Syscall
     posix_spawn_file_actions_t actions;
     posix_spawn_file_actions_init(&actions);
 
-    GpRAIIonDestruct onDestruct = [&actions]()
+    GpDefer onDestruct = [&actions]()
     {
         posix_spawn_file_actions_destroy(&actions);
     };
@@ -155,7 +160,7 @@ GpSyscallManager::HandlerT Windows_SpawnProcess
 GP_WARNING_PUSH()
 GP_WARNING_DISABLE_MSVC(4365)
 
-    std::wstring    commandLineW    = std::wstring{commandLine.begin(), commandLine.end()};
+    std::wstring    commandLineW    = std::wstring{std::begin(commandLine), std::end(commandLine)};
 
 GP_WARNING_POP()
 

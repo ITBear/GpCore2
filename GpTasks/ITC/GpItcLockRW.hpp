@@ -5,7 +5,7 @@
 #if defined(GP_USE_MULTITHREADING)
 
 #include <GpCore2/GpUtils/Threads/GpThreadsSafety.hpp>
-#include <GpCore2/GpTasks/ITC/GpItcCondition.hpp>
+#include <GpCore2/GpTasks/ITC/GpItcConditionVar.hpp>
 
 namespace GPlatform {
 
@@ -14,7 +14,7 @@ class GpItcLockRwImpl
     CLASS_REMOVE_CTRS_MOVE_COPY(GpItcLockRwImpl)
 
 public:
-                    GpItcLockRwImpl (void) noexcept = default;
+    inline          GpItcLockRwImpl (void) noexcept;
 
     inline void     lock_shared     (void) noexcept;
     inline void     unlock_shared   (void) noexcept;
@@ -23,9 +23,13 @@ public:
     inline void     unlock          (void) noexcept;
 
 private:
-    mutable GpItcCondition  iItcCondition;
-    std::atomic_int32_t     iLocksCounter = 0;  // 0 = unlocked, positive values = read count, -1 = write lock
+    GpItcConditionVar   iItcCv;
+    std::atomic_int32_t iLocksCounter = 0; // 0 = unlocked, positive values = read count, -1 = write lock
 };
+
+GpItcLockRwImpl::GpItcLockRwImpl (void) noexcept
+{
+}
 
 void    GpItcLockRwImpl::lock_shared (void) noexcept
 {
@@ -33,18 +37,18 @@ void    GpItcLockRwImpl::lock_shared (void) noexcept
 
     do
     {
-        if (expected = iLocksCounter.load(std::memory_order_relaxed); expected < 0) // Lock in write mode
+        if (expected = iLocksCounter.load(std::memory_order_acquire); expected < 0) // Lock in write mode
         {
             // Wait for writer
-            iItcCondition.Wait
+            iItcCv.Wait
             (
                 [&]()
                 {
-                    return (expected = iLocksCounter.load(std::memory_order_relaxed)) >= 0;
+                    return (expected = iLocksCounter.load(std::memory_order_acquire)) >= 0;
                 }
             );
         }
-    } while (!iLocksCounter.compare_exchange_weak(expected, expected + 1, std::memory_order_acquire));
+    } while (!iLocksCounter.compare_exchange_weak(expected, expected + 1, std::memory_order_acq_rel, std::memory_order_acquire));
 }
 
 void    GpItcLockRwImpl::unlock_shared (void) noexcept
@@ -53,23 +57,23 @@ void    GpItcLockRwImpl::unlock_shared (void) noexcept
 
     if (counter == 0)
     {
-        GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
-        iItcCondition.NotifyAll();
+        GpUniqueLock uniqueLock{iItcCv.SpinLockRW()};
+        iItcCv.NotifyAll();
     }
 }
 
 void    GpItcLockRwImpl::lock (void) noexcept
 {
     s_int_32 expected = 0;
-    if (!iLocksCounter.compare_exchange_weak(expected, -1, std::memory_order_acquire))
+    if (!iLocksCounter.compare_exchange_strong(expected, -1, std::memory_order_acq_rel, std::memory_order_acquire))
     {
         // Wait for readers/writer
-        iItcCondition.Wait
+        iItcCv.Wait
         (
             [this]()
             {
                 s_int_32 expected = 0;
-                return iLocksCounter.compare_exchange_weak(expected, -1, std::memory_order_acquire);
+                return iLocksCounter.compare_exchange_strong(expected, -1, std::memory_order_acq_rel, std::memory_order_acquire);
             }
         );
     }
@@ -80,12 +84,13 @@ void    GpItcLockRwImpl::unlock (void) noexcept
      iLocksCounter.store(0, std::memory_order_release);
 
      {
-         GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
-         iItcCondition.NotifyAll();
+         GpUniqueLock uniqueLock{iItcCv.SpinLockRW()};
+         iItcCv.NotifyAll();
      }
 }
 
-using GpItcLockRW = ThreadSafety::SharedMutexWrap<GpItcLockRwImpl>;
+template<ThreadSafety::LockTraceModeE LTM = ThreadSafety::LockTraceModeE::TRACE_ENABLED>
+using GpItcLockRW = ThreadSafety::SharedSyncPrimitiveWrap<GpItcLockRwImpl, LTM>;
 
 }// namespace GPlatform
 

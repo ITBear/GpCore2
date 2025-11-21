@@ -504,7 +504,7 @@ void    GpReflectUtils_VisitVecCtx::BLOB
 )
 {
     const auto& container = ValGetterT::BLOB(aCtx.iDataPtr, aProp);
-    aCtx.SumSize(std::size(container) * sizeof(GpBytesArray));
+    aCtx.SumSize(std::size(container) * sizeof(GpByteArray));
 
     for (const auto& element: container)
     {
@@ -902,7 +902,7 @@ void    GpReflectUtils_VisitMapCtx::Process
         }
     } else if constexpr(keyType == GpReflectType::BLOB)
     {
-        allocatedSize += std::size(aContainer) * sizeof(GpBytesArray);
+        allocatedSize += std::size(aContainer) * sizeof(GpByteArray);
 
         for (const auto&[key, val]: aContainer)
         {
@@ -957,7 +957,7 @@ void    GpReflectUtils_VisitMapCtx::Process
         }
     } else if constexpr(valueType == GpReflectType::BLOB)
     {
-        allocatedSize += std::size(aContainer) * sizeof(GpBytesArray);
+        allocatedSize += std::size(aContainer) * sizeof(GpByteArray);
 
         for (const auto&[key, val]: aContainer)
         {

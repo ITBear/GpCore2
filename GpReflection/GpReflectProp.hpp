@@ -117,8 +117,8 @@ public:
     GpUUID&                         Value_UUID          (void* aDataPtr) const      {return CastValueAs<GpUUID>(aDataPtr);}
     const std::string&              Value_String        (const void* aDataPtr) const{return CastValueAsConst<std::string>(aDataPtr);}
     std::string&                    Value_String        (void* aDataPtr) const      {return CastValueAs<std::string>(aDataPtr);}
-    const GpBytesArray&             Value_BLOB          (const void* aDataPtr) const{return CastValueAsConst<GpBytesArray>(aDataPtr);}
-    GpBytesArray&                   Value_BLOB          (void* aDataPtr) const      {return CastValueAs<GpBytesArray>(aDataPtr);}
+    const GpByteArray&              Value_BLOB          (const void* aDataPtr) const{return CastValueAsConst<GpByteArray>(aDataPtr);}
+    GpByteArray&                    Value_BLOB          (void* aDataPtr) const      {return CastValueAs<GpByteArray>(aDataPtr);}
     const GpReflectObject&          Value_Object        (const void* aDataPtr) const{return CastValueAsConst<GpReflectObject>(aDataPtr);}
     GpReflectObject&                Value_Object        (void* aDataPtr) const      {return CastValueAs<GpReflectObject>(aDataPtr);}
     const GpSP<GpReflectObject>&    Value_ObjectSP      (const void* aDataPtr) const{return CastValueAsConst<GpSP<GpReflectObject>>(aDataPtr);}
@@ -155,8 +155,8 @@ public:
     auto&                           Vec_UUID            (void* aDataPtr) const      {return CastValueAs<std::vector<GpUUID>>(aDataPtr);}
     const auto&                     Vec_String          (const void* aDataPtr) const{return CastValueAsConst<std::vector<std::string>>(aDataPtr);}
     auto&                           Vec_String          (void* aDataPtr) const      {return CastValueAs<std::vector<std::string>>(aDataPtr);}
-    const auto&                     Vec_BLOB            (const void* aDataPtr) const{return CastValueAsConst<std::vector<GpBytesArray>>(aDataPtr);}
-    auto&                           Vec_BLOB            (void* aDataPtr) const      {return CastValueAs<std::vector<GpBytesArray>>(aDataPtr);}
+    const auto&                     Vec_BLOB            (const void* aDataPtr) const{return CastValueAsConst<std::vector<GpByteArray>>(aDataPtr);}
+    auto&                           Vec_BLOB            (void* aDataPtr) const      {return CastValueAs<std::vector<GpByteArray>>(aDataPtr);}
     //const auto&                   Vec_Object          (const void* aDataPtr) const{return CastValueAsConst<std::vector<GpReflectObject>>(aDataPtr);}
     //auto&                         Vec_Object          (void* aDataPtr) const      {return CastValueAs<std::vector<GpReflectObject>>(aDataPtr);}
     const GpVectorReflectObjWrapBase&   VecWrap_Object  (const void* aDataPtr) const{return CastValueAsConst<GpVectorReflectObjWrapBase>(aDataPtr);}
@@ -195,8 +195,8 @@ public:
     template<typename Key> auto&        Map_UUID        (void* aDataPtr) const      {return CastValueAs<std::map<Key, GpUUID, std::less<>>>(aDataPtr);}
     template<typename Key> const auto&  Map_String      (const void* aDataPtr) const{return CastValueAsConst<std::map<Key, std::string, std::less<>>>(aDataPtr);}
     template<typename Key> auto&        Map_String      (void* aDataPtr) const      {return CastValueAs<std::map<Key, std::string, std::less<>>>(aDataPtr);}
-    template<typename Key> const auto&  Map_BLOB        (const void* aDataPtr) const{return CastValueAsConst<std::map<Key, GpBytesArray, std::less<>>>(aDataPtr);}
-    template<typename Key> auto&        Map_BLOB        (void* aDataPtr) const      {return CastValueAs<std::map<Key, GpBytesArray, std::less<>>>(aDataPtr);}
+    template<typename Key> const auto&  Map_BLOB        (const void* aDataPtr) const{return CastValueAsConst<std::map<Key, GpByteArray, std::less<>>>(aDataPtr);}
+    template<typename Key> auto&        Map_BLOB        (void* aDataPtr) const      {return CastValueAs<std::map<Key, GpByteArray, std::less<>>>(aDataPtr);}
     //template<typename Key> const auto&Map_Object      (const void* aDataPtr) const{return CastValueAsConst<std::map<Key, GpReflectObject, std::less<>>>(aDataPtr);}
     //template<typename Key> auto&      Map_Object      (void* aDataPtr) const      {return CastValueAs<std::map<Key, GpReflectObject, std::less<>>>(aDataPtr);}
     template<typename Key> const auto&  Map_ObjectSP    (const void* aDataPtr) const{return CastValueAsConst<std::map<Key, GpSP<GpReflectObject>, std::less<>>>(aDataPtr);}

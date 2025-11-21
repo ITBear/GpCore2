@@ -24,38 +24,38 @@ public:
     using AlphabetTE    = AlphabetT::EnumT;
 
 public:
-    static void             SEncode             (GpSpanByteR        aData,
-                                                 GpByteWriter&      aWriterBase58Str,
-                                                 const AlphabetTE   aAlphabet);
-    static std::string      SEncodeToStr        (GpSpanByteR        aData,
-                                                 const AlphabetTE   aAlphabet);
-    static GpBytesArray     SEncodeToByteArray  (GpSpanByteR        aData,
-                                                 const AlphabetTE   aAlphabet);
+    static void         SEncode             (GpSpanByteR        aData,
+                                             GpByteWriter&      aWriterBase58Str,
+                                             const AlphabetTE   aAlphabet);
+    static std::string  SEncodeToStr        (GpSpanByteR        aData,
+                                             const AlphabetTE   aAlphabet);
+    static GpByteArray  SEncodeToByteArray  (GpSpanByteR        aData,
+                                             const AlphabetTE   aAlphabet);
 
-    static void             SDecode             (std::string_view   aBase58Str,
-                                                 GpByteWriter&      aWriterData,
-                                                 const AlphabetTE   aAlphabet);
-    static std::string      SDecodeToStr        (std::string_view   aBase58Str,
-                                                 const AlphabetTE   aAlphabet);
-    static GpBytesArray     SDecodeToByteArray  (std::string_view   aBase58Str,
-                                                 const AlphabetTE   aAlphabet);
+    static void         SDecode             (std::string_view   aBase58Str,
+                                             GpByteWriter&      aWriterData,
+                                             const AlphabetTE   aAlphabet);
+    static std::string  SDecodeToStr        (std::string_view   aBase58Str,
+                                             const AlphabetTE   aAlphabet);
+    static GpByteArray  SDecodeToByteArray  (std::string_view   aBase58Str,
+                                             const AlphabetTE   aAlphabet);
 
 private:
-    static const auto&      Alphabet            (GpBase58Alphabet   aAlphabet) noexcept
+    static const auto&  Alphabet            (GpBase58Alphabet   aAlphabet) noexcept
     {
         return sAlphabets[aAlphabet.ID()];
     }
 
-    static size_t           SEncodedSize        (GpSpanByteR aData);
-    static void             SDecodePrecalc      (std::string_view   aBase58Str,
-                                                 const AlphabetTE   aAlphabet,
-                                                 void*              aMpzClass,
-                                                 size_t&            aDataSizeOut);
-    static void             SDecode             (const void*        aMpzClass,
-                                                 const size_t       aDataSize,
-                                                 GpByteWriter&      aWriterData);
-    static size_t           SFindChId           (const u_int_8                  aCh,
-                                                 const std::array<u_int_8, 58>& aAlphabet);
+    static size_t       SEncodedSize        (GpSpanByteR aData);
+    static void         SDecodePrecalc      (std::string_view   aBase58Str,
+                                             const AlphabetTE   aAlphabet,
+                                             void*              aMpzClass,
+                                             size_t&            aDataSizeOut);
+    static void         SDecode             (const void*        aMpzClass,
+                                             const size_t       aDataSize,
+                                             GpByteWriter&      aWriterData);
+    static size_t       SFindChId           (const u_int_8                  aCh,
+                                             const std::array<u_int_8, 58>& aAlphabet);
 
 private:
     static std::array<u_int_8, 58>  sAlphabets[GpBase58Alphabet::SCount()];

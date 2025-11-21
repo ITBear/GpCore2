@@ -9,9 +9,13 @@ GpTaskSchedulerV1Factory::~GpTaskSchedulerV1Factory (void) noexcept
 {
 }
 
-GpSP<GpTaskScheduler>   GpTaskSchedulerV1Factory::NewInstance (StopServiceFnT aStopServiceFn) const
+GpTaskScheduler::UP GpTaskSchedulerV1Factory::NewInstance
+(
+    const size_t aExecutorsCount,
+    const size_t aTasksMaxCount
+) const
 {
-    return MakeSP<GpTaskSchedulerV1>(aStopServiceFn);
+    return std::make_unique<GpTaskSchedulerV1>(aExecutorsCount, aTasksMaxCount);
 }
 
 }// namespace GPlatform

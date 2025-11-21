@@ -48,7 +48,7 @@ public:
     static constexpr OffsetVecT SPartsOffset        (void);
 
 private:
-    InternalStorageT            iStorage;
+    InternalStorageT iStorage;
 };
 
 template
@@ -71,7 +71,9 @@ auto    GpPackedStruct<EnumPartsT, PartsSizeT...>::StorageToStdBitset (void) con
     StdBitsetT  bitset;
     size_t      bitIndex = 0;
 
-    for (size_t id = 0; id < iStorage.size(); ++id)
+    const auto storageSize = std::size(iStorage);
+
+    for (size_t id = 0; id < storageSize; ++id)
     {
         const std::byte currentByte = iStorage[id].value;
 

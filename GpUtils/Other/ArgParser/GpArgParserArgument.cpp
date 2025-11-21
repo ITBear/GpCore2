@@ -33,7 +33,7 @@ iIsUnknownArgument{aArgument.iIsUnknownArgument}
 {
 }
 
-GpArgParserArgument::GpArgParserArgument (GpArgParserArgument&& aArgument):
+GpArgParserArgument::GpArgParserArgument (GpArgParserArgument&& aArgument) noexcept:
 iNames            {std::move(aArgument.iNames)},
 iDescription      {std::move(aArgument.iDescription)},
 iDefaultValue     {std::move(aArgument.iDefaultValue)},
@@ -52,7 +52,7 @@ void    GpArgParserArgument::AddValue
     const char          aSeparator
 )
 {
-    iValues.emplace_back(aValue, aSeparator);
+    iValues.emplace_back(std::string{aValue}, aSeparator);
 }
 
 }// namespace GPlatform

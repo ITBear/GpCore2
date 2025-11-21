@@ -555,10 +555,10 @@ void    GpReflectUtils_VisitVecCtx::BLOB
 
     aCtx.SetIsEqual
     (
-        GpSpan<const GpBytesArray>(containerA).IsEqual
+        GpSpan<const GpByteArray>(containerA).IsEqual
         (
             containerB,
-            [&aCtx](const GpBytesArray& aElementA, const GpBytesArray& aElementB)
+            [&aCtx](const GpByteArray& aElementA, const GpByteArray& aElementB)
             {
                 return GpReflectUtils_IsEqual::SDo(aElementA, aElementB, aCtx.iCache);
             }
@@ -1024,7 +1024,7 @@ bool    GpReflectUtils_IsEqual::SDo
         auto& cache             = aCache.value().get();
         auto& cacheMultiMap     = std::get<0>(cache);
         auto& cacheIsEqualMap   = std::get<1>(cache);
-        const auto multiKey     = cacheMultiMap.AddKeys(&aObjA, &aObjB);
+        const auto multiKey     = cacheMultiMap.AddPair(&aObjA, &aObjB);
         const auto iter         = cacheIsEqualMap.find(multiKey);
 
         if (iter != std::end(cacheIsEqualMap))// found in cache
@@ -1060,7 +1060,7 @@ bool    GpReflectUtils_IsEqual::SDo
         auto& cache             = aCache.value().get();
         auto& cacheMultiMap     = std::get<0>(cache);
         auto& cacheIsEqualMap   = std::get<1>(cache);
-        const auto multiKey     = cacheMultiMap.AddKeys(&aObjA, &aObjB);
+        const auto multiKey     = cacheMultiMap.AddPair(&aObjA, &aObjB);
 
         cacheIsEqualMap.emplace(multiKey, isEqual);
     }

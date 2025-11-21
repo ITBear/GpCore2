@@ -10,8 +10,8 @@ class GP_TASKS_API GpItcFutureUtils
 {
 public:
     template<typename IsGpItcFutureT>
-    using OnValueFnT        = std::function<void(typename IsGpItcFutureT::value_type&)>;
-    using OnExceptionFnT    = std::function<void(const GpException&)>;
+    using OnValueFnT        = std::function<void(typename IsGpItcFutureT::value_type&&)>;
+    using OnExceptionFnT    = std::function<void(GpException&&)>;
 
 public:
     template<typename IsGpItcFutureT>
@@ -54,28 +54,30 @@ bool    GpItcFutureUtils::STryCheck
     const OnExceptionFnT&               aOnExceptionFn
 )
 {
-    if (aFuture.IsReady() == false)
+    GpUniqueLock uniqueLock{aFuture.SpinLockRW()};
+
+    if (aFuture.IsReadyNoLock() == false)
     {
         return false;
     }
 
-    auto resOpt = aFuture.TryGetResult();
+    auto& res = aFuture.ResultNoLock();
 
     VERIFY
     (
-        resOpt.has_value(),
-        "Another task has retrieved the result using TryGetResultMove"
+        !res.IsExtracted(),
+        "Another task has retrieved the result"
     );
-
-    auto& res = resOpt.value();
 
     if (res.IsPayload()) [[likely]]
     {
-        auto& payload = res.PayloadOrThrow();
-        aOnValueFn(payload);
+        if (aOnValueFn)
+        {
+            aOnValueFn(res.ExtractPayload());
+        }
     } else
     {
-        aOnExceptionFn(res.Exception());
+        aOnExceptionFn(res.ExtractException());
     }
 
     return true;
@@ -101,23 +103,25 @@ bool    GpItcFutureUtils::SWaitFor
         return false;
     }
 
-    auto resOpt = aFuture.TryGetResult();
+    GpUniqueLock uniqueLock{aFuture.SpinLockRW()};
+
+    auto& res = aFuture.ResultNoLock();
 
     VERIFY
     (
-        resOpt.has_value(),
-        "Another task has retrieved the result using TryGetResultMove"
+        !res.IsExtracted(),
+        "Another task has retrieved the result"
     );
-
-    auto& res = resOpt.value();
 
     if (res.IsPayload()) [[likely]]
     {
-        auto& payload = res.PayloadOrThrow();
-        aOnValueFn(payload);
+        if (aOnValueFn)
+        {
+            aOnValueFn(res.ExtractPayload());
+        }
     } else
     {
-        aOnExceptionFn(res.Exception());
+        aOnExceptionFn(res.ExtractException());
     }
 
     return true;
@@ -134,23 +138,22 @@ void    GpItcFutureUtils::SWait
     // Wait until get result
     aFuture.Wait();
 
-    auto resOpt = aFuture.TryGetResult();
+    GpUniqueLock uniqueLock{aFuture.SpinLockRW()};
+
+    auto& res = aFuture.ResultNoLock();
 
     VERIFY
     (
-        resOpt.has_value(),
-        "Another task has retrieved the result using TryGetResultMove"
+        !res.IsExtracted(),
+        "Another task has retrieved the result"
     );
-
-    auto& res = resOpt.value();
 
     if (res.IsPayload()) [[likely]]
     {
-        auto& payload = res.PayloadOrThrow();
-        aOnValueFn(payload);
+        aOnValueFn(res.ExtractPayload());
     } else
     {
-        aOnExceptionFn(res.Exception());
+        aOnExceptionFn(res.ExtractException());
     }
 }
 
@@ -185,8 +188,8 @@ bool    GpItcFutureUtils::SCheckIfIsFulfilledAny (T& aFuturePack)
 template <typename T, typename... FuturePacksT>
 bool    GpItcFutureUtils::SCheckIfIsFulfilledAny
 (
-    T&                      aFuturePack,
-    FuturePacksT&...        aFuturePacks
+    T&                  aFuturePack,
+    FuturePacksT&...    aFuturePacks
 )
 {
     if (SCheckFuturePackAny<T>(aFuturePack))

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-#include <GpCore2/GpUtils/Types/Containers/GpBytesArray.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpByteArray.hpp>
 #include <GpCore2/GpReflection/GpReflection_global.hpp>
 #include <GpCore2/GpReflection/Diff/GpReflectDiffArray.hpp>
 
@@ -12,7 +12,7 @@ class GP_REFLECTION_API GpReflectDiffPropBLOB
 public:
     CLASS_DD(GpReflectDiffPropBLOB)
 
-    using ContainerT    = GpBytesArray;
+    using ContainerT    = GpByteArray;
     using ArrayT        = GpReflectDiffArray<ContainerT, typename ContainerT::value_type, void>;
 
 public:
@@ -22,8 +22,8 @@ public:
     inline                                      GpReflectDiffPropBLOB   (ArrayT::ReplaceVariantT&& aReplaceData) noexcept;
                                                 ~GpReflectDiffPropBLOB  (void) noexcept;
 
-    static GpReflectDiffPropBLOB::C::Opts::Val  SCheckAndMake           (const GpBytesArray& aValueFrom,
-                                                                         const GpBytesArray& aValueTo);
+    static GpReflectDiffPropBLOB::C::Opts::Val  SCheckAndMake           (const GpByteArray& aValueFrom,
+                                                                         const GpByteArray& aValueTo);
 private:
     ArrayT::ReplaceVariantT                     iReplaceData;
 };

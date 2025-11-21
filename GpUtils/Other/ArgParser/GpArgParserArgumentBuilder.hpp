@@ -9,27 +9,28 @@ class GpArgParser;
 class GP_UTILS_API GpArgParserArgumentBuilder
 {
 public:
-    CLASS_REMOVE_CTRS_DEFAULT(GpArgParserArgumentBuilder)
+    CLASS_REMOVE_CTRS_MOVE_COPY(GpArgParserArgumentBuilder)
     CLASS_DD(GpArgParserArgumentBuilder)
 
     using StringSetT = GpArgParserArgument::StringSetT;
 
 public:
-                                    GpArgParserArgumentBuilder  (GpArgParser& aArgParser) noexcept;
-                                    ~GpArgParserArgumentBuilder (void) noexcept;
+                                GpArgParserArgumentBuilder  (void) noexcept;
+                                ~GpArgParserArgumentBuilder (void) noexcept;
 
-    void                            Reset                       (void);
-    GpArgParser&                    Done                        (void);
+    void                        SetArgParser                (GpArgParser& aArgParser);
+    void                        Reset                       (void);
+    void                        Done                        (void);
 
-    GpArgParserArgumentBuilder&     AddName                     (std::string_view aName);
-    GpArgParserArgumentBuilder&     Description                 (std::string_view aDescription);
-    GpArgParserArgumentBuilder&     DefaultValue                (std::string_view aValue);
+    GpArgParserArgumentBuilder& AddName                     (std::string_view aName);
+    GpArgParserArgumentBuilder& Description                 (std::string_view aDescription);
+    GpArgParserArgumentBuilder& DefaultValue                (std::string_view aValue);
 
 private:
-    GpArgParser&                    iArgParser;
-    StringSetT                      iNames;
-    std::string                     iDescription;
-    std::string                     iDefaultValue;
+    GpArgParser*    iArgParser = nullptr;
+    StringSetT      iNames;
+    std::string     iDescription;
+    std::string     iDefaultValue;
 };
 
 }// namespace GPlatform

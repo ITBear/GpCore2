@@ -5,13 +5,11 @@
 #if defined(GP_USE_CONTAINERS)
 
 #include <GpCore2/GpUtils/SyncPrimitives/GpSpinLockRW.hpp>
-#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
-#include <GpCore2/GpUtils/SyncPrimitives/GpSharedMutex.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSyncPrimitives.hpp>
 #include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringLiterals.hpp>
 #include <GpCore2/GpUtils/Exceptions/GpException.hpp>
 
-#include <mutex>
 #include <queue>
 #include <optional>
 
@@ -62,14 +60,14 @@ protected:
     virtual std::optional<value_type>   OnAcquireNoElementsLeft (void);
 
 protected:
-    mutable GpSpinLockRW                iSpinLockRW;
+    mutable GpSpinLockRW<>  iSpinLockRW;
 
 private:
-    QueueT                              iElements       GUARDED_BY(iSpinLockRW);
-    size_t                              iInitCount      GUARDED_BY(iSpinLockRW) = {0};
-    size_t                              iMaxCount       GUARDED_BY(iSpinLockRW) = {0};
-    size_t                              iAcquiredCount  GUARDED_BY(iSpinLockRW) = {0};
-    bool                                iIsInit         GUARDED_BY(iSpinLockRW) = false;
+    QueueT  iElements       GUARDED_BY(iSpinLockRW);
+    size_t  iInitCount      GUARDED_BY(iSpinLockRW) = {0};
+    size_t  iMaxCount       GUARDED_BY(iSpinLockRW) = {0};
+    size_t  iAcquiredCount  GUARDED_BY(iSpinLockRW) = {0};
+    bool    iIsInit         GUARDED_BY(iSpinLockRW) = false;
 };
 
 template<typename T>
@@ -98,7 +96,7 @@ void    GpSharedPool<T>::Init
 
     Clear();
 
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
     VERIFY
     (
@@ -120,7 +118,7 @@ void    GpSharedPool<T>::Init
 template<typename T>
 void    GpSharedPool<T>::Clear (void) noexcept
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
     while (!iElements.empty())
     {
@@ -136,7 +134,7 @@ void    GpSharedPool<T>::Clear (void) noexcept
 template<typename T>
 auto    GpSharedPool<T>::Acquire (void) -> std::optional<value_type>
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
     if (iElements.empty())
     {
@@ -145,7 +143,7 @@ auto    GpSharedPool<T>::Acquire (void) -> std::optional<value_type>
             value_type e = NewElement();
             OnAcquire(e);
             iAcquiredCount++;
-            return e;
+            return std::move(e);
         } else
         {
             std::optional<value_type> op_e = OnAcquireNoElementsLeft();
@@ -165,14 +163,14 @@ auto    GpSharedPool<T>::Acquire (void) -> std::optional<value_type>
         OnAcquire(e);
         iAcquiredCount++;
 
-        return e;
+        return std::move(e);
     }
 }
 
 template<typename T>
 void    GpSharedPool<T>::Release (value_type&& aElement)
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
     VERIFY
     (
@@ -194,7 +192,7 @@ void    GpSharedPool<T>::Release (value_type&& aElement)
 template<typename T>
 size_t  GpSharedPool<T>::InitCount (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return iInitCount;
 }
@@ -202,7 +200,7 @@ size_t  GpSharedPool<T>::InitCount (void) const noexcept
 template<typename T>
 size_t  GpSharedPool<T>::MaxCount (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return iMaxCount;
 }
@@ -210,7 +208,7 @@ size_t  GpSharedPool<T>::MaxCount (void) const noexcept
 template<typename T>
 size_t  GpSharedPool<T>::AcquiredCount (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return iAcquiredCount;
 }
@@ -218,7 +216,7 @@ size_t  GpSharedPool<T>::AcquiredCount (void) const noexcept
 template<typename T>
 bool    GpSharedPool<T>::IsInit (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return iIsInit;
 }

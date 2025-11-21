@@ -79,7 +79,7 @@ std::string GpArgParserRes::ToString
                 }
             }
 
-            std::string_view    argName     = *arg.Names().begin();
+            std::string_view    argName     = *std::begin(arg.Names());
             const auto&         argValues   = arg.Values();
 
             if (!resStr.empty())

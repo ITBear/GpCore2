@@ -26,6 +26,12 @@ equals(var_os, "linux") {
 	LIBS += -lfmt
 }
 
+equals(var_os, "macos") {
+	LIBS += -lGpUtils$$TARGET_POSTFIX
+
+	LIBS += -lfmt
+}
+
 # ----------- Sources and headers -----------
 SOURCES += \
     Builders/GpReflectModelBuilder.cpp \

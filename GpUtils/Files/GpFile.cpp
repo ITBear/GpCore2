@@ -12,16 +12,22 @@ namespace GPlatform {
 
 GP_ENUM_IMPL(GpFileFlag)
 
+GpFile::GpFile (void) noexcept
+{
+}
+
+GpFile::~GpFile  (void) noexcept
+{
+    Close();
+}
+
 void    GpFile::Open
 (
     std::string_view    aName,
     const GpFileFlags   aFlags
 )
 {
-    if (iHandler != HandlerT{})
-    {
-        Close();
-    }
+    Close();
 
     iHandler    = GpFileImpl::SOpen(aName, aFlags);
     iName       = aName;
@@ -35,6 +41,11 @@ void    GpFile::Close (void) noexcept
         return;
     }
 
+    if (iFlags.Test(GpFileFlag::WRITE))
+    {
+        GpFileImpl::SFlush(iHandler, iName);
+    }
+
     GpFileImpl::SClose(iHandler);
     iHandler = HandlerT{};
     iName.clear();
@@ -43,6 +54,11 @@ void    GpFile::Close (void) noexcept
 
 void    GpFile::Flush (void)
 {
+    if (iHandler == HandlerT{})
+    {
+        return;
+    }
+
     GpFileImpl::SFlush(iHandler, iName);
 }
 
@@ -74,6 +90,11 @@ size_byte_t GpFile::CurrentPos (void) const
 void    GpFile::TruncateToCurrentPos (void)
 {
     GpFileImpl::STruncateToCurrentPos(iHandler, iName);
+}
+
+void    GpFile::Resize (const size_byte_t aNewSize)
+{
+    GpFileImpl::STruncate(iHandler, iName, aNewSize);
 }
 
 void    GpFile::Write (GpSpanByteR aData)

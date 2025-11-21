@@ -1,34 +1,33 @@
 #pragma once
 
 #include <GpCore2/GpUtils/Concepts/GpConcepts.hpp>
-#include <GpCore2/Config/IncludeExt/unordered_dense.hpp>
+#include <GpCore2/GpUtils/Types/Numerics/GpNumericOps.hpp>
+#include <vector>
 
 namespace GPlatform {
 
 template<Concepts::IsIntegral T>
-class GpIdsPool
+class GpIdPool
 {
 public:
-    using this_type     = GpIdsPool<T>;
+    using this_type     = GpIdPool<T>;
     using value_type    = T;
-    using AcquiredSetT  = ankerl::unordered_dense::set<value_type>;
     using ReleasePoolT  = std::vector<value_type>;
 
 public:
-                    GpIdsPool   (void) noexcept = default;
-                    ~GpIdsPool  (void) noexcept = default;
+                    GpIdPool    (void) noexcept = default;
+                    ~GpIdPool   (void) noexcept = default;
 
     value_type      Acquire     (void) noexcept;
-    void            Release     (value_type aValue) noexcept;
+    void            Release     (value_type aValue);
 
 public:
-    AcquiredSetT    iAcquired;
     ReleasePoolT    iReleasePool;
     value_type      iCurrentMax = {};
 };
 
 template<Concepts::IsIntegral T>
-auto    GpIdsPool<T>::Acquire (void) noexcept -> value_type
+auto    GpIdPool<T>::Acquire (void) noexcept -> value_type
 {
     value_type value;
 
@@ -39,14 +38,15 @@ auto    GpIdsPool<T>::Acquire (void) noexcept -> value_type
         iReleasePool.pop_back();
     } else
     {
-        value = iCurrentMax++;
+        value       = iCurrentMax;
+        iCurrentMax = NumOps::SInc(iCurrentMax);
     }
 
     return value;
 }
 
 template<Concepts::IsIntegral T>
-void    GpIdsPool<T>::Release (value_type aValue) noexcept
+void    GpIdPool<T>::Release (const value_type aValue)
 {
     iReleasePool.push_back(aValue);
 }

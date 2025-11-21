@@ -110,7 +110,7 @@ ContainerResT   Split
 
     const auto* beginPart   = aElements.data();
     const auto* currentVal  = beginPart;
-    const auto* stopVal = beginPart + std::size(aElements);
+    const auto* stopVal     = beginPart + std::size(aElements);
 
     while (currentVal < stopVal)
     {
@@ -129,12 +129,6 @@ ContainerResT   Split
                 isEscaped = true;
             } else if (val == aSequenceVal) [[unlikely]]
             {
-                if (!currentPart.empty())
-                {
-                    result.emplace_back(std::move(currentPart));
-                    currentPart.reserve(4);
-                }
-
                 currentVal++;
                 inSequence = false;
             } else
@@ -148,12 +142,6 @@ ContainerResT   Split
             isEscaped = true;
         } else if (val == aSequenceVal) [[unlikely]]
         {
-            if (!currentPart.empty())
-            {
-                result.emplace_back(std::move(currentPart));
-                currentPart.reserve(4);
-            }
-
             currentVal++;
             inSequence = true;
         } else if (val == aSplitVal) [[unlikely]]

@@ -6,6 +6,11 @@ GP_WARNING_PUSH()
 
 #if defined(GP_COMPILER_CLANG) || defined(GP_COMPILER_GCC)
     GP_WARNING_DISABLE(switch-default)
+
+#   if defined(GP_COMPILER_CLANG) && __has_warning("-Wnontrivial-memcall")
+        GP_WARNING_DISABLE(nontrivial-memcall)
+#   endif
+
 #endif// #if defined(GP_COMPILER_CLANG) || defined(GP_COMPILER_GCC)
 
 #include <boost/container/small_vector.hpp>

@@ -2,7 +2,6 @@
 
 #include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
 
-#include <functional>
 #include <optional>
 
 namespace GPlatform {

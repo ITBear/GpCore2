@@ -1,7 +1,10 @@
 #include <GpCore2/GpTasks/GpTasksLib.hpp>
+#include <GpCore2/GpUtils/Other/GpLinkedLibsInfo.hpp>
 
-namespace GPlatform {
+GP_STATIC_INITIALIZER_IMPL(GpTasks)
+GP_LIB_REGISTRATOR(GpTasksLib)
 
-GP_IMPLEMENT_LIB_REGISTRATOR(GpTasksLib)
-
-}// namespace GPlatform
+void    GpTasks_StaticInitializer::OnInitialize (void)
+{
+    GpTasksLib::SRegisterSelf();
+}

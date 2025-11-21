@@ -11,7 +11,7 @@
 #include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
 #include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpSpinLock.hpp>
-#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSyncPrimitives.hpp>
 
 namespace GPlatform {
 
@@ -20,9 +20,9 @@ template<typename UidT,
 class GpEventChannel
 {
 public:
-    using EventChannelT = GpEventChannel<UidT, ValueT>;
+    using GpEventChannelT = GpEventChannel<UidT, ValueT>;
 
-    CLASS_DD(EventChannelT)
+    CLASS_DD(GpEventChannelT)
     CLASS_REMOVE_CTRS_COPY(GpEventChannel)
     TAG_SET(THREAD_SAFE)
 
@@ -45,15 +45,15 @@ public:
     size_t              Unsubscribe     (const UidT&    aSubscriberUid);
 
 private:
-    mutable GpSpinLock  iSpinLock;
-    SubscribersT        iSubscribers GUARDED_BY(iSpinLock);
+    mutable GpSpinLock<>    iSpinLock;
+    SubscribersT            iSubscribers GUARDED_BY(iSpinLock);
 };
 
 template<typename UidT,
          typename ValueT>
 GpEventChannel<UidT, ValueT>::GpEventChannel (GpEventChannel&& aEventChannel) noexcept
 {
-    GpUniqueLock<GpSpinLock> uniqueLock{aEventChannel.iSpinLock};
+    GpUniqueLock uniqueLock{aEventChannel.iSpinLock};
 
     iSubscribers = std::move(aEventChannel.iSubscribers);
 }
@@ -67,8 +67,8 @@ GpEventChannel<UidT, ValueT>&   GpEventChannel<UidT, ValueT>::operator= (GpEvent
         return *this;
     }
 
-    GpUniqueLock<GpSpinLock> uniqueLock1{aEventChannel.iSpinLock};
-    GpUniqueLock<GpSpinLock> uniqueLock2{iSpinLock};
+    GpUniqueLock uniqueLock1{aEventChannel.iSpinLock};
+    GpUniqueLock uniqueLock2{iSpinLock};
 
     iSubscribers = std::move(aEventChannel.iSubscribers);
 
@@ -79,7 +79,7 @@ template<typename UidT,
          typename ValueT>
 void    GpEventChannel<UidT, ValueT>::PushEvent (const ValueT& aEvent) const
 {
-    GpUniqueLock<GpSpinLock> uniqueLock{iSpinLock};
+    GpUniqueLock uniqueLock{iSpinLock};
 
     for (const auto&[uid, fn]: iSubscribers)
     {
@@ -98,7 +98,7 @@ bool    GpEventChannel<UidT, ValueT>::Subscribe
     CallbackFnT aCallbackFn
 )
 {
-    GpUniqueLock<GpSpinLock> uniqueLock{iSpinLock};
+    GpUniqueLock uniqueLock{iSpinLock};
 
     const auto[iter, isInsertedNew] = iSubscribers.insert_or_assign(aSubscriberUid, std::move(aCallbackFn));
 
@@ -109,7 +109,7 @@ template<typename UidT,
          typename ValueT>
 size_t  GpEventChannel<UidT, ValueT>::Unsubscribe (const UidT& aSubscriberUid)
 {
-    GpUniqueLock<GpSpinLock> uniqueLock{iSpinLock};
+    GpUniqueLock uniqueLock{iSpinLock};
 
     auto iter = iSubscribers.find(aSubscriberUid);
 

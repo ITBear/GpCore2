@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string_view>
-#include <array>
 
 namespace GPlatform {
 
@@ -9,7 +8,7 @@ namespace GPlatform {
 //GP_WARNING_DISABLE(gnu-string-literal-operator-template)
 //
 //template <char... chars> using GpStringTemplateArg = std::integer_sequence<char, chars...>;
-//template <typename T, T... chars> constexpr GpStringTemplateArg<chars...> operator"" _template_str() noexcept {return { };}
+//template <typename T, T... chars> constexpr GpStringTemplateArg<chars...> operator""_template_str() noexcept {return { };}
 //
 //GP_WARNING_POP()
 //

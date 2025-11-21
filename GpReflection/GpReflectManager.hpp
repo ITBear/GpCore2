@@ -4,7 +4,7 @@
 
 #include <GpCore2/GpUtils/Types/Containers/GpSharedMap.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpSpinLock.hpp>
-#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSyncPrimitives.hpp>
 #include <GpCore2/GpReflection/GpReflectModelSource.hpp>
 
 namespace GPlatform {
@@ -74,7 +74,7 @@ private:
 private:
     ElementsT                           iElements;
 
-    mutable GpSpinLock                  iModelSourcesSpinLock;
+    mutable GpSpinLock<>                iModelSourcesSpinLock;
     GpReflectModelSource::C::Vec::SP    iModelSources       GUARDED_BY(iModelSourcesSpinLock);
 
     static GpReflectManager&            sInstance;
@@ -108,7 +108,7 @@ template<typename TO_SP, typename FROM_SP>
         }
     );
 
-    return aFrom.template CastAs<TO_SP>();
+    return aFrom.template CastTo<TO_SP>();
 }
 
 template<typename TO, typename FROM>

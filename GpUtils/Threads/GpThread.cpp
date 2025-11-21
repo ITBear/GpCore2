@@ -1,7 +1,8 @@
 #include <GpCore2/GpUtils/Threads/GpThread.hpp>
-#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpOutUtils.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 #include <GpCore2/GpUtils/Threads/GpSleepStrategy.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSyncPrimitives.hpp>
 
 #if defined(GP_USE_MULTITHREADING)
 
@@ -15,11 +16,21 @@
 
 namespace GPlatform {
 
-GpThread::GpThread (std::string aName) noexcept:
-iName{std::move(aName)}
+GpThread::GpThread (GpConditionVarFlag& aStopFlag) noexcept:
+iStopFlag{aStopFlag}
 {
-    iThreadStopRequestF.clear();
-    iThreadRunnableDoneF.test_and_set(std::memory_order_relaxed);
+    iRunnableDoneFlag.test_and_set(std::memory_order_relaxed);
+}
+
+GpThread::GpThread
+(
+    GpConditionVarFlag& aStopFlag,
+    std::string         aName
+) noexcept:
+iStopFlag{aStopFlag},
+iName    {std::move(aName)}
+{
+    iRunnableDoneFlag.test_and_set(std::memory_order_relaxed);
 }
 
 GpThread::~GpThread (void) noexcept
@@ -29,36 +40,76 @@ GpThread::~GpThread (void) noexcept
     iThread = {};
 }
 
-std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
+std::thread::id GpThread::Run (GpRunnable::UP aRunnableUP)
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
     // Check if started
     VERIFY
     (
-        iRunnable.IsNULL(),
+        iThread.get_id() == std::thread::id{},
         "The thread has already started"_sv
     );
 
-    iThreadRunnableDoneF.clear();
-    iRunnable = std::move(aRunnable);
+    iRunnableDoneFlag.clear();
+    iRunnableUP = std::move(aRunnableUP);
 
 #if defined(GP_USE_MULTITHREADING_IMPL_STD_THREAD)
     iThread = std::thread
     (
         [
-            runnable            = iRunnable,
+            runnablePtr         = iRunnableUP.get(),
             name                = std::string{this->Name()},
-            threadStopRequestF  = &iThreadStopRequestF,
-            threadRunnableDoneF = &iThreadRunnableDoneF
+            stopFlag            = &iStopFlag,
+            runnableDoneFlag    = &iRunnableDoneFlag
         ]() mutable noexcept
         {
-            threadRunnableDoneF->clear();
+            runnableDoneFlag->clear();
 
             SSetSysNameForCurrent(std::move(name));
-            runnable->Run(*threadStopRequestF);
+            runnablePtr->Run(*stopFlag);
+            runnableDoneFlag->test_and_set();
+        }
+    );
 
-            threadRunnableDoneF->test_and_set();
+    iThreadId = iThread.get_id();
+    iThread.detach();
+    iThread = {};
+#else
+#   error Unimplemented
+#endif
+
+    return iThreadId;
+}
+
+std::thread::id GpThread::Run (std::function<void(GpConditionVarFlag&)> aRunFn)
+{
+    GpUniqueLock uniqueLock{iSpinLockRW};
+
+    // Check if started
+    VERIFY
+    (
+        iThread.get_id() == std::thread::id{},
+        "The thread has already started"_sv
+    );
+
+    iRunnableDoneFlag.clear();
+
+#if defined(GP_USE_MULTITHREADING_IMPL_STD_THREAD)
+    iThread = std::thread
+    (
+        [
+            runFn               = std::move(aRunFn),
+            name                = std::string{this->Name()},
+            stopFlag            = &iStopFlag,
+            runnableDoneFlag    = &iRunnableDoneFlag
+        ]() mutable noexcept
+        {
+            runnableDoneFlag->clear();
+
+            SSetSysNameForCurrent(std::move(name));
+            runFn(*stopFlag);
+            runnableDoneFlag->test_and_set();
         }
     );
 
@@ -74,16 +125,7 @@ std::thread::id GpThread::Run (GpRunnable::SP aRunnable)
 
 void    GpThread::RequestStop (void) noexcept
 {
-    iThreadStopRequestF.test_and_set();
-
-    {
-        GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
-
-        if (iRunnable.IsNotNULL())
-        {
-            iRunnable.Vn().Notify();
-        }
-    }
+    iStopFlag.UpFlagAndNotifyAll();
 }
 
 void    GpThread::Join (void) noexcept
@@ -100,29 +142,29 @@ void    GpThread::Join (void) noexcept
         (
             [&]()-> bool
             {
-                return iThreadRunnableDoneF.test();
+                return iRunnableDoneFlag.test();
             },
             tryStages,
             std::chrono::milliseconds(10)
         );
 
         {
-            GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+            GpUniqueLock uniqueLock{iSpinLockRW};
 
-            if (iRunnable.IsNotNULL())
+            if (iRunnableUP)
             {
-                iRunnable.Clear();
+                iRunnableUP.reset();
             }
         }
     } catch (const GpException& e)
     {
-        GpStringUtils::SCerr("[GpThread::Join]: "_sv + e.what());
+        GpOutUtils::S().Err("[GpThread::Join]: "_sv + e.what());
     } catch (const std::exception& e)
     {
-        GpStringUtils::SCerr("[GpThread::Join]: "_sv + e.what());
+        GpOutUtils::S().Err("[GpThread::Join]: "_sv + e.what());
     } catch (...)
     {
-        GpStringUtils::SCerr("[GpThread::Join]: Unknown exception"_sv);
+        GpOutUtils::S().Err("[GpThread::Join]: Unknown exception"_sv);
     }
 }
 
@@ -138,7 +180,7 @@ void    GpThread::SSetSysNameForCurrent (std::string_view aName)
 GP_WARNING_PUSH()
 GP_WARNING_DISABLE_MSVC(4365)
 
-    const std::wstring name{aName.begin(), aName.end()};
+    const std::wstring name{std::begin(aName), std::end(aName)};
 
 GP_WARNING_POP()
 
@@ -163,8 +205,10 @@ GP_WARNING_POP()
 #   error Need to be implemented
 #elif defined(GP_OS_IOS_SIMULATOR)
 #   error Need to be implemented
-#elif defined(GP_OS_MACOSX)
-#   error Need to be implemented
+#elif defined(GP_OS_MACOS)
+    const std::string name(aName);
+
+    pthread_setname_np(name.c_str());
 #elif defined(GP_OS_BARE_METAL)
 #   error Need to be implemented
 #endif

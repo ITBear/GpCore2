@@ -5,7 +5,7 @@
 #if defined(GP_USE_MULTITHREADING)
 
 #include <GpCore2/GpUtils/Threads/GpThreadsSafety.hpp>
-#include <GpCore2/GpTasks/ITC/GpItcCondition.hpp>
+#include <GpCore2/GpTasks/ITC/GpItcConditionVar.hpp>
 
 namespace GPlatform {
 
@@ -14,16 +14,20 @@ class GpItcLockImpl
     CLASS_REMOVE_CTRS_MOVE_COPY(GpItcLockImpl)
 
 public:
-                    GpItcLockImpl   (void) noexcept = default;
+    inline          GpItcLockImpl   (void) noexcept;
 
     inline void     lock            (void);
     inline void     unlock          (void);
     inline bool     try_lock        (void);
 
-private:    
-    mutable GpItcCondition  iItcCondition;
-    std::atomic<bool>       iState = {false};
+private:
+    GpItcConditionVar   iItcCv;
+    std::atomic<bool>   iState = {false};
 };
+
+GpItcLockImpl::GpItcLockImpl (void) noexcept
+{
+}
 
 void    GpItcLockImpl::lock (void)
 {
@@ -35,11 +39,11 @@ void    GpItcLockImpl::lock (void)
         }
 
         // Wait for unlock
-        iItcCondition.Wait
+        iItcCv.Wait
         (
             [&]()
             {
-                return iState.load(std::memory_order_relaxed) == false;
+                return iState.load(std::memory_order_acquire) == false;
             }
         );
     }
@@ -50,18 +54,19 @@ void    GpItcLockImpl::unlock (void)
     iState.store(false, std::memory_order_release);
 
     {
-        GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
-        iItcCondition.NotifyAll();
+        GpUniqueLock uniqueLock{iItcCv.SpinLockRW()};
+        iItcCv.NotifyAll();
     }
 }
 
 bool    GpItcLockImpl::try_lock (void)
 {
-    return     (!iState.load(std::memory_order_relaxed))
-            && (!iState.exchange(true, std::memory_order_acquire));
+    bool expected = false;
+    return iState.compare_exchange_strong(expected, true, std::memory_order_acq_rel, std::memory_order_acquire);
 }
 
-using GpItcLock = ThreadSafety::MutexWrap<GpItcLockImpl>;
+template<ThreadSafety::LockTraceModeE LTM = ThreadSafety::LockTraceModeE::TRACE_ENABLED>
+using GpItcLock = ThreadSafety::SyncPrimitiveWrap<GpItcLockImpl, LTM>;
 
 }// namespace GPlatform
 

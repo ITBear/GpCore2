@@ -5,8 +5,11 @@
 #if defined(GP_USE_CONTAINERS)
 
 #include <GpCore2/Config/IncludeExt/boost_small_vector.hpp>
+#include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
+#include <GpCore2/Config/IncludeExt/boost_flat_set.hpp>
 #include <GpCore2/GpUtils/Types/Numerics/GpNumericTypes.hpp>
 #include <GpCore2/GpUtils/Types/Pointers/GpSharedPtr.hpp>
+#include <GpCore2/GpUtils/Types/Pointers/GpWeakPtr.hpp>
 #include <GpCore2/GpUtils/Types/Pointers/GpSpan.hpp>
 
 #include <vector>
@@ -41,6 +44,8 @@ public:
     using SP    = C<typename S::SP, Ts...>;
     using CSP   = C<typename S::CSP, Ts...>;
     using UP    = C<typename S::UP, Ts...>;
+    using WP    = C<typename S::WP, Ts...>;
+    using CWP   = C<typename S::CWP, Ts...>;
 };
 
 template <template<typename...> class C, typename K, typename S, typename... Ts>
@@ -53,6 +58,8 @@ public:
     using SP    = C<K, typename S::SP, Ts...>;
     using CSP   = C<K, typename S::CSP, Ts...>;
     using UP    = C<K, typename S::UP, Ts...>;
+    using WP    = C<K, typename S::WP, Ts...>;
+    using CWP   = C<K, typename S::CWP, Ts...>;
 };
 
 template <typename S, std::size_t N>
@@ -68,6 +75,8 @@ public:
     using SP    = boost::container::small_vector<typename S::SP, N>;
     using CSP   = boost::container::small_vector<typename S::CSP, N>;
     using UP    = boost::container::small_vector<typename S::UP, N>;
+    using WP    = boost::container::small_vector<typename S::WP, N>;
+    using CWP   = boost::container::small_vector<typename S::CWP, N>;
 };
 
 template <typename K, typename S, std::size_t N>
@@ -80,6 +89,22 @@ public:
     using SP    = boost::container::small_flat_map<K, typename S::SP, N, std::less<>>;
     using CSP   = boost::container::small_flat_map<K, typename S::CSP, N, std::less<>>;
     using UP    = boost::container::small_flat_map<K, typename S::UP, N, std::less<>>;
+    using WP    = boost::container::small_flat_map<K, typename S::WP, N, std::less<>>;
+    using CWP   = boost::container::small_flat_map<K, typename S::CWP, N, std::less<>>;
+};
+
+template <typename K, typename S>
+class GpDeclContainerFlatMapT
+{
+public:
+    using Val   = boost::container::flat_map<K, typename S::value_type, std::less<>>;
+    using Ptr   = boost::container::flat_map<K, typename S::value_type*, std::less<>>;
+    using CPtr  = boost::container::flat_map<K, const typename S::value_type*, std::less<>>;
+    using SP    = boost::container::flat_map<K, typename S::SP, std::less<>>;
+    using CSP   = boost::container::flat_map<K, typename S::CSP, std::less<>>;
+    using UP    = boost::container::flat_map<K, typename S::UP, std::less<>>;
+    using WP    = boost::container::flat_map<K, typename S::WP, std::less<>>;
+    using CWP   = boost::container::flat_map<K, typename S::CWP, std::less<>>;
 };
 
 template <typename T>
@@ -93,6 +118,8 @@ public:
     using SP            = GpSP<T>;
     using CSP           = GpCSP<T>;
     using UP            = std::unique_ptr<T>;
+    using WP            = GpWP<T>;
+    using CWP           = GpCWP<T>;
 
     // Containers
     using Vec           = GpDeclContainerT<std::vector, this_type>;
@@ -140,6 +167,17 @@ public:
     using SmallFlatMapSSizeT    = GpDeclContainerSmallFlatMapT<ssize_t, this_type, N>;
     template<std::size_t N>
     using SmallFlatMapCVoidPtr  = GpDeclContainerSmallFlatMapT<const void*, this_type, N>;
+
+    using FlatMapStr        = GpDeclContainerFlatMapT<std::string, this_type>;
+    using FlatMapSv         = GpDeclContainerFlatMapT<std::string_view, this_type>;
+    using FlatMapUuid       = GpDeclContainerFlatMapT<GpUUID, this_type>;
+    using FlatMapSi64       = GpDeclContainerFlatMapT<s_int_64, this_type>;
+    using FlatMapUi64       = GpDeclContainerFlatMapT<u_int_64, this_type>;
+    using FlatMapSi32       = GpDeclContainerFlatMapT<s_int_32, this_type>;
+    using FlatMapUi32       = GpDeclContainerFlatMapT<u_int_32, this_type>;
+    using FlatMapSizeT      = GpDeclContainerFlatMapT<size_t, this_type>;
+    using FlatMapSSizeT     = GpDeclContainerFlatMapT<ssize_t, this_type>;
+    using FlatMapCVoidPtr   = GpDeclContainerFlatMapT<const void*, this_type>;
 
     using UMapStr       = GpDeclContainerMapT<std::map, std::string, this_type>;
     using UMapSv        = GpDeclContainerMapT<std::map, std::string_view, this_type>;

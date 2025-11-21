@@ -1,8 +1,8 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpSharedQueueMPMC.hpp>
 #include <GpCore2/GpTasks/Scheduler/GpTaskExecutor.hpp>
-#include <GpCore2/GpTasks/ITC/GpItcQueue.hpp>
 #include <GpCore2/GpTasks/GpTask.hpp>
 
 #if defined(GP_USE_MULTITHREADING)
@@ -18,26 +18,23 @@ public:
     CLASS_DD(GpTaskExecutorV1)
     TAG_SET(THREAD_SAFE)
 
-    using ReadyTasksQueueT  = GpItcQueue<GpTask::SP>;
-    using DonePromiseT      = GpItcPromise<ssize_t>;
+    using TaskQueueT    = GpSharedQueueMPMC<GpTask::SP>;
+    using DonePromiseT  = GpItcPromise<ssize_t>;
 
 public:
-                        GpTaskExecutorV1    (const size_t       aId,
-                                             GpTaskSchedulerV1& aTasksScheduler,
-                                             ReadyTasksQueueT&  aReadyTasksQueue,
-                                             DonePromiseT&&     aDonePromise) noexcept;
-    virtual             ~GpTaskExecutorV1   (void) noexcept override final;
+                    GpTaskExecutorV1    (size_t             aId,
+                                         GpTaskSchedulerV1& aScheduler,
+                                         TaskQueueT::SP     aTaskQueueDataSP,
+                                         DonePromiseT&&     aDonePromise) noexcept;
+    virtual         ~GpTaskExecutorV1   (void) noexcept override final;
 
-    size_t              Id                  (void) const noexcept {return iId;}
-    virtual void        Run                 (std::atomic_flag& aStopRequest) noexcept override final;
-
-protected:
-    virtual void        OnNotify            (void) noexcept override final;
+    size_t          Id                  (void) const noexcept {return iId;}
+    virtual void    Run                 (GpConditionVarFlag& aStopFlag) noexcept override final;
 
 private:
-    const size_t        iId             = 0;
-    GpTaskSchedulerV1&  iTasksScheduler;
-    ReadyTasksQueueT&   iReadyTasksQueue;
+    const size_t        iId = 0;
+    GpTaskSchedulerV1&  iScheduler;
+    TaskQueueT::SP      iTaskQueueSP;
     DonePromiseT        iDonePromise;
 };
 

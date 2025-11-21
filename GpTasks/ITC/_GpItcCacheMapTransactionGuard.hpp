@@ -7,7 +7,7 @@
 
 #include <GpCore2/GpTasks/ITC/GpItcCacheMap.hpp>
 #include <GpCore2/GpUtils/Concepts/GpConcepts.hpp>
-#include <GpCore2/GpUtils/Other/GpRAIIonDestruct.hpp>
+#include <GpCore2/GpUtils/Other/GpDefer.hpp>
 
 namespace GPlatform {
 
@@ -102,7 +102,7 @@ auto    GpItcCacheMapTransactionGuard<ContainerT>::Commit
         return CommitResT{std::nullopt, CommitResStatus::NO_OPEN_TRANSACTION};
     }
 
-    GpRAIIonDestruct onDestruct = [&](){iCache = nullptr;};
+    GpDefer onDestruct = [&](){iCache = nullptr;};
 
     auto[value, status] = iCache->Update
     (

@@ -2,7 +2,7 @@
 
 #include <GpCore2/Config/IncludeExt/boost_flat_map.hpp>
 #include <GpCore2/Config/GpConfig.hpp>
-#include <GpCore2/GpUtils/Types/Containers/GpMultiKeyManager.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpUnorderedPairIndexer.hpp>
 #include <GpCore2/GpReflection/GpReflectObject.hpp>
 
 namespace GPlatform {
@@ -16,7 +16,7 @@ class GP_REFLECTION_API GpReflectUtils_IsEqual
 public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpReflectUtils_IsEqual)
 
-    using CacheMKeyManagerT = GpMultiKeyManager
+    using CacheMKeyManagerT = GpUnorderedPairIndexer
     <
         u_int_32/*multikey*/,
         boost::container::small_flat_map<const GpReflectObject*, u_int_16/*internal index*/, 64>
@@ -74,9 +74,9 @@ GpReflectUtils_VisitCtx::GpReflectUtils_VisitCtx
     const void*     aReflectDataPtrObjB,
     CacheRefOptT&   aCache
 ) noexcept:
-iReflectDataPtrObjA(aReflectDataPtrObjA),
-iReflectDataPtrObjB(aReflectDataPtrObjB),
-iCache             (aCache)
+iReflectDataPtrObjA{aReflectDataPtrObjA},
+iReflectDataPtrObjB{aReflectDataPtrObjB},
+iCache             {aCache}
 {
 }
 

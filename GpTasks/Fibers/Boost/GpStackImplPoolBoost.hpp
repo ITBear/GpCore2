@@ -31,9 +31,9 @@ protected:
     inline virtual value_type       NewElement              (void) override final;
 
 private:
-    size_byte_t                     iStackSize = 0_byte;
+    size_byte_t                 iStackSize = 0_byte;
 
-    static GpStackImplPoolBoost     sInstance;
+    static GpStackImplPoolBoost sInstance;
 };
 
 void    GpStackImplPoolBoost::Configure

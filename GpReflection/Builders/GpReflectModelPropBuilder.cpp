@@ -89,7 +89,7 @@ GpReflectModelPropBuilder&  GpReflectModelPropBuilder::String (std::string_view 
 
 GpReflectModelPropBuilder&  GpReflectModelPropBuilder::BLOB (std::string_view aName)
 {
-    return _AddProp<GpBytesArray, GpReflectType::BLOB, GpReflectContainerType::NO>(aName);
+    return _AddProp<GpByteArray, GpReflectType::BLOB, GpReflectContainerType::NO>(aName);
 }
 
 GpReflectModelPropBuilder&  GpReflectModelPropBuilder::Object
@@ -172,7 +172,7 @@ GpReflectModelPropBuilder&  GpReflectModelPropBuilder::Vec_String (std::string_v
 
 GpReflectModelPropBuilder&  GpReflectModelPropBuilder::Vec_BLOB (std::string_view aName)
 {
-    return _AddProp<GpBytesArray, GpReflectType::BLOB, GpReflectContainerType::VECTOR>(aName);
+    return _AddProp<GpByteArray, GpReflectType::BLOB, GpReflectContainerType::VECTOR>(aName);
 }
 
 GpReflectModelPropBuilder&  GpReflectModelPropBuilder::Vec_Object
@@ -307,7 +307,7 @@ GpReflectModelPropBuilder&  GpReflectModelPropBuilder::Map_BLOB
     GpReflectType::EnumT    aKeyType
 )
 {
-    return _AddPropMap<GpBytesArray, GpReflectType::BLOB>(aName, aKeyType, GpUUID::CE_Zero());
+    return _AddPropMap<GpByteArray, GpReflectType::BLOB>(aName, aKeyType, GpUUID::CE_Zero());
 }
 
 GpReflectModelPropBuilder&  GpReflectModelPropBuilder::Map_ObjectSP

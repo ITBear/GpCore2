@@ -114,7 +114,7 @@ public:
     template<>
     struct  Decltype<GpReflectType::BLOB>
     {
-        using type_t = GpBytesArray;
+        using type_t = GpByteArray;
     };
 
     template<GpReflectType::EnumT T>
@@ -240,13 +240,13 @@ constexpr GpReflectType::EnumT  GpReflectUtils::SDetectType (void)
     } else if constexpr (std::is_same_v<VT, std::string>)
     {
         return GpReflectType::STRING;
-    } else if constexpr (std::is_same_v<VT, GpBytesArray>)
+    } else if constexpr (std::is_same_v<VT, GpByteArray>)
     {
         return GpReflectType::BLOB;
     } else if constexpr (std::is_base_of_v<GpReflectObject, VT>)
     {
         return GpReflectType::OBJECT;
-    } else if constexpr (GpHasTag_GpSharedPtrBase<VT>())
+    } else if constexpr (GpHasTag_GpSharedPtr<VT>())
     {
         if constexpr (GpHasTag_GpReflectObject<typename VT::value_type>())
         {
@@ -414,9 +414,9 @@ T   GpReflectUtils::SCopyValue (const T& aValue)
          if constexpr (std::is_arithmetic_v<VT>) return aValue;
     else if constexpr (std::is_same_v<VT, GpUUID>) return aValue;
     else if constexpr (std::is_same_v<VT, std::string>) return aValue;
-    else if constexpr (std::is_same_v<VT, GpBytesArray>) return aValue;
+    else if constexpr (std::is_same_v<VT, GpByteArray>) return aValue;
     else if constexpr (std::is_base_of_v<GpReflectObject, VT>) return aValue;
-    else if constexpr (GpHasTag_GpSharedPtrBase<VT>())
+    else if constexpr (GpHasTag_GpSharedPtr<VT>())
     {
         if constexpr (GpHasTag_GpReflectObject<typename VT::value_type>())
         {
@@ -445,7 +445,7 @@ T   GpReflectUtils::SCopyValue (const T& aValue)
         }
     } else if constexpr (std::is_same_v<VT, std::vector<typename VT::value_type>>)
     {
-        if constexpr (GpHasTag_GpSharedPtrBase<typename VT::value_type>())
+        if constexpr (GpHasTag_GpSharedPtr<typename VT::value_type>())
         {
             if constexpr (GpHasTag_GpReflectObject<typename VT::value_type::value_type>())
             {
@@ -457,7 +457,7 @@ T   GpReflectUtils::SCopyValue (const T& aValue)
                     if (e.IsNotNULL())
                     {
                         GpSP<GpReflectObject> val = e.Vn().ReflectClone();
-                        tmp.emplace_back(val.CastUpAs<typename T::value_type>());
+                        tmp.emplace_back(val.CastToDerived<typename T::value_type>());
                     } else
                     {
                         tmp.emplace_back(typename T::value_type{});
@@ -475,7 +475,7 @@ T   GpReflectUtils::SCopyValue (const T& aValue)
         }
     } else if constexpr (std::is_same_v<VT, std::map<typename VT::key_type, typename VT::mapped_type, std::less<>>>)
     {
-        if constexpr (GpHasTag_GpSharedPtrBase<typename VT::mapped_type>())
+        if constexpr (GpHasTag_GpSharedPtr<typename VT::mapped_type>())
         {
             if constexpr (GpHasTag_GpReflectObject<typename VT::mapped_type::value_type>())
             {
@@ -486,7 +486,7 @@ T   GpReflectUtils::SCopyValue (const T& aValue)
                     if (value.IsNotNULL())
                     {
                         GpSP<GpReflectObject> val = value.V().ReflectClone();
-                        tmp.insert_or_assign(key, val.CastUpAs<typename T::mapped_type>());
+                        tmp.insert_or_assign(key, val.CastToDerived<typename T::mapped_type>());
                     } else
                     {
                         tmp.insert_or_assign(key, typename T::mapped_type{});

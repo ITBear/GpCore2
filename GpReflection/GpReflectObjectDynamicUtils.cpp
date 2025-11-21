@@ -1,10 +1,9 @@
 #include <GpCore2/GpReflection/GpReflectObjectDynamicUtils.hpp>
 #include <GpCore2/GpReflection/GpReflectManager.hpp>
 #include <GpCore2/GpReflection/GpReflectVisitor.hpp>
-#include <GpCore2/GpUtils/Other/GpRAIIonDestruct.hpp>
+#include <GpCore2/GpUtils/Other/GpDefer.hpp>
 
 #include <cstddef>
-#include <memory>
 
 namespace GPlatform {
 
@@ -230,7 +229,7 @@ void    Visitor_VisitValueCtx::BLOB
     Visitor_VisitCtx&       aCtx
 )
 {
-    MemOps::SConstruct<GpBytesArray>
+    MemOps::SConstruct<GpByteArray>
     (
         &(aProp.Value_BLOB(aCtx.iDataPtr)),
         1
@@ -1198,7 +1197,7 @@ void    Visitor_VisitValueCtx::BLOB
     Visitor_VisitCtx&       aCtx
 )
 {
-    MemOps::SDestruct<GpBytesArray>
+    MemOps::SDestruct<GpByteArray>
     (
         &(aProp.Value_BLOB(aCtx.iDataPtr)),
         1
@@ -1952,7 +1951,7 @@ GpReflectObjectDynamic::SP  GpReflectObjectDynamicUtils::SConstruct (const GpRef
     //Data ptr
     void* dataPtr = nullptr;
 
-    GpRAIIonDestruct stopGuard = [&]()
+    GpDefer stopGuard = [&]()
     {
         if (dataPtr != nullptr)
         {

@@ -12,15 +12,35 @@ namespace GPlatform {
 template<typename T>
 class GpUnlockGuard
 {
-  CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpUnlockGuard)
+    CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpUnlockGuard)
 
 public:
-              GpUnlockGuard   (T& aLock) noexcept: iLock{aLock} {iLock.unlock();}
-              ~GpUnlockGuard  (void) noexcept {iLock.lock();}
+    inline  GpUnlockGuard   (T& aSyncPrimitive) noexcept;
+    inline  ~GpUnlockGuard  (void) noexcept;
 
 private:
-  T&          iLock;
+    T&  iSyncPrimitive;
 };
+
+template<typename T>
+GpUnlockGuard<T>::GpUnlockGuard (T& aSyncPrimitive) noexcept: iSyncPrimitive{aSyncPrimitive}
+{
+#if defined(GP_LOCK_TRACE)
+    GpLockTrace::S().OnUnlock(&iSyncPrimitive.internal(), this);
+#endif// #if defined(GP_LOCK_TRACE)
+
+    iSyncPrimitive.unlock();
+}
+
+template<typename T>
+GpUnlockGuard<T>::~GpUnlockGuard (void) noexcept
+{
+    iSyncPrimitive.lock();
+
+#if defined(GP_LOCK_TRACE)
+    GpLockTrace::S().OnLock(&iSyncPrimitive.internal(), this);
+#endif// #if defined(GP_LOCK_TRACE)
+}
 
 }// namespace GPlatform
 

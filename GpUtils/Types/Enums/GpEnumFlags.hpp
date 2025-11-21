@@ -93,7 +93,7 @@ public:
     std::string                     Echo                (void) const;
 
 protected:
-    value_type iRawValue    = 0;
+    value_type iRawValue = 0;
 };
 
 template<typename E>
@@ -155,6 +155,11 @@ public:
     constexpr void          Combine         (const EnumTE aEnum) noexcept
     {
         GpEnumFlags::Combine(GpEnumFlags::value_type(aEnum));
+    }
+
+    constexpr void          Combine         (const GpEnumFlagsST& aFlags) noexcept
+    {
+        GpEnumFlags::CombineFromRaw(aFlags.RawValue());
     }
 
     constexpr void          Unset           (const EnumTE aEnum) noexcept

@@ -3,7 +3,7 @@
 #if defined(GP_USE_TIMERS)
 
 #include <GpCore2/GpUtils/DateTime/GpDateTimeOps.hpp>
-#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpOutUtils.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 
 namespace GPlatform {
@@ -34,7 +34,7 @@ GpTimer::~GpTimer (void) noexcept
 
 void    GpTimer::Start (void)
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
     if (iIsStarted)
     {
@@ -51,7 +51,7 @@ void    GpTimer::Start (void)
 
 bool    GpTimer::Stop (void)
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
     if (iIsStarted)
     {
@@ -71,7 +71,7 @@ void    GpTimer::Reload
     const bool              aIsReturnToPool
 )
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
     iIsStarted = false;
 
@@ -86,7 +86,7 @@ GpTimer::ShotRes    GpTimer::TryMakeShot (void) noexcept
 {
     try
     {
-        GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+        GpUniqueLock uniqueLock{iSpinLockRW};
 
         const TestRes testRes = _IsReadyToShot();
 
@@ -105,13 +105,13 @@ GpTimer::ShotRes    GpTimer::TryMakeShot (void) noexcept
         return std::get<0>(testRes);
     } catch (const GpException& e)
     {
-        GpStringUtils::SCerr("[GpTimersManager::TryMakeShot]: "_sv + e.what());
+        GpOutUtils::S().Err("[GpTimersManager::TryMakeShot]: "_sv + e.what());
     } catch (const std::exception& e)
     {
-        GpStringUtils::SCerr("[GpTimersManager::TryMakeShot]: "_sv + e.what());
+        GpOutUtils::S().Err("[GpTimersManager::TryMakeShot]: "_sv + e.what());
     } catch (...)
     {
-        GpStringUtils::SCerr("[GpTimersManager::TryMakeShot]: unknown"_sv);
+        GpOutUtils::S().Err("[GpTimersManager::TryMakeShot]: unknown"_sv);
     }
 
     return GpTimer::ShotRes::REMOVE;

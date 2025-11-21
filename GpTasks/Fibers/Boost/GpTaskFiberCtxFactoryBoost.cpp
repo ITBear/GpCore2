@@ -6,9 +6,9 @@
 
 namespace GPlatform {
 
-GpTaskFiberCtx::SP  GpTaskFiberCtxFactoryBoost::NewInstance (void) const
+GpTaskFiberCtx::UP  GpTaskFiberCtxFactoryBoost::NewInstance (void) const
 {
-    return MakeSP<GpTaskFiberCtxBoost>();
+    return std::make_unique<GpTaskFiberCtxBoost>();
 }
 
 }// namespace GPlatform

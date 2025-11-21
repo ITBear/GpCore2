@@ -2,8 +2,8 @@
 
 #include <GpCore2/Config/GpConfig.hpp>
 #include <cstdint>
+#include <cstddef>
 #include <bit>
-#include <functional>
 
 using s_int_8   = std::int8_t;
 using u_int_8   = std::uint8_t;

@@ -15,10 +15,10 @@ public:
     TAG_SET(THREAD_SAFE)
 
 public:
-                                    GpTaskFiberCtxFactoryBoost  (void) noexcept = default;
-    virtual                         ~GpTaskFiberCtxFactoryBoost (void) noexcept override final = default;
+                                GpTaskFiberCtxFactoryBoost  (void) noexcept = default;
+    virtual                     ~GpTaskFiberCtxFactoryBoost (void) noexcept override final = default;
 
-    virtual GpTaskFiberCtx::SP      NewInstance                 (void) const override final;
+    virtual GpTaskFiberCtx::UP  NewInstance                 (void) const override final;
 };
 
 }// namespace GPlatform

@@ -228,7 +228,7 @@ void    GpReflectVisitor<VisitorT>::VisitMap
         case GpReflectType::DOUBLE:     ProcessMapK<double, GpReflectPropGetter_Map>(aProp, aCtx, visitMapCtx);     break;
         case GpReflectType::FLOAT:      ProcessMapK<float, GpReflectPropGetter_Map>(aProp, aCtx, visitMapCtx);      break;
         case GpReflectType::UUID:       ProcessMapK<GpUUID, GpReflectPropGetter_Map>(aProp, aCtx, visitMapCtx);     break;
-        case GpReflectType::BLOB:       ProcessMapK<GpBytesArray, GpReflectPropGetter_Map>(aProp, aCtx, visitMapCtx);break;
+        case GpReflectType::BLOB:       ProcessMapK<GpByteArray, GpReflectPropGetter_Map>(aProp, aCtx, visitMapCtx);break;
         case GpReflectType::STRING:     ProcessMapK<std::string, GpReflectPropGetter_Map>(aProp, aCtx, visitMapCtx);break;
         case GpReflectType::BOOLEAN:    [[fallthrough]];        
         case GpReflectType::OBJECT:     [[fallthrough]];
@@ -278,7 +278,7 @@ void    GpReflectVisitor<VisitorT>::ProcessMapK
         case GpReflectType::FLOAT:      aCtxMap.template K_Float<KeyT, float, ValGetterT>(aProp, aCtx);                 break;
         case GpReflectType::UUID:       aCtxMap.template K_UUID<KeyT, GpUUID, ValGetterT>(aProp, aCtx);                 break;
         case GpReflectType::STRING:     aCtxMap.template K_String<KeyT, std::string, ValGetterT>(aProp, aCtx);          break;
-        case GpReflectType::BLOB:       aCtxMap.template K_BLOB<KeyT, GpBytesArray, ValGetterT>(aProp, aCtx);           break;
+        case GpReflectType::BLOB:       aCtxMap.template K_BLOB<KeyT, GpByteArray, ValGetterT>(aProp, aCtx);            break;
         case GpReflectType::OBJECT_SP:  aCtxMap.template K_ObjectSP<KeyT, GpReflectObject::SP, ValGetterT>(aProp, aCtx);break;
         case GpReflectType::BOOLEAN:    [[fallthrough]];
         case GpReflectType::OBJECT:     [[fallthrough]];

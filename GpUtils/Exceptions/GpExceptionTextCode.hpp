@@ -12,22 +12,22 @@ namespace GPlatform {
 class GP_UTILS_API GpExceptionTextCode: public GpException
 {
 private:
-                            GpExceptionTextCode     (void) noexcept = delete;
+                        GpExceptionTextCode     (void) noexcept = delete;
 
 public:
-    inline explicit         GpExceptionTextCode     (const GpExceptionTextCode& aException);
-    inline explicit         GpExceptionTextCode     (GpExceptionTextCode&& aException);
-    inline explicit         GpExceptionTextCode     (std::string_view       aMsg,
-                                                     std::string            aCode,
-                                                     const SourceLocationT& aSourceLocation) noexcept;
+    inline explicit     GpExceptionTextCode     (const GpExceptionTextCode& aException);
+    inline explicit     GpExceptionTextCode     (GpExceptionTextCode&& aException);
+    inline explicit     GpExceptionTextCode     (std::string_view       aMsg,
+                                                 std::string            aCode,
+                                                 const SourceLocationT& aSourceLocation) noexcept;
 
 public:
-    virtual                 ~GpExceptionTextCode    (void) noexcept override;
+    virtual             ~GpExceptionTextCode    (void) noexcept override;
 
-    std::string_view        Code                    (void) const noexcept {return iCode;}
+    std::string_view    Code                    (void) const noexcept {return iCode;}
 
 private:
-    std::string             iCode;
+    std::string iCode;
 };
 
 GpExceptionTextCode::GpExceptionTextCode (const GpExceptionTextCode& aException):

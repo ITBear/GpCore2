@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-#include <GpCore2/GpUtils/Types/Containers/GpBytesArray.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpByteArray.hpp>
 #include <GpCore2/GpReflection/GpReflection_global.hpp>
 #include <GpCore2/GpReflection/Diff/GpReflectDiffArray.hpp>
 
@@ -12,7 +12,7 @@ class GP_REFLECTION_API GpReflectDiffProp_VecBLOB
 public:
     CLASS_DD(GpReflectDiffProp_VecBLOB)
 
-    using ContainerT = std::vector<GpBytesArray>;
+    using ContainerT = std::vector<GpByteArray>;
 
     struct DiffArrayHelpers
     {

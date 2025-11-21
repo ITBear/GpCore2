@@ -1,4 +1,0 @@
-#pragma once
-
-#define GP_USE_MULTITHREADING
-#define GP_USE_RANDOM_GENERATORS

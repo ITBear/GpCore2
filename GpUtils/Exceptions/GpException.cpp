@@ -3,14 +3,16 @@
 #if defined(GP_USE_EXCEPTIONS)
 
 #include <GpCore2/GpUtils/Exceptions/GpExceptionUtils.hpp>
-#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpOutUtils.hpp>
 
 #if defined(GP_PRINT_EXCEPTIONS_STACKTRACE)
 #   include <GpCore2/GpUtils/Debugging/GpStackTrace.hpp>
 #endif// #if defined(GP_PRINT_EXCEPTIONS_STACKTRACE)
 
+#include <GpCore2/GpUtils/Debugging/GpDebugging.hpp>
+
 #if defined(GP_POSIX)
-#   include <signal.h>
+//# include <signal.h>
 #   include <execinfo.h>
 #endif//
 
@@ -27,6 +29,7 @@ iWhat          {aException.iWhat},
 iMsg           {aException.iMsg},
 iSourceLocation{aException.iSourceLocation}
 {
+    //GpDebugging::SBreakpoint();
 }
 
 GpException::GpException (GpException&& aException) noexcept:
@@ -34,6 +37,7 @@ iWhat          {std::move(aException.iWhat)},
 iMsg           {std::move(aException.iMsg)},
 iSourceLocation{aException.iSourceLocation}//do not std::move
 {
+    //GpDebugging::SBreakpoint();
 }
 
 GpException::GpException
@@ -43,6 +47,7 @@ GpException::GpException
 ) noexcept
 try
 {
+    //GpDebugging::SBreakpoint();
     std::optional<std::string> stackTraceStrOpt;
 
 #if defined(GP_PRINT_EXCEPTIONS_STACKTRACE)
@@ -61,11 +66,11 @@ try
     iSourceLocation = aSourceLocation;
 } catch(const std::exception& ex)
 {
-    GpStringUtils::SCerr("[GpException::GpException]: "_sv + ex.what());
+    GpOutUtils::S().Err("[GpException::GpException]: "_sv + ex.what());
     std::terminate();
 } catch(...)
 {
-    GpStringUtils::SCerr("[GpException::GpException]: unknown exception"_sv);
+    GpOutUtils::S().Err("[GpException::GpException]: unknown exception"_sv);
     std::terminate();
 }
 

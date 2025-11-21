@@ -21,12 +21,12 @@ GP_ENUM(GP_TASKS_API, GpTaskMode,
     FIBER
 );
 
-GP_ENUM(GP_TASKS_API, GpTaskState,
-    NOT_STARTED,
+/*GP_ENUM(GP_TASKS_API, GpTaskState,
+    NOT_SPAWNED,
     WAITING,
     RUNING,
     DONE
-);
+);*/
 
 class GpTaskId_type;
 using GpTaskId      = GpTypeShell<u_int_32, GpTaskId_type>;

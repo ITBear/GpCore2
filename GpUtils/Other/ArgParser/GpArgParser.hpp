@@ -11,7 +11,7 @@ public:
     CLASS_REMOVE_CTRS_MOVE_COPY(GpArgParser)
     CLASS_DD(GpArgParser)
 
-    using ArgumentMapT = boost::container::small_flat_map<std::string, GpArgParserArgument::SP, 64, std::less<>>;
+    using ArgumentMapT = boost::container::flat_map<std::string, GpArgParserArgument::SP, std::less<>>;
 
 public:
                                 GpArgParser             (void) noexcept;
@@ -20,7 +20,7 @@ public:
     GpArgParserRes::SP          Parse                   (size_t             aArgc,
                                                          const char* const  aArgv[]) const;
     GpArgParserArgumentBuilder& NextArgument            (void);
-    GpArgParser&                AddArgument             (GpArgParserArgument::SP aArgument);
+    GpArgParser&                AddArgument             (GpArgParserArgument::SP aArgumentSP);
     void                        EnableUnknownArguments  (void) noexcept;
     void                        DisableUnknownArguments (void) noexcept;
 

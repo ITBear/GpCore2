@@ -13,12 +13,12 @@
 
 namespace GPlatform {
 
-GpBytesArray    GpFileUtils::SReadAll (std::string_view aFileName)
+GpByteArray GpFileUtils::SReadAll (std::string_view aFileName)
 {
     GpFile  file;
     file.Open(aFileName, {GpFileFlag::READ});
     const size_byte_t fileSize = file.Size();
-    GpBytesArray data;
+    GpByteArray data;
     data.resize(fileSize.Value());
     file.Read(data);
     file.Close();

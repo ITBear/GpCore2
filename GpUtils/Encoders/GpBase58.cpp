@@ -84,14 +84,14 @@ std::string GpBase58::SEncodeToStr
     return encodedStr;
 }
 
-GpBytesArray    GpBase58::SEncodeToByteArray
+GpByteArray GpBase58::SEncodeToByteArray
 (
     GpSpanByteR         aData,
     const AlphabetTE    aAlphabet
 )
 {
     const size_t    encodedSize = SEncodedSize(aData);
-    GpBytesArray    encodedData;
+    GpByteArray     encodedData;
     encodedData.resize(encodedSize);
 
     GpByteWriterStorageFixedSize    writerStorge({std::data(encodedData), std::size(encodedData)});
@@ -138,7 +138,7 @@ std::string GpBase58::SDecodeToStr
     return decodedStr;
 }
 
-GpBytesArray    GpBase58::SDecodeToByteArray
+GpByteArray GpBase58::SDecodeToByteArray
 (
     std::string_view    aBase58Str,
     const AlphabetTE    aAlphabet
@@ -148,7 +148,7 @@ GpBytesArray    GpBase58::SDecodeToByteArray
     size_t      decodedSize = 0;
     SDecodePrecalc(aBase58Str, aAlphabet, &mpzData, decodedSize);
 
-    GpBytesArray    decodedData;
+    GpByteArray decodedData;
 
     decodedData.resize(decodedSize);
 

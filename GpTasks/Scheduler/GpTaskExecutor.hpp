@@ -13,12 +13,12 @@ public:
     CLASS_DD(GpTaskExecutor)
 
 protected:
-                        GpTaskExecutor  (void) noexcept = default;
+                    GpTaskExecutor  (void) noexcept = default;
 
 public:
-    virtual             ~GpTaskExecutor (void) noexcept = default;
+    virtual         ~GpTaskExecutor (void) noexcept = default;
 
-    virtual void        Run             (std::atomic_flag& aStopRequest) noexcept = 0;
+    virtual void    Run             (GpConditionVarFlag& aStopFlag) noexcept = 0;
 };
 
 }// namespace GPlatform

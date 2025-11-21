@@ -31,7 +31,7 @@ public:
         std::vector<double>,        // GpReflectType::DOUBLE
         std::vector<float>,         // GpReflectType::FLOAT
         std::vector<GpUUID>,        // GpReflectType::UUID
-        std::vector<GpBytesArray>,  // GpReflectType::BLOB
+        std::vector<GpByteArray>,   // GpReflectType::BLOB
         std::vector<std::string>    // GpReflectType::STRING
     >;
 
@@ -66,7 +66,7 @@ public:
         std::vector<double>,                // GpReflectType::DOUBLE
         std::vector<float>,                 // GpReflectType::FLOAT
         std::vector<GpUUID>,                // GpReflectType::UUID
-        std::vector<GpBytesArray>,          // GpReflectType::BLOB
+        std::vector<GpByteArray>,           // GpReflectType::BLOB
         std::vector<std::string>,           // GpReflectType::STRING
         std::vector<GpReflectObject::SP>    // GpReflectType::OBJECT_SP
     >;
@@ -263,9 +263,9 @@ auto&   GpReflectDiffProp_Map::SGetKeysFromVar (KeysVarT& aVar)
     {
         aVar = std::vector<GpUUID>{};
         return std::get<10>(aVar);
-    } else if constexpr(std::is_same_v<T, GpBytesArray>)
+    } else if constexpr(std::is_same_v<T, GpByteArray>)
     {
-        aVar = std::vector<GpBytesArray>{};
+        aVar = std::vector<GpByteArray>{};
         return std::get<11>(aVar);
     } else if constexpr(std::is_same_v<T, std::string>)
     {
@@ -324,7 +324,7 @@ auto&   GpReflectDiffProp_Map::SGetValuesToUpdateFromVar (ValuesDiffVarT& aVar)
     {
         aVar = std::vector<GpUUID>{};
         return std::get<10>(aVar);
-    } else if constexpr(std::is_same_v<T, GpBytesArray>)
+    } else if constexpr(std::is_same_v<T, GpByteArray>)
     {
         aVar = std::vector<GpReflectDiffPropBLOB>{};
         return std::get<11>(aVar);
@@ -389,9 +389,9 @@ auto&   GpReflectDiffProp_Map::SGetValuesToAddFromVar (ValuesVarT& aVar)
     {
         aVar = std::vector<GpUUID>{};
         return std::get<10>(aVar);
-    } else if constexpr(std::is_same_v<T, GpBytesArray>)
+    } else if constexpr(std::is_same_v<T, GpByteArray>)
     {
-        aVar = std::vector<GpBytesArray>{};
+        aVar = std::vector<GpByteArray>{};
         return std::get<11>(aVar);
     } else if constexpr(std::is_same_v<T, std::string>)
     {
@@ -449,7 +449,7 @@ auto    GpReflectDiffProp_Map::SCalcValueDiff
     } else if constexpr(std::is_same_v<T, GpUUID>)
     {
         return aValTo;
-    } else if constexpr(std::is_same_v<T, GpBytesArray>)
+    } else if constexpr(std::is_same_v<T, GpByteArray>)
     {
         return GpReflectDiffPropBLOB::SCheckAndMake(aValFrom, aValTo).value();
     } else if constexpr(std::is_same_v<T, std::string>)
@@ -500,7 +500,7 @@ auto    GpReflectDiffProp_Map::SMakeValueCopy (const T& aVal)
     } else if constexpr(std::is_same_v<T, GpUUID>)
     {
         return aVal;
-    } else if constexpr(std::is_same_v<T, GpBytesArray>)
+    } else if constexpr(std::is_same_v<T, GpByteArray>)
     {
         return aVal;
     } else if constexpr(std::is_same_v<T, std::string>)
@@ -513,7 +513,7 @@ auto    GpReflectDiffProp_Map::SMakeValueCopy (const T& aVal)
             return aVal.Vn().ReflectClone();
         } else
         {
-            return GpReflectObject::SP::SNull();
+            return GpReflectObject::SP{nullptr};
         }
     } else
     {

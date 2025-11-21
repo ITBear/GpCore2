@@ -3,7 +3,7 @@
 #include <GpCore2/Config/GpConfig.hpp>
 #include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
-#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpOutUtils.hpp>
 #include <GpCore2/GpTasks/ITC/GpItcFuture.hpp>
 
 #if defined(GP_USE_MULTITHREADING)
@@ -72,13 +72,13 @@ GpItcPromise<T>::~GpItcPromise (void) noexcept
         }
     } catch (const GpException& e)
     {
-        GpStringUtils::SCerr("[GpItcPromise::~GpItcPromise]: exception: "_sv + e.what());
+        GpOutUtils::S().Err("[GpItcPromise::~GpItcPromise]: exception: "_sv + e.what());
     } catch (const std::exception& e)
     {
-        GpStringUtils::SCerr("[GpItcPromise::~GpItcPromise]: exception: "_sv + e.what());
+        GpOutUtils::S().Err("[GpItcPromise::~GpItcPromise]: exception: "_sv + e.what());
     } catch (...)
     {
-        GpStringUtils::SCerr("[GpItcPromise::~GpItcPromise]: unknown exception"_sv);
+        GpOutUtils::S().Err("[GpItcPromise::~GpItcPromise]: unknown exception"_sv);
     }
 }
 

@@ -25,7 +25,7 @@ public:
     virtual GpReflectObject::SP ToObject                (GpReflectSerializerCtx&    aCtx,
                                                          const GpReflectModel&      aModel) const = 0;
 
-    GpBytesArray                FromObject              (const GpReflectObject& aObject) const;
+    GpByteArray                 FromObject              (const GpReflectObject& aObject) const;
     virtual void                FromObject              (const GpReflectObject& aObject,
                                                          GpByteWriter&          aWriter) const = 0;
 };

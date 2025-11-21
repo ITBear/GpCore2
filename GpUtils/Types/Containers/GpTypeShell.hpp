@@ -57,7 +57,7 @@ public:
     constexpr bool          operator>=      (const this_type& aShell) const noexcept;
 
 private:
-    T                       iValue  = {};
+    T iValue    = {};
 };
 
 template<typename T, typename SHELL>

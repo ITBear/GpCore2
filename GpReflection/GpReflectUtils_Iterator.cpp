@@ -71,7 +71,7 @@ void    GpReflectUtils_Iterator::SProcessObject
     {
         GpVectorReflectObjWrapBase& vecWrap = aProp.VecWrap_Object(aReflectDataPtr);
 
-        const size_t    size    = vecWrap.size();
+        const size_t    size    = std::size(vecWrap);
         const size_t    stride  = vecWrap.stride();
         u_int_8*        vecData = reinterpret_cast<u_int_8*>(vecWrap.data());
 

@@ -2,6 +2,8 @@
 
 #if defined(GP_USE_MULTITHREADING_FIBERS)
 
+#include <GpCore2/GpUtils/Debugging/GpStackTrace.hpp>
+
 GP_WARNING_PUSH()
 
 #if defined(GP_COMPILER_CLANG) || defined(GP_COMPILER_GCC)
@@ -17,19 +19,30 @@ GP_WARNING_POP()
 
 namespace GPlatform {
 
+GpTaskFiber::GpTaskFiber (void) noexcept:
+GpTask{GpTaskMode::FIBER}
+{
+}
+
+GpTaskFiber::GpTaskFiber (std::string aName) noexcept:
+GpTask{std::move(aName), GpTaskMode::FIBER}
+{
+}
+
 GpTaskFiber::~GpTaskFiber (void) noexcept
 {
-    if (iCtx.IsNULL()) [[likely]]
+    if (iCtxUP == nullptr) [[likely]]
     {
         return;
     }
 
-    GpStringUtils::SCerr
+    GpOutUtils::S().Err
     (
         fmt::format
         (
-            "[GpTaskFiber::~GpTaskFiber]: iCtx is not null!. Task '{}'",
-            TaskName()
+            "[GpTaskFiber::~GpTaskFiber]: iCtxUP is not null!. Task '{}', '{}'",
+            TaskName(),
+            TaskId().Value()
         )
     );
 
@@ -37,23 +50,34 @@ GpTaskFiber::~GpTaskFiber (void) noexcept
     std::terminate();
 }
 
-GpTaskFiber&    GpTaskFiber::SCurrentFiber (void)
+GpTaskFiber::SP GpTaskFiber::SCurrentFiber (void)
 {
-    GpTask::C::Opts::Ref currentTaskOpt = GpTask::SCurrentTask();
+    GpTask::WP taskWP = GpTask::SCurrentTask();
+    GpTask::SP taskSP = taskWP.Lock();
 
-    if (!currentTaskOpt.has_value()) [[unlikely]]
-    {
-        THROW("Call Yield from outside fiber"_sv);
-    }
+    VERIFY
+    (
+        taskSP.IsNotNULL(),
+        "[GpTaskFiber::SCurrentFiber]: Function invoked outside a fiber context (current task is null)"
+    );
 
-    GpTask& currentTask = currentTaskOpt.value();
+    VERIFY
+    (
+        taskSP.Vn().TaskMode() == GpTaskMode::FIBER,
+        "[GpTaskFiber::SCurrentFiber]: Function invoked outside a fiber context (task mode == GpTaskMode::THREAD)"
+    );
 
-    if (currentTask.TaskMode() != GpTaskMode::FIBER) [[unlikely]]
-    {
-        THROW("Call Yield from not fiber task"_sv);
-    }
+    return taskSP.CastTo<GpTaskFiber::SP>();
+}
 
-    return static_cast<GpTaskFiber&>(currentTask);
+void    GpTaskFiber::SYield (const GpTaskRunRes::EnumT aValue)
+{
+    SCurrentFiber().Vn().iCtxUP->CallYield(aValue);
+}
+
+GpTaskFiberCtx::TimeoutRes  GpTaskFiber::SYield (const milliseconds_t aTimeout)
+{
+    return SCurrentFiber().Vn().iCtxUP->CallYield(aTimeout);
 }
 
 GpTaskRunRes::EnumT GpTaskFiber::Run (void) noexcept
@@ -65,14 +89,13 @@ GpTaskRunRes::EnumT GpTaskFiber::Run (void) noexcept
     try
     {
         // Check if fiber context is created
-        if (iCtx.IsNULL()) [[unlikely]]
+        if (iCtxUP == nullptr) [[unlikely]]
         {
-            // TODO: add ctx pool (cache)
-            iCtx = GpTaskFiberCtxFactory::S().NewInstance();
+            iCtxUP = GpTaskFiberCtxFactory::S().NewInstance();
         }
 
-        // Enter to fiber
-        res = iCtx->Enter(*this);
+        // Enter to fiber (jump to GpTaskFiberCtxBoost::SFiberFn)
+        res = iCtxUP->Enter(*this);
     } catch (const GpTaskFiberCtxForceUnwind&)
     {
         // NOP
@@ -88,35 +111,46 @@ GpTaskRunRes::EnumT GpTaskFiber::Run (void) noexcept
     }
 
     // Check if there are was exception
-    if (ex.has_value())
+    try
     {
-        //GpStringUtils::SCerr(ex->what());
-        res = GpTaskRunRes::DONE;
-
-        GpException::C::Opt clearExOpt = ClearCtx();
-
-        if (clearExOpt.has_value())
+        if (ex.has_value())
         {
-            StartPromise(GpMethodAccess{this}).Fulfill(clearExOpt.value());
-            DonePromise(GpMethodAccess{this}).Fulfill(clearExOpt.value());
-        } else
+            res = GpTaskRunRes::DONE;
+
+            GpException::C::Opt clearExOpt = ClearCtx();
+
+            if (clearExOpt.has_value())
+            {
+                StartPromise(GpMethodAccess{this}).Fulfill(clearExOpt.value());
+                DonePromise(GpMethodAccess{this}).Fulfill(clearExOpt.value());
+            } else
+            {
+                StartPromise(GpMethodAccess{this}).Fulfill(ex.value());
+                DonePromise(GpMethodAccess{this}).Fulfill(ex.value());
+            }
+        } else if (res == GpTaskRunRes::DONE) // Check if result is DONE
         {
-            StartPromise(GpMethodAccess{this}).Fulfill(ex.value());
-            DonePromise(GpMethodAccess{this}).Fulfill(ex.value());
+            GpException::C::Opt clearExOpt = ClearCtx();
+
+            if (clearExOpt.has_value())
+            {
+                StartPromise(GpMethodAccess{this}).Fulfill(clearExOpt.value());
+                DonePromise(GpMethodAccess{this}).Fulfill(clearExOpt.value());
+            } else
+            {
+                StartPromise(GpMethodAccess{this}).Fulfill(StartPromiseRes{});
+                DonePromise(GpMethodAccess{this}).Fulfill(DonePromiseRes{});
+            }
         }
-    } else if (res == GpTaskRunRes::DONE) // Check if result is DONE
+    } catch (const GpException& e)
     {
-        GpException::C::Opt clearExOpt = ClearCtx();
-
-        if (clearExOpt.has_value())
-        {
-            StartPromise(GpMethodAccess{this}).Fulfill(clearExOpt.value());
-            DonePromise(GpMethodAccess{this}).Fulfill(clearExOpt.value());
-        } else
-        {
-            StartPromise(GpMethodAccess{this}).Fulfill(StartPromiseRes{});
-            DonePromise(GpMethodAccess{this}).Fulfill(DonePromiseRes{});
-        }
+        GpOutUtils::S().StdErr("[GpTaskFiber::Run]: exception: "_sv + e.what());
+    } catch (const std::exception& e)
+    {
+        GpOutUtils::S().StdErr("[GpTaskFiber::Run]: exception: "_sv + e.what());
+    } catch (...)
+    {
+        GpOutUtils::S().StdErr("[GpTaskFiber::Run]: unknown exception: "_sv);
     }
 
     return res;
@@ -145,6 +179,9 @@ GpTaskRunRes::EnumT GpTaskFiber::FiberRun (GpMethodAccessGuard<GpTaskFiberCtx>)
         {
             return res;
         }
+    } catch (const GpTaskFiberCtxForceUnwind&)
+    {
+        // NOP
     } catch (const GpException& e)
     {
         ex = GpException{e};
@@ -156,19 +193,40 @@ GpTaskRunRes::EnumT GpTaskFiber::FiberRun (GpMethodAccessGuard<GpTaskFiberCtx>)
         ex = GpException{"[GpTaskFiber::FiberRun]: unknown exception"_sv};
     }
 
-    // --------------- Call stop ------------------
-    CallOnStop(GpMethodAccess{this});
-
+    ExceptionsT stopExceptions;
     if (ex.has_value())
     {
-        OnStopException(ex.value());
-        throw ex.value();
+        stopExceptions.emplace_back(std::move(ex.value()));
+    }
+
+    // --------------- Call stop ------------------
+    CallOnStop(stopExceptions);
+
+    for (const GpException& exeption: stopExceptions)
+    {
+        OnStopException(exeption);
+    }
+
+    if (!stopExceptions.empty())
+    {
+        throw stopExceptions[0];
     }
 
     return GpTaskRunRes::DONE;
 }
 
-void    GpTaskFiber::CallOnStop (GpMethodAccessGuard<GpTaskFiber, GpTaskFiberCtx>) noexcept
+void    GpTaskFiber::CallOnStop (GpMethodAccessGuard<GpTaskFiberCtx>) noexcept
+{
+    GpTaskFiber::ExceptionsT stopExceptions;
+    CallOnStop(stopExceptions);
+
+    for (const GpException& exeption: stopExceptions)
+    {
+        OnStopException(exeption);
+    }
+}
+
+void    GpTaskFiber::CallOnStop (ExceptionsT& aStopExceptionsOut) noexcept
 {
     if (iIsStopCalled)
     {
@@ -176,13 +234,7 @@ void    GpTaskFiber::CallOnStop (GpMethodAccessGuard<GpTaskFiber, GpTaskFiberCtx
     }
 
     iIsStopCalled = true;
-    GpTaskFiber::ExceptionsT stopExceptions;
-    OnStop(stopExceptions);
-
-    for (const GpException& ex: stopExceptions)
-    {
-        OnStopException(ex);
-    }
+    OnStop(aStopExceptionsOut);
 }
 
 GpException::C::Opt GpTaskFiber::ClearCtx (void) noexcept
@@ -191,13 +243,11 @@ GpException::C::Opt GpTaskFiber::ClearCtx (void) noexcept
 
     try
     {
-        if (iCtx.IsNotNULL())
+        if (iCtxUP != nullptr)
         {
-            ex = iCtx->Clear();         
-            iCtx.Clear();
+            ex = iCtxUP->Clear();
+            iCtxUP.reset();
         }
-
-        return std::nullopt;
     } catch (const GpException& e)
     {
         ex = e;

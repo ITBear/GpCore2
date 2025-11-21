@@ -18,9 +18,9 @@ public:
 
 public:
     template<size_t N>
-    static void         SWaitFor    (ConditionFnT                                                       aCondFn,
-                                     const std::array<std::pair<size_t, std::chrono::milliseconds>, N>& aTryStages,
-                                     std::chrono::milliseconds                                          aMaxSleepInterval);
+    static void SWaitFor    (ConditionFnT                                                       aCondFn,
+                             const std::array<std::pair<size_t, std::chrono::milliseconds>, N>& aTryStages,
+                             std::chrono::milliseconds                                          aMaxSleepInterval);
 };
 
 template<size_t N>

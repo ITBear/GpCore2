@@ -137,8 +137,8 @@ public:
                                              const std::string& aValueFrom,
                                              const std::string& aValueTo);
     bool                AddDiff_BLOB        (size_t                 aPropIdx,
-                                             const GpBytesArray&    aValueFrom,
-                                             const GpBytesArray&    aValueTo);
+                                             const GpByteArray& aValueFrom,
+                                             const GpByteArray& aValueTo);
     bool                AddDiff_Object      (size_t                         aPropIdx,
                                              const GpReflectObject&         aValueFrom,
                                              const GpReflectObject&         aValueTo,
@@ -194,8 +194,8 @@ public:
                                              const std::vector<std::string>&    aValueFrom,
                                              const std::vector<std::string>&    aValueTo);
     bool                AddDiff_VecBLOB     (size_t                             aPropIdx,
-                                             const std::vector<GpBytesArray>&   aValueFrom,
-                                             const std::vector<GpBytesArray>&   aValueTo);
+                                             const std::vector<GpByteArray>&    aValueFrom,
+                                             const std::vector<GpByteArray>&    aValueTo);
     bool                AddDiff_VecObject   (size_t                             aPropIdx,
                                              const GpVectorReflectObjWrapBase&  aValueFrom,
                                              const GpVectorReflectObjWrapBase&  aValueTo,

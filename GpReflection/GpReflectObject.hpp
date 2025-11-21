@@ -20,7 +20,6 @@ class GP_REFLECTION_API GpReflectObject
 {
 public:
     CLASS_DD(GpReflectObject)
-
     TAG_SET(GpReflectObject)
 
     struct  _type_id_tag_t{};
@@ -91,7 +90,7 @@ template<typename T>
 typename T::SP  GpReflectObject::ReflectClone (void) const
 {
     GpReflectObject::SP val = ReflectClone();
-    return val.CastAs<typename T::SP>();
+    return val.CastToDerived<typename T::SP>();
 }
 
 }// namespace GPlatform

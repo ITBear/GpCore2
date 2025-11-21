@@ -37,9 +37,9 @@ public:
                                                                  bool aUsePositionalArguments) const;
 
 private:
-    ArgumentsVecT                       iArguments;
-    PositionalArgumentsVecT             iPositionalArguments;
-    std::string                         iExecutablePathAndName;
+    ArgumentsVecT           iArguments;
+    PositionalArgumentsVecT iPositionalArguments;
+    std::string             iExecutablePathAndName;
 };
 
 }// namespace GPlatform

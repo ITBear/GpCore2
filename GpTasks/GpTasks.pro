@@ -37,6 +37,13 @@ equals(var_os, "linux") {
 	LIBS += -lfmt
 }
 
+equals(var_os, "macos") {
+	LIBS += -lGpUtils$$TARGET_POSTFIX
+
+	LIBS += -lboost_context
+	LIBS += -lfmt
+}
+
 # ----------- Sources and headers -----------
 SOURCES += \
 	Fibers/Boost/GpStackImplPoolBoost.cpp \
@@ -47,13 +54,11 @@ SOURCES += \
     Fibers/GpTaskFiberCtxForceUnwind.cpp \
     GpTask.cpp \
     GpTaskEnums.cpp \
-	GpTaskGroupsManager_.cpp \
 	GpTaskThread.cpp \
 	GpTasksLib.cpp \
-	ITC/GpItcCondition.cpp \
+	ITC/GpItcConditionVar.cpp \
 	ITC/GpItcFutureUtils.cpp \
     Scheduler/GpTaskScheduler.cpp \
-	GpTaskVarStorage.cpp \
 	Scheduler/V1/GpTaskExecutorV1.cpp \
 	Scheduler/V1/GpTaskSchedulerV1.cpp \
 	Scheduler/V1/GpTaskSchedulerV1Factory.cpp
@@ -71,19 +76,18 @@ HEADERS += \
     GpTask.hpp \
     GpTaskEnums.hpp \
     GpTaskFactory.hpp \
-	GpTaskGroupsManager_.hpp \
 	GpTaskThread.hpp \
 	GpTasksLib.hpp \
     GpTasks_global.hpp \
 	ITC/GpItcCacheMap.hpp \
-	ITC/GpItcCondition.hpp \
+	ITC/GpItcConditionVar.hpp \
 	ITC/GpItcFuture.hpp \
 	ITC/GpItcFutureUtils.hpp \
 	ITC/GpItcKeyBasedLock.hpp \
 	ITC/GpItcLock.hpp \
 	ITC/GpItcLockRW.hpp \
 	ITC/GpItcPromise.hpp \
-	ITC/GpItcQueue.hpp \
+	ITC/GpItcQueueMPMC.hpp \
 	ITC/GpItcRecursiveLock.hpp \
 	ITC/GpItcRecursiveLockRW.hpp \
     ITC/GpItcResult.hpp \
@@ -91,7 +95,6 @@ HEADERS += \
 	Scheduler/GpTaskExecutor.hpp \
     Scheduler/GpTaskScheduler.hpp \
     Scheduler/GpTaskSchedulerFactory.hpp \
-	GpTaskVarStorage.hpp \
 	Scheduler/V1/GpTaskExecutorV1.hpp \
 	Scheduler/V1/GpTaskSchedulerV1.hpp \
 	Scheduler/V1/GpTaskSchedulerV1Factory.hpp

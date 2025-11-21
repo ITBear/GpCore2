@@ -20,7 +20,7 @@ os_linux {
 		./GpUtils \
 		./GpReflection \
 		./GpTasks
-} else:os_macx {
+} else:os_macos {
 	SUBDIRS += \
 		./GpUtils \
 		./GpReflection \

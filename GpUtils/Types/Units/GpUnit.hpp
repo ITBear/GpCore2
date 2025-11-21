@@ -42,10 +42,6 @@ template<Concepts::IsArithmetic T,
 class GpUnit
 {
 public:
-//#if defined(GP_COMPILER_GCC)
-//  static_assert(std::chrono::__is_ratio<SCALE>::value, "Scale must be a specialization of std::ratio");
-//#endif
-
     static_assert(SCALE::num > 0, "SCALE::num must be positive");
 
     using value_type    = T;
@@ -415,20 +411,5 @@ static string   to_string (T aValue)
 {
     return ::std::to_string(aValue.Value());
 }
-
-/*template<typename T,
-         size_t   N,
-         typename UNIT_TYPE,
-         typename SCALE,
-         typename UNIT_NAME> struct hash<::GPlatform::GpUnit<T, N, UNIT_TYPE, SCALE, UNIT_NAME>>
-{
-    using argument_type = ::GPlatform::GpUnit<T, N, UNIT_TYPE, SCALE, UNIT_NAME>;
-    using result_type   = size_t;
-
-    result_type operator()(argument_type const& aArg) const noexcept
-    {
-        return std::hash<typename argument_type::value_type>(aArg.Value());
-    }
-};*/
 
 }// namespace std

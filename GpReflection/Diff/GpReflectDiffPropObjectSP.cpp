@@ -33,7 +33,7 @@ GpReflectDiffPropObjectSP::C::Opts::Val GpReflectDiffPropObjectSP::SCheckAndMake
 {
     if (aValueTo.IsNULL())
     {
-        return GpReflectDiffPropObjectSP{GpReflectDiffDelta::SP::SNull()};
+        return GpReflectDiffPropObjectSP{nullptr};
     }
 
     GpReflectObject::SP valueFrom = aValueFrom;

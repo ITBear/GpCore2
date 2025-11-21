@@ -19,6 +19,8 @@
 #   include <GpCore2/Config/GpConfig_arch_wasm_32.hpp>
 #elif defined(GP_ARCH_WASM_64)
 #   include <GpCore2/Config/GpConfig_arch_wasm_64.hpp>
+#elif defined(GP_ARCH_ARM_64)
+#   include <GpCore2/Config/GpConfig_arch_arm_64.hpp>
 #else
 #   error Current architecture is not supported yet.
 #endif
@@ -34,8 +36,8 @@
 #   include <GpCore2/Config/GpConfig_os_ios.hpp>
 #elif defined(GP_OS_IOS_SIMULATOR)
 #   include <GpCore2/Config/GpConfig_os_ios_simulator.hpp>
-#elif defined(GP_OS_MACOSX)
-#   include <GpCore2/Config/GpConfig_os_macosx.hpp>
+#elif defined(GP_OS_MACOS)
+#   include <GpCore2/Config/GpConfig_os_macos.hpp>
 #elif defined(GP_OS_BARE_METAL)
 #   include <GpCore2/Config/GpConfig_os_baremetal.hpp>
 #elif defined(GP_OS_BROWSER)

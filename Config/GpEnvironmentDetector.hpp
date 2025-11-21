@@ -158,8 +158,8 @@
 #       define GP_OS_NAME "iOS_sim"
 #       define GP_POSIX
 #   elif defined(TARGET_OS_MAC) && (TARGET_OS_MAC == 1)
-#       define GP_OS_MACOSX
-#       define GP_OS_NAME "MacOSX"
+#       define GP_OS_MACOS
+#       define GP_OS_NAME "MacOS"
 #       define GP_POSIX
 #   elif defined(OS_BARE_METAL)
 #       define GP_OS_BARE_METAL

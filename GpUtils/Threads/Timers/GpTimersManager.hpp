@@ -28,42 +28,38 @@ public:
     class TimersPoolT final: public GpSharedPool<GpTimer::SP>
     {
     public:
-                                TimersPoolT         (void) noexcept = default;
-                                ~TimersPoolT        (void) noexcept = default;
+                            TimersPoolT     (void) noexcept = default;
+                            ~TimersPoolT    (void) noexcept = default;
 
     protected:
-        virtual value_type      NewElement          (void) override final
+        virtual value_type  NewElement      (void) override final
         {
             return MakeSP<GpTimer>();
         }
     };
 
 public:
-                                GpTimersManager     (void) noexcept;
-    virtual                     ~GpTimersManager    (void) noexcept override final;
+                            GpTimersManager     (void) noexcept;
+    virtual                 ~GpTimersManager    (void) noexcept override final;
 
-    static void                 SStart              (void);
-    static void                 SDisableShots       (void);
-    static void                 SStop               (void); 
-    static GpTimersManager::SP  SManager            (void) {return sTimersManager;}
-    static GpTimer::SP          SSingleShot         (GpTimer::CallbackFnT&& aCallbackFn,
-                                                     milliseconds_t         aDelayBeforeShot,
-                                                     bool                   aUseTimersPool);
-    inline static void          SAddTimer           (GpTimer::SP aTimer);
-    void                        AddTimer            (GpTimer::SP aTimer);
+    static GpTimersManager& S                   (void) {return *sTimersManager;}
+    static void             SStart              (void);
+    static void             SDisableShots       (void);
+    static void             SStop               (void);
+    static GpTimer::SP      SSingleShot         (GpTimer::CallbackFnT&& aCallbackFn,
+                                                 milliseconds_t         aDelayBeforeShot);
+    inline static void      SAddTimer           (GpTimer::SP aTimer);
+    void                    AddTimer            (GpTimer::SP aTimer);
 
-    virtual void                Run                 (std::atomic_flag& aStopRequest) noexcept override final;
-
-protected:
-    virtual void                OnNotify            (void) noexcept override final;
+    virtual void            Run                 (GpConditionVarFlag& aStopFlag) noexcept override final;
 
 private:
-    void                        DisableShots        (void);
+    void                    DisableShots        (void);
 
 private:
     const milliseconds_t        iCheckPeriod = 16.337_si_ms; // TODO: move to config
 
-    mutable GpSpinLock          iTimersToAddSpinLock;
+    mutable GpSpinLock<>        iTimersToAddSpinLock;
     TimersToAddT                iTimersToAdd GUARDED_BY(iTimersToAddSpinLock);
 
     ActiveTimersT               iActiveTimers;
@@ -71,14 +67,14 @@ private:
 
     std::atomic_flag            iIsShotsEnabled;
 
-    static GpTimersManager::SP  sTimersManager;
-    static std::atomic_flag     sTimersThreadDestruct;
+    static GpTimersManager*     sTimersManager;
+    static GpConditionVarFlag   sTimersThreadStopFlag;
     static GpThread             sTimersThread;
 };
 
 void    GpTimersManager::SAddTimer (GpTimer::SP aTimer)
 {
-    SManager()->AddTimer(std::move(aTimer));
+    S().AddTimer(std::move(aTimer));
 }
 
 }// namespace GPlatform

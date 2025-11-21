@@ -22,7 +22,7 @@ GpReflectManager&   GpReflectManager::_S_ (void) noexcept
 
 void    GpReflectManager::AddModelSource (GpReflectModelSource::SP aSource)
 {
-    GpUniqueLock<GpSpinLock> uniqueLock{iModelSourcesSpinLock};
+    GpUniqueLock uniqueLock{iModelSourcesSpinLock};
 
     iModelSources.emplace_back(std::move(aSource));
 }
@@ -184,7 +184,7 @@ GpUUID::C::Opts::Val    GpReflectManager::SelectBaseModel
 
 GpReflectModel::CSP GpReflectManager::FromSources (const GpUUID& aModelUid)
 {
-    GpUniqueLock<GpSpinLock> uniqueLock{iModelSourcesSpinLock};
+    GpUniqueLock uniqueLock{iModelSourcesSpinLock};
 
     for (GpReflectModelSource::SP& source: iModelSources)
     {
@@ -210,7 +210,7 @@ GpReflectModel::CSP GpReflectManager::FromSources (const GpUUID& aModelUid)
 
 GpReflectModel::C::Opts::CSP    GpReflectManager::FromSourcesOpt (const GpUUID& aModelUid)
 {
-    GpUniqueLock<GpSpinLock> uniqueLock{iModelSourcesSpinLock};
+    GpUniqueLock uniqueLock{iModelSourcesSpinLock};
 
     for (GpReflectModelSource::SP& source: iModelSources)
     {

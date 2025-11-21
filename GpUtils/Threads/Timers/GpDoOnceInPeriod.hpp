@@ -21,13 +21,13 @@ public:
     };
 
 public:
-                            GpDoOnceInPeriod    (void) noexcept = delete;
-    inline                  GpDoOnceInPeriod    (const milliseconds_t   aPeriod,
-                                                 const Mode             aMode) noexcept;
-                            ~GpDoOnceInPeriod   (void) noexcept {}
+                    GpDoOnceInPeriod    (void) noexcept = delete;
+    inline          GpDoOnceInPeriod    (const milliseconds_t   aPeriod,
+                                         const Mode             aMode) noexcept;
+                    ~GpDoOnceInPeriod   (void) noexcept {}
 
-    inline bool             Do                  (std::function<void()> aFn);
-    inline void             ResetCounter        (void) noexcept;
+    inline bool     Do                  (std::function<void()> aFn);
+    inline void     ResetCounter        (void) noexcept;
 
 private:
     const milliseconds_t    iPeriod;

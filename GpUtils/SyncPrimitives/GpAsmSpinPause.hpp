@@ -17,8 +17,8 @@ inline void GP_ASM_SPIN_PAUSE (void) noexcept
 #elif defined(GP_ARCH_ARM)
     asm volatile ("yield");
 #else
-    //NOP
-//# error Unsupported CPU architecture
+    //static_cast<void>(0);
+#   error Unsupported CPU architecture
 #endif
 }
 

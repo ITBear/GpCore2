@@ -6,7 +6,6 @@ namespace GPlatform {
 
 GP_ENUM_IMPL(GpTaskRunRes)
 GP_ENUM_IMPL(GpTaskMode)
-GP_ENUM_IMPL(GpTaskState)
 
 }// namespace GPlatform
 

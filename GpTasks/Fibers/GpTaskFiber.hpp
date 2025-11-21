@@ -21,27 +21,22 @@ public:
     using ExceptionsT = GpStartStopManager::ExceptionsT;
 
 protected:
-    inline                      GpTaskFiber     (void) noexcept;
-    inline                      GpTaskFiber     (std::string aName) noexcept;
-    inline                      GpTaskFiber     (GpTaskId aId) noexcept;
-    inline                      GpTaskFiber     (std::string    aName,
-                                                 GpTaskId       aId) noexcept;
+                                GpTaskFiber     (void) noexcept;
+                                GpTaskFiber     (std::string aName) noexcept;
 
 public:
     virtual                     ~GpTaskFiber    (void) noexcept override;
 
-    static GpTaskFiber&         SCurrentFiber   (void);
-    inline static void          SYield          (GpTaskRunRes::EnumT aValue);
-    [[nodiscard]] inline static GpTaskFiberCtx::TimeoutRes
+    static GpTaskFiber::SP      SCurrentFiber   (void);
+    static void                 SYield          (GpTaskRunRes::EnumT aValue);
+    [[nodiscard]] static GpTaskFiberCtx::TimeoutRes
                                 SYield          (milliseconds_t aTimeout);
 
+    // For use in GpTaskFiberCtx
     GpTaskRunRes::EnumT         FiberRun        (GpMethodAccessGuard<GpTaskFiberCtx>);
-    void                        CallOnStop      (GpMethodAccessGuard<GpTaskFiber, GpTaskFiberCtx>) noexcept;
+    void                        CallOnStop      (GpMethodAccessGuard<GpTaskFiberCtx>) noexcept;
 
 protected:
-    bool                        IsStartCalled   (void) const noexcept {return iIsStartCalled;}
-    bool                        IsStopCalled    (void) const noexcept {return iIsStopCalled;}
-
     virtual GpTaskRunRes::EnumT Run             (void) noexcept override final;
 
     virtual void                OnStart         (void) = 0;             // Calls once, before first call OnStep
@@ -52,47 +47,14 @@ protected:
     virtual void                OnStopException (const GpException& aException) noexcept = 0;
 
 private:
+    void                        CallOnStop      (ExceptionsT& aStopExceptionsOut) noexcept;
     GpException::C::Opt         ClearCtx        (void) noexcept;
 
 private:
-    GpTaskFiberCtx::SP          iCtx;
-    bool                        iIsStartCalled  = false;
-    bool                        iIsStopCalled   = false;
+    GpTaskFiberCtx::UP  iCtxUP;
+    bool                iIsStartCalled  = false;
+    bool                iIsStopCalled   = false;
 };
-
-GpTaskFiber::GpTaskFiber (void) noexcept:
-GpTask{GpTaskMode::FIBER}
-{
-}
-
-GpTaskFiber::GpTaskFiber (std::string aName) noexcept:
-GpTask{std::move(aName), GpTaskMode::FIBER}
-{
-}
-
-GpTaskFiber::GpTaskFiber (GpTaskId aId) noexcept:
-GpTask{GpTaskMode::FIBER, aId}
-{
-}
-
-GpTaskFiber::GpTaskFiber
-(
-    std::string aName,
-    GpTaskId    aId
-) noexcept:
-GpTask{std::move(aName), GpTaskMode::FIBER, aId}
-{
-}
-
-void    GpTaskFiber::SYield (const GpTaskRunRes::EnumT aValue)
-{
-    SCurrentFiber().iCtx.Vn().CallYield(aValue);
-}
-
-GpTaskFiberCtx::TimeoutRes  GpTaskFiber::SYield (const milliseconds_t aTimeout)
-{
-    return SCurrentFiber().iCtx.Vn().CallYield(aTimeout);
-}
 
 inline void YIELD (const GpTaskRunRes::EnumT aValue)
 {

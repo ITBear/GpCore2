@@ -11,7 +11,6 @@ GpExceptionCode::GpExceptionCode
 ) noexcept:
 GpException{aMsg, aSourceLocation}
 {
-    //GpDebugging::SBreakpoint();
 }
 
 }// namespace GPlatform

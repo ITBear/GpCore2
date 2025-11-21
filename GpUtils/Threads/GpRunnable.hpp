@@ -16,38 +16,13 @@ public:
     CLASS_DD(GpRunnable)
 
 protected:
-                                GpRunnable      (void) noexcept = default;
+                    GpRunnable  (void) noexcept = default;
 
 public:
-    virtual                     ~GpRunnable     (void) noexcept = default;
+    virtual         ~GpRunnable (void) noexcept = default;
 
-    virtual void                Run             (std::atomic_flag& aStopRequest) noexcept = 0;
-
-    inline void                 Notify          (void) noexcept;
-    inline bool                 WaitForAndReset (milliseconds_t aTimeout) noexcept;
-
-protected:
-    virtual void                OnNotify        (void) noexcept = 0;
-
-private:
-    mutable GpConditionVarFlag  iCVF;
+    virtual void    Run         (GpConditionVarFlag& aStopFlag) noexcept = 0;
 };
-
-void    GpRunnable::Notify (void) noexcept
-{
-    iCVF.NotifyAll
-    (
-        [&]()
-        {
-            OnNotify();
-        }
-    );
-}
-
-bool    GpRunnable::WaitForAndReset (const milliseconds_t aTimeout) noexcept
-{
-    return iCVF.WaitForAndReset(aTimeout);
-}
 
 }// namespace GPlatform
 

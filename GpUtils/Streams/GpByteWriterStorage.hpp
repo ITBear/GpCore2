@@ -1,12 +1,15 @@
 #pragma once
 
-#include <GpCore2/GpUtils/Types/Containers/GpBytesArray.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpByteArray.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 
 namespace GPlatform {
 
 class GP_UTILS_API GpByteWriterStorage
 {
+public:
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpByteWriterStorage)
+    CLASS_DD(GpByteWriterStorage)
 
 protected:
     inline              GpByteWriterStorage     (GpSpanByteRW aStoragePtr) noexcept;
@@ -37,8 +40,8 @@ protected:
     virtual void        _OnEnd                  (void) = 0;
 
 private:
-    GpSpanByteRW        iStoragePtr;
-    size_t              iTotalWrite = 0;
+    GpSpanByteRW    iStoragePtr;
+    size_t          iTotalWrite = 0;
 };
 
 GpByteWriterStorage::GpByteWriterStorage (GpSpanByteRW aStoragePtr) noexcept:

@@ -1,12 +1,19 @@
 #include <GpCore2/GpUtils/Files/GpFileMemMap.hpp>
 #include <GpCore2/GpUtils/Other/GpErrno.hpp>
-#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpOutUtils.hpp>
 
 #if defined(GP_USE_FILE_MEMORY_MAP)
 
-#if defined(GP_OS_LINUX)
+#if defined(GP_OS_LINUX) || defined(GP_OS_MACOS)
 #   include <sys/mman.h>
-#endif
+
+#   if defined(GP_OS_LINUX)
+#       define memory_map mmap64
+#   elif defined(GP_OS_MACOS)
+#       define memory_map mmap
+#   endif
+
+#endif// #if defined(GP_OS_LINUX) || defined(GP_OS_MACOS)
 
 namespace GPlatform {
 
@@ -27,53 +34,67 @@ GpSpanByteRW    GpFileMemMap::OpenAndMap
     const size_byte_t   aSizeToMap
 )
 {
-    // Close
     Close();
 
-    // Open file
     iFile.Open(aFileName, aFileFlags);
-    size_byte_t fileSize = iFile.Size();
+    const size_byte_t   fileSize    = iFile.Size();
+    size_byte_t         sizeToMap   = aSizeToMap;
 
     if (aSizeToMap > 0_byte)
     {
-        const size_byte_t actualfileSize    = fileSize;
         const size_byte_t expectedFileSize  = aOffsetToMap + aSizeToMap;
 
-        if (actualfileSize < expectedFileSize)
+        if (fileSize < expectedFileSize)
         {
-            iFile.GoToPos(expectedFileSize);
-            iFile.TruncateToCurrentPos();
+            iFile.Resize(expectedFileSize);
         }
-
-        fileSize    = expectedFileSize;
-        iSizeToMap  = aSizeToMap;
     } else
     {
-        //fileSize  = fileSize;
-        iSizeToMap  = fileSize;
+        sizeToMap = fileSize;
     }
 
-    // Save args
-    iOffsetToMap    = aOffsetToMap;
-
-    // Map file
-    return GpSpanByteRW
+    if (sizeToMap > 0_byte)
     {
-        static_cast<std::byte*>(MemMap()),
-        NumOps::SConvert<size_t>(fileSize.Value())
-    };
+        MemMap(aOffsetToMap, sizeToMap);
+    } else
+    {
+        iMappedData.Clear();
+    }
+
+    return iMappedData;
+}
+
+GpSpanByteRW    GpFileMemMap::ReopenAndMap
+(
+    size_byte_t aOffsetToMap,
+    size_byte_t aSizeToMap
+)
+{
+    VERIFY
+    (
+        iFile.IsOpen(),
+        "The file must already be open"
+    );
+
+    MemUnmap();
+    iFile.Resize(aOffsetToMap + aSizeToMap);
+    MemMap(aOffsetToMap, aSizeToMap);
+
+    return iMappedData;
 }
 
 void    GpFileMemMap::Close (void) noexcept
 {
     MemUnmap();
-    iFile.Close();
 
-    iOffsetToMap    = 0_byte;
-    iSizeToMap      = 0_byte;
+    iFile.Close();
 }
 
-void*   GpFileMemMap::MemMap (void)
+void    GpFileMemMap::MemMap
+(
+    const size_byte_t aOffsetToMap,
+    const size_byte_t aSizeToMap
+)
 {
 #if defined(GP_OS_WINDOWS)
     iMappedHandle = CreateFileMappingA
@@ -106,9 +127,9 @@ void*   GpFileMemMap::MemMap (void)
     (
         iMappedHandle,
         iFile.Flags().Test(GpFileFlag::WRITE) ? FILE_MAP_WRITE : FILE_MAP_READ,
-        NumOps::SConvert<DWORD>(iOffsetToMap.Value() >> 32),
-        NumOps::SConvert<DWORD>(iOffsetToMap.Value() & size_byte_t::value_type{0xFFFFFFFF}),
-        NumOps::SConvert<SIZE_T>(iSizeToMap.Value()),
+        NumOps::SConvert<DWORD>(aOffsetToMap.Value() >> 32),
+        NumOps::SConvert<DWORD>(aOffsetToMap.Value() & size_byte_t::value_type{0xFFFFFFFF}),
+        NumOps::SConvert<SIZE_T>(aSizeToMap.Value()),
         nullptr
     );
 
@@ -125,22 +146,34 @@ void*   GpFileMemMap::MemMap (void)
             );
         }
     );
-#else
-    iMappedData = mmap64
+#elif defined(GP_OS_LINUX) || defined(GP_OS_MACOS)
+    int flags = 0;
+
+    if (iFile.Flags().Test(GpFileFlag::WRITE))
+    {
+        flags |= PROT_WRITE;
+    }
+
+    if (iFile.Flags().Test(GpFileFlag::READ))
+    {
+        flags |= PROT_READ;
+    }
+
+    void* mappedData = memory_map
     (
         nullptr,
-        NumOps::SConvert<size_t>(iSizeToMap.Value()),
-        iFile.Flags().Test(GpFileFlag::WRITE) ? (PROT_READ | PROT_WRITE) : PROT_READ,
+        NumOps::SConvert<size_t>(aSizeToMap.Value()),
+        flags,
         MAP_SHARED,
         iFile.Handler(),
-        NumOps::SConvert<__off64_t>(iOffsetToMap.Value())
+        NumOps::SConvert<s_int_64>(aOffsetToMap.Value())
     );
 
     const std::string_view fileName = iFile.Name();
 
     VERIFY
     (
-        iMappedData != MAP_FAILED,
+        mappedData != MAP_FAILED,
         [fileName]()
         {
             return fmt::format
@@ -151,9 +184,15 @@ void*   GpFileMemMap::MemMap (void)
             );
         }
     );
+#else
+#   error Unsupported OS
 #endif
 
-    return iMappedData;
+    iMappedData = GpSpanByteRW
+    {
+        static_cast<std::byte*>(mappedData),
+        aSizeToMap.Value()
+    };
 }
 
 void    GpFileMemMap::MemUnmap (void) noexcept
@@ -163,7 +202,7 @@ void    GpFileMemMap::MemUnmap (void) noexcept
     {
         if (UnmapViewOfFile(iMappedData) == 0)
         {
-            GpStringUtils::SCerr
+            GpOutUtils::S().Err
             (
                 fmt::format
                 (
@@ -181,7 +220,7 @@ void    GpFileMemMap::MemUnmap (void) noexcept
     {
         if (CloseHandle(iMappedHandle) == 0)
         {
-            GpStringUtils::SCerr
+            GpOutUtils::S().Err
             (
                 fmt::format
                 (
@@ -194,12 +233,18 @@ void    GpFileMemMap::MemUnmap (void) noexcept
 
         iMappedHandle = nullptr;
     }
-#else
-    if (iMappedData != nullptr)
+#elif defined(GP_OS_LINUX) || defined(GP_OS_MACOS)
+    if (iMappedData.NotEmpty())
     {
-        if (munmap(iMappedData, NumOps::SConvert<size_t>(iSizeToMap.Value())) == -1)
+        const auto res = munmap
+        (
+            iMappedData.Ptr(),
+            iMappedData.SizeInBytes()
+        );
+
+        if (res == -1)
         {
-            GpStringUtils::SCerr
+            GpOutUtils::S().Err
             (
                 fmt::format
                 (
@@ -210,8 +255,10 @@ void    GpFileMemMap::MemUnmap (void) noexcept
             );
         }
 
-        iMappedData = nullptr;
+        iMappedData.Clear();
     }
+#else
+#   error Unsupported OS
 #endif
 }
 

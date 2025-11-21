@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-#include <GpCore2/GpUtils/Types/Containers/GpBytesArray.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpByteArray.hpp>
 #include <GpCore2/GpReflection/Diff/GpReflectDiffArray.hpp>
 #include <GpCore2/GpReflection/GpReflectUtils_IsEqual.hpp>
 #include <GpCore2/GpReflection/GpReflectUtils_TotalMemoryUse.hpp>

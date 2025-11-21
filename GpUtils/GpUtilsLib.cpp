@@ -1,7 +1,10 @@
 #include <GpCore2/GpUtils/GpUtilsLib.hpp>
+#include <GpCore2/GpUtils/Other/GpLinkedLibsInfo.hpp>
 
-namespace GPlatform {
+GP_STATIC_INITIALIZER_IMPL(GpUtils)
+GP_LIB_REGISTRATOR(GpUtilsLib)
 
-GP_IMPLEMENT_LIB_REGISTRATOR(GpUtilsLib)
-
-}// namespace GPlatform
+void    GpUtils_StaticInitializer::OnInitialize (void)
+{
+    GpUtilsLib::SRegisterSelf();
+}

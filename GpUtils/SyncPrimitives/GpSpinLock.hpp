@@ -93,7 +93,8 @@ bool    GpSpinLockImpl::try_lock (void) noexcept
     __tsan_mutex_pre_lock(this, __tsan_mutex_try_lock);
 #endif//#if defined(TSAN_ENABLED)
 
-    const bool isLocked = (!iState.load(std::memory_order_relaxed)) && (!iState.exchange(true, std::memory_order_acquire));
+    bool expected = false;
+    const bool isLocked = iState.compare_exchange_strong(expected, true, std::memory_order_acq_rel, std::memory_order_acquire);
 
 #if defined(TSAN_ENABLED)
     if (isLocked)
@@ -108,7 +109,8 @@ bool    GpSpinLockImpl::try_lock (void) noexcept
     return isLocked;
 }
 
-using GpSpinLock = ThreadSafety::MutexWrap<GpSpinLockImpl>;
+template<ThreadSafety::LockTraceModeE LTM = ThreadSafety::LockTraceModeE::TRACE_ENABLED>
+using GpSpinLock = ThreadSafety::SyncPrimitiveWrap<GpSpinLockImpl, LTM>;
 
 }// namespace GPlatform
 

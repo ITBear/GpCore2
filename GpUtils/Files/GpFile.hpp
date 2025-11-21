@@ -12,7 +12,7 @@
 #include <GpCore2/GpUtils/Types/Enums/GpEnum.hpp>
 #include <GpCore2/GpUtils/Types/Units/Other/size_byte_t.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
-#include <GpCore2/GpUtils/Types/Containers/GpBytesArray.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpByteArray.hpp>
 
 namespace GPlatform {
 
@@ -40,8 +40,8 @@ public:
 #endif
 
 public:
-                        GpFile                  (void) noexcept = default;
-                        ~GpFile                 (void) noexcept {Close();}
+                        GpFile                  (void) noexcept;
+                        ~GpFile                 (void) noexcept;
 
     HandlerT            Handler                 (void) noexcept {return iHandler;}
 
@@ -59,6 +59,7 @@ public:
     size_byte_t         GoToEndPos              (void);
     size_byte_t         CurrentPos              (void) const;
     void                TruncateToCurrentPos    (void);
+    void                Resize                  (size_byte_t aNewSize);
 
     void                Write                   (GpSpanByteR    aData);
     void                Read                    (GpSpanByteRW   aData);

@@ -5,8 +5,10 @@
 #if defined(GP_USE_MULTITHREADING)
 
 #include <GpCore2/GpUtils/Threads/GpThreadsSafety.hpp>
-#include <GpCore2/GpTasks/ITC/GpItcCondition.hpp>
+#include <GpCore2/GpTasks/ITC/GpItcConditionVar.hpp>
 #include <GpCore2/GpTasks/GpTask.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSpinLock.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSyncPrimitives.hpp>
 
 namespace GPlatform {
 
@@ -15,48 +17,51 @@ class GpItcRecursiveLockImpl
     CLASS_REMOVE_CTRS_MOVE_COPY(GpItcRecursiveLockImpl)
 
 public:
-                    GpItcRecursiveLockImpl  (void) noexcept = default;
+                                GpItcRecursiveLockImpl  (void) noexcept = default;
 
-    inline void     lock                    (void);
-    inline void     unlock                  (void);
-    inline bool     try_lock                (void);
+    inline void                 lock                    (void);
+    inline void                 unlock                  (void);
+    inline bool                 try_lock                (void);
 
 private:
-    mutable GpItcCondition              iItcCondition;
-    size_t                              iRecursiveDepth = {0};
+    inline GpTaskId::value_type GetCurrentTaskId        (void) const noexcept;
+
+private:
+    GpItcConditionVar                   iItcCV;
+    u_int_32                            iRecursiveDepth = {0};
     std::atomic<GpTaskId::value_type>   iLockTaskId     = {0};
 };
 
 void    GpItcRecursiveLockImpl::lock (void)
 {
-    const GpTaskId::value_type currentTaskIdToLock = GpTask::SCurrentTask().value().get().TaskId().Value();
+    const GpTaskId::value_type currentTaskId = GetCurrentTaskId();
 
-    while(true)
+    while (true)
     {
-        GpTaskId::value_type currentLockTaskId = iLockTaskId.load(std::memory_order_relaxed);
+        GpTaskId::value_type expectedTaskId = currentTaskId;
 
-        if (currentLockTaskId == currentTaskIdToLock) // Recursive call (already locked)
+        // Try recursive increment under lock ownership
+        if (iLockTaskId.compare_exchange_strong(expectedTaskId, currentTaskId, std::memory_order_acq_rel, std::memory_order_acquire))
         {
+            // We already owned it - this was a recursive call
             iRecursiveDepth++;
             return;
         }
 
-        if (currentLockTaskId == 0) // No lock
+        expectedTaskId = 0;
+        if (iLockTaskId.compare_exchange_strong(expectedTaskId, currentTaskId, std::memory_order_acq_rel, std::memory_order_acquire))
         {
-            if (iLockTaskId.compare_exchange_strong(currentLockTaskId, currentTaskIdToLock, std::memory_order_acquire))
-            {
-                // Successfully locked
-                iRecursiveDepth = 1;
-                return;
-            }
+            // Successfully acquired free lock
+            iRecursiveDepth = 1;
+            return;
         }
 
-        // Wait for unlock
-        iItcCondition.Wait
+        // Wait for release
+        iItcCV.Wait
         (
             [&]()
             {
-                return iLockTaskId.load(std::memory_order_relaxed) == 0;
+                return iLockTaskId.load(std::memory_order_acquire) == 0;
             }
         );
     }
@@ -74,36 +79,44 @@ void    GpItcRecursiveLockImpl::unlock (void)
     iLockTaskId.store(0, std::memory_order_release);
 
     {
-        GpUniqueLock<GpSpinLock> uniqueLock{iItcCondition.SpinLock()};
-        iItcCondition.NotifyAll();
+        GpUniqueLock uniqueLock{iItcCV.SpinLockRW()};
+        iItcCV.NotifyAll();
     }
 }
 
 bool    GpItcRecursiveLockImpl::try_lock (void)
 {
-    const GpTaskId::value_type  currentTaskIdToLock = GpTask::SCurrentTask().value().get().TaskId().Value();
-    GpTaskId::value_type        currentLockTaskId   = iLockTaskId.load(std::memory_order_relaxed);
+    const GpTaskId::value_type currentTaskId = GetCurrentTaskId();
 
-    if (currentLockTaskId == currentTaskIdToLock) // Recursive call (already locked)
+    // Try recursive increment first
+    GpTaskId::value_type expectedTaskId = currentTaskId;
+    if (iLockTaskId.compare_exchange_strong(expectedTaskId, currentTaskId, std::memory_order_acq_rel, std::memory_order_acquire))
     {
+        // We already owned it - this was a recursive call
         iRecursiveDepth++;
         return true;
     }
 
-    if (currentLockTaskId == 0) // No lock
+    // Try to acquire free lock
+    expectedTaskId = 0;
+    if (iLockTaskId.compare_exchange_strong(expectedTaskId, currentTaskId, std::memory_order_acq_rel, std::memory_order_acquire))
     {
-        if (iLockTaskId.compare_exchange_strong(currentLockTaskId, currentTaskIdToLock, std::memory_order_acquire))
-        {
-            // Successfully locked
-            iRecursiveDepth = 1;
-            return true;
-        }
+        // Successfully acquired free lock
+        iRecursiveDepth = 1;
+        return true;
     }
 
+    // Lock is held by another task
     return false;
 }
 
-using GpItcRecursiveLock = ThreadSafety::MutexWrap<GpItcRecursiveLockImpl>;
+GpTaskId::value_type    GpItcRecursiveLockImpl::GetCurrentTaskId (void) const noexcept
+{
+    return GpTask::SCurrentTask()->TaskId().Value();
+}
+
+template<ThreadSafety::LockTraceModeE LTM = ThreadSafety::LockTraceModeE::TRACE_ENABLED>
+using GpItcRecursiveLock = ThreadSafety::SyncPrimitiveWrap<GpItcRecursiveLockImpl, LTM>;
 
 }// namespace GPlatform
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
-#include <functional>
 
 namespace GPlatform {
 

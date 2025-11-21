@@ -2,15 +2,15 @@
 
 #if defined(GP_USE_TIMERS)
 
-#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpOutUtils.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringOps.hpp>
 #include <GpCore2/GpUtils/DateTime/GpDateTimeOps.hpp>
 
 namespace GPlatform {
 
-GpTimersManager::SP GpTimersManager::sTimersManager;
-std::atomic_flag    GpTimersManager::sTimersThreadDestruct;
-GpThread            GpTimersManager::sTimersThread("Timers manager");
+GpTimersManager*    GpTimersManager::sTimersManager = nullptr;
+GpConditionVarFlag  GpTimersManager::sTimersThreadStopFlag;
+GpThread            GpTimersManager::sTimersThread(GpTimersManager::sTimersThreadStopFlag, "Timers manager");
 
 GpTimersManager::GpTimersManager (void) noexcept
 {
@@ -23,41 +23,40 @@ GpTimersManager::~GpTimersManager (void) noexcept
 
 void    GpTimersManager::SStart (void)
 {
-    if (sTimersManager.IsNULL())
+    if (sTimersManager == nullptr)
     {
-        sTimersManager = MakeSP<GpTimersManager>();
-        sTimersThread.Run(sTimersManager);      
+        GpTimersManager::UP timersManagerUP = std::make_unique<GpTimersManager>();
+        sTimersManager = timersManagerUP.get();
+        sTimersThread.Run(std::move(timersManagerUP));
     }
 }
 
 void    GpTimersManager::SDisableShots (void)
 {
-    if (sTimersManager.IsNotNULL())
+    if (sTimersManager != nullptr)
     {
-        sTimersManager.Vn().DisableShots();
+        sTimersManager->DisableShots();
     }
 }
 
 void    GpTimersManager::SStop (void)
 {
-    if (sTimersManager.IsNotNULL())
+    if (sTimersManager != nullptr)
     {
         sTimersThread.RequestStop();
         sTimersThread.Join();
-        sTimersManager.Clear();
+        sTimersManager = nullptr;
     }
 }
 
 GpTimer::SP GpTimersManager::SSingleShot
 (
     GpTimer::CallbackFnT&&  aCallbackFn,
-    const milliseconds_t    aDelayBeforeShot,
-    const bool              aUseTimersPool
+    const milliseconds_t    aDelayBeforeShot
 )
 {
-    GpTimersManager::SP     managerSP       = GpTimersManager::SManager();
-    GpTimersManager&        manager         = managerSP.V();
-    GpTimer::C::Opts::SP    timerOpt        = aUseTimersPool ? manager.iTimersPool.Acquire() : std::nullopt;
+    GpTimersManager&        manager         = GpTimersManager::S();
+    GpTimer::C::Opts::SP    timerOpt        = manager.iTimersPool.Acquire();
     const bool              isReturnToPool  = timerOpt.has_value();
     GpTimer::SP             timerSP;
 
@@ -72,9 +71,9 @@ GpTimer::SP GpTimersManager::SSingleShot
     timerSP.Vn().Reload
     (
         std::move(aCallbackFn),
-        0.0_si_s,
+        0.0_si_ms,
         aDelayBeforeShot,
-        u_int_64(1),
+        u_int_64{1},
         isReturnToPool
     );
 
@@ -86,12 +85,12 @@ GpTimer::SP GpTimersManager::SSingleShot
 
 void    GpTimersManager::AddTimer (GpTimer::SP aTimer)
 {
-    GpUniqueLock<GpSpinLock> uniqueLock{iTimersToAddSpinLock};
+    GpUniqueLock uniqueLock{iTimersToAddSpinLock};
 
     iTimersToAdd.emplace_back(std::move(aTimer));
 }
 
-void    GpTimersManager::Run (std::atomic_flag& aStopRequest) noexcept
+void    GpTimersManager::Run (GpConditionVarFlag& aStopFlag) noexcept
 {
     try
     {
@@ -99,7 +98,8 @@ void    GpTimersManager::Run (std::atomic_flag& aStopRequest) noexcept
         iTimersPool.Init(0, 128);// TODO: move to config
 
         // Wait for stop
-        while (!aStopRequest.test())
+        bool stopFlagValue = aStopFlag.Test();
+        while (!stopFlagValue)
         {
             const milliseconds_t startSTS = GpDateTimeOps::SSteadyTS_ms();
 
@@ -107,7 +107,7 @@ void    GpTimersManager::Run (std::atomic_flag& aStopRequest) noexcept
             {
                 // Add new timers
                 {
-                    GpUniqueLock<GpSpinLock> uniqueLock{iTimersToAddSpinLock};
+                    GpUniqueLock uniqueLock{iTimersToAddSpinLock};
 
                     for (GpTimer::SP& timerToAddSP: iTimersToAdd)
                     {
@@ -143,30 +143,28 @@ void    GpTimersManager::Run (std::atomic_flag& aStopRequest) noexcept
 
             if (waitTimeout > 0.0_si_ms) [[likely]]
             {
-                WaitForAndReset(waitTimeout);
+                stopFlagValue = aStopFlag.WaitFor(waitTimeout);
+            } else
+            {
+                stopFlagValue = aStopFlag.Test();
             }
         }
     } catch (const GpException& e)
     {
-        GpStringUtils::SCerr
+        GpOutUtils::S().Err
         (
             fmt::format("[GpTimersManager::Run]: {}", e.what())
         );
     } catch (const std::exception& e)
     {
-        GpStringUtils::SCerr
+        GpOutUtils::S().Err
         (
             fmt::format("[GpTimersManager::Run]: {}", e.what())
         );
     } catch (...)
     {
-        GpStringUtils::SCerr("[GpTimersManager::Run]: unknown");
+        GpOutUtils::S().Err("[GpTimersManager::Run]: unknown");
     }
-}
-
-void    GpTimersManager::OnNotify (void) noexcept
-{
-    // NOP
 }
 
 void    GpTimersManager::DisableShots (void)

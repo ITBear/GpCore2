@@ -14,7 +14,7 @@ using GpSpanCharRW  = GpSpan<char>;
 using GpSpanByteRW  = GpSpan<std::byte>;
 using GpSpanByteR   = GpSpan<const std::byte>;
 
-using GpBytesArray  = std::vector<std_byte_no_init>;
+using GpByteArray   = std::vector<std_byte_no_init>;
 
 class GpArrayUtils
 {
@@ -134,9 +134,9 @@ public:
         V&& aValue
     )
     {
-        auto it = std::find(aContainer.begin(), aContainer.end(), aValue);
+        auto it = std::find(std::begin(aContainer), std::end(aContainer), aValue);
 
-        if (it == aContainer.end())
+        if (it == std::end(aContainer))
         {
             return false;
         }
@@ -156,9 +156,9 @@ public:
         const std::function<bool(const typename C::value_type&)>&   aPredicate
     )
     {
-        auto it = std::find_if(aContainer.begin(), aContainer.end(), aPredicate);
+        auto it = std::find_if(std::begin(aContainer), std::end(aContainer), aPredicate);
 
-        if (it == aContainer.end())
+        if (it == std::end(aContainer))
         {
             return false;
         }
@@ -198,7 +198,7 @@ public:
 // --------------------- std -------------------------
 namespace std {
 
-inline bool operator<(const ::GPlatform::GpBytesArray& a, const ::GPlatform::GpBytesArray& b)
+inline bool operator<(const ::GPlatform::GpByteArray& a, const ::GPlatform::GpByteArray& b)
 {
     const size_t sizeA = ::std::size(a);
     const size_t sizeB = ::std::size(b);

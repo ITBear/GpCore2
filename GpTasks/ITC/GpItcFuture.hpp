@@ -1,10 +1,9 @@
 #pragma once
 
 #include <GpCore2/Config/GpConfig.hpp>
-#include <GpCore2/GpTasks/ITC/GpItcCondition.hpp>
+#include <GpCore2/GpTasks/ITC/GpItcConditionVar.hpp>
 #include <GpCore2/GpTasks/ITC/GpItcResult.hpp>
 #include <GpCore2/GpUtils/Other/GpMethodAccessGuard.hpp>
-#include <GpCore2/GpUtils/SyncPrimitives/GpSharedMutex.hpp>
 
 #if defined(GP_USE_MULTITHREADING)
 
@@ -34,34 +33,50 @@ public:
     using ItcResultT    = GpItcResult<T>;
 
 public:
-                                            GpItcFuture         (void) noexcept = default;
-                                            ~GpItcFuture        (void) noexcept = default;
+                        GpItcFuture     (void) noexcept;
+                        ~GpItcFuture    (void) noexcept;
 
-    void                                    Wait                (void);
-    bool                                    WaitFor             (milliseconds_t aTimeout);
-    [[nodiscard]] std::optional<ItcResultT> TryGetResult        (void);
-    bool                                    IsReady             (void) const noexcept;
+    void                Wait            (void);
+    bool                WaitFor         (milliseconds_t aTimeout);
 
-    inline void                             SubscribeAsFiber    (GpTaskId aGpTaskId);
-    inline bool                             UnsubscribeAsFiber  (GpTaskId aGpTaskId);
+    bool                IsReady         (void) const noexcept;
+    bool                IsReadyNoLock   (void) const noexcept REQUIRES(iItcCv.SpinLockRW());
+
+    ItcResultT&         ResultNoLock    (void) REQUIRES(iItcCv.SpinLockRW());
+    ItcResultT          ExtractResult   (void);
 
     template<typename R>
-    [[nodiscard]] bool                      SetResult           (R&& aResult,
-                                                                 GpMethodAccessGuard<GpItcPromise<T>>);
+    [[nodiscard]] bool  SetResult       (R&& aResult,
+                                         GpMethodAccessGuard<GpItcPromise<T>>);
+
+    void                Subscribe       (GpWP<GpTask> aTaskWP);
+    bool                Unsubscribe     (GpWP<GpTask> aTaskWP);
+
+    GpSpinLockRW<>&     SpinLockRW      (void) const noexcept RETURN_CAPABILITY(iItcCv.SpinLockRW());
 
 private:
-    mutable GpItcCondition      iItcCondition;
-    std::optional<ItcResultT>   iResultOpt GUARDED_BY(iItcCondition.SpinLock());
+    mutable GpItcConditionVar   iItcCv;
+    ItcResultT                  iResult GUARDED_BY(iItcCv.SpinLockRW());
 };
+
+template<typename T>
+GpItcFuture<T>::GpItcFuture (void) noexcept
+{
+}
+
+template<typename T>
+GpItcFuture<T>::~GpItcFuture (void) noexcept
+{
+}
 
 template<typename T>
 void    GpItcFuture<T>::Wait (void)
 {
-    iItcCondition.Wait
+    iItcCv.Wait
     (
         [&]() NO_THREAD_SAFETY_ANALYSIS
         {
-            return iResultOpt.has_value();
+            return !iResult.IsNotSet();
         }
     );
 }
@@ -69,42 +84,48 @@ void    GpItcFuture<T>::Wait (void)
 template<typename T>
 bool    GpItcFuture<T>::WaitFor (const milliseconds_t aTimeout)
 {
-    return iItcCondition.WaitFor
+    return iItcCv.WaitFor
     (
         [&]() NO_THREAD_SAFETY_ANALYSIS
         {
-            return iResultOpt.has_value();
+            return !iResult.IsNotSet();
         },
         aTimeout
     );
 }
 
 template<typename T>
-auto    GpItcFuture<T>::TryGetResult (void) -> std::optional<ItcResultT>
-{
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
-
-    return iResultOpt;
-}
-
-template<typename T>
 bool    GpItcFuture<T>::IsReady (void) const noexcept
-{   
-    GpSharedLock<GpSpinLockRW> sharedLock{iItcCondition.SpinLock()};
+{
+    GpSharedLock sharedLock{iItcCv.SpinLockRW()};
 
-    return iResultOpt.has_value();
+    return !iResult.IsNotSet();
 }
 
 template<typename T>
-void    GpItcFuture<T>::SubscribeAsFiber (GpTaskId aGpTaskId)
+bool    GpItcFuture<T>::IsReadyNoLock (void) const noexcept
 {
-    iItcCondition.SubscribeAsFiber(aGpTaskId);
+    return !iResult.IsNotSet();
 }
 
 template<typename T>
-bool    GpItcFuture<T>::UnsubscribeAsFiber (GpTaskId aGpTaskId)
+GpItcFuture<T>::ItcResultT& GpItcFuture<T>::ResultNoLock (void)
 {
-    return iItcCondition.UnsubscribeAsFiber(aGpTaskId);
+    return iResult;
+}
+
+template<typename T>
+auto    GpItcFuture<T>::ExtractResult (void) -> ItcResultT
+{
+    GpUniqueLock uniqueLock{iItcCv.SpinLockRW()};
+
+    VERIFY
+    (
+        IsReadyNoLock(),
+        "Future has no result yet"
+    );
+
+    return std::move(iResult);
 }
 
 template<typename T>
@@ -115,18 +136,38 @@ bool    GpItcFuture<T>::SetResult
     GpMethodAccessGuard<GpItcPromise<T>>
 )
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iItcCondition.SpinLock()};
-
-    if (iResultOpt.has_value())
     {
-        return false;
+        GpUniqueLock uniqueLock{iItcCv.SpinLockRW()};
+
+        if (IsReadyNoLock())
+        {
+            return false;
+        }
+
+        iResult = std::forward<R>(aResult);
+
+        iItcCv.NotifyAll();
     }
 
-    iResultOpt = std::forward<R>(aResult);
-
-    iItcCondition.NotifyAll();
-
     return true;
+}
+
+template<typename T>
+void    GpItcFuture<T>::Subscribe (GpWP<GpTask> aTaskWP)
+{
+    iItcCv.Subscribe(aTaskWP);
+}
+
+template<typename T>
+bool    GpItcFuture<T>::Unsubscribe (GpWP<GpTask> aTaskWP)
+{
+    return iItcCv.Unsubscribe(aTaskWP);
+}
+
+template<typename T>
+GpSpinLockRW<>& GpItcFuture<T>::SpinLockRW (void) const noexcept
+{
+    return iItcCv.SpinLockRW();
 }
 
 }// namespace GPlatform

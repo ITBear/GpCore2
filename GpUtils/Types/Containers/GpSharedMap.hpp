@@ -7,8 +7,7 @@
 #include <GpCore2/Config/IncludeExt/fmt.hpp>
 #include <GpCore2/GpUtils/Macro/GpMacroTags.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpSpinLockRW.hpp>
-#include <GpCore2/GpUtils/SyncPrimitives/GpMutex.hpp>
-#include <GpCore2/GpUtils/SyncPrimitives/GpSharedMutex.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSyncPrimitives.hpp>
 #include <GpCore2/GpUtils/Types/Containers/GpContainerUpdateStatus.hpp>
 
 #include <functional>
@@ -52,6 +51,9 @@ public:
     std::optional<mapped_type>  FindOpt         (K&& aKey) const;
 
     template<typename K>
+    mapped_type                 FindOrDefault   (K&& aKey, mapped_type aDefaultValue) const;
+
+    template<typename K>
     UpdateResT                  FindOrGenerate  (K&&                    aKey,
                                                  const GenerateFnT&     aGenerateFn);
     template<typename K,
@@ -61,7 +63,7 @@ public:
 
     template<typename K,
              typename M>
-    mapped_type                 Set             (K&& aKey,
+    void                        Set             (K&& aKey,
                                                  M&& aValue);
 
     template<typename K>
@@ -75,8 +77,8 @@ public:
     void                        Apply           (const ApplyFnT& aApplyFn);
 
 private:
-    mutable GpSpinLockRW        iSpinLockRW;
-    ContainerT                  iContainer GUARDED_BY(iSpinLockRW);
+    mutable GpSpinLockRW<>  iSpinLockRW;
+    ContainerT              iContainer GUARDED_BY(iSpinLockRW);
 };
 
 template<typename ContainerT>
@@ -99,7 +101,7 @@ GpSharedMap<ContainerT>::~GpSharedMap (void) noexcept
 template<typename ContainerT>
 size_t  GpSharedMap<ContainerT>::Size (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return std::size(iContainer);
 }
@@ -107,7 +109,7 @@ size_t  GpSharedMap<ContainerT>::Size (void) const noexcept
 template<typename ContainerT>
 bool    GpSharedMap<ContainerT>::Empty (void) const noexcept
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     return iContainer.empty();
 }
@@ -115,7 +117,7 @@ bool    GpSharedMap<ContainerT>::Empty (void) const noexcept
 template<typename ContainerT>
 void    GpSharedMap<ContainerT>::Clear (void) noexcept
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
     return iContainer.clear();
 }
@@ -124,7 +126,7 @@ template<typename ContainerT>
 template<typename K>
 auto    GpSharedMap<ContainerT>::Find (K&& aKey) const -> mapped_type
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     auto iter = iContainer.find(aKey);
 
@@ -148,7 +150,7 @@ template<typename ContainerT>
 template<typename K>
 auto    GpSharedMap<ContainerT>::FindOpt (K&& aKey) const -> std::optional<mapped_type>
 {
-    GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+    GpSharedLock sharedLock{iSpinLockRW};
 
     auto iter = iContainer.find(aKey);
 
@@ -163,6 +165,23 @@ auto    GpSharedMap<ContainerT>::FindOpt (K&& aKey) const -> std::optional<mappe
 
 template<typename ContainerT>
 template<typename K>
+auto    GpSharedMap<ContainerT>::FindOrDefault (K&& aKey, mapped_type aDefaultValue) const -> mapped_type
+{
+    GpSharedLock sharedLock{iSpinLockRW};
+
+    auto iter = iContainer.find(aKey);
+
+    if (iter != std::end(iContainer))
+    {
+        return iter->second;
+    } else
+    {
+        return aDefaultValue;
+    }
+}
+
+template<typename ContainerT>
+template<typename K>
 auto    GpSharedMap<ContainerT>::FindOrGenerate
 (
     K&&                 aKey,
@@ -171,7 +190,7 @@ auto    GpSharedMap<ContainerT>::FindOrGenerate
 {
     // Try to find (shared lock)
     {
-        GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+        GpSharedLock sharedLock{iSpinLockRW};
 
         auto iter = iContainer.find(aKey);
         if (iter != std::end(iContainer))
@@ -189,7 +208,7 @@ auto    GpSharedMap<ContainerT>::FindOrGenerate
 
     // Try to find and insert new value (unique lock)
     {
-        GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+        GpUniqueLock uniqueLock{iSpinLockRW};
 
         // Try to find
         auto iter = iContainer.find(aKey);
@@ -226,7 +245,7 @@ auto    GpSharedMap<ContainerT>::FindOrSet
 {
     // Try to find (shared lock)
     {
-        GpSharedLock<GpSpinLockRW> sharedLock{iSpinLockRW};
+        GpSharedLock sharedLock{iSpinLockRW};
 
         auto iter = iContainer.find(aKey);
         if (iter != std::end(iContainer))
@@ -241,7 +260,7 @@ auto    GpSharedMap<ContainerT>::FindOrSet
 
     // Try to find and insert new value (unique lock)
     {
-        GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+        GpUniqueLock uniqueLock{iSpinLockRW};
 
         // Try to find
         auto iter = iContainer.find(aKey);
@@ -270,28 +289,26 @@ auto    GpSharedMap<ContainerT>::FindOrSet
 template<typename ContainerT>
 template<typename K,
          typename M>
-auto    GpSharedMap<ContainerT>::Set
+void    GpSharedMap<ContainerT>::Set
 (
     K&& aKey,
     M&& aValue
-) -> mapped_type
+)
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
-    mapped_type& val = iContainer.insert_or_assign
+    iContainer.insert_or_assign
     (
         key_type{std::forward<K>(aKey)},
         mapped_type{std::forward<M>(aValue)}
-    ).first->second;
-
-    return val;
+    );
 }
 
 template<typename ContainerT>
 template<typename K>
 bool    GpSharedMap<ContainerT>::Erase (K&& aKey)
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
     return iContainer.erase(aKey) > 0;
 }
@@ -300,7 +317,7 @@ template<typename ContainerT>
 template<typename K>
 auto    GpSharedMap<ContainerT>::Extract (K&& aKey) -> std::optional<mapped_type>
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
     // Try to find
     auto iter = iContainer.find(aKey);
@@ -322,7 +339,7 @@ auto    GpSharedMap<ContainerT>::Extract (K&& aKey) -> std::optional<mapped_type
 template<typename ContainerT>
 auto    GpSharedMap<ContainerT>::GpSharedMap<ContainerT>::ExtractAll (void) noexcept -> this_type
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
     return this_type{std::move(*this)};
 }
@@ -330,7 +347,7 @@ auto    GpSharedMap<ContainerT>::GpSharedMap<ContainerT>::ExtractAll (void) noex
 template<typename ContainerT>
 void    GpSharedMap<ContainerT>::Process (const ProcessTnT& aProcessFn)
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
     aProcessFn(iContainer);
 }
@@ -338,7 +355,7 @@ void    GpSharedMap<ContainerT>::Process (const ProcessTnT& aProcessFn)
 template<typename ContainerT>
 void    GpSharedMap<ContainerT>::Apply (const ApplyFnT& aApplyFn)
 {
-    GpUniqueLock<GpSpinLockRW> uniqueLock{iSpinLockRW};
+    GpUniqueLock uniqueLock{iSpinLockRW};
 
     for (auto& e: iContainer)
     {

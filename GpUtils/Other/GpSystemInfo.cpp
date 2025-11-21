@@ -3,7 +3,7 @@
 #include <GpCore2/GpUtils/Exceptions/GpException.hpp>
 #include <thread>
 
-#if defined(GP_OS_LINUX )|| defined(GP_OS_BROWSER)
+#if defined(GP_OS_LINUX ) || defined(GP_OS_MACOS) || defined(GP_OS_BROWSER)
 #   include <sys/utsname.h>
 #endif// #if defined(GP_OS_LINUX)
 
@@ -22,8 +22,9 @@ std::string GpSystemInfo::SOsInfo (void)
 {
     std::string info;
 
-#if defined(GP_OS_LINUX) || defined(GP_OS_BROWSER)
+#if defined(GP_OS_LINUX) || defined(GP_OS_MACOS) || defined(GP_OS_BROWSER)
     struct utsname buffer;
+    MemOps::SMemZero(buffer);
 
     VERIFY
     (
@@ -34,10 +35,10 @@ std::string GpSystemInfo::SOsInfo (void)
     info = fmt::format
     (
         "Name: {}. Machine: {}. Release: {}. Version: {}",
-        buffer.sysname,
-        buffer.machine,
-        buffer.release,
-        buffer.version
+        std::string_view{buffer.sysname},
+        std::string_view{buffer.machine},
+        std::string_view{buffer.release},
+        std::string_view{buffer.version}
     );
 #elif defined GP_OS_WINDOWS
 
@@ -90,7 +91,7 @@ std::string GpSystemInfo::SOsInfo (void)
     }
 
     info = fmt::format
-    (              
+    (
         "{} (build {}), architecture {}",
         GpSystemInfoWin::SWindowsVersion(),
         dwBuildNumber,

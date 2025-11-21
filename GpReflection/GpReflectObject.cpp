@@ -84,7 +84,7 @@ void*   GpReflectObject::_ReflectDataPtr (void) noexcept
     constexpr const GpUUID      modelUid    = GpReflectObject::SReflectModelUid();
     constexpr const GpUUID      groupId     = GpUUID::CE_FromString("96155f96-6bc0-434e-a2da-0f9e72368461"_sv);
 
-    GpReflectModel::CSP reflectModelCSP = MakeCSP<GpReflectModel>
+    GpReflectModel::CSP reflectModelCSP = MakeSP<GpReflectModel>
     (
         modelUid,
         GpUUID(),

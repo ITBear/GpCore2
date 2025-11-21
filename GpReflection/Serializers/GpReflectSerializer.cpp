@@ -4,9 +4,9 @@
 
 namespace GPlatform {
 
-GpBytesArray    GpReflectSerializer::FromObject (const GpReflectObject& aObject) const
+GpByteArray GpReflectSerializer::FromObject (const GpReflectObject& aObject) const
 {
-    GpBytesArray data;
+    GpByteArray data;
     data.resize(512);
 
     {

@@ -13,13 +13,13 @@ public:
     CLASS_DD(GpByteSerializer)
 
 protected:
-                            GpByteSerializer    (void) noexcept = default;
+                    GpByteSerializer    (void) noexcept = default;
 
 public:
-    virtual                 ~GpByteSerializer   (void) noexcept = default;
+    virtual         ~GpByteSerializer   (void) noexcept = default;
 
-    virtual void            Serialize           (const GpAny&   aObject,
-                                                 GpByteWriter&  aWriter) const = 0;
+    virtual void    Serialize           (const GpAny&   aObject,
+                                         GpByteWriter&  aWriter) const = 0;
 };
 
 }// namespace GPlatform

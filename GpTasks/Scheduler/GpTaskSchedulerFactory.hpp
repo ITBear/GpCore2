@@ -5,8 +5,6 @@
 #include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
 #include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 
-#include <functional>
-
 #if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
@@ -19,15 +17,14 @@ public:
     CLASS_DD(GpTaskSchedulerFactory)
     TAG_SET(THREAD_SAFE)
 
-    using StopServiceFnT = std::function<void()>;
-
 protected:
-                                    GpTaskSchedulerFactory  (void) noexcept = default;
+                                                GpTaskSchedulerFactory  (void) noexcept = default;
 
 public:
-    virtual                         ~GpTaskSchedulerFactory (void) noexcept = default;
+    virtual                                     ~GpTaskSchedulerFactory (void) noexcept = default;
 
-    virtual GpSP<GpTaskScheduler>   NewInstance             (StopServiceFnT aStopServiceFn) const = 0;
+    virtual std::unique_ptr<GpTaskScheduler>    NewInstance             (size_t aExecutorsCount,
+                                                                         size_t aTasksMaxCount) const = 0;
 };
 
 }// namespace GPlatform

@@ -310,12 +310,20 @@ auto    GpReflectDiffArray<SrcContainerT, ReplaceValueT, HelpersT, ArgsT...>::SF
 
     replaceContainer.resize(containerSize);
 
-    if constexpr(std::is_arithmetic_v<SrcValueT> || std::is_same_v<SrcValueT, GpUUID> || std::is_same_v<SrcValueT, std_byte_no_init>)
+    if constexpr(std::is_arithmetic_v<SrcValueT> || std::is_same_v<SrcValueT, std_byte_no_init>)
     {
         std::memcpy
         (
             std::data(replaceContainer),
             std::data(aSrcContainer),
+            containerSize * sizeof(SrcValueT)
+        );
+    } else if constexpr(std::is_same_v<SrcValueT, GpUUID>)
+    {
+        std::memcpy
+        (
+            reinterpret_cast<void*>(std::data(replaceContainer)),
+            reinterpret_cast<const void*>(std::data(aSrcContainer)),
             containerSize * sizeof(SrcValueT)
         );
     } else

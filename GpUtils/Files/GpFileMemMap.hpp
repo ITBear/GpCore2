@@ -13,25 +13,25 @@ public:
     CLASS_DD(GpFileMemMap)
 
 public:
-                        GpFileMemMap    (void) noexcept;
-                        ~GpFileMemMap   (void) noexcept;
+                    GpFileMemMap    (void) noexcept;
+                    ~GpFileMemMap   (void) noexcept;
 
-    GpSpanByteRW        OpenAndMap      (std::string_view   aFileName,
-                                         GpFileFlags        aFileFlags,
-                                         size_byte_t        aOffsetToMap,
-                                         size_byte_t        aSizeToMap);
-    void                Close           (void) noexcept;
-
-private:
-    void*               MemMap          (void);
-    void                MemUnmap        (void) noexcept;
+    GpSpanByteRW    OpenAndMap      (std::string_view   aFileName,
+                                     GpFileFlags        aFileFlags,
+                                     size_byte_t        aOffsetToMap,
+                                     size_byte_t        aSizeToMap);
+    GpSpanByteRW    ReopenAndMap    (size_byte_t aOffsetToMap,
+                                     size_byte_t aSizeToMap);
+    void            Close           (void) noexcept;
 
 private:
-    size_byte_t         iOffsetToMap;
-    size_byte_t         iSizeToMap;
+    void            MemMap          (size_byte_t aOffsetToMap,
+                                     size_byte_t aSizeToMap);
+    void            MemUnmap        (void) noexcept;
 
-    GpFile              iFile;
-    void*               iMappedData     = nullptr;
+private:
+    GpFile          iFile;
+    GpSpanByteRW    iMappedData;
 
 #if defined(GP_OS_WINDOWS)
     GpFile::HandlerT    iMappedHandle   = {};

@@ -31,16 +31,16 @@ public:
     using StackCtxT     = boost::context::stack_context;
 
 public:
-                    GpStackBoost    (void) noexcept = delete;
-                    GpStackBoost    (const GpStackBoost& aStack) noexcept: iStackImpl(aStack.iStackImpl) {}
-                    GpStackBoost    (GpStackBoost&& aStack) noexcept: iStackImpl(aStack.iStackImpl) {}
-                    GpStackBoost    (StackImplT& aStackImlp) noexcept: iStackImpl(aStackImlp) {}
+                GpStackBoost    (void) noexcept = delete;
+                GpStackBoost    (const GpStackBoost& aStack) noexcept: iStackImpl(aStack.iStackImpl) {}
+                GpStackBoost    (GpStackBoost&& aStack) noexcept: iStackImpl(aStack.iStackImpl) {}
+                GpStackBoost    (StackImplT& aStackImlp) noexcept: iStackImpl(aStackImlp) {}
 
-    StackCtxT       allocate        (void) {return iStackImpl.allocate();}
-    void            deallocate      (StackCtxT& aSctx) noexcept {iStackImpl.deallocate(aSctx);}
+    StackCtxT   allocate        (void) {return iStackImpl.allocate();}
+    void        deallocate      (StackCtxT& aSctx) noexcept {iStackImpl.deallocate(aSctx);}
 
 private:
-    StackImplT&     iStackImpl;
+    StackImplT& iStackImpl;
 };
 
 }// namespace GPlatform

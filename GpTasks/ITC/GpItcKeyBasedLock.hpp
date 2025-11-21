@@ -1,12 +1,13 @@
 #pragma once
 
+/*
 #include <GpCore2/Config/GpConfig.hpp>
 
 #if defined(GP_USE_MULTITHREADING)
 
 #include <GpCore2/GpUtils/Types/Containers/GpContainersT.hpp>
 #include <GpCore2/GpUtils/Threads/GpThreadsSafety.hpp>
-#include <GpCore2/GpUtils/Types/Strings/GpStringUtils.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpOutUtils.hpp>
 #include <GpCore2/GpUtils/SyncPrimitives/GpSpinLock.hpp>
 #include <GpCore2/GpUtils/Other/GpMethodAccessGuard.hpp>
 #include <GpCore2/GpTasks/ITC/GpItcLock.hpp>
@@ -55,7 +56,7 @@ private:
     {
         CLASS_REMOVE_CTRS_MOVE_COPY(ShardOfLocks)
 
-        using LocksMapT = ankerl::unordered_dense::map<KeyT, std::tuple<GpItcLock::SP, size_t/*acquire counter*/>>;
+        using LocksMapT = ankerl::unordered_dense::map<KeyT, std::tuple<GpItcLock::SP, size_t  acquire counter  >>;
 
     public:
                             ShardOfLocks    (void) noexcept = default;
@@ -170,7 +171,7 @@ void    GpItcKeyBasedLock<KeyT>::ItcLocksPool::Release (GpItcLock::SP aItcLock)
 template<typename KeyT>
 void    GpItcKeyBasedLock<KeyT>::ShardOfLocks::Init (const size_t aItcLocksPoolInitSize)
 {
-    GpUniqueLock<GpSpinLock> uniqueLock{iSpinLock};
+    GpUniqueLock uniqueLock{iSpinLock};
 
     iItcLocksPool.Init(aItcLocksPoolInitSize);
 }
@@ -179,12 +180,12 @@ template<typename KeyT>
 template<typename K>
 GpItcLock*  GpItcKeyBasedLock<KeyT>::ShardOfLocks::Acquire (K&& aKey) noexcept
 {
-    GpUniqueLock<GpSpinLock> uniqueLock{iSpinLock};
+    GpUniqueLock uniqueLock{iSpinLock};
 
     GpItcLock*  itcLock = nullptr;
     auto        iter    = iLocksMap.find(KeyT{aKey});
 
-    if (iter != iLocksMap.end())
+    if (iter != std::end(iLocksMap))
     {
         auto&[itcLockSP, acquireCounter] = iter->second;
         acquireCounter++;
@@ -207,13 +208,13 @@ GpItcLock*  GpItcKeyBasedLock<KeyT>::ShardOfLocks::Acquire (K&& aKey) noexcept
             itcLock = itcLockSP.Pn();
         } catch (const GpException& ex)
         {
-            GpStringUtils::SCerr(ex.what());
+            GpOutUtils::S().Err(ex.what());
         } catch (const std::exception& ex)
         {
-            GpStringUtils::SCerr(ex.what());
+            GpOutUtils::S().Err(ex.what());
         } catch (...)
         {
-            GpStringUtils::SCerr("Unknown exception while Commit");
+            GpOutUtils::S().Err("Unknown exception while Commit");
         }
     }
 
@@ -224,7 +225,7 @@ template<typename KeyT>
 template<typename K>
 bool    GpItcKeyBasedLock<KeyT>::ShardOfLocks::Release (K&& aKey) noexcept
 {
-    GpUniqueLock<GpSpinLock> uniqueLock{iSpinLock};
+    GpUniqueLock uniqueLock{iSpinLock};
 
     auto iter = iLocksMap.find(KeyT{aKey});
     auto&[itcLockSP, acquireCounter] = iter->second;
@@ -243,15 +244,15 @@ bool    GpItcKeyBasedLock<KeyT>::ShardOfLocks::Release (K&& aKey) noexcept
             iLocksMap.erase(iter);
         } catch (const GpException& ex)
         {
-            GpStringUtils::SCerr(ex.what());
+            GpOutUtils::S().Err(ex.what());
             return false;
         } catch (const std::exception& ex)
         {
-            GpStringUtils::SCerr(ex.what());
+            GpOutUtils::S().Err(ex.what());
             return false;
         } catch (...)
         {
-            GpStringUtils::SCerr("Unknown exception while Commit");
+            GpOutUtils::S().Err("Unknown exception while Commit");
             return false;
         }
     }
@@ -335,3 +336,4 @@ bool    GpItcKeyBasedLock<KeyT>::ReleaseLock (K&& aKey) noexcept
 }// namespace GPlatform
 
 #endif// #if defined(GP_USE_MULTITHREADING)
+*/

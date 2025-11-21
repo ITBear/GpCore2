@@ -18,61 +18,85 @@ public:
     using FnT = std::function<void()>;
 
 public:
-                    GpConditionVarFlag  (void) noexcept = default;
-                    ~GpConditionVarFlag (void) noexcept = default;
+                                GpConditionVarFlag  (void) noexcept = default;
+                                ~GpConditionVarFlag (void) noexcept = default;
 
-    inline void     NotifyOne           (void) noexcept;
-    inline void     NotifyOne           (const FnT& aFn) noexcept;
-    inline void     NotifyAll           (void) noexcept;
-    inline void     NotifyAll           (const FnT& aFn) noexcept;
+    inline void                 UpFlagAndNotifyOne  (void) noexcept;
+    inline void                 UpFlagAndNotifyOne  (const FnT& aFn) noexcept;
+    inline void                 UpFlagAndNotifyAll  (void) noexcept;
+    inline void                 UpFlagAndNotifyAll  (const FnT& aFn) noexcept;
+    inline void                 NotifyOne           (void) noexcept;
+    inline void                 NotifyAll           (void) noexcept;
 
-    inline void     WaitAndReset        (void) noexcept;
-    inline bool     WaitForAndReset     (const milliseconds_t aTimeout) noexcept;
+    [[nodiscard]] inline bool   Test                (void) const noexcept;
+    inline void                 Wait                (void) noexcept;
+    [[nodiscard]] inline bool   WaitFor             (const milliseconds_t aTimeout) noexcept;
 
 private:
     mutable GpConditionVar  iCV;
     bool                    iFlag GUARDED_BY(iCV.Mutex()) = false;
 };
 
-void    GpConditionVarFlag::NotifyOne (void) noexcept
+void    GpConditionVarFlag::UpFlagAndNotifyOne (void) noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
+    GpUniqueLock uniqueLock{iCV.Mutex()};
 
     iFlag = true;
 
     iCV.NotifyOne();
 }
 
-void    GpConditionVarFlag::NotifyOne (const FnT& aFn) noexcept
+void    GpConditionVarFlag::UpFlagAndNotifyOne (const FnT& aFn) noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
+    GpUniqueLock uniqueLock{iCV.Mutex()};
 
     iFlag = true;
     aFn();
+
+    iCV.NotifyOne();
+}
+
+void    GpConditionVarFlag::UpFlagAndNotifyAll (void) noexcept
+{
+    GpUniqueLock uniqueLock{iCV.Mutex()};
+
+    iFlag = true;
+
+    iCV.NotifyOne();
+}
+
+void    GpConditionVarFlag::UpFlagAndNotifyAll (const FnT& aFn) noexcept
+{
+    GpUniqueLock uniqueLock{iCV.Mutex()};
+
+    iFlag = true;
+    aFn();
+
+    iCV.NotifyOne();
+}
+
+void    GpConditionVarFlag::NotifyOne (void) noexcept
+{
+    GpUniqueLock uniqueLock{iCV.Mutex()};
 
     iCV.NotifyOne();
 }
 
 void    GpConditionVarFlag::NotifyAll (void) noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
+    GpUniqueLock uniqueLock{iCV.Mutex()};
 
-    iFlag = true;
-
-    iCV.NotifyOne();
+    iCV.NotifyAll();
 }
 
-void    GpConditionVarFlag::NotifyAll (const FnT& aFn) noexcept
+bool    GpConditionVarFlag::Test (void) const noexcept
 {
-    GpUniqueLock<GpMutex> uniqueLock{iCV.Mutex()};
+    GpUniqueLock uniqueLock{iCV.Mutex()};
 
-    iFlag = true;
-    aFn();
-
-    iCV.NotifyOne();
+    return iFlag;
 }
 
-void    GpConditionVarFlag::WaitAndReset (void) noexcept
+void    GpConditionVarFlag::Wait (void) noexcept
 {
     iCV.Wait
     (
@@ -80,7 +104,7 @@ void    GpConditionVarFlag::WaitAndReset (void) noexcept
     );
 }
 
-bool    GpConditionVarFlag::WaitForAndReset (const milliseconds_t aTimeout) noexcept
+bool    GpConditionVarFlag::WaitFor (const milliseconds_t aTimeout) noexcept
 {
     return iCV.WaitFor
     (

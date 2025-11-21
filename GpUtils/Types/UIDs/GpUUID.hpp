@@ -81,7 +81,7 @@ public:
     inline static constexpr DataT   CE_Zero         (void) noexcept;
 
 private:
-    DataT                           iData;
+    DataT iData;
 };
 
 void    GpUUID::Set (const GpUUID& aUUID) noexcept
@@ -338,7 +338,7 @@ struct hash<GPlatform::GpUUID>
 
 using namespace std::literals::string_literals;
 
-consteval inline ::GPlatform::GpUUID operator"" _uuid (const char* aStr, const size_t aLen)
+consteval inline ::GPlatform::GpUUID operator""_uuid (const char* aStr, const size_t aLen)
 {
     return ::GPlatform::GpUUID::CE_FromString(std::string_view(aStr, aLen));
 }

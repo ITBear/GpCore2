@@ -4,18 +4,18 @@
 
 namespace GPlatform {
 
-GpTaskFiberCtxFactory::CSP  GpTaskFiberCtxFactory::sInstance;
+GpTaskFiberCtxFactory::UP   GpTaskFiberCtxFactory::sInstance;
 
-void    GpTaskFiberCtxFactory::SInit (GpTaskFiberCtxFactory::CSP aFactory)
+void    GpTaskFiberCtxFactory::SInit (GpTaskFiberCtxFactory::UP aFactoryUP)
 {
-    sInstance = std::move(aFactory);
+    sInstance = std::move(aFactoryUP);
 }
 
 void    GpTaskFiberCtxFactory::SClear (void)
 {
-    if (sInstance.IsNotNULL())
+    if (sInstance != nullptr)
     {
-        sInstance.Clear();
+        sInstance.reset();
     }
 }
 

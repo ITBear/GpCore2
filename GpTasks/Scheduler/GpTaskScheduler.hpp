@@ -7,12 +7,15 @@
 #include <GpCore2/GpTasks/GpTasks_global.hpp>
 #include <GpCore2/GpTasks/GpTaskEnums.hpp>
 #include <GpCore2/GpTasks/GpTask.hpp>
+#include <GpCore2/GpUtils/Types/Strings/GpOutUtils.hpp>
+#include <GpCore2/GpUtils/SyncPrimitives/GpSpinLockRW.hpp>
 
 #if defined(GP_USE_MULTITHREADING)
 
 namespace GPlatform {
 
 class GpTaskSchedulerFactory;
+class GpTaskExecutor;
 
 class GP_TASKS_API GpTaskScheduler
 {
@@ -21,51 +24,55 @@ public:
     CLASS_DD(GpTaskScheduler)
     TAG_SET(THREAD_SAFE)
 
-    using StopServiceFnT = std::function<void()>;
+protected:
+                            GpTaskScheduler     (size_t aExecutorsCount,
+                                                 size_t aTasksMaxCount) noexcept;
 
 public:
-                                GpTaskScheduler     (StopServiceFnT aStopServiceFn) noexcept;
-    virtual                     ~GpTaskScheduler    (void) noexcept = default;
+    virtual                 ~GpTaskScheduler    (void) noexcept = default;
 
-    static GpTaskScheduler&     S                   (void) noexcept {return sInstance.Vn();}
-    static void                 SStart              (const GpTaskSchedulerFactory&  aFactory,
-                                                     size_t                         aExecutorsCount,
-                                                     size_t                         aTasksMaxCount,
-                                                     StopServiceFnT                 aStopServiceFn);
-    static void                 SStopAndClear       (void);
+    static GpTaskScheduler& S                   (void) noexcept {return *sInstance;}
+    static void             SStart              (const GpTaskSchedulerFactory&  aFactory,
+                                                 size_t                         aExecutorsCount,
+                                                 size_t                         aTasksMaxCount);
+    static void             SStop               (void);
 
-    void                        StopService         (void);
+    size_t                  ExecutorsCount      (void) const noexcept {return iExecutorsCount;}
+    size_t                  TasksMaxCount       (void) const noexcept {return iTasksMaxCount;}
 
-    size_t                      ExecutorsCount      (void) const noexcept {return iExecutorsCount;}
-    size_t                      TasksMaxCount       (void) const noexcept {return iTasksMaxCount;}
-
-    [[nodiscard]] GpTask::DoneFutureT::C::Opts::SP
-                                NewToReadyDepend    (GpSP<GpTask> aTaskSP);
+    [[nodiscard]] GpTask::DoneFutureT::SP
+                            RequestStop         (GpTask& aTask);
 
     // Task wait/ready
-    [[nodiscard]] virtual bool  NewToReady          (GpSP<GpTask> aTaskSP) = 0;
-    [[nodiscard]] virtual bool  NewToWaiting        (GpSP<GpTask> aTaskSP) = 0;
-    [[nodiscard]] virtual bool  MakeTaskReady       (GpTaskId   aTaskGuid) = 0;
-    [[nodiscard]] virtual bool  MakeTaskReady       (GpTaskId   aTaskGuid,
-                                                     GpAny      aMessage) = 0;
+    virtual void            SpawnReady          (GpSP<GpTask> aTaskSP) = 0;
+    virtual void            SpawnWaiting        (GpSP<GpTask> aTaskSP) = 0;
+    virtual void            Wakeup              (GpTask& aTask) = 0;
 
-    [[nodiscard]] GpTask::DoneFutureT::C::Opts::SP
-                                RequestStop         (GpTask& aTask);
-    virtual bool                Reschedule          (GpTaskRunRes::EnumT    aRunRes,
-                                                     GpSP<GpTask>&&         aTaskSP) noexcept = 0;
+    // Scheduler
+    virtual bool            Reschedule          (GpTaskRunRes::EnumT    aRunRes,
+                                                 GpSP<GpTask>           aTaskSP,
+                                                 GpMethodAccessGuard<GpTaskExecutor>) = 0;
 
 protected:
-    virtual void                Start               (size_t aExecutorsCount,
-                                                     size_t aTasksMaxCount);
-    virtual void                RequestStopAndJoin  (void) noexcept = 0;
+    GpSpinLockRW<>&         SpinLockRW          (void) const noexcept RETURN_CAPABILITY(iSpinLockRW) {return iSpinLockRW;}
+
+    virtual void            Start               (void) = 0;
+    virtual void            RequestStopAndJoin  (void) = 0;
 
 private:
-    size_t                      iExecutorsCount = 0;
-    size_t                      iTasksMaxCount  = 0;
-    StopServiceFnT              iStopServiceFn;
+    mutable GpSpinLockRW<>      iSpinLockRW;
 
-    static GpTaskScheduler::SP  sInstance;
+    const size_t                iExecutorsCount = 0;
+    const size_t                iTasksMaxCount  = 0;
+
+    static GpTaskScheduler::UP  sInstance;
+    static std::atomic_flag     sRequestStopAndJoinCall;
 };
+
+inline void                                     SPAWN_READY_TASK    (GpSP<GpTask> aTaskSP)  {GpTaskScheduler::S().SpawnReady(std::move(aTaskSP));}
+inline void                                     SPAWN_WAITING_TASK  (GpSP<GpTask> aTaskSP)  {GpTaskScheduler::S().SpawnWaiting(std::move(aTaskSP));}
+inline void                                     WAKEUP_TASK         (GpTask& aTask) {GpTaskScheduler::S().Wakeup(aTask);}
+[[nodiscard]] inline GpTask::DoneFutureT::SP    STOP_TASK           (GpTask& aTask) {return GpTaskScheduler::S().RequestStop(aTask);}
 
 }// namespace GPlatform
 

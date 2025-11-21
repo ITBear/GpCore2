@@ -1,12 +1,5 @@
 #pragma once
 
-#include <GpCore2/GpUtils/GpUtils_global.hpp>
-#include <GpCore2/GpUtils/Other/GpLinkedLibsInfo.hpp>
+#include <GpCore2/GpUtils/Other/GpStaticInitializer.hpp>
 
-#include <iostream>
-
-namespace GPlatform {
-
-GP_DECLARE_LIB_REGISTRATOR(GpUtilsLib)
-
-}// namespace GPlatform
+GP_STATIC_INITIALIZER(GP_UTILS_API, GpUtils)

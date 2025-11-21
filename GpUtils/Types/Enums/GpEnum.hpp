@@ -9,7 +9,6 @@
 #include <GpCore2/GpUtils/Types/Strings/GpStringLiterals.hpp>
 
 #include <bit>
-#include <initializer_list>
 
 namespace GPlatform {
 
@@ -24,9 +23,9 @@ public:
     using NamesListT    = typename GpEnumFlags::NamesListT;
 
 protected:
-                                GpEnum              (void) noexcept:iId(value_type()) {}
-    explicit                    GpEnum              (value_type aId) noexcept:iId(aId) {}
-                                GpEnum              (const GpEnum& aEnum) noexcept:iId(aEnum.iId) {}
+                                GpEnum              (void) noexcept:iId{value_type()} {}
+    explicit                    GpEnum              (value_type aId) noexcept:iId{aId} {}
+                                GpEnum              (const GpEnum& aEnum) noexcept:iId{aEnum.iId} {}
 
 public:
     virtual                     ~GpEnum             (void) noexcept = default;
@@ -65,7 +64,7 @@ private:
                                                      std::string_view   aEnumName,
                                                      std::string_view   aEnumElementsStr);
 private:
-    value_type                  iId;
+    value_type iId;
 };
 
 #define GP_ENUM(PREFIX, TYPE_NAME, ...) \

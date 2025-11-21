@@ -143,6 +143,7 @@ public:
 
     constexpr void              Clear       (void) noexcept;
     constexpr bool              Empty       (void) const noexcept;
+    constexpr bool              NotEmpty    (void) const noexcept;
     constexpr bool              IsEqual     (const this_type& aSpan) const noexcept;
     constexpr bool              IsEqual     (const this_type&   aSpan,
                                              CompareFnT         aCompareFn) const noexcept;
@@ -348,12 +349,9 @@ private:
     template<typename PtrToT, typename PtrFromT>
     static constexpr size_t     _SCountAs       (size_t aValue) noexcept;
 
-    //void                      _CheckPointers  (pointer    aPtr,
-    //                                           size_t     aCount) const;
-
 protected:
-    pointer     iPtr    = nullptr;
-    size_t      iCount  = 0;
+    pointer iPtr    = nullptr;
+    size_t  iCount  = 0;
 };
 
 template<typename T>
@@ -401,6 +399,12 @@ template<typename T>
 constexpr bool  GpSpan<T>::Empty (void) const noexcept
 {
     return (iPtr == nullptr) || (iCount == 0);
+}
+
+template<typename T>
+constexpr bool  GpSpan<T>::NotEmpty (void) const noexcept
+{
+    return !Empty();
 }
 
 template<typename T>

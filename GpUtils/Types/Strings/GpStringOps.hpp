@@ -6,7 +6,7 @@
 
 #include <GpCore2/GpUtils/Macro/GpMacroClass.hpp>
 #include <GpCore2/GpUtils/Algorithms/GpSplit.hpp>
-#include <GpCore2/GpUtils/Types/Containers/GpBytesArray.hpp>
+#include <GpCore2/GpUtils/Types/Containers/GpByteArray.hpp>
 #include <GpCore2/GpUtils/Types/Strings/GpStringLiterals.hpp>
 #include <GpCore2/Config/IncludeExt/boost_flat_set.hpp>
 
@@ -17,6 +17,10 @@
 #include <set>
 #include <regex>
 
+#if defined(GP_OS_MACOS)
+#   include <CoreFoundation/CoreFoundation.h>
+#endif//#if defined(GP_OS_MACOS)
+
 namespace GPlatform {
 
 class GP_UTILS_API GpStringOps
@@ -24,6 +28,7 @@ class GP_UTILS_API GpStringOps
     CLASS_REMOVE_CTRS_DEFAULT_MOVE_COPY(GpStringOps)
 
 public:
+    // -------------------------------- Split ----------------------------------
     static std::vector<std::string_view>    SSplitExt           (std::string_view   aSourceStr,
                                                                  char               aDelim,
                                                                  size_t             aReturnPartsCountLimit,
@@ -43,6 +48,8 @@ public:
     static inline void                      SSplitAndProcess    (std::string_view                                   aSourceStr,
                                                                  char                                               aSplitChar,
                                                                  const std::function<bool(std::string_view aPart)>& aFn);
+    static std::tuple<std::string_view/*line*/, std::string_view/*remaining str*/>
+                                            SReadLine           (std::string_view aStr);
 
     static inline std::string_view          SFromChar           (const char* aStrPtr);
 
@@ -92,6 +99,19 @@ public:
     static std::variant<s_int_64, double>   SToNumeric          (std::string_view                               aStr,
                                                                  std::optional<std::reference_wrapper<size_t>>  aReadCountOut = std::nullopt);
 
+    // ------------------------- Replace --------------------------
+    static std::string                      SReplaceFirst       (std::string_view aSrc,
+                                                                 std::string_view aFrom,
+                                                                 std::string_view aTo);
+
+    static void                             SReplaceFirstInPlace(std::string&       aSrcOut,
+                                                                 std::string_view   aFrom,
+                                                                 std::string_view   aTo);
+
+    static std::string                      SReplaceAll         (std::string_view   aSrc,
+                                                                 std::string_view   aFrom,
+                                                                 std::string_view   aTo);
+
     // ------------------------- Bytes from/to string --------------------------
     static size_t                           SFromBytesHex       (GpSpanByteR    aData,
                                                                  GpSpanCharRW   aStrOut);
@@ -100,7 +120,7 @@ public:
 
     static size_t                           SToBytesHex         (std::string_view   aStr,
                                                                  GpSpanByteRW       aDataOut);
-    static GpBytesArray                     SToBytesHex         (std::string_view   aStr);
+    static GpByteArray                      SToBytesHex         (std::string_view   aStr);
     static constexpr u_int_8                SToByteHex          (std::array<char, 2>aStr);
 
     // ------------------------- Encode/Escape --------------------------
@@ -132,6 +152,10 @@ public:
                                                                  boost::container::small_vector<std::tuple<char, char>, 8>  aRanges) noexcept;
     static bool                             SContainsOnlySet    (std::string_view                           aStr,
                                                                  boost::container::small_flat_set<char, 64> aSet) noexcept;
+
+#if defined(GP_OS_MACOS)
+    static std::string                      SToStdString        (CFStringRef& aCFStringRef);
+#endif//#if defined(GP_OS_MACOS)
 
 private:
     static void                             _SFromUI64          (u_int_64       aValue,
@@ -440,7 +464,7 @@ inline ::std::string    to_string (const ::GPlatform::GpSpanByteR& aValue)
     return ::GPlatform::StrOps::SFromBytesHex(aValue);
 }
 
-inline ::std::string    to_string (const ::GPlatform::GpBytesArray& aValue)
+inline ::std::string    to_string (const ::GPlatform::GpByteArray& aValue)
 {
     return ::GPlatform::StrOps::SFromBytesHex(aValue);
 }

@@ -19,35 +19,36 @@ GpGlobalStructCatalogC& GpGlobalStructCatalogC::S (void)
 
 void    GpGlobalStructCatalogC::Clear (void) noexcept
 {
-    sInstance.Clear();
+    iCatalog.Clear();
 }
 
 void    GpGlobalStructCatalogC::Register
 (
     std::string aKey,
-    GpAny       aValue
+    GpAny&&     aValue
 )
 {
-    sInstance.Set
+    iCatalog.Set
     (
         std::move(aKey),
-        std::move(aValue)
+        GpCSP<GpAny>::SNew(std::move(aValue))
     );
 }
 
-GpAny   GpGlobalStructCatalogC::Unregister (std::string_view aKey)
+void    GpGlobalStructCatalogC::Unregister (std::string_view aKey)
 {
-    return sInstance.Erase(aKey);
+    iCatalog.Erase(aKey);
 }
 
-const GpAny GpGlobalStructCatalogC::Find (std::string_view aKey) const
+GpCSP<GpAny>    GpGlobalStructCatalogC::Find (std::string_view aKey) const
 {
-    return sInstance.Find(aKey);
-}
-
-std::optional<const GpAny>  GpGlobalStructCatalogC::FindOpt (std::string_view aKey) const
-{
-    return sInstance.FindOpt(aKey);
+    try
+    {
+        return iCatalog.Find(aKey);
+    } catch (...)
+    {
+        return nullptr;
+    }
 }
 
 }// namespace GPlatform

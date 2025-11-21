@@ -10,6 +10,7 @@
 
 namespace GPlatform {
 
+/*
 TAG_REGISTER(GpItcCacheMap)
 
 template<typename ContainerT>
@@ -161,7 +162,7 @@ public:
                                                      KeyLockMode                    aKeyLockMode = KeyLockMode::USE_KEY_LOCK);
 
 private:
-    mutable GpItcLockRW     iItcLockRW;
+    mutable GpItcLockRW<>   iItcLockRW;
     ContainerT              iContainer      GUARDED_BY(iItcLockRW);
     KeyBasedLocksT          iKeyBasedLocks;
     const size_t            iMaxSize        GUARDED_BY(iItcLockRW) = 0;
@@ -188,7 +189,7 @@ GpItcCacheMap<ContainerT>::~GpItcCacheMap (void) noexcept
 template<typename ContainerT>
 size_t  GpItcCacheMap<ContainerT>::Size (void) const noexcept
 {
-    GpSharedLock<GpItcLockRW> sharedLock{iItcLockRW};
+    GpSharedLock sharedLock{iItcLockRW};
 
     return std::size(iContainer);
 }
@@ -202,7 +203,7 @@ size_t  GpItcCacheMap<ContainerT>::MaxSize (void) const noexcept
 template<typename ContainerT>
 bool    GpItcCacheMap<ContainerT>::Empty (void) const noexcept
 {
-    GpSharedLock<GpItcLockRW> sharedLock{iItcLockRW};
+    GpSharedLock sharedLock{iItcLockRW};
 
     return iContainer.empty();
 }
@@ -210,7 +211,7 @@ bool    GpItcCacheMap<ContainerT>::Empty (void) const noexcept
 template<typename ContainerT>
 void    GpItcCacheMap<ContainerT>::Clear (void) noexcept
 {
-    GpUniqueLock<GpItcLockRW> uniqueLock{iItcLockRW};
+    GpUniqueLock uniqueLock{iItcLockRW};
 
     return iContainer.clear();
 }
@@ -238,7 +239,7 @@ bool    GpItcCacheMap<ContainerT>::Erase
 )
 {
     UniqueKeyLock               uniqueLockForKey{key_type{aKey}, aKeyLockMode, iKeyBasedLocks};
-    GpUniqueLock<GpItcLockRW>   uniqueLock{iItcLockRW};
+    GpUniqueLock    uniqueLock{iItcLockRW};
 
     return iContainer.erase(aKey) > 0;
 }
@@ -268,7 +269,7 @@ R   GpItcCacheMap<ContainerT>::Find
     const TransformFnT<R>&  aTransform
 )
 {
-    GpSharedLock<GpItcLockRW> sharedLock{iItcLockRW};
+    GpSharedLock sharedLock{iItcLockRW};
 
     auto iter = iContainer.find(aKey);
 
@@ -313,7 +314,7 @@ std::optional<R>    GpItcCacheMap<ContainerT>::FindOpt
     const TransformFnT<R>&  aTransform
 )
 {
-    GpSharedLock<GpItcLockRW> sharedLock{iItcLockRW};
+    GpSharedLock sharedLock{iItcLockRW};
 
     auto iter = iContainer.find(aKey);
 
@@ -371,7 +372,7 @@ auto    GpItcCacheMap<ContainerT>::FindOrGenerate
 {
     // Search cache with shared lock
     {
-        GpSharedLock<GpItcLockRW> sharedLock{iItcLockRW};
+        GpSharedLock sharedLock{iItcLockRW};
 
         // Search the cache
         auto iter = iContainer.find(aKey);
@@ -397,7 +398,7 @@ auto    GpItcCacheMap<ContainerT>::FindOrGenerate
     // Insert into cache (unique lock)
     {
         UniqueKeyLock               uniqueLockForKey{key_type{aKey}, aKeyLockMode, iKeyBasedLocks};
-        GpUniqueLock<GpItcLockRW>   uniqueLock{iItcLockRW};
+        GpUniqueLock    uniqueLock{iItcLockRW};
 
         // Search in cache
         auto iter = iContainer.find(aKey);
@@ -549,7 +550,7 @@ auto    GpItcCacheMap<ContainerT>::Set
             aKeyLockMode
         )
     );
-}
+}*/
 
 }// namespace GPlatform
 
